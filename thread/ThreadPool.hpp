@@ -1,0 +1,264 @@
+#ifndef GENERIC_THREAD_THREADPOOL
+#define GENERIC_THREAD_THREADPOOL
+#include <boost/lockfree/queue.hpp>
+#include <functional>
+#include <future>
+#include <atomic>
+#include <thread>
+#include <vector>
+namespace generic{
+namespace thread {
+class FunctionWrapper
+{
+    struct ImplBase{
+        virtual void Call() = 0;
+        virtual ~ImplBase(){}
+    };
+
+    template <typename Func>
+    struct ImplType : ImplBase
+    {
+        Func fun;
+        ImplType(Func && _fun) : fun(std::move(_fun)) {}
+        void Call() { fun(); }
+    };
+
+public:
+    FunctionWrapper() = default;
+    FunctionWrapper(FunctionWrapper & other) = delete;
+    FunctionWrapper(const FunctionWrapper & other) = delete;
+    FunctionWrapper & operator= (const FunctionWrapper & other) = delete;
+
+    FunctionWrapper(FunctionWrapper && other) : m_impl(std::move(other.m_impl)) {}
+    FunctionWrapper & operator= (FunctionWrapper && other) { m_impl = std::move(other.m_impl); return *this; }
+    
+    template <typename F>
+    FunctionWrapper(F && f) : m_impl(new ImplType<F>(std::move(f))) {}
+
+    void operator()() { m_impl->Call(); }
+
+private:
+    std::unique_ptr<ImplBase> m_impl;
+};
+
+class ThreadJoiner
+{
+public:
+    explicit ThreadJoiner(std::vector<std::unique_ptr<std::thread> > & threads) : m_threads(threads){}
+    ~ThreadJoiner()
+    {
+        Join();
+    }
+
+    void Join()
+    {
+        for(size_t i = 0; i < m_threads.size(); ++i){
+            if(m_threads[i]->joinable())
+                m_threads[i]->join();
+        }
+    }
+
+private:
+    std::vector<std::unique_ptr<std::thread> > & m_threads;
+};
+
+inline static constexpr size_t defaultThreadPoolQueueSize = 100;
+class ThreadPool
+{
+    using Task = std::function<void()>;
+    using PoolQueue = boost::lockfree::queue<Task * >;
+public:
+    ThreadPool();
+    ThreadPool(size_t threads, size_t queueSize = defaultThreadPoolQueueSize);
+    ThreadPool(ThreadPool & other) = delete;
+    ThreadPool(const ThreadPool & other) = delete;
+    ~ThreadPool();
+
+    ThreadPool & operator= (const ThreadPool & pool) = delete;
+
+    size_t Threads() const { return m_threads.size(); }
+    size_t IdleThreads() const { return m_nWait.load(); }
+    bool isEmpty() const { return m_queue.empty(); }
+    std::thread & GetThread(size_t i) { return *(m_threads[i]); }
+    void Resize(size_t tryThreads);
+    template <typename FunctionType>
+    std::future<typename std::result_of<FunctionType() >::type>
+    Submit(FunctionType && f);
+
+    Task PopTask();
+    void Wait();
+    void Stop();
+    void EmptyQueue();
+    static size_t AvailableThreads(size_t tryThreads);
+
+private:
+    void Init_(size_t threads);
+    void SetThread_(size_t thread);
+
+private:
+    std::vector<std::unique_ptr<std::thread> > m_threads;
+    std::vector<std::shared_ptr<std::atomic_bool> > m_flags;
+    mutable PoolQueue m_queue;
+    std::atomic_bool m_bDone;
+    std::atomic_bool m_bStop;
+    std::atomic<size_t> m_nWait;
+    mutable std::mutex m_mutex;
+    std::condition_variable m_cond;
+    ThreadJoiner m_joiner;
+};
+
+inline ThreadPool::ThreadPool()
+ : m_queue(defaultThreadPoolQueueSize), m_joiner(m_threads)
+{
+    Init_(std::thread::hardware_concurrency());
+ }
+
+inline ThreadPool::ThreadPool(size_t threads, size_t queueSize)
+ : m_queue(queueSize), m_joiner(m_threads)
+{
+    Init_(threads);
+}
+
+inline ThreadPool::~ThreadPool()
+{
+    Wait();
+}
+
+inline void ThreadPool::Init_(size_t threads)
+{
+    m_nWait = 0; m_bStop = false; m_bDone = false;
+    Resize(threads);
+}
+
+inline void ThreadPool::Resize(size_t tryThreads)
+{
+    if(tryThreads == 0) tryThreads = std::numeric_limits<size_t>::max();
+    size_t nThreads = AvailableThreads(tryThreads);
+    size_t currThreads = m_threads.size();
+    if(!m_bStop && !m_bDone){
+        if(currThreads <= nThreads){
+            m_threads.resize(nThreads);
+            m_flags.resize(nThreads);
+        }
+
+        for(size_t i = currThreads; i < nThreads; ++i){
+            m_flags[i] = std::make_shared<std::atomic_bool>(false);
+            SetThread_(i);
+        }
+    }
+    else{
+        for(size_t i = currThreads - 1; i >= nThreads; --i){
+            *(m_flags[i]) = true;
+            m_threads[i]->detach();
+        }
+        {
+            std::unique_lock<std::mutex> lock(m_mutex);
+            m_cond.notify_all();
+        }
+        m_threads.resize(nThreads);
+        m_flags.resize(nThreads);
+    }
+}
+
+inline void ThreadPool::EmptyQueue()
+{
+    Task * task;
+    while(m_queue.pop(task))
+        delete task;
+}
+
+inline typename ThreadPool::Task
+ThreadPool::PopTask()
+{
+    Task * t = nullptr;
+    m_queue.pop(t);
+    std::unique_ptr<Task> task(t);
+
+    Task rt;
+    if(t) rt = *t;
+    return rt;
+}
+
+inline void ThreadPool::SetThread_(size_t thread)
+{
+    std::shared_ptr<std::atomic_bool> flag(m_flags[thread]);
+    auto f = [this, flag](){
+        std::atomic_bool & bflag = *flag;
+        Task * task;
+        bool bPop = m_queue.pop(task);
+        while(true){
+            while(bPop){
+                std::unique_ptr<Task> t(task);
+                (*task)();
+
+                if(bflag) return;
+                else bPop = m_queue.pop(task);
+            }
+            
+            std::unique_lock<std::mutex> lock(m_mutex);
+            ++m_nWait;
+            m_cond.wait(lock, [this, &task, &bPop, &bflag]()
+            { bPop = m_queue.pop(task); return (bPop || m_bDone || bflag);});
+            --m_nWait;
+
+            if(!bPop) return;
+        }
+    };
+    m_threads[thread].reset(new std::thread(f));
+}
+
+template <typename FunctionType>
+inline std::future<typename std::result_of<FunctionType() >::type>
+ThreadPool::Submit(FunctionType && f)
+{
+    using result_type = typename std::result_of<FunctionType()>::type;
+    auto pkg = std::make_shared<std::packaged_task<result_type()> >(std::forward<FunctionType>(f));
+    auto task = new std::function<void()>([pkg]{(*pkg)();});
+    m_queue.push(task);
+
+    std::unique_lock<std::mutex> lock(m_mutex);
+    m_cond.notify_one();
+    
+    return pkg->get_future();
+}
+
+inline void ThreadPool::Wait()
+{
+    if(m_bDone || m_bStop) return;
+    m_bDone = true;
+    {
+        std::unique_lock<std::mutex> lock(m_mutex);
+        m_cond.notify_all();
+    }
+    m_joiner.Join();
+    EmptyQueue();
+    m_threads.clear();
+    m_flags.clear();
+}
+
+inline void ThreadPool::Stop()
+{
+    if(m_bStop) return;
+    m_bStop = true;
+    for(size_t i = 0; i < m_flags.size(); ++i)
+        *(m_flags[i]) = true;
+    EmptyQueue();
+    {
+        std::unique_lock<std::mutex> lock(m_mutex);
+        m_cond.notify_all();
+    }
+    m_joiner.Join();
+    m_threads.clear();
+    m_flags.clear();
+}
+
+inline size_t ThreadPool::AvailableThreads(size_t tryThreads)
+{
+    size_t currThreads = std::thread::hardware_concurrency();
+    if(tryThreads > currThreads) tryThreads = currThreads;
+    if(tryThreads == 0) tryThreads = 2;
+    return tryThreads;
+}
+}//namespace thread
+}//namespace generic
+#endif//GENERIC_THREAD_THREADPOOL

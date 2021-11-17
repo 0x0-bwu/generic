@@ -1,0 +1,33 @@
+
+import os
+import sys
+from sys import platform
+
+cwd = os.getcwd()
+env = Environment()
+env.Append(CXXFLAGS=[
+    "-g",
+    "-Wall",
+    "-w",
+    "-std=c++17",
+    "-lpthread"
+])
+
+env.Append(CPPPATH=[
+    cwd
+])
+
+program_name ='./build/UnitTest.exe'
+
+source_files = [
+    './test/UnitTest.cpp'
+]
+
+libs_name = [
+    'pthread'
+]
+
+libs_path = [
+]
+
+env.Program(program_name,source_files,LIBS=libs_name,LIBPATH=libs_path)

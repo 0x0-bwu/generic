@@ -1,0 +1,138 @@
+#ifndef GENERIC_GEOMETRY_TOPOLOGY_HPP
+#define GENERIC_GEOMETRY_TOPOLOGY_HPP
+#include "topology/IndexGraph.hpp"
+#include "Geometries.hpp"
+#include <fstream>
+#include <string>
+namespace generic  {
+namespace geometry {
+using namespace generic::topology;
+template <typename num_type>
+class GeoTopology2D
+{
+    using Point = Point2D<num_type>;
+    using Connection = SparseIndexGraph;
+
+public:
+    void AddGeometry(const Polygon2D<num_type> & polygon);
+    void AddGeometry(const PolygonWithHoles2D<num_type> & pwh);
+
+    const std::vector<Point> & GetAllPoints() const { return m_points; }
+    void GetAllEdges(std::list<std::pair<size_t, size_t> > & edges) const;
+
+    bool Read(const std::string & file, std::string * err = nullptr);
+    bool Write(const std::string & file, std::string * err = nullptr) const;
+
+    void Clear();
+private:
+    std::vector<Point> m_points;
+    Connection m_connection;
+};
+
+template <typename num_type>
+inline void GeoTopology2D<num_type>::AddGeometry(const Polygon2D<num_type> & polygon)
+{
+    size_t size = polygon.Size();
+    size_t offset = m_points.size();
+    m_points.resize(size + offset);
+    auto iter = polygon.ConstBegin();
+    for(size_t i = 0; i < size; ++i){
+        size_t j = (i + 1) % size;
+        m_points[i + offset] = polygon[i];
+        AddEdge(i + offset, j + offset, m_connection);
+    }
+}
+
+template <typename num_type>
+inline void GeoTopology2D<num_type>::AddGeometry(const PolygonWithHoles2D<num_type> & pwh)
+{
+    AddGeometry(pwh.outline);
+    for(const auto & hole : pwh.holes)
+        AddGeometry(hole);
+}
+
+template <typename num_type>
+inline void GeoTopology2D<num_type>::GetAllEdges(std::list<std::pair<size_t, size_t> > & edges) const
+{
+    edges.clear();
+    auto iters = topology::Edges(m_connection);
+    for(auto iter = iters.first; iter != iters.second; ++iter){
+        auto edge = std::make_pair(Source(*iter, m_connection), Target(*iter, m_connection));
+        edges.emplace_back(std::move(edge));
+    }
+}
+
+template <typename num_type>
+inline bool GeoTopology2D<num_type>::Read(const std::string & file, std::string * err)
+{
+    std::ifstream in(file);
+    if(!in.is_open()) {
+        if(err) *err = "Error: fail to open: " + file;
+        return false;
+    }
+
+    Clear();
+    char temp;
+    size_t size;
+    while(!in.eof()){
+        if(in.peek() == 'P'){
+            in >> temp >> size;
+            m_points.resize(size);
+            for(size_t i = 0; i < size; ++i){
+                in >> m_points[i][0] >> m_points[i][1];
+            }
+        }
+        else if(in.peek() == 'E'){
+            in >> temp >> size;
+            size_t u, v;
+            for(size_t i = 0; i < size; ++i){
+                in >> u >> v;
+                AddEdge(u, v, m_connection);
+            }
+        }
+        else{
+            std::string tmp;
+            std::getline(in, tmp);
+        }
+    }
+
+    in.close();
+    return true;
+}
+
+template <typename num_type>
+inline bool GeoTopology2D<num_type>::Write(const std::string & file, std::string * err) const
+{
+    std::ofstream out(file);
+    if(!out.is_open()){
+        if(err) *err = "Error: fail to open: " + file;
+        return false;
+    }
+
+    char sp(32);
+    out << "P" << sp << m_points.size() << std::endl;
+    for(const auto & p : m_points){
+        out << p[0] << sp << p[1] << std::endl;
+    }
+    out << std::endl;
+
+    std::list<std::pair<size_t, size_t> > edges;
+    GetAllEdges(edges);
+    
+    out << "E" << sp << edges.size() << std::endl;
+    for(const auto & e : edges){
+        out << e.first << sp << e.second << std::endl;
+    }
+    out.close();
+    return true;
+}
+
+template <typename num_type>
+inline void GeoTopology2D<num_type>::Clear()
+{
+    m_points.clear();
+    m_connection.clear();
+}
+}//namespace geometry
+}//namespace generic
+#endif//GENERIC_GEOMETRY_TOPOLOGP_HPP
