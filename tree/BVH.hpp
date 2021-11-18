@@ -1,10 +1,10 @@
 #ifndef GENERIC_TREE_BVH_BVH_HPP
 #define GENERIC_TREE_BVH_BVH_HPP
-#include "common/Traits.hpp"
-#include "geometry/Box.hpp"
-#include "geometry/Vector.hpp"
-#include "geometry/Triangle.hpp"
-#include "geometry/Utility.hpp"
+#include "generic/common/Traits.hpp"
+#include "generic/geometry/Box.hpp"
+#include "generic/geometry/Vector.hpp"
+#include "generic/geometry/Triangle.hpp"
+#include "generic/geometry/Utility.hpp"
 #include "Builder.hpp"
 #include <algorithm>
 #include <cassert>

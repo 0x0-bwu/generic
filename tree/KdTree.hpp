@@ -1,8 +1,8 @@
 #ifndef GENERIC_TREE_KDTREE_HPP
 #define GENERIC_TREE_KDTREE_HPP
-#include "math/MathUtility.hpp"
-#include "geometry/Vector.hpp"
-#include "common/Traits.hpp"
+#include "generic/math/MathUtility.hpp"
+#include "generic/geometry/Vector.hpp"
+#include "generic/common/Traits.hpp"
 #include "Builder.hpp"
 #include <unordered_set>
 #include <algorithm>

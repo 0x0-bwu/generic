@@ -1,7 +1,7 @@
 #ifndef GENERIC_TOPOLOGY_INDEXGRAPH_HPP
 #define GENERIC_TOPOLOGY_INDEXGRAPH_HPP
-#include "common/Exception.hpp"
-#include "common/Archive.hpp"
+#include "generic/common/Exception.hpp"
+#include "generic/common/Archive.hpp"
 #include "Common.hpp"
 #include <boost/graph/connected_components.hpp>
 #include <boost/graph/breadth_first_search.hpp>

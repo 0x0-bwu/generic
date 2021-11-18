@@ -1,7 +1,7 @@
 #ifndef GENERIC_MATH_LINEARALGEBRA_HPP
 #define GENERIC_MATH_LINEARALGEBRA_HPP
-#include "common/Traits.hpp"
-#include "common/Version.hpp"
+#include "generic/common/Traits.hpp"
+#include "generic/common/Version.hpp"
 #include "MathUtility.hpp"
 #include <boost/numeric/ublas/vector.hpp>
 #include <boost/numeric/ublas/matrix.hpp>

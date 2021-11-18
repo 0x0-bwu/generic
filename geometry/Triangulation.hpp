@@ -1,8 +1,8 @@
 #ifndef GENERIC_GEOMETRY_TRI_TRIANGULATION_HPP
 #define GENERIC_GEOMETRY_TRI_TRIANGULATION_HPP
-#include "topology/IndexGraph.hpp"
-#include "math/MathUtility.hpp"
-#include "common/Traits.hpp"
+#include "generic/topology/IndexGraph.hpp"
+#include "generic/math/MathUtility.hpp"
+#include "generic/common/Traits.hpp"
 #include "GeometryIO.hpp"
 #include "Utility.hpp"
 #include "Common.hpp"

@@ -1,6 +1,6 @@
 #ifndef GENERIC_GEOMETRY_PLANE_HPP
 #define GENERIC_GEOMETRY_PLANE_HPP
-#include "common/Traits.hpp"
+#include "generic/common/Traits.hpp"
 #include "Point.hpp"
 #include "Vector.hpp"
 namespace generic  {

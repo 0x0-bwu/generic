@@ -1,6 +1,6 @@
 #ifndef GENERIC_GEOMETRY_TET_TETRAHEDRALIZATION_HPP
 #define GENERIC_GEOMETRY_TET_TETRAHEDRALIZATION_HPP
-#include "topology/IndexGraph.hpp"
+#include "generic/topology/IndexGraph.hpp"
 #include "Point.hpp"
 #include <vector>
 #include <array>

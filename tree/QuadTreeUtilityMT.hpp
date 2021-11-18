@@ -1,7 +1,7 @@
 #ifndef GENERIC_TREE_QUADTREEUTILITYMT_HPP
 #define GENERIC_TREE_QUADTREEUTILITYMT_HPP
 #include "QuadTree.hpp"
-#include "thread/ThreadPool.hpp"
+#include "generic/thread/ThreadPool.hpp"
 namespace generic{
 namespace tree
 {

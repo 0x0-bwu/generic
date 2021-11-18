@@ -1,8 +1,8 @@
 #ifndef GENERIC_GEOMETRY_CONNECTIVITY_HPP
 #define GENERIC_GEOMETRY_CONNECTIVITY_HPP
 #include "BoostPolygonRegister.hpp"
-#include "topology/IndexGraph.hpp"
-#include "thread/ThreadPool.hpp"
+#include "generic/topology/IndexGraph.hpp"
+#include "generic/thread/ThreadPool.hpp"
 #include "GeometryTraits.hpp"
 #include <boost/variant.hpp>
 #include <unordered_map>

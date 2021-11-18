@@ -1,6 +1,6 @@
 #ifndef GENERIC_PARSER_HPP
 #define GENERIC_PARSER_HPP
-#include "common/Exception.hpp"
+#include "generic/common/Exception.hpp"
 #include <boost/spirit/include/phoenix.hpp>
 #include <boost/spirit/include/qi.hpp>
 #include <boost/tokenizer.hpp>

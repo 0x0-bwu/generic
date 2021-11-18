@@ -1,7 +1,7 @@
 #ifndef GENERIC_GEOMETRY_TRAPEZOID_HPP
 #define GENERIC_GEOMETRY_TRAPEZOID_HPP
-#include "common/Exception.hpp"
-#include "common/Traits.hpp"
+#include "generic/common/Exception.hpp"
+#include "generic/common/Traits.hpp"
 #include "Common.hpp"
 #include "Point.hpp"
 namespace generic {

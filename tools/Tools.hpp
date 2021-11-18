@@ -1,6 +1,6 @@
 #ifndef GENERIC_TOOLS_HPP
 #define GENERIC_TOOLS_HPP
-#include "common/Macros.hpp"
+#include "generic/common/Macros.hpp"
 #include "Units.hpp"
 
 #if defined(GENERIC_OS_LINUX) || defined(GENERIC_OS_MAC)

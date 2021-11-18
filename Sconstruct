@@ -14,7 +14,7 @@ env.Append(CXXFLAGS=[
 ])
 
 env.Append(CPPPATH=[
-    cwd
+    cwd + "/.."
 ])
 
 program_name ='./build/UnitTest.exe'

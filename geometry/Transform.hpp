@@ -9,7 +9,7 @@
 #include <boost/qvm/quat.hpp>
 #include <boost/qvm/mat.hpp>
 #include <boost/qvm/vec.hpp>
-#include "math/Numbers.hpp"
+#include "generic/math/Numbers.hpp"
 #include "Geometries.hpp"
 #include "Vector.hpp"
 namespace boost {

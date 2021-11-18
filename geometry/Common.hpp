@@ -1,6 +1,6 @@
 #ifndef GENERIC_GEOMETRY_COMMON_HPP
 #define GENERIC_GEOMETRY_COMMON_HPP
-#include "common/Exception.hpp"
+#include "generic/common/Exception.hpp"
 
 namespace generic  {
 namespace geometry {

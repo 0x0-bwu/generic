@@ -1,7 +1,7 @@
 #ifndef GENERIC_GEOMETRY_SERIALIZATION_HPP
 #define GENERIC_GEOMETRY_SERIALIZATION_HPP
 #define GENERIC_GEOMETRY_ARCHIVE_VERSION 1
-#include "common/Archive.hpp"
+#include "generic/common/Archive.hpp"
 #include "Geometries.hpp"
 #include "Common.hpp"
 namespace boost {

@@ -1,6 +1,6 @@
 #ifndef GENERIC_COLOR_HPP
 #define GENERIC_COLOR_HPP
-#include "math/MathUtility.hpp"
+#include "generic/math/MathUtility.hpp"
 namespace generic{
 namespace color {
 

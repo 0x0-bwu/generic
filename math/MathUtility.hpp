@@ -1,6 +1,6 @@
 #ifndef GENERIC_MATH_MATHUTILITY_HPP
 #define GENERIC_MATH_MATHUTILITY_HPP
-#include "common/Traits.hpp"
+#include "generic/common/Traits.hpp"
 #include "Numbers.hpp"
 #include <type_traits>
 #include <algorithm>

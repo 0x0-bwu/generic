@@ -1,6 +1,6 @@
 #ifndef GENERIC_GEOMETRY_POINT_HPP
 #define GENERIC_GEOMETRY_POINT_HPP
-#include "math/MathUtility.hpp"
+#include "generic/math/MathUtility.hpp"
 namespace generic  {
 namespace geometry {
 using std::size_t;

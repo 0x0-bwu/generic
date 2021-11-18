@@ -4,9 +4,9 @@
 #include <boost/test/unit_test.hpp>
 #include <boost/test/test_tools.hpp>
 #include <boost/mpl/list.hpp>
-#include "math/MathUtility.hpp"
-#include "math/LinearAlgebra.hpp"
-#include "math/MathIO.hpp"
+#include "generic/math/MathUtility.hpp"
+#include "generic/math/LinearAlgebra.hpp"
+#include "generic/math/MathIO.hpp"
 using namespace boost::unit_test;
 using namespace generic;
 using namespace generic::math;

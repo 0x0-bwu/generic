@@ -1,8 +1,8 @@
 #ifndef GENERIC_TREE_QUADTREE_HPP
 #define GENERIC_TREE_QUADTREE_HPP
-#include "common/Traits.hpp"
-#include "geometry/Box.hpp"
-#include "geometry/Utility.hpp"
+#include "generic/common/Traits.hpp"
+#include "generic/geometry/Box.hpp"
+#include "generic/geometry/Utility.hpp"
 #include <array>
 #include <list>
 #include <map>

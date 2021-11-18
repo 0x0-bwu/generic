@@ -1,8 +1,8 @@
 #ifndef GENERIC_GEOMETRY_VECTOR_HPP
 #define GENERIC_GEOMETRY_VECTOR_HPP
+#include "generic/math/MathUtility.hpp"
 #include "Common.hpp"
 #include "Point.hpp"
-#include "math/MathUtility.hpp"
 #include <array>
 namespace generic  {
 namespace geometry {

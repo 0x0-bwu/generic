@@ -3,8 +3,8 @@
 #define BOOST_TEST_INCLUDED
 #include <boost/test/unit_test.hpp>
 #include <boost/test/test_tools.hpp>
-#include "tools/ProgramOptions.hpp"
-#include "tools/Parser.hpp"
+#include "generic/tools/ProgramOptions.hpp"
+#include "generic/tools/Parser.hpp"
 using namespace boost::unit_test;
 using namespace generic;
 void t_program_options()

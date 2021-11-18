@@ -2,10 +2,10 @@
 #define GENERIC_GEOMETRY_UTILITY_HPP
 #include "BoostGeometryRegister.hpp"
 #include "BoostPolygonRegister.hpp"
-#include "math/MathUtility.hpp"
-#include "common/Version.hpp"
+#include "generic/math/MathUtility.hpp"
+#include "generic/common/Version.hpp"
+#include "generic/math/Numbers.hpp"
 #include "GeometryTraits.hpp"
-#include "math/Numbers.hpp"
 #include "Trapezoid.hpp"
 #include "Sphere.hpp"
 #include "Plane.hpp"

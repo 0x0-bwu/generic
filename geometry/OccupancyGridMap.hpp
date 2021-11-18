@@ -1,9 +1,9 @@
 #ifndef GENERIC_GEOMETRY_OCCUPANCYGRIDMAP_HPP
 #define GENERIC_GEOMETRY_OCCUPANCYGRIDMAP_HPP
-#include "thread/ThreadPool.hpp"
-#include "math/MathUtility.hpp"
-#include "common/Exception.hpp"
-#include "tools/Tools.hpp"
+#include "generic/thread/ThreadPool.hpp"
+#include "generic/math/MathUtility.hpp"
+#include "generic/common/Exception.hpp"
+#include "generic/tools/Tools.hpp"
 #include "BooleanOperation.hpp"
 #include "Triangulation.hpp"
 #include "Rasterization.hpp"

@@ -1,6 +1,6 @@
 #ifndef GENERIC_TREE_RECTTREE_HPP
 #define GENERIC_TREE_RECTTREE_HPP
-#include "geometry/Box.hpp"
+#include "generic/geometry/Box.hpp"
 #include <boost/geometry.hpp>
 #include <boost/geometry/core/point_type.hpp>
 #include <boost/geometry/geometry.hpp>

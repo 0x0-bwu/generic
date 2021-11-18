@@ -1,6 +1,6 @@
 #ifndef GENERIC_TREE_BUILDERMT_HPP
 #define GENERIC_TREE_BUILDERMT_HPP
-#include "thread/ThreadPool.hpp"
+#include "generic/thread/ThreadPool.hpp"
 #include "Builder.hpp"
 namespace generic{
 namespace tree {

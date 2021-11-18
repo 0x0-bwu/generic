@@ -1,8 +1,8 @@
 #ifndef GENERIC_GEOMETRY_TRI_TRIANGLEEVALUATOR_HPP
 #define GENERIC_GEOMETRY_TRI_TRIANGLEEVALUATOR_HPP
+#include "generic/common/Traits.hpp"
+#include "generic/math/Numbers.hpp"
 #include "Triangulation.hpp"
-#include "common/Traits.hpp"
-#include "math/Numbers.hpp"
 #include "Utility.hpp"
 namespace generic  {
 namespace geometry {

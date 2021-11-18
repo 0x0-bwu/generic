@@ -1,6 +1,6 @@
 #ifndef GENERIC_GEOMETRY_SPHERE_HPP
 #define GENERIC_GEOMETRY_SPHERE_HPP
-#include "math/MathUtility.hpp"
+#include "generic/math/MathUtility.hpp"
 #include "Common.hpp"
 #include "Point.hpp"
 namespace generic {

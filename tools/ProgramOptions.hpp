@@ -1,6 +1,6 @@
 #ifndef GENERIC_PROGRAMOPTIONS_HPP
 #define GENERIC_PROGRAMOPTIONS_HPP
-#include "common/Exception.hpp"
+#include "generic/common/Exception.hpp"
 #include <type_traits>
 #include <utility>
 #include <sstream>

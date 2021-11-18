@@ -3,7 +3,7 @@
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/banded.hpp>
 #include <boost/numeric/ublas/lu.hpp>
-#include "common/Traits.hpp"
+#include "generic/common/Traits.hpp"
 #include "MathUtility.hpp"
 #include <vector>
 namespace generic {

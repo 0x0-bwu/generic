@@ -1,6 +1,6 @@
 #ifndef GENERIC_GEOMETRY_SEGMENT_HPP
 #define GENERIC_GEOMETRY_SEGMENT_HPP
-#include "common/Traits.hpp"
+#include "generic/common/Traits.hpp"
 #include "Point.hpp"
 #include <cmath>
 namespace generic  {

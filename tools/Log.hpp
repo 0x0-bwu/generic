@@ -1,6 +1,6 @@
 #ifndef GENERIC_LOG_HPP
 #define GENERIC_LOG_HPP
-#include "common/Exception.hpp"
+#include "generic/common/Exception.hpp"
 #include "FileSystem.hpp"
 #include "Format.hpp"
 #include "Tools.hpp"

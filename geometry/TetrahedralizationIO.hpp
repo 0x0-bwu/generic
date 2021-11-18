@@ -1,7 +1,7 @@
 #ifndef GENERIC_GEOMETRY_TET_TETRAHEDRALIZATIONIO_HPP
 #define GENERIC_GEOMETRY_TET_TETRAHEDRALIZATIONIO_HPP
+#include "generic/tools/Parser.hpp"
 #include "Tetrahedralization.hpp"
-#include "tools/Parser.hpp"
 namespace generic {
 namespace geometry {
 namespace tet {

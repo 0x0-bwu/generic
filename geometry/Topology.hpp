@@ -1,6 +1,6 @@
 #ifndef GENERIC_GEOMETRY_TOPOLOGY_HPP
 #define GENERIC_GEOMETRY_TOPOLOGY_HPP
-#include "topology/IndexGraph.hpp"
+#include "generic/topology/IndexGraph.hpp"
 #include "Geometries.hpp"
 #include <fstream>
 #include <string>
