@@ -1,6 +1,6 @@
 #ifndef GENERIC_GEOMETRY_RASTERIZATION_HPP
 #define GENERIC_GEOMETRY_RASTERIZATION_HPP
-#include "common/Exception.hpp"
+#include "generic/common/Exception.hpp"
 #include "Geometries.hpp"
 #include <vector>
 #include <array>
