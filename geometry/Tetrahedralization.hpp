@@ -37,6 +37,13 @@ void PiecewiseLinearComplex<point_t>::Clear()
     surfaces.clear();
 }
 
+struct IndexVertex;
+struct IndexTetrahedron;
+using index_t = topology::index_t;
+using PosIdx = index_t;
+using VerIdx = index_t;
+using TetIdx = index_t;
+
 }//namespace tet
 }//namespace geometry
 }//namespace generic
