@@ -1,5 +1,6 @@
 #ifndef GENERIC_GEOMETRY_TET_TETRAHEDRALIZATIONIO_HPP
 #define GENERIC_GEOMETRY_TET_TETRAHEDRALIZATIONIO_HPP
+#include "generic/common/Traits.hpp"
 #include "generic/tools/Parser.hpp"
 #include "Tetrahedralization.hpp"
 namespace generic {
@@ -430,6 +431,45 @@ bool LoadElementsFromEleFile(const std::string & filename, std::vector<element_t
 
     size_t line = 0;
     return LoadElesFromFile<element_t, start_index>(in, line, elements, err);
+}
+
+template <typename point_t>
+bool WriteVtkFile(const std::string & filename, const Tetrahedralization<point_t> & t, std::string * err = nullptr)
+{
+    std::ofstream out(filename);
+    if(!out.is_open()){
+        if(err) *err = "Error: fail to open: " + filename;
+        return false;
+    }
+
+    char sp(32);
+    out << "# vtk DataFile Version 2.0" << std::endl;
+    out << "Unstructured Grid" << std::endl;
+    out << "ASCII" << std::endl;
+    out << "DATASET UNSTRUCTURED_GRID" << std::endl;
+    out << "POINTS" << sp << t.points.size() << sp << common::toString<typename point_t::coor_t>() << std::endl;
+    for(const auto & point : t.points){
+        out << point[0] << sp << point[1] << sp << point[2] << std::endl;
+    }
+
+    out << std::endl; 
+    out << "CELLS" << sp << t.tetrahedrons.size() << sp << t.tetrahedrons.size() * 5 << std::endl;
+    for(const auto & tetrahedron : t.tetrahedrons){
+        out << '4';
+        for(size_t i = 0; i < 4; ++i){
+            out << sp << tetrahedron.vertices[i];
+        }
+        out << std::endl; 
+    }
+    out << std::endl;
+
+    out << "CELL_TYPES" << sp << t.tetrahedrons.size() << std::endl;
+    for(const auto & tetrahedron : t.tetrahedrons){
+        out << "10" << std::endl;
+    }
+
+    out.close();
+    return true;
 }
 
 }//namespace tet
