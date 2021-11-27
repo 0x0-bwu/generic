@@ -12,7 +12,7 @@
 #ifdef BOOST_GIL_IO_PNG_SUPPORT
 #include "Rasterization.hpp"
 #include "Utility.hpp"
-#include "tools/Color.hpp"
+#include "generic/tools/Color.hpp"
 #include <boost/gil/extension/io/png.hpp>
 #include <boost/gil.hpp>
 #include <png.h>
