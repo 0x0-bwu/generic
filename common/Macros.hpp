@@ -3,6 +3,7 @@
 #include "Version.hpp"
 
 #define BOOST_SERIALIZATION_SUPPORT
+#define BOOST_FILESYSTEM_SUPPORT
 // #define BOOST_GIL_IO_PNG_SUPPORT
 // #define GENERIC_NO_EXCEPTION
 // #define GENERIC_NO_ASSERT
