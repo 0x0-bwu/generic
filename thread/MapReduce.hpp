@@ -5,6 +5,7 @@
 #include <boost/iterator/iterator_facade.hpp>
 #include <boost/core/noncopyable.hpp>
 #include <boost/functional/hash.hpp>
+#include <iostream>
 #include <fstream>
 #include <chrono>
 #include <vector>
@@ -26,6 +27,9 @@ struct Specification
 {
     size_t mapTasks = 0;    // ideal number of map tasks to use
     size_t reduceTasks = 1; // ideal number of reduce tasks to use
+    std::string outputFileSpec = "mapreduce_";
+    std::string inputFilesDir = "";
+    std::streamsize maxFileSegments = 1048576L;
 
     Specification() {}
 };
@@ -45,6 +49,7 @@ struct Results
         size_t reduceKeyErrors = 0;
         size_t reduceKeysCompleted = 0;
 
+        size_t numResultFiles = 0;
         TagCounters(){}
     };
 
@@ -74,6 +79,12 @@ struct ReduceTask
     using Value = ValueType;
 };
 
+struct NullLocker
+{
+    void lock(){}
+    void unlock(){}
+};
+
 struct NullCombiner
 {
     template <typename IntermediateStore>
@@ -90,9 +101,9 @@ struct NullCombiner
 };
 
 namespace datasource {
-namespace detail {
+
 template <typename Key, typename Value>
-class FileHandler : private boost::nocopyable
+class FileHandler
 {
 public:
     FileHandler(const Specification & spec);
@@ -108,7 +119,7 @@ private:
 };
 
 template <>
-inline struct FileHandler<std::string, std::ifstream>::Data {};
+struct FileHandler<std::string, std::ifstream>::Data {};
 
 template <>
 inline FileHandler<std::string, std::ifstream>::FileHandler(const Specification & spec)
@@ -123,10 +134,9 @@ inline bool FileHandler<std::string, std::ifstream>::GetData(const std::string &
     value.open(key.c_str(), std::ios_base::binary);
     return value.is_open();
 }
-}//namespace detail
 
 template <typename MapTask,
-          typename Handle = detail::FileHandle<typename MapTask::Key, typename MapTask::Value> >
+          typename Handle = FileHandler<typename MapTask::Key, typename MapTask::Value> >
 class DirectoryIterator : private boost::noncopyable
 {
 public:
@@ -168,7 +178,7 @@ public:
 
 template <typename MapTask, typename ReduceTask,
           typename KeyType = typename ReduceTask::Key,
-          typename PartitionFunc = HashPartitioner,
+          typename Partitioner = HashPartitioner,
           typename KeyCompare = std::less<typename ReduceTask::Key>,
           typename StoreResultType = ReduceNullOutput<MapTask, ReduceTask> >
 class InMemory : private boost::noncopyable
@@ -244,7 +254,7 @@ public:
         void set_current()
         {
             for(m_current.first = 0;
-                m_current.first < m_outer->m_partitions && m_iterators[m_current.first] == m_outer->m_intermediates[m_current.first].end());
+                m_current.first < m_outer->m_partitions && m_iterators[m_current.first] == m_outer->m_intermediates[m_current.first].end();
                 ++m_current.first){}
             
             for(auto loop = m_current.first + 1; loop < m_outer->m_partitions; ++loop){
@@ -289,17 +299,87 @@ public:
 
     void Swap(InMemory & other)
     {
-        swap(m_intermediates, other.m_intermediates);
+        std::swap(m_intermediates, other.m_intermediates);
     }
 
     void RunIntermediateResultsShuffle(size_t)
     {
     }
-    //todo
 
+    template <typename Callback>
+    void Reduce(size_t partition, Callback & callback)
+    {
+        typename Intermediates::value_type map;
+        std::swap(map, m_intermediates[partition]);
+
+        for(const auto & result : map)
+            callback(result.first, result.second.cbegin(), result.second.cend());
+    }
+
+    void MergeFrom(size_t partition, InMemory & other)
+    {
+        auto & thisMap = m_intermediates[partition];
+        auto & otherMap = other.m_intermediates[partition];
+        if(thisMap.size() == 0){
+            std::swap(thisMap, otherMap);
+            return;
+        }
+
+        using MappedType = typename Intermediates::value_type::mapped_type;
+        for(const auto & result : otherMap){
+            auto iter = thisMap.insert(std::make_pair(result.first, MappedType())).first;
+            std::copy(result.second.cbegin(), result.second.cend(), std::back_inserter(iter->second));
+        }
+    }
+
+    void MergeFrom(InMemory & other)
+    {
+        for(size_t i = 0; i < m_partitions; ++i)
+            MergeFrom(i, other);
+        other.m_intermediates.clear();
+    }
+
+    template <typename T>
+    bool Insert(const Key & key, const Value & value, T & storeResult)
+    {
+        return storeResult(key, value) && Insert(key, value);
+    }
+
+    bool Insert(const Key & key, const Value & value)
+    {
+        size_t partition = (m_partitions == 1) ? 0 : m_partitioner(key, m_partitions);
+        auto & map = m_intermediates[partition];
+
+        using MappedType = typename Intermediates::value_type::mapped_type;
+        auto tmp = std::make_pair(key, MappedType());
+        map.insert(std::move(tmp)).first->second.push_back(value);
+        return true;
+    }
+
+    template <typename FnObj>
+    void Combine(FnObj & fnObj)
+    {
+        Intermediates intermediates;
+        intermediates.resize(m_partitions);
+        std::swap(m_intermediates, intermediates);
+
+        for(const auto & intermediate : intermediates){
+            for(const auto & kv : intermediate){
+                fnObj.Start(kv.first);
+                for(const auto & value : kv.second)
+                    fnObj(value);
+                fnObj.Finish(kv.first, *this);
+            }
+        }
+    }
+
+    void Combine(NullCombiner &)
+    {
+    }
 
 private:
     const size_t m_partitions;
+    Partitioner m_partitioner;
     Intermediates m_intermediates;
 };
 
@@ -319,17 +399,193 @@ public:
     using DataSource = DataSourceType;
     using Combiner = CombinerType;
     using IntermediateStore = IntermediateStoreType;
+    using StoreResult = StoreResultType;
+    using KeyValuePair = typename IntermediateStore::KeyValuePair;
+    using ConstResultIterator = typename IntermediateStore::ConstResultIterator;
+
 private:
     class MapTaskRunner : private boost::noncopyable
     {
     public:
+        MapTaskRunner(Job & job)
+         : m_job(job)
+         , m_store(job.NumOfPartitions())
+        {
+        }
 
+        MapTaskRunner & operator() (const typename MapTask::Key & key, typename MapTask::Value & value)
+        {
+            MapTask()(*this, key, value);
+
+            Combiner combiner;
+            m_store.Combine(combiner);
+
+            return *this;
+        }
+
+        template <typename T>
+        bool EmitIntermediate(const T & key, const typename ReduceTask::Value & value)
+        {
+            return m_store.Insert(key, value);
+        }
+
+        IntermediateStore & GetIntermediateStore()
+        {
+            return m_store;
+        }
+
+    private:
+        Job & m_job;
+        IntermediateStore m_store;
+    };
+
+    class ReduceTaskRunner : private boost::noncopyable
+    {
+    public:
+        ReduceTaskRunner(std::string outputFileSpec,
+                         size_t partition, size_t partitions,
+                         IntermediateStore & store, Results & results)
+         : m_partition(partition)
+         , m_results(results)
+         , m_store(store)
+         , m_storeResult(outputFileSpec, partition, partitions)
+        {
+        }
+
+        void Reduce()
+        {
+            m_store.Reduce(m_partition, *this);
+        }
+
+        void Emit(const typename ReduceTask::Key & key, const typename ReduceTask::Value & value)
+        {
+            m_store.Insert(key, value, m_storeResult);
+        }
+
+        template <typename Iterator>
+        void operator() (const typename ReduceTask::Key & key, Iterator begin, Iterator end)
+        {
+            ++m_results.counters.reduceKeysExecuted;
+            ReduceTask()(*this, key, begin, end);
+            ++m_results.counters.reduceKeysCompleted;
+        }
+
+    private:
+        size_t m_partition;
+        Results & m_results;
+        IntermediateStore & m_store;
+        StoreResult m_storeResult;
     };
 
 public:
-    
-}
+    Job(DataSource & source, const Specification & spec)
+     : m_source(source)
+     , m_spec(spec)
+     , m_store(IntermediateStore(spec.reduceTasks))
+    {
+    }
 
+    ConstResultIterator BeginResults() const
+    {
+        return m_store.BeginResults();
+    }
+
+    ConstResultIterator EndResults() const
+    {
+        return m_store.EndResults();
+    }
+
+    bool GetNextMapKey(typename MapTask::Key * & key)
+    {
+        auto nextKey = std::make_unique<typename MapTask::Key>();
+        if(!m_source.SetupKey(*nextKey)) return false;
+        key = nextKey.release();
+        return true;
+    }
+
+    size_t NumOfPartitions() const
+    {
+        return m_spec.reduceTasks;
+    }
+
+    size_t NumOfMapTasks() const
+    {
+        return m_spec.mapTasks;
+    }
+
+    template <typename Schedule>
+    void Run(Results & results)
+    {
+        Schedule schedule;
+        Run(schedule, results);
+    }
+
+    template <typename Schedule>
+    void Run(Schedule && schedule, Results & results)
+    {
+        const auto startT = std::chrono::system_clock::now();
+        schedule(*this, results);
+        results.jobRuntime = std::chrono::system_clock::now() - startT;
+    }
+
+    template <typename Sync>
+    bool RunMapTask(typename MapTask::Key * key, Results & results, Sync & sync)
+    {
+        const auto startTime = std::chrono::system_clock::now();
+
+        try {
+            ++results.counters.mapKeysExecuted;
+
+            auto pKey = std::unique_ptr<typename MapTask::Key>(key);
+            typename MapTask::Value value;
+            if(!m_source.GetData(*pKey, value)){
+                ++results.counters.mapKeyErrors;
+                return false;
+            }
+
+            MapTaskRunner runner(*this);
+            runner(*pKey, value);
+
+            std::lock_guard<Sync> lock(sync);
+            m_store.MergeFrom(runner.GetIntermediateStore());
+            ++results.counters.mapKeysCompleted;
+        }
+        catch (std::exception & e){
+            std::cerr << "Error: " << e.what() << std::endl;
+            ++results.counters.mapKeyErrors;
+            return false;
+        }
+        results.mapTimes.push_back(std::chrono::system_clock::now() - startTime);
+        return true;
+    }
+
+    void RunIntermediateResultsShuffle(size_t partition)
+    {
+        m_store.RunIntermediateResultsShuffle(partition);
+    }
+
+    bool RunReduceTask(size_t partition, Results & results)
+    {
+        bool success = true;
+        const auto & startTime(std::chrono::system_clock::now());
+        try {
+            ReduceTaskRunner runner(m_spec.outputFileSpec, partition, NumOfPartitions(), m_store, results);
+            runner.Reduce();
+        }
+        catch (std::exception & e){
+            std::cerr << "Error: " << e.what() << std::endl;
+            ++results.counters.reduceKeyErrors;
+            success = false;
+        }
+        results.reduceTimes.push_back(std::chrono::system_clock::now() - startTime);
+        return success;
+    }
+
+private:
+    DataSource & m_source;
+    const Specification & m_spec;
+    IntermediateStore m_store;
+};
 
 namespace schedule {
 
@@ -339,13 +595,55 @@ class Sequential
 public:
     void operator()(Job & job, Results & results)
     {
-        //todo
+        Map(job, results);
+        Intermediate(job, results);
+        Reduce(job, results);
     }
 
+private:
     void Map(Job & job, Results & results)
     {
         const auto startTime(std::chrono::system_clock::now());
 
+        typename Job::MapTask::Key * key = nullptr;
+        NullLocker locker;
+        while(job.GetNextMapKey(key) && job.RunMapTask(key, results, locker)){}
+        results.mapRuntime = std::chrono::system_clock::now() - startTime;
+    }
+
+    void Intermediate(Job & job, Results & results)
+    {
+        const auto startTime(std::chrono::system_clock::now());
+        for(size_t i = 0; i < job.NumOfPartitions(); ++i)
+            job.RunIntermediateResultsShuffle(i);
+        results.shuffleRuntime = std::chrono::system_clock::now() - startTime;
+    }
+
+    void Reduce(Job & job, Results & results)
+    {
+        const auto startTime(std::chrono::system_clock::now());
+        for(size_t i = 0; i < job.NumOfPartitions(); ++i)
+            job.RunReduceTask(i, results);
+        results.reduceRuntime = std::chrono::system_clock::now() - startTime;
+    }
+};
+
+template <typename Job>
+class Parallel
+{
+public:
+    void operator()(Job & job, Results & results)
+    {
+        Map(job, results);
+        Intermediate(job, results);
+        Reduce(job, results);
+        CollateResults(results);
+        results.counters.numResultFiles = job.NumOfPartitions();
+    }
+
+private:
+    void Map(Job & job, Results & results)
+    {
         //todo
     }
 };

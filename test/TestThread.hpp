@@ -3,12 +3,100 @@
 #define BOOST_TEST_INCLUDED
 #include <boost/test/unit_test.hpp>
 #include <boost/test/test_tools.hpp>
+#include "generic/thread/MapReduce.hpp"
 #include "generic/thread/TaskFlow.hpp"
 #include <chrono>
 #include <atomic>
 using namespace boost::unit_test;
 using namespace generic;
 using namespace generic::thread;
+
+namespace primcalc {
+
+using namespace mapreduce;
+
+struct PrimCalcMapTask : public MapTask<long, std::pair<long, long> >
+{
+    static bool isPrim(long number)
+    {
+        if(number > 2){
+            if(number % 2 == 0) return false;
+            long n = std::abs(number);
+            long sqrtN = static_cast<long>(std::sqrt(static_cast<double>(n)));
+            for(long i = 3; i < sqrtN; i += 2){
+                if(n % i == 0) return false;
+            }
+        }
+        else if(number == 0 || number == 1) return false;
+        return true;
+    }
+
+    template <typename Runner>
+    void operator() (Runner & runner, const Key &, const Value & value) const
+    {
+        for(auto i = value.first; i <= value.second; ++i)
+            runner.EmitIntermediate(isPrim(i), i);
+    }
+};
+
+struct PrimCalcReduceTask : public ReduceTask<bool, long>
+{
+    template <typename Runner, typename Iterator>
+    void operator() (Runner & runner, const Key & key, Iterator begin, Iterator end) const
+    {
+        if(key)
+            std::for_each(begin, end, std::bind(&Runner::Emit, &runner, true, std::placeholders::_1));
+    }
+};
+
+struct NumberSource
+{
+    long sequence, step;
+    long first, last;
+    NumberSource(long _first, long _last, long _step)
+        : sequence(0), step(_step), first(_first), last(_last)
+    {
+    }
+
+    bool SetupKey(long & k)
+    {
+        k = sequence++;
+        return k * step <= last;
+    }
+
+    bool GetData(const long & key, std::pair<long, long> & value)
+    {
+        std::pair<long, long> tmp;
+        tmp.first = first + (key * step);
+        tmp.second = std::min(tmp.first + step - 1, last);
+        
+        std::swap(tmp, value);
+        return true;
+    }
+};
+
+}//namespace primcalc
+
+void t_mapreduce()
+{
+    using namespace primcalc;
+    using namespace mapreduce;
+    using PrimCalcJob = Job<PrimCalcMapTask, PrimCalcReduceTask, NumberSource>;
+
+    Specification spec;
+    spec.mapTasks = 5;
+    spec.reduceTasks = 5;
+
+    long primLimit = 20;
+    NumberSource source(0, primLimit, primLimit / spec.reduceTasks);
+    PrimCalcJob job(source, spec);
+    Results results;
+
+    job.Run<schedule::Sequential<PrimCalcJob> >(results);
+    for (auto it = job.BeginResults(); it != job.EndResults(); ++it)
+        std::cout << it->second << " ";
+    BOOST_CHECK(true);
+}
 
 void t_taskflow()
 {
@@ -40,6 +128,7 @@ test_suite * create_thread_test_suite()
 {
     test_suite * thread_suite = BOOST_TEST_SUITE("s_thread");
     //
+    thread_suite->add(BOOST_TEST_CASE(&t_mapreduce));
     thread_suite->add(BOOST_TEST_CASE(&t_taskflow));
     //
     return thread_suite;
