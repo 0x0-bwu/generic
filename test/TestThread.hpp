@@ -87,19 +87,32 @@ void t_mapreduce()
     spec.mapTasks = 5;
     spec.reduceTasks = 5;
 
-    long primLimit = 20;
+    long primLimit = 1e8;
     NumberSource source(0, primLimit, primLimit / spec.reduceTasks);
     PrimCalcJob job(source, spec);
     Results results;
 
-    job.Run<schedule::Sequential<PrimCalcJob> >(results);
-    for (auto it = job.BeginResults(); it != job.EndResults(); ++it)
-        std::cout << it->second << " ";
+    // job.Run<schedule::Sequential<PrimCalcJob> >(results);
+    job.Run<schedule::Parallel<PrimCalcJob> >(results);
+
+    std::cout << "total run time: " << results.jobRuntime.count() << "s" << std::endl;
+    std::cout << "mapped tasks: " << results.counters.mapKeysCompleted << "/" << results.counters.mapKeysExecuted << std::endl;
+    std::cout << "map run time: " << results.mapRuntime.count() << "s" << std::endl;
+    for(size_t i = 0; i < results.mapTimes.size(); ++i){
+        std::cout << "No." << i + 1 << ", time: " << results.mapTimes.at(i).count() << "s" << std::endl;
+    }
+
+    std::cout << "reduced tasks: " << results.counters.reduceKeysCompleted << "/" << results.counters.reduceKeysExecuted << std::endl;
+    std::cout << "reduce run time: " << results.reduceRuntime.count() << "s" << std::endl;
+    for(size_t i = 0; i < results.reduceTimes.size(); ++i){
+        std::cout << "No." << i + 1 << ", time: " << results.reduceTimes.at(i).count() << "s" << std::endl;
+    }
     BOOST_CHECK(true);
 }
 
 void t_taskflow()
 {
+    using namespace taskflow;
     TaskFlow taskflow;
     std::atomic<int> num(0);
 

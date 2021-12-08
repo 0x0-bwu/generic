@@ -36,26 +36,23 @@ struct Specification
 
 struct Results
 {
-    struct TagCounters
+    struct Counters
     {
-        size_t actualMapTasks = 0;
-        size_t actualReduceTasks = 0;
+        size_t mapKeysExecuted{0};
+        size_t mapKeyErrors{0};
+        size_t mapKeysCompleted{0};
 
-        size_t mapKeysExecuted = 0;
-        size_t mapKeyErrors = 0;
-        size_t mapKeysCompleted = 0;
-
-        size_t reduceKeysExecuted = 0;
-        size_t reduceKeyErrors = 0;
-        size_t reduceKeysCompleted = 0;
+        size_t reduceKeysExecuted{0};
+        size_t reduceKeyErrors{0};
+        size_t reduceKeysCompleted{0};
 
         size_t numResultFiles = 0;
-        TagCounters(){}
+        Counters(){}
     };
 
     using Duration = std::chrono::duration<double>;
 
-    TagCounters counters;
+    Counters counters;
     Duration jobRuntime;
     Duration mapRuntime;
     Duration shuffleRuntime;
@@ -83,6 +80,7 @@ struct NullLocker
 {
     void lock(){}
     void unlock(){}
+    bool try_lock() const { return true; }
 };
 
 struct NullCombiner
@@ -465,9 +463,9 @@ private:
         template <typename Iterator>
         void operator() (const typename ReduceTask::Key & key, Iterator begin, Iterator end)
         {
-            ++m_results.counters.reduceKeysExecuted;
+            m_results.counters.reduceKeysExecuted++;
             ReduceTask()(*this, key, begin, end);
-            ++m_results.counters.reduceKeysCompleted;
+            m_results.counters.reduceKeysCompleted++;
         }
 
     private:
@@ -534,12 +532,12 @@ public:
         const auto startTime = std::chrono::system_clock::now();
 
         try {
-            ++results.counters.mapKeysExecuted;
+            results.counters.mapKeysExecuted++;
 
             auto pKey = std::unique_ptr<typename MapTask::Key>(key);
             typename MapTask::Value value;
             if(!m_source.GetData(*pKey, value)){
-                ++results.counters.mapKeyErrors;
+                results.counters.mapKeyErrors++;
                 return false;
             }
 
@@ -548,11 +546,11 @@ public:
 
             std::lock_guard<Sync> lock(sync);
             m_store.MergeFrom(runner.GetIntermediateStore());
-            ++results.counters.mapKeysCompleted;
+            results.counters.mapKeysCompleted++;
         }
         catch (std::exception & e){
             std::cerr << "Error: " << e.what() << std::endl;
-            ++results.counters.mapKeyErrors;
+            results.counters.mapKeyErrors++;
             return false;
         }
         results.mapTimes.push_back(std::chrono::system_clock::now() - startTime);
@@ -574,7 +572,7 @@ public:
         }
         catch (std::exception & e){
             std::cerr << "Error: " << e.what() << std::endl;
-            ++results.counters.reduceKeyErrors;
+            results.counters.reduceKeyErrors++;
             success = false;
         }
         results.reduceTimes.push_back(std::chrono::system_clock::now() - startTime);
@@ -631,7 +629,22 @@ private:
 template <typename Job>
 class Parallel
 {
+    using LocalResults = std::vector<std::shared_ptr<Results> >;
+    size_t m_threads;
+    LocalResults m_localResults;
 public:
+    Parallel()
+    {
+        m_threads = std::thread::hardware_concurrency();
+        if(m_threads > 1) m_threads -= 1;
+    }
+
+    void SetThreads(size_t threads)
+    {
+        m_threads = std::min<size_t>(std::thread::hardware_concurrency(), threads);
+        if(0 == m_threads) m_threads = 1;
+    }
+
     void operator()(Job & job, Results & results)
     {
         Map(job, results);
@@ -644,7 +657,63 @@ public:
 private:
     void Map(Job & job, Results & results)
     {
-        //todo
+        auto startTime = std::chrono::system_clock::now();
+        size_t threads = std::min(m_threads, job.NumOfMapTasks());
+
+        std::mutex lock;
+        ThreadPool pool(threads);
+        typename Job::MapTask::Key * key = nullptr;
+        while(job.GetNextMapKey(key)){
+            pool.Submit(std::bind(&Job::template RunMapTask<std::mutex>, std::ref(job), key, std::ref(results), std::ref(lock)));
+        }
+        pool.Wait();
+        results.mapRuntime = std::chrono::system_clock::now() - startTime;
+    }
+
+    void Intermediate(Job & job, Results & results)
+    {
+        const auto startTime(std::chrono::system_clock::now());
+        size_t threads = std::min(m_threads, job.NumOfPartitions());
+
+        ThreadPool pool(threads);
+        for(size_t i = 0; i < job.NumOfPartitions(); ++i){
+            pool.Submit(std::bind(&Job::RunIntermediateResultsShuffle, std::ref(job), i));
+        }
+        pool.Wait();
+        results.shuffleRuntime = std::chrono::system_clock::now() - startTime;
+    }
+
+    void Reduce(Job & job, Results & results)
+    {
+        const auto startTime(std::chrono::system_clock::now());
+        size_t threads = std::min(m_threads, job.NumOfPartitions());
+
+        ThreadPool pool(threads);
+        for(size_t i = 0; i < job.NumOfPartitions(); ++i){
+            auto localResult = std::make_shared<Results>();
+            m_localResults.push_back(localResult);
+            pool.Submit(std::bind(&Job::RunReduceTask, std::ref(job), i, std::ref(*localResult)));
+        }
+        pool.Wait();
+        results.reduceRuntime = std::chrono::system_clock::now() - startTime;
+    }
+
+    void CollateResults(Results & results)
+    {
+        for(const auto & localRes : m_localResults){
+            results.counters.mapKeysCompleted += localRes->counters.mapKeysCompleted;
+            results.counters.mapKeysExecuted += localRes->counters.mapKeysExecuted;
+            results.counters.mapKeyErrors += localRes->counters.mapKeyErrors;
+
+            results.counters.reduceKeysCompleted += localRes->counters.reduceKeysCompleted;
+            results.counters.reduceKeysExecuted += localRes->counters.reduceKeysExecuted;
+            results.counters.reduceKeyErrors += localRes->counters.reduceKeyErrors;
+
+            std::copy(localRes->mapTimes.cbegin(), localRes->mapTimes.cend(), std::back_inserter(results.mapTimes));
+            std::copy(localRes->shuffleTimes.cbegin(), localRes->shuffleTimes.cend(), std::back_inserter(results.shuffleTimes));
+            std::copy(localRes->reduceTimes.cbegin(), localRes->reduceTimes.cend(), std::back_inserter(results.reduceTimes));
+        }
+        m_localResults.clear();
     }
 };
 

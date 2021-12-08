@@ -12,6 +12,7 @@
 #include <list>
 namespace generic {
 namespace thread {
+namespace taskflow {
 
 class TaskFlow;
 class Executor;
@@ -267,6 +268,8 @@ inline bool Executor::Run(TaskFlow & flow)
     dispatcher.Dispatch(m_threads);
     return true;
 }
+
+}//namespace taskflow
 }//namespace thread
 }//namespace generic
 #endif//GENERIC_THERAD_TASKFLOW_HPP

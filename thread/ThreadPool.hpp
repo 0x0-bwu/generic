@@ -62,14 +62,13 @@ private:
     std::vector<std::unique_ptr<std::thread> > & m_threads;
 };
 
-inline static constexpr size_t defaultThreadPoolQueueSize = 100;
 class ThreadPool
 {
     using Task = std::function<void()>;
     using PoolQueue = boost::lockfree::queue<Task * >;
 public:
     ThreadPool();
-    ThreadPool(size_t threads, size_t queueSize = defaultThreadPoolQueueSize);
+    ThreadPool(size_t threads, size_t queueSize = 128);
     ThreadPool(ThreadPool & other) = delete;
     ThreadPool(const ThreadPool & other) = delete;
     ~ThreadPool();
@@ -108,7 +107,7 @@ private:
 };
 
 inline ThreadPool::ThreadPool()
- : m_queue(defaultThreadPoolQueueSize), m_joiner(m_threads)
+ : m_queue(128), m_joiner(m_threads)
 {
     Init_(std::thread::hardware_concurrency());
  }
