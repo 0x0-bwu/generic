@@ -9,6 +9,7 @@
 #include <fstream>
 #include <chrono>
 #include <vector>
+#include <deque>
 #include <map>
 namespace generic {
 namespace thread {
@@ -380,6 +381,74 @@ private:
     Partitioner m_partitioner;
     Intermediates m_intermediates;
 };
+
+
+template <typename MapTask, typename ReduceTask>
+class ReduceFileOut
+{
+public:
+    ReduceFileOut(const std::string & outputFileSpec, size_t partition, size_t partitions)
+    {
+        m_filename = outputFileSpec + std::to_string(partition + 1) + "_of_" + std::to_string(partitions);
+        m_outputFile.open(m_filename.c_str(), std::ios_base::binary);
+        if(!m_outputFile.is_open())
+            GENERIC_THROW(std::runtime_error("Error: fail to open file " + m_filename))
+    }
+
+    void operator() (typename ReduceTask::Key & key, typename ReduceTask::Value & value)
+    {
+        m_outputFile << key << "\t" << value << "\r";
+    }
+
+private:
+    std::string m_filename;
+    std::ofstream m_outputFile;
+};
+
+template <typename T>
+struct SharedPtrLess
+{
+    bool operator() (const std::shared_ptr<T> & left, const std::shared_ptr<T> & right) const
+    {
+        return *left < *right;
+    }
+};
+
+template <typename Record>
+inline bool FileKeyCombiner(const std::string & in, const std::string & out, const size_t maxLines = 4294967000U)
+{
+    std::deque<std::string> tmpFiles;
+    
+    std::ifstream inFile(in.c_str(), std::ios_base::in | std::ios_base::binary);
+    if(!inFile.is_open()){
+        GENERIC_THROW(std::runtime_error("Error: fail to open file " + in))
+    }
+    
+    using LinesType = std::map<std::shared_ptr<Record>, std::streamsize, SharedPtrLess<Record> >;
+    while(!inFile.eof()){
+        LinesType lines;
+        for(size_t i = 0; !inFile.eof() && i < maxLines; ++i){
+            if(inFile.fail()){
+                GENERIC_THROW(std::runtime_error("Error: fail to read file " + in))
+            }
+
+            std::string line;
+            std::getline(inFile, line);
+            if(line.length() > 0){
+                //todo
+            }
+        }
+
+    }
+
+}
+
+// template <typename MapTask, typename ReduceTask,
+//           typename KeyType = typename ReduceTask::Key,
+//           typename Partitioner = HashPartitioner,
+//           typename StoreResultType = ReduceFileOut<MapTask, ReduceTask>,
+//           typename 
+
 
 }//namespace intermediate
 
