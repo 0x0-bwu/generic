@@ -1,12 +1,15 @@
 #ifndef GENERIC_GEOMETRY_CONNECTIVITY_HPP
 #define GENERIC_GEOMETRY_CONNECTIVITY_HPP
-#include "BoostPolygonRegister.hpp"
+#include "generic/geometry/BoostPolygonRegister.hpp"
 #include "generic/topology/IndexGraph.hpp"
 #include "generic/thread/ThreadPool.hpp"
-#include "GeometryTraits.hpp"
+#include "generic/geometry/Utility.hpp"
+#include <boost/geometry/index/rtree.hpp>
 #include <boost/variant.hpp>
 #include <unordered_map>
+#include <unordered_set>
 #include <vector>
+#include <tuple>
 #include <list>
 #include <set>
 namespace generic  {
@@ -35,12 +38,12 @@ inline void ConnectivityExtraction(const std::vector<T> & objects,  GeomGetter &
     using coor_t = typename std::decay<typename std::result_of<GeomGetter(const T&)>::type>::type::coor_t;
     
     connection.clear();
-    size_t size = objects.size();
+    index_t size = objects.size();
     if(0 == size) return;
 
     connection.resize(size);
     boost::polygon::connectivity_extraction<coor_t> ce;
-    for(size_t i = 0; i < size; ++i)
+    for(index_t i = 0; i < size; ++i)
         GENERIC_ASSERT(i == ce.insert(geomGetter(objects[i])))
 
     ce.extract(connection);
@@ -56,6 +59,38 @@ class ConnectivityExtractor
     using LayerGeometriesMap = std::unordered_map<index_t, GeomIndexContainer>;
     using LayerConnections = UndirectedIndexEdgeSet;
     using GeomConnections = std::unordered_map<index_t, std::unordered_set<index_t> >;
+    using Jumpwire = std::tuple<Segment2D<num_type>, index_t, index_t, std::vector<index_t>, std::vector<index_t> >;//<positions, layer1, layer2, geoms1, geoms2>
+    using JumpwireContainer = std::vector<Jumpwire>;
+    using RtValue = std::pair<Box2D<num_type>, index_t>;
+    using Rtree = boost::geometry::index::rtree<RtValue, boost::geometry::index::dynamic_rstar>;
+
+    class BoxExtent : public boost::static_visitor<Box2D<num_type> >
+    {
+    public:
+        Box2D<num_type> operator() (const Triangle2D<num_type> & tri) const { return Extent(tri); }
+        Box2D<num_type> operator() (const Box2D<num_type> & box) const { return box; }
+        Box2D<num_type> operator() (const Polygon2D<num_type> & polygon) const { return Extent(polygon); }
+        Box2D<num_type> operator() (const PolygonWithHoles2D<num_type> & pwh) const { return Extent(pwh); }
+    };
+
+    class PointInside : public boost::static_visitor<bool>
+    {
+        Point2D<num_type> m_point;
+    public:
+        explicit PointInside(const Point2D<num_type> & p) : m_point(p) { } 
+        bool operator() (const Triangle2D<num_type> & tri) const { return Contains(tri, m_point, true); }
+        bool operator() (const Box2D<num_type> & box) const { return Contains(box, m_point, true); }
+        bool operator() (const Polygon2D<num_type> & polygon) const { return Contains(polygon, m_point, true); }
+        bool operator() (const PolygonWithHoles2D<num_type> & pwh) const
+        {
+            if(!Contains(pwh.outline, m_point, true)) return false;
+            for(const auto & hole : pwh.holes){
+                if(Contains(hole, m_point, false)) return false;
+            }
+            return true;
+        }
+    };
+
 public:
     virtual ~ConnectivityExtractor() = default;
 
@@ -128,13 +163,25 @@ public:
     }
 
     /**
+     * @brief add connection that connected by jumpwire
+     * 
+     * @param jumpwire 
+     * @param layer1 start layer of jumpwire
+     * @param layer2 end layer of jumpwire
+     */
+    void AddJumpwire(Segment2D<num_type> jumpwire, index_t layer1, index_t layer2)
+    {
+        m_jumpwires.push_back(std::make_tuple(jumpwire, layer1, layer2, std::vector<index_t>{}, std::vector<index_t>{}));
+    }
+
+    /**
      * @brief extract connection result of input objects.
      * 
      * @param threads threads number allowed in multi-threading extraction.
      * @return std::unique_ptr<GeomConnGraph> the extraction result, represented by a spares index graph
      * @note function return nullptr if no geometry exists.
      */
-    std::unique_ptr<GeomConnGraph> Extract(size_t threads = 1)
+    std::unique_ptr<GeomConnGraph> Extract(index_t threads = 1)
     {
         if(0 == m_geometries.size()) return nullptr;
         auto graph = std::make_unique<GeomConnGraph>(m_geometries.size());
@@ -168,16 +215,21 @@ public:
             auto connection = future.get();
             AddConnection(graph.get(), std::move(connection));
         }
+
+        //jumpwires
+        ExtractJumpwiresConnection(threads);
+        AddJumpwiresConnection(*graph);
         
         return graph;
     }
 
-    /// @brief clear former geometries and layer connections
+    /// @brief clear former geometries, layer connections and jumpwires
     void Clear()
     {
         m_layerGeoms.clear();
         m_geometries.clear();
         m_layerConns.clear();
+        m_jumpwires.clear();
     }
 
 private:
@@ -255,11 +307,102 @@ private:
         }
         return connection;
     }
-    
+
+    void AddJumpwiresConnection(GeomConnGraph & graph)
+    {
+        for(const auto & jumpwire : m_jumpwires){
+            const auto & geoms1 = std::get<3>(jumpwire);
+            const auto & geoms2 = std::get<4>(jumpwire);
+            if(geoms1.empty() || geoms2.empty()) continue;
+            for(auto i : geoms1)
+                for(auto j : geoms2)
+                    AddEdge(i, j, graph);
+        }
+    }
+
+    void ExtractJumpwiresConnection(index_t threads)
+    {
+        std::unordered_set<index_t> layers;
+        for(const auto & jumpwire : m_jumpwires){
+            layers.insert(std::get<1>(jumpwire));
+            layers.insert(std::get<2>(jumpwire));
+        }
+        
+        if(layers.empty()) return;
+
+        auto trees = BuildGeomRtreeForLayers(layers, threads);
+        for(auto & jumpwire : m_jumpwires)
+            ExtractJumpwireConnection(trees, jumpwire);
+    }
+
+    void ExtractJumpwireConnection(const std::unordered_map<index_t, std::shared_ptr<Rtree> > & trees, Jumpwire & jumpwire)
+    {
+        auto layer1 = std::get<1>(jumpwire);
+        auto layer2 = std::get<2>(jumpwire);
+        if(!trees.count(layer1) || !trees.count(layer2)) return;
+
+        auto tree1 = trees.at(layer1);
+        auto tree2 = trees.at(layer2);
+        if(nullptr == tree1 || nullptr == tree2) return;
+
+        const auto & segment = std::get<0>(jumpwire);
+        std::get<3>(jumpwire) = GetJumpwireConnectGeoms(segment[0], tree1);
+        std::get<4>(jumpwire) = GetJumpwireConnectGeoms(segment[1], tree2);
+    }
+
+    std::vector<index_t> GetJumpwireConnectGeoms(const Point2D<num_type> & p, std::shared_ptr<Rtree> tree)
+    {
+        Box2D<num_type> searchBox(p, p);
+        std::vector<RtValue> boardPhase;
+        tree->query(boost::geometry::index::intersects(searchBox), std::back_inserter(boardPhase));
+
+        PointInside inside(p);
+        std::vector<index_t> results;
+        for(auto value : boardPhase){
+            if(boost::apply_visitor(inside, m_geometries.at(value.second)))
+                results.push_back(value.second);
+        }
+        return results;
+    }
+
+    std::unordered_map<index_t, std::shared_ptr<Rtree> > BuildGeomRtreeForLayers(const std::unordered_set<index_t> & layers, index_t threads)
+    {
+        std::unordered_map<index_t, std::shared_ptr<Rtree> > trees;
+        std::list<std::future<std::pair<index_t, std::shared_ptr<Rtree> > > > futures;
+        thread::ThreadPool pool(threads);
+
+        for(auto layer : layers){
+            auto result = pool.Submit(std::bind(&ConnectivityExtractor<num_type>::BuildGeomRtreeEachLayer, this, layer));
+            futures.emplace_back(std::move(result));
+        }
+
+        for(auto & future : futures)
+            trees.insert(future.get());
+        return trees;
+    }
+
+    std::pair<index_t, std::shared_ptr<Rtree> > BuildGeomRtreeEachLayer(index_t layer) const
+    {
+        if(!m_layerGeoms.count(layer)) return std::make_pair(layer, nullptr);;
+        
+        boost::geometry::index::dynamic_rstar para(16);
+        auto tree = std::make_shared<Rtree>(para);
+
+        BoxExtent ext;
+        const auto & geomIndices = m_layerGeoms.at(layer);
+        for(auto index : geomIndices){
+            auto bbox = boost::apply_visitor(ext, m_geometries.at(index));
+            tree->insert(std::make_pair(bbox, index));
+        }
+
+        return std::make_pair(layer, tree);
+    }
+
 private:
     LayerGeometriesMap m_layerGeoms;
     GeometryContainer  m_geometries;
     LayerConnections   m_layerConns;
+    JumpwireContainer  m_jumpwires;
 };
 
 }//namespace geometry
