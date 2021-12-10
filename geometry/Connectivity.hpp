@@ -1,6 +1,5 @@
 #ifndef GENERIC_GEOMETRY_CONNECTIVITY_HPP
 #define GENERIC_GEOMETRY_CONNECTIVITY_HPP
-#include "generic/geometry/BoostPolygonRegister.hpp"
 #include "generic/topology/IndexGraph.hpp"
 #include "generic/thread/ThreadPool.hpp"
 #include "generic/geometry/Utility.hpp"
@@ -118,7 +117,10 @@ public:
 
         index_t index = m_geometries.size();
         m_geometries.push_back(getter(obj));
-        m_layerGeoms.insert(std::make_pair(layer, GeomIndexContainer())).first->second.push_back(index);
+        auto iter = m_layerGeoms.find(layer);
+        if(iter == m_layerGeoms.end())
+            iter = m_layerGeoms.insert(std::make_pair(layer, GeomIndexContainer())).first;
+        iter->second.push_back(index);
         return index;
     }
 
@@ -138,14 +140,15 @@ public:
         using coor_t = typename std::result_of<GeomGetter(const typename Iterator::value_type&)>::type::coor_t;
         static_assert(std::is_same<coor_t, num_type>::value, "different coordinate type of GeomGetter return type and ConnectivityExtractor!");
 
-        if(!m_layerGeoms.count(layer))
-            m_layerGeoms.insert(std::make_pair(layer, GeomIndexContainer()));
+        auto iter = m_layerGeoms.find(layer);
+        if(iter == m_layerGeoms.end())
+            iter = m_layerGeoms.insert(std::make_pair(layer, GeomIndexContainer())).first;
 
         index_t index = m_geometries.size();
         auto range = std::make_pair(index, index);
-        for(auto iter = begin; iter != end; ++iter){
-            m_geometries.push_back(getter(*iter));
-            m_layerGeoms[layer].push_back(range.second++);
+        for(auto it = begin; it != end; ++it){
+            m_geometries.push_back(getter(*it));
+            iter->second.push_back(range.second++);
         }
         range.second--;
         return range;
