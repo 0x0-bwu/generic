@@ -154,9 +154,9 @@ public:
     /**
      * @brief add connection that connected by jumpwire
      * 
-     * @param jumpwire 
      * @param layer1 start layer of jumpwire
      * @param layer2 end layer of jumpwire
+     * @param jumpwire segment with start/end point that connect two geometries
      * @return index_t global index of obj in the extraction result graph
      */
     index_t AddJumpwire(index_t layer1, index_t layer2, Segment2D<num_type> jumpwire)

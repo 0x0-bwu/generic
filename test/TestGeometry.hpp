@@ -547,6 +547,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_connectivity_t, num_type)
     using Triangle = Triangle2D<num_type>;
     using Box = Box2D<num_type>;
     using BoxF = Box2D<float_t>;
+    using Segment = Segment2D<num_type>;
     using Polygon = Polygon2D<num_type>;
     using PolygonWithHoles = PolygonWithHoles2D<num_type>;
 
@@ -640,6 +641,39 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_connectivity_t, num_type)
     c1.sort(std::less<index_t>());
     c2.sort(std::less<index_t>());
     BOOST_CHECK(!(c1 != std::list<index_t>{0}));
+    BOOST_CHECK(!(c2 != std::list<index_t>{1, 2, 3, 4, 5}));
+
+    std::sort(cc.begin(), cc.end(), [](const std::list<index_t> & l1, const std::list<index_t> & l2){ return l1.size() < l2.size(); });
+    BOOST_CHECK(!(cc != std::vector<std::list<index_t> >{c1, c2}));
+
+    //jumpwire test
+
+    extractor.Clear();
+    //Add Objects
+    iBox = extractor.AddObject(0, &box, boxGetter);
+    iNut = extractor.AddObject(1, doughnut, doughnutGeomGetter);
+    auto iJw1 = extractor.AddJumpwire(1, 2, Segment(Point(0, -20), Point(30, 10)));
+    iShapes = extractor.AddObjects(2, shapes.begin(), shapes.end(), instShapeGeomGetter);
+    BOOST_CHECK(iShapes.first  == 3);
+    BOOST_CHECK(iShapes.second == 5);
+    auto iJw2 = extractor.AddJumpwire(0, 1, Segment(Point(0, 0),  Point(0, 0)));
+
+    //Add Layer Connections
+    extractor.AddLayerConnection(0, 1);
+    extractor.AddLayerConnection(1, 2);
+    extractor.AddLayerConnection(2, 3);//non-exist layer will not be extracted.
+
+    threads = 2;
+    graph = extractor.Extract(threads);
+    BOOST_CHECK(graph != nullptr);
+    
+    topology::ConnectedComponent(*graph, iBox, c1);
+    topology::ConnectedComponent(*graph, iNut, c2);
+    topology::ConnectedComponents(*graph, cc);
+
+    c1.sort(std::less<index_t>());
+    c2.sort(std::less<index_t>());
+    BOOST_CHECK(!(c1 != std::list<index_t>{0, 6}));
     BOOST_CHECK(!(c2 != std::list<index_t>{1, 2, 3, 4, 5}));
 
     std::sort(cc.begin(), cc.end(), [](const std::list<index_t> & l1, const std::list<index_t> & l2){ return l1.size() < l2.size(); });
