@@ -93,6 +93,8 @@ class ConnectivityExtractor
     };
 
 public:
+    /** @brief geometry at nullLayer connect nothing */
+    const static index_t nullLayer = std::numeric_limits<index_t>::max();
     virtual ~ConnectivityExtractor() = default;
 
     /**
@@ -178,7 +180,9 @@ public:
      */
     void AddLayerConnection(index_t layer1, index_t layer2)
     {
-        m_layerConns.insert({layer1, layer2});
+        auto nullLayer = ConnectivityExtractor::nullLayer;
+        if(layer1 != nullLayer && layer2 != nullLayer)
+            m_layerConns.insert({layer1, layer2});
     }
 
     /**
@@ -213,6 +217,8 @@ public:
         }
 
         //internal
+        auto nullLayer = ConnectivityExtractor::nullLayer;
+        unconnectedLayers.erase(nullLayer);
         for(const auto & layer : unconnectedLayers){
             auto connection = pool.Submit(std::bind(&ConnectivityExtractor<num_type>::ExtractLayerConnection, this, layer));
             futures.emplace_back(std::move(connection));
@@ -343,7 +349,6 @@ private:
 
         auto tree1 = trees.at(layer1);
         auto tree2 = trees.at(layer2);
-        if(nullptr == tree1 || nullptr == tree2) return;
 
         std::vector<index_t> geoms;
         auto index = std::get<0>(jumpwire);
@@ -359,6 +364,7 @@ private:
     void GetJumpwireConnectGeoms(const Point2D<num_type> & p, std::shared_ptr<Rtree> tree, std::vector<index_t> & geoms)
     {
         geoms.clear();
+        if(nullptr == tree) return;
         Box2D<num_type> searchBox(p, p);
         std::vector<RtValue> boardPhase;
         tree->query(boost::geometry::index::intersects(searchBox), std::back_inserter(boardPhase));
@@ -388,7 +394,9 @@ private:
 
     std::pair<index_t, std::shared_ptr<Rtree> > BuildGeomRtreeEachLayer(index_t layer) const
     {
-        if(!m_layerGeoms.count(layer)) return std::make_pair(layer, nullptr);;
+        auto nullLayer = ConnectivityExtractor::nullLayer;
+        if(layer == nullLayer || !m_layerGeoms.count(layer))
+            return std::make_pair(layer, nullptr);
         
         boost::geometry::index::dynamic_rstar para(16);
         auto tree = std::make_shared<Rtree>(para);
