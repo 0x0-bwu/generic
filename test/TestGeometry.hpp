@@ -616,10 +616,10 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_connectivity_t, num_type)
     ConnectivityExtractor<num_type> extractor;
 
     //Add Objects
-    auto iBox = extractor.AddObject(0, &box, boxGetter);
-    auto iNut = extractor.AddObject(1, doughnut, doughnutGeomGetter);
-    auto iTri = extractor.AddObject(2, std::ref(triangle), triGetter);
-    auto iShapes = extractor.AddObjects(2, shapes.begin(), shapes.end(), instShapeGeomGetter);
+    auto iBox = extractor.AddObject(0, &box, boxGetter);//0
+    auto iNut = extractor.AddObject(1, doughnut, doughnutGeomGetter);//1
+    auto iTri = extractor.AddObject(2, std::ref(triangle), triGetter);//2
+    auto iShapes = extractor.AddObjects(2, shapes.begin(), shapes.end(), instShapeGeomGetter);//3-5
     BOOST_CHECK(iShapes.first  == 3);
     BOOST_CHECK(iShapes.second == 5);
 
@@ -646,38 +646,55 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_connectivity_t, num_type)
     std::sort(cc.begin(), cc.end(), [](const std::list<index_t> & l1, const std::list<index_t> & l2){ return l1.size() < l2.size(); });
     BOOST_CHECK(!(cc != std::vector<std::list<index_t> >{c1, c2}));
 
-    //jumpwire test
+    //jumpwire && null layer test
 
     extractor.Clear();
     //Add Objects
-    iBox = extractor.AddObject(0, &box, boxGetter);
-    iNut = extractor.AddObject(1, doughnut, doughnutGeomGetter);
-    auto iJw1 = extractor.AddJumpwire(1, 2, Segment(Point(0, -20), Point(30, 10)));
-    iShapes = extractor.AddObjects(2, shapes.begin(), shapes.end(), instShapeGeomGetter);
+    iBox = extractor.AddObject(0, &box, boxGetter);//0
+    iNut = extractor.AddObject(1, doughnut, doughnutGeomGetter);//1
+    auto iJw1 = extractor.AddJumpwire(1, 2, Segment(Point(0, -20), Point(30, 10)));//2
+    iShapes = extractor.AddObjects(2, shapes.begin(), shapes.end(), instShapeGeomGetter);//3-5
     BOOST_CHECK(iShapes.first  == 3);
     BOOST_CHECK(iShapes.second == 5);
-    auto iJw2 = extractor.AddJumpwire(0, 1, Segment(Point(0, 0),  Point(0, 0)));
+    auto iJw2 = extractor.AddJumpwire(0, 1, Segment(Point(0, 0),  Point(0, 0)));//6
+
+    auto nullLayer = ConnectivityExtractor<num_type>::nullLayer;
+    auto iJw3 = extractor.AddJumpwire(0, nullLayer, Segment(Point(0, 0),  Point(0, 0)));//7
+    auto iNull1 = extractor.AddObject(nullLayer, &box, boxGetter);//8
+    auto iNull2 = extractor.AddObject(nullLayer, &box, boxGetter);//9
 
     //Add Layer Connections
     extractor.AddLayerConnection(0, 1);
     extractor.AddLayerConnection(1, 2);
     extractor.AddLayerConnection(2, 3);//non-exist layer will not be extracted.
+    extractor.AddLayerConnection(2, nullLayer);//null layer will not be extracted.
 
     threads = 2;
     graph = extractor.Extract(threads);
     BOOST_CHECK(graph != nullptr);
-    
-    topology::ConnectedComponent(*graph, iBox, c1);
-    topology::ConnectedComponent(*graph, iNut, c2);
+
+    std::list<index_t> c3, c4;
+    topology::ConnectedComponent(*graph, iNull1, c1);
+    topology::ConnectedComponent(*graph, iNull2, c2);
+    topology::ConnectedComponent(*graph, iBox, c3);
+    topology::ConnectedComponent(*graph, iNut, c4);
     topology::ConnectedComponents(*graph, cc);
 
-    c1.sort(std::less<index_t>());
-    c2.sort(std::less<index_t>());
-    BOOST_CHECK(!(c1 != std::list<index_t>{0, 6}));
-    BOOST_CHECK(!(c2 != std::list<index_t>{1, 2, 3, 4, 5}));
-
-    std::sort(cc.begin(), cc.end(), [](const std::list<index_t> & l1, const std::list<index_t> & l2){ return l1.size() < l2.size(); });
-    BOOST_CHECK(!(cc != std::vector<std::list<index_t> >{c1, c2}));
+    c3.sort(std::less<index_t>());
+    c4.sort(std::less<index_t>());
+    BOOST_CHECK(!(c1 != std::list<index_t>{8}));
+    BOOST_CHECK(!(c2 != std::list<index_t>{9}));
+    BOOST_CHECK(!(c3 != std::list<index_t>{0, 6, 7}));
+    BOOST_CHECK(!(c4 != std::list<index_t>{1, 2, 3, 4, 5}));
+    std::sort(cc.begin(), cc.end(),
+            [](const std::list<index_t> & l1, const std::list<index_t> & l2){
+                bool res = l1.size() < l2.size();
+                if(l1.size() == l2.size() && !l1.empty())
+                    res = l1.front() < l2.front();
+                return res;
+            });
+    
+    BOOST_CHECK(!(cc != std::vector<std::list<index_t> >{c1, c2, c3, c4}));
 }
 
 void t_geometry_additional()
