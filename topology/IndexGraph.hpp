@@ -120,7 +120,7 @@ inline void ConnectedComponent(const SparseIndexGraph & g, const index_t v, std:
     public:
         std::list<index_t> & visited;
         BFSVisitor(std::list<index_t> & _visited) : visited(_visited) {}
-        void discover_vertex(index_t s, const SparseIndexGraph & g) { visited.push_back(s); }
+        void discover_vertex(index_t s, const SparseIndexGraph &) { visited.push_back(s); }
     };
 
     c.clear();

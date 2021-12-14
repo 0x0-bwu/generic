@@ -255,7 +255,7 @@ struct polygon_traits_general<PolygonWithHoles2D<num_type> >
         return pwh.outline.Size();
     }
 
-    static inline winding_direction winding(const PolygonWithHoles2D<num_type> & pwh)
+    static inline winding_direction winding(const PolygonWithHoles2D<num_type> &)
     {
         return unknown_winding;
     }
