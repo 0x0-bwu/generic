@@ -545,7 +545,7 @@ inline std::string ConsoleOptionPrinter::Print(const Attribute & showLevel) cons
 
     std::stringstream ss;
     if(!m_parser->Description().empty()){
-        ss << m_parser->Description() << ':' << std::endl;
+        ss << m_parser->Description() << ':' << GENERIC_DEFAULT_EOL;
     }
 
     size_t optRightMargin(20);
@@ -575,7 +575,7 @@ inline std::string ConsoleOptionPrinter::Print(const Attribute & showLevel) cons
         
         std::string empty(optRightMargin, ' ');
         for(size_t i = 0; i < lines.size(); ++i){
-            if(i > 0) ss << std::endl << empty;
+            if(i > 0) ss << GENERIC_DEFAULT_EOL << empty;
             ss << lines.at(i);
         }
         ss << std::endl;

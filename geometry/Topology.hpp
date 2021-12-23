@@ -110,18 +110,18 @@ inline bool GeoTopology2D<num_type>::Write(const std::string & file, std::string
     }
 
     char sp(32);
-    out << "P" << sp << m_points.size() << std::endl;
+    out << "P" << sp << m_points.size() << GENERIC_DEFAULT_EOL;
     for(const auto & p : m_points){
-        out << p[0] << sp << p[1] << std::endl;
+        out << p[0] << sp << p[1] << GENERIC_DEFAULT_EOL;
     }
-    out << std::endl;
+    out << GENERIC_DEFAULT_EOL;
 
     std::list<std::pair<size_t, size_t> > edges;
     GetAllEdges(edges);
     
-    out << "E" << sp << edges.size() << std::endl;
+    out << "E" << sp << edges.size() << GENERIC_DEFAULT_EOL;
     for(const auto & e : edges){
-        out << e.first << sp << e.second << std::endl;
+        out << e.first << sp << e.second << GENERIC_DEFAULT_EOL;
     }
     out.close();
     return true;

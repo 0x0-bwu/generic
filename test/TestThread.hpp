@@ -96,18 +96,18 @@ void t_mapreduce()
     job.Run<schedule::Parallel<PrimCalcJob> >(results);
 
     std::stringstream ss;
-    ss << "mapreduce test:"  << std::endl;
-    ss << "total run time: " << results.jobRuntime.count()        << "s" << std::endl;
-    ss << "mapped tasks: "   << results.counters.mapKeysCompleted << "/" << results.counters.mapKeysExecuted << std::endl;
-    ss << "map run time: "   << results.mapRuntime.count()        << "s" << std::endl;
+    ss << "mapreduce test:"  << GENERIC_DEFAULT_EOL;
+    ss << "total run time: " << results.jobRuntime.count()        << "s" << GENERIC_DEFAULT_EOL;
+    ss << "mapped tasks: "   << results.counters.mapKeysCompleted << "/" << results.counters.mapKeysExecuted << GENERIC_DEFAULT_EOL;
+    ss << "map run time: "   << results.mapRuntime.count()        << "s" << GENERIC_DEFAULT_EOL;
     for(size_t i = 0; i < results.mapTimes.size(); ++i){
-        ss << "No." << i + 1 << ", time: " << results.mapTimes.at(i).count() << "s" << std::endl;
+        ss << "No." << i + 1 << ", time: " << results.mapTimes.at(i).count() << "s" << GENERIC_DEFAULT_EOL;
     }
 
-    ss << "reduced tasks: "   << results.counters.reduceKeysCompleted << "/" << results.counters.reduceKeysExecuted << std::endl;
-    ss << "reduce run time: " << results.reduceRuntime.count()        << "s" << std::endl;
+    ss << "reduced tasks: "   << results.counters.reduceKeysCompleted << "/" << results.counters.reduceKeysExecuted << GENERIC_DEFAULT_EOL;
+    ss << "reduce run time: " << results.reduceRuntime.count()        << "s" << GENERIC_DEFAULT_EOL;
     for(size_t i = 0; i < results.reduceTimes.size(); ++i){
-        ss << "No." << i + 1 << ", time: " << results.reduceTimes.at(i).count() << "s" << std::endl;
+        ss << "No." << i + 1 << ", time: " << results.reduceTimes.at(i).count() << "s" << GENERIC_DEFAULT_EOL;
     }
     BOOST_TEST_MESSAGE(ss.str());
     BOOST_CHECK(true);

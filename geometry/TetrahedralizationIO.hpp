@@ -60,13 +60,13 @@ template <size_t start_index>
 void WriteEdgesToFile(std::ofstream & out, const std::vector<IndexEdge> & edges)
 {
     char sp(32);
-    out << edges.size() << sp << 1 << std::endl;
+    out << edges.size() << sp << 1 << GENERIC_DEFAULT_EOL;
     size_t index = start_index;
     for(const auto & edge : edges){
         out << index++ << sp;
         out << edge.v1() + start_index << sp;
         out << edge.v2() + start_index << sp;
-        out << 1 << std::endl;
+        out << 1 << GENERIC_DEFAULT_EOL;
     }
 }
 
@@ -119,7 +119,7 @@ template <typename point_t, size_t start_index>
 void WritePointsToFile(std::ofstream & out, const std::vector<point_t> & points)
 {
     char sp(32);
-    out << points.size() << sp << point_t::dim << sp << 0 << sp << 0 << std::endl;
+    out << points.size() << sp << point_t::dim << sp << 0 << sp << 0 << GENERIC_DEFAULT_EOL;
 
     size_t index = start_index;
     for(const auto & point : points){
@@ -127,7 +127,7 @@ void WritePointsToFile(std::ofstream & out, const std::vector<point_t> & points)
         for(size_t i = 0; i < point_t::dim; ++i){
             out << sp << point[i];
         }
-        out << std::endl;
+        out << GENERIC_DEFAULT_EOL;
     }
 }
 
@@ -194,20 +194,20 @@ template <typename point_t, size_t start_index>
 inline void WriteSurfacesToFile(std::ofstream & out, const std::vector<typename PiecewiseLinearComplex<point_t>::Surface> & surfaces)
 {
     char sp(32);
-    out << surfaces.size() << sp << 0 << std::endl;
+    out << surfaces.size() << sp << 0 << GENERIC_DEFAULT_EOL;
 
     size_t holeIdx = start_index;
     for(const auto & surface : surfaces){
         out << surface.faces.size() << sp;
         out << surface.holes.size() << sp;
-        out << 0 << std::endl;
+        out << 0 << GENERIC_DEFAULT_EOL;
 
         for(const auto & face : surface.faces){
             out << face.size();
             for(const auto & v : face){
                 out << sp << (v + start_index);
             }
-            out << std::endl;
+            out << GENERIC_DEFAULT_EOL;
         }
         
         for(const auto & hole : surface.holes){
@@ -215,7 +215,7 @@ inline void WriteSurfacesToFile(std::ofstream & out, const std::vector<typename 
             for(size_t i = 0; i < point_t::dim; ++i){
                 out << sp << hole[i];
             }
-            out << std::endl;
+            out << GENERIC_DEFAULT_EOL;
         }
     }
 }
@@ -443,29 +443,29 @@ bool WriteVtkFile(const std::string & filename, const Tetrahedralization<point_t
     }
 
     char sp(32);
-    out << "# vtk DataFile Version 2.0" << std::endl;
-    out << "Unstructured Grid" << std::endl;
-    out << "ASCII" << std::endl;
-    out << "DATASET UNSTRUCTURED_GRID" << std::endl;
-    out << "POINTS" << sp << t.points.size() << sp << common::toString<typename point_t::coor_t>() << std::endl;
+    out << "# vtk DataFile Version 2.0" << GENERIC_DEFAULT_EOL;
+    out << "Unstructured Grid" << GENERIC_DEFAULT_EOL;
+    out << "ASCII" << GENERIC_DEFAULT_EOL;
+    out << "DATASET UNSTRUCTURED_GRID" << GENERIC_DEFAULT_EOL;
+    out << "POINTS" << sp << t.points.size() << sp << common::toString<typename point_t::coor_t>() << GENERIC_DEFAULT_EOL;
     for(const auto & point : t.points){
-        out << point[0] << sp << point[1] << sp << point[2] << std::endl;
+        out << point[0] << sp << point[1] << sp << point[2] << GENERIC_DEFAULT_EOL;
     }
 
-    out << std::endl; 
-    out << "CELLS" << sp << t.tetrahedrons.size() << sp << t.tetrahedrons.size() * 5 << std::endl;
+    out << GENERIC_DEFAULT_EOL; 
+    out << "CELLS" << sp << t.tetrahedrons.size() << sp << t.tetrahedrons.size() * 5 << GENERIC_DEFAULT_EOL;
     for(const auto & tetrahedron : t.tetrahedrons){
         out << '4';
         for(size_t i = 0; i < 4; ++i){
             out << sp << tetrahedron.vertices[i];
         }
-        out << std::endl; 
+        out << GENERIC_DEFAULT_EOL; 
     }
-    out << std::endl;
+    out << GENERIC_DEFAULT_EOL;
 
-    out << "CELL_TYPES" << sp << t.tetrahedrons.size() << std::endl;
+    out << "CELL_TYPES" << sp << t.tetrahedrons.size() << GENERIC_DEFAULT_EOL;
     for(const auto & tetrahedron : t.tetrahedrons){
-        out << "10" << std::endl;
+        out << "10" << GENERIC_DEFAULT_EOL;
     }
 
     out.close();

@@ -58,6 +58,7 @@ using TetrahedronVec = std::vector<IndexTetrahedron>;
 using IndexEdge = topology::UndirectedIndexEdge;
 using IndexEdgeHash = topology::UndirectedIndexEdgeHash;
 using IndexEdgeCompare = topology::UndirectedIndexEdgeCompare;
+using IndexFace = std::vector<index_t>;
 
 using topology::noIndex;
 inline static constexpr VerIdx noVertex = noIndex;

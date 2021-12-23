@@ -169,7 +169,7 @@ public:
         if(!out.is_open()) return false;
         for(auto iter = begin; iter != end; ++iter){
             typename std::iterator_traits<iterator>::reference r = *iter;
-            if(iter != begin) out << std::endl;
+            if(iter != begin) out << GENERIC_DEFAULT_EOL;
             out << r;
         }
         out.close();
