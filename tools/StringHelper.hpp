@@ -4,6 +4,12 @@
 namespace generic {
 namespace str {
 
+inline bool StartsWith(const std::string & s, const std::string & prefix)
+{
+    if(prefix.size() > s.size()) return false;
+    return s.rfind(prefix, 0) == 0;
+}
+
 inline bool EndsWith(const std::string & s, const std::string & suffix)
 {
     if (suffix.size() > s.size()) return false;
