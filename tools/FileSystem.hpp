@@ -160,7 +160,7 @@ inline std::string DirName(const std::string & path)
 inline std::string FileName(const std::string & path)
 {
     auto pos = path.find_last_of(GENERIC_FOLDER_SEPS);
-    return pos != std::string::npos ? path.substr(pos) : path.substr(0);
+    return pos != std::string::npos ? path.substr(pos + 1) : path.substr(0);
 }
 
 }//namespace filesystem
