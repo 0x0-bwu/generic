@@ -32,7 +32,7 @@ public:
     {   
         using namespace boost::io;
         auto fmt = Format("%1%") % group(std::setfill(pad), std::dec, std::setw(width), i);
-        dest.append(fmt.str());
+        dest.append(fmt.str().substr(0, width));
     }
 };
 
