@@ -2,6 +2,7 @@
 #define GENERIC_GEOMETRY_RASTERIZATION_HPP
 #include "generic/common/Exception.hpp"
 #include "Geometries.hpp"
+#include "Vector.hpp"
 #include <vector>
 #include <array>
 namespace generic {
@@ -11,66 +12,67 @@ class Rasterization
 {
 public:
     template <typename num_type>
-    static std::array<int, 2> Rasterize(const Point2D<num_type> & p, num_type stride, const Point2D<num_type> & ref = Point2D<num_type>{0, 0});
+    static std::array<int, 2> Rasterize(const Point2D<num_type> & p, const Vector2D<num_type> & stride, const Point2D<num_type> & ref = Point2D<num_type>{0, 0});
 
     template <typename num_type>
-    static void Rasterize(const Point2D<num_type> & p, num_type stride, std::vector<std::array<int, 2> > & grids, const Point2D<num_type> & ref = Point2D<num_type>{0, 0});
+    static void Rasterize(const Point2D<num_type> & p, const Vector2D<num_type> & stride, std::vector<std::array<int, 2> > & grids, const Point2D<num_type> & ref = Point2D<num_type>{0, 0});
     
     template <typename num_type>
-    static void Rasterize(const Point2D<num_type> & s, const Point2D<num_type> & e, num_type stride, std::vector<std::array<int, 2> > & grids, const Point2D<num_type> & ref = Point2D<num_type>{0, 0});
+    static void Rasterize(const Point2D<num_type> & s, const Point2D<num_type> & e, const Vector2D<num_type> & stride, std::vector<std::array<int, 2> > & grids, const Point2D<num_type> & ref = Point2D<num_type>{0, 0});
     
     template <typename num_type>
-    static void Rasterize(const Segment2D<num_type> & seg, num_type stride, std::vector<std::array<int, 2> > & grids, const Point2D<num_type> & ref = Point2D<num_type>{0, 0});
+    static void Rasterize(const Segment2D<num_type> & seg, const Vector2D<num_type> & stride, std::vector<std::array<int, 2> > & grids, const Point2D<num_type> & ref = Point2D<num_type>{0, 0});
 
     template <typename num_type>
-    static void Rasterize(const Point2D<num_type> & p1, const Point2D<num_type> & p2, const Point2D<num_type> & p3, num_type stride, std::vector<std::array<int, 2> > & grids, const Point2D<num_type> & ref = Point2D<num_type>{0, 0});
+    static void Rasterize(const Point2D<num_type> & p1, const Point2D<num_type> & p2, const Point2D<num_type> & p3, const Vector2D<num_type> & stride, std::vector<std::array<int, 2> > & grids, const Point2D<num_type> & ref = Point2D<num_type>{0, 0});
     
     template <typename num_type>
-    static void Rasterize(const Triangle2D<num_type> & tri, num_type stride, std::vector<std::array<int, 2> > & grids, const Point2D<num_type> & ref = Point2D<num_type>{0, 0});
+    static void Rasterize(const Triangle2D<num_type> & tri, const Vector2D<num_type> & stride, std::vector<std::array<int, 2> > & grids, const Point2D<num_type> & ref = Point2D<num_type>{0, 0});
     
     template <typename num_type>
-    static void Rasterize(const Box2D<num_type> & box, num_type stride, std::vector<std::array<int, 2> > & grids, const Point2D<num_type> & ref = Point2D<num_type>{0, 0});
+    static void Rasterize(const Box2D<num_type> & box, const Vector2D<num_type> & stride, std::vector<std::array<int, 2> > & grids, const Point2D<num_type> & ref = Point2D<num_type>{0, 0});
     
     template <typename num_type>
-    static void Rasterize(const Polygon2D<num_type> & polygon, num_type stride, std::vector<std::array<int, 2> > & grids, const Point2D<num_type> & ref = Point2D<num_type>{0, 0});
+    static void Rasterize(const Polygon2D<num_type> & polygon, const Vector2D<num_type> & stride, std::vector<std::array<int, 2> > & grids, const Point2D<num_type> & ref = Point2D<num_type>{0, 0});
 
     template <typename num_type>
-    static void Rasterize(const PolygonWithHoles2D<num_type> & pwh, num_type stride, std::vector<std::array<int, 2> > & grids, const Point2D<num_type> & ref = Point2D<num_type>{0, 0});
+    static void Rasterize(const PolygonWithHoles2D<num_type> & pwh, const Vector2D<num_type> & stride, std::vector<std::array<int, 2> > & grids, const Point2D<num_type> & ref = Point2D<num_type>{0, 0});
 
     template <typename num_type>
-    static Polygon2D<num_type> Rasterize(const Polygon2D<num_type> & polygon, num_type stride, const Point2D<num_type> & ref = Point2D<num_type>{0, 0});
+    static Polygon2D<num_type> Rasterize(const Polygon2D<num_type> & polygon, const Vector2D<num_type> & stride, const Point2D<num_type> & ref = Point2D<num_type>{0, 0});
 };
 
 template <typename num_type>
-inline std::array<int, 2> Rasterization::Rasterize(const Point2D<num_type> & p, num_type stride, const Point2D<num_type> & ref)
+inline std::array<int, 2> Rasterization::Rasterize(const Point2D<num_type> & p, const Vector2D<num_type> & stride, const Point2D<num_type> & ref)
 {
-    GENERIC_ASSERT(stride > 0)
+    GENERIC_ASSERT(stride[0] > 0 && stride[1] > 0)
     using float_t = float_type<num_type>;
-    float_t invRes = 1.0 / float_t(stride);
+    float_t invResX = 1.0 / float_t(stride[0]);
+    float_t invResY = 1.0 / float_t(stride[1]);
     num_type dx = p[0] - ref[0];
     num_type dy = p[1] - ref[1];
-    auto ix = static_cast<int>(dx * invRes);
-    auto iy = static_cast<int>(dy * invRes);
+    auto ix = static_cast<int>(dx * invResX);
+    auto iy = static_cast<int>(dy * invResY);
     if(math::isNegative(dx)) ix--;
     if(math::isNegative(dy)) iy--;
     return std::array<int, 2>{ix, iy};
 }
 
 template <typename num_type>
-inline void Rasterization::Rasterize(const Point2D<num_type> & p, num_type stride, std::vector<std::array<int, 2> > & grids, const Point2D<num_type> & ref)
+inline void Rasterization::Rasterize(const Point2D<num_type> & p, const Vector2D<num_type> & stride, std::vector<std::array<int, 2> > & grids, const Point2D<num_type> & ref)
 {
-    GENERIC_ASSERT(stride > 0)
+    GENERIC_ASSERT(stride[0] > 0 && stride[1] > 0)
     grids.push_back(Rasterize(p, stride, ref));
 }
 
 template <typename num_type>
-inline void Rasterization::Rasterize(const Point2D<num_type> & s, const Point2D<num_type> & e, num_type stride, std::vector<std::array<int, 2> > & grids, const Point2D<num_type> & ref)
+inline void Rasterization::Rasterize(const Point2D<num_type> & s, const Point2D<num_type> & e, const Vector2D<num_type> & stride, std::vector<std::array<int, 2> > & grids, const Point2D<num_type> & ref)
 {
-    GENERIC_ASSERT(stride > 0)
+    GENERIC_ASSERT(stride[0] > 0 && stride[1] > 0)
     using float_t = float_type<num_type>;
     auto sign = [](int x) { return x > 0 ? 1 : (x < 0 ? -1 : 0); };
-    auto head = std::array<int, 2>{int((s[0] - ref[0]) / stride), int((s[1] - ref[1]) / stride)};
-    auto tail = std::array<int, 2>{int((e[0] - ref[0]) / stride), int((e[1] - ref[1]) / stride)};
+    auto head = std::array<int, 2>{int((s[0] - ref[0]) / stride[0]), int((s[1] - ref[1]) / stride[1])};
+    auto tail = std::array<int, 2>{int((e[0] - ref[0]) / stride[0]), int((e[1] - ref[1]) / stride[1])};
 
     auto dx = std::abs(head[0] - tail[0]);
     auto dy = std::abs(head[1] - tail[1]);
@@ -100,58 +102,14 @@ inline void Rasterization::Rasterize(const Point2D<num_type> & s, const Point2D<
     }
 }
 
-// template <typename num_type>
-// inline void Rasterization::Rasterize(const Point2D<num_type> & s, const Point2D<num_type> & e, num_type stride, std::vector<std::array<int, 2> > & grids, const Point2D<num_type> & ref)
-// {
-//     using float_t = float_type<num_type>;
-//     float_t invRes = 1.0 / float_t(stride);    
-//     auto dx = e[0] - s[0];
-//     auto dy = e[1] - s[1];
-//     int sx = math::isPositive(dx) ? 1 : -1;
-//     int sy = math::isPositive(dy) ? 1 : -1;
-
-//     dx = std::fabs(dx * invRes);
-//     dy = std::fabs(dy * invRes);
-
-//     bool swapped = false;
-//     if(dy > dx){
-//         std::swap(dx, dy);
-//         swapped = true;
-//     }
-
-//     auto d = 2.0 * dx - dy;
-//     int step = std::ceil(dx);
-//     auto [x, y] = Rasterize(s, stride, ref);
-//     grids.push_back({x, y});
-//     for(int i = 0; i < step; ++i){
-//         if(d < 0){
-//             if(swapped){
-//                 y += sy;
-//                 grids.push_back({x, y});
-//             }
-//             else{
-//                 x += sx;
-//                 grids.push_back({x, y});
-//             }
-//             d += 2.0 * dy;
-//         }
-//         else {
-//             x += sx;
-//             y += sy;
-//             grids.push_back({x, y});
-//             d += 2.0 * dy - 2.0 * dx;
-//         }
-//     }   
-// }
-
 template <typename num_type>
-inline void Rasterization::Rasterize(const Segment2D<num_type> & seg, num_type stride, std::vector<std::array<int, 2> > & grids, const Point2D<num_type> & ref)
+inline void Rasterization::Rasterize(const Segment2D<num_type> & seg, const Vector2D<num_type> & stride, std::vector<std::array<int, 2> > & grids, const Point2D<num_type> & ref)
 {
     Rasterize<num_type>(seg[0], seg[1], stride, grids, ref);
 }
 
 template <typename num_type>
-inline void Rasterization::Rasterize(const Point2D<num_type> & p1, const Point2D<num_type> & p2, const Point2D<num_type> & p3, num_type stride, std::vector<std::array<int, 2> > & grids, const Point2D<num_type> & ref)
+inline void Rasterization::Rasterize(const Point2D<num_type> & p1, const Point2D<num_type> & p2, const Point2D<num_type> & p3, const Vector2D<num_type> & stride, std::vector<std::array<int, 2> > & grids, const Point2D<num_type> & ref)
 {
     Rasterize<num_type>(p1, p2, stride, grids, ref);
     Rasterize<num_type>(p2, p3, stride, grids, ref);
@@ -159,13 +117,13 @@ inline void Rasterization::Rasterize(const Point2D<num_type> & p1, const Point2D
 }
 
 template <typename num_type>
-inline void Rasterization::Rasterize(const Triangle2D<num_type> & triangle, num_type stride, std::vector<std::array<int, 2> > & grids, const Point2D<num_type> & ref)
+inline void Rasterization::Rasterize(const Triangle2D<num_type> & triangle, const Vector2D<num_type> & stride, std::vector<std::array<int, 2> > & grids, const Point2D<num_type> & ref)
 {
     Rasterize(triangle[0], triangle[1], triangle[2], stride, grids, ref);
 }
 
 template <typename num_type>
-inline void Rasterization::Rasterize(const Box2D<num_type> & box, num_type stride, std::vector<std::array<int, 2> > & grids, const Point2D<num_type> & ref)
+inline void Rasterization::Rasterize(const Box2D<num_type> & box, const Vector2D<num_type> & stride, std::vector<std::array<int, 2> > & grids, const Point2D<num_type> & ref)
 {
     Rasterize(box[0], Point2D<num_type>(box[1][0], box[0][1]), stride, grids, ref);
     Rasterize(Point2D<num_type>(box[1][0], box[0][1]), box[1], stride, grids, ref);
@@ -174,7 +132,7 @@ inline void Rasterization::Rasterize(const Box2D<num_type> & box, num_type strid
 }
     
 template <typename num_type>
-inline void Rasterization::Rasterize(const Polygon2D<num_type> & polygon, num_type stride, std::vector<std::array<int, 2> > & grids, const Point2D<num_type> & ref)
+inline void Rasterization::Rasterize(const Polygon2D<num_type> & polygon, const Vector2D<num_type> & stride, std::vector<std::array<int, 2> > & grids, const Point2D<num_type> & ref)
 {
     size_t size = polygon.Size();
     for(auto i = 0; i < size; ++i){
@@ -187,7 +145,7 @@ inline void Rasterization::Rasterize(const Polygon2D<num_type> & polygon, num_ty
 }
 
 template <typename num_type>
-inline void Rasterization::Rasterize(const PolygonWithHoles2D<num_type> & pwh, num_type stride, std::vector<std::array<int, 2> > & grids, const Point2D<num_type> & ref)
+inline void Rasterization::Rasterize(const PolygonWithHoles2D<num_type> & pwh, const Vector2D<num_type> & stride, std::vector<std::array<int, 2> > & grids, const Point2D<num_type> & ref)
 {
     Rasterize(pwh.outline, stride, grids, ref);
     for(const auto & hole : pwh.holes)
@@ -195,14 +153,14 @@ inline void Rasterization::Rasterize(const PolygonWithHoles2D<num_type> & pwh, n
 }
 
 template <typename num_type>
-inline Polygon2D<num_type> Rasterization::Rasterize(const Polygon2D<num_type> & polygon, num_type stride, const Point2D<num_type> & ref)
+inline Polygon2D<num_type> Rasterization::Rasterize(const Polygon2D<num_type> & polygon, const Vector2D<num_type> & stride, const Point2D<num_type> & ref)
 {
     std::vector<std::array<int, 2> > grids;
     Rasterize<num_type>(polygon, stride, grids, ref);
 
     auto makePoint = [&stride, &ref](const std::array<int, 2> & grid)
     {
-        return Point2D<num_type>(ref[0] + grid[0] * stride, ref[1] + grid[1] * stride);
+        return Point2D<num_type>(ref[0] + grid[0] * stride[0], ref[1] + grid[1] * stride[1]);
     };
 
     auto size = grids.size();

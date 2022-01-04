@@ -17,7 +17,8 @@
 #include <atomic>
 
 #ifdef BOOST_GIL_IO_PNG_SUPPORT
-#include "tools/Color.hpp"
+#include "generic/tools/FileSystem.hpp"
+#include "generic/tools/Color.hpp"
 #include <boost/gil/extension/io/png.hpp>
 #include <boost/gil.hpp>
 #include <png.h>
@@ -92,6 +93,10 @@ public:
     template <typename RGBaFunc>
     bool WriteImgProfile(const std::string & filename, RGBaFunc && rgbaFunc)
     {
+        auto dir = generic::filesystem::DirName(filename);
+        if(!generic::filesystem::PathExists(dir))
+            generic::filesystem::CreateDir(dir);
+
         using namespace boost::gil;
         rgb8_image_t img(m_width, m_height);
         rgb8_image_t::view_t v = view(img);
@@ -128,15 +133,15 @@ public:
     struct GridCtrl
     {
         size_t threads = 1;
-        num_type stride;
         Box2D<num_type> bbox;
         Point2D<num_type> ref;
+        Vector2D<num_type> stride;
 
-        GridCtrl(const Box2D<num_type> & _bbox, num_type _stride, size_t _threads = 1)
+        GridCtrl(const Box2D<num_type> & _bbox, const Vector2D<num_type> & _stride, size_t _threads = 1)
          : GridCtrl(_bbox, _bbox[0], _stride, _threads) {}
         
-        GridCtrl(const Box2D<num_type> & _bbox, const Point2D<num_type> & _ref, num_type _stride, size_t _threads = 1)
-         : threads(_threads), stride(_stride), bbox(_bbox), ref(_ref) {}
+        GridCtrl(const Box2D<num_type> & _bbox, const Point2D<num_type> & _ref, const Vector2D<num_type> & _stride, size_t _threads = 1)
+         : threads(_threads), bbox(_bbox), ref(_ref), stride(_stride) {}
     };
 
     template <typename num_type>
@@ -147,12 +152,12 @@ public:
     };
 
     template <typename num_type>
-    static std::pair<size_t, size_t> GetGridMapSize(const Box2D<num_type> & bbox, num_type stride)
+    static std::pair<size_t, size_t> GetGridMapSize(const Box2D<num_type> & bbox, const Vector2D<num_type> & stride)
     {
         using float_t = common::float_type<num_type>;
-        size_t width = static_cast<size_t>(std::ceil(float_t(bbox.Length()) / stride));
-        size_t height = static_cast<size_t>(std::ceil(float_t(bbox.Width()) / stride));
-        return std::make_pair(width, height);
+        size_t x = static_cast<size_t>(std::ceil(float_t(bbox.Length()) / stride[0]));
+        size_t y = static_cast<size_t>(std::ceil(float_t(bbox.Width() ) / stride[1]));
+        return std::make_pair(x, y);
     }
 
     template <typename property_type, typename Object, typename GeomGetter, typename Occupancy, typename BlendFunc,
@@ -454,19 +459,19 @@ private:
             swapped = true;
         }
 
-        auto boundLLStride = [&rect, &ctrl](int index, size_t coor) { return ctrl.ref[coor] + (index + 1) * ctrl.stride - rect[0][coor]; };
-        auto boundURStride = [&rect, &ctrl](int index, size_t coor) { return rect[1][coor] - index * ctrl.stride - ctrl.ref[coor]; };
+        auto boundLLStride = [&rect, &ctrl](int index, size_t coor) { return ctrl.ref[coor] + (index + 1) * ctrl.stride[coor] - rect[0][coor]; };
+        auto boundURStride = [&rect, &ctrl](int index, size_t coor) { return rect[1][coor] - index * ctrl.stride[coor] - ctrl.ref[coor]; };
         auto middleStride  = [&rect](size_t coor) {return rect[1][coor] - rect[0][coor]; };
         auto gridLength = [&](int i, int lb, int ub, size_t coor)
         {
-            auto len = ctrl.stride;
+            auto len = ctrl.stride[coor];
             if(lb == ub) len = middleStride(coor);
             else if(i == lb) len = boundLLStride(i, coor);
             else if(i == ub) len = boundURStride(i, coor);
             return len;
         };
 
-        auto area = ctrl.stride * ctrl.stride;
+        auto area = ctrl.stride[0] * ctrl.stride[1];
         using Result = Product<property_type>;
         for(auto i = sx; i <= ex; ++i){
             auto len1 = gridLength(i, sx, ex, swapped ? 1 : 0);
@@ -495,12 +500,12 @@ private:
 
         auto getBox = [&ctrl](int x, int y)
         {
-            Point2D<num_type> ll = ctrl.ref + Point2D<num_type>(x * ctrl.stride, y * ctrl.stride);
-            Point2D<num_type> ur = ll + Point2D<num_type>(ctrl.stride, ctrl.stride);
+            Point2D<num_type> ll = ctrl.ref + Point2D<num_type>(x * ctrl.stride[0], y * ctrl.stride[1]);
+            Point2D<num_type> ur = ll + ctrl.stride;
             return Box2D<num_type>(ll, ur);
         };
         
-        auto area = ctrl.stride * ctrl.stride;
+        auto area = ctrl.stride[0] * ctrl.stride[1];
         using Result = Product<property_type>;
         auto iter_x = orderedGrids.begin();
         for(; iter_x != orderedGrids.end(); ++iter_x){
@@ -555,7 +560,7 @@ public:
             Insert(hole, true);
     }
 
-    std::unique_ptr<DensityGridMap> CalculateGridMap(const Box2D<num_type> & bbox, num_type stride, size_t threads = 1)
+    std::unique_ptr<DensityGridMap> CalculateGridMap(const Box2D<num_type> & bbox, const Vector2D<num_type> & stride, size_t threads = 1)
     {
         auto [width, height] = Factory::GetGridMapSize(bbox, stride);
         auto gridMap = std::make_unique<DensityGridMap>(width, height);
