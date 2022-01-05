@@ -2,6 +2,7 @@
 #define GENERIC_PROGRAMOPTIONS_HPP
 #include "generic/common/Exception.hpp"
 #include <type_traits>
+#include <algorithm>
 #include <utility>
 #include <sstream>
 #include <fstream>
