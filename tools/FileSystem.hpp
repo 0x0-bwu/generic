@@ -5,6 +5,13 @@
 #include <filesystem>
 #endif
 
+#ifdef GENERIC_OS_WINDOWS
+#include <windows.h>
+#else
+#include <limits.h>
+#include <unistd.h>
+#endif
+
 #include "Tools.hpp"
 #include <fstream>
 #include <cstdio>
@@ -12,6 +19,7 @@ namespace generic{
 namespace filesystem {
 
 inline std::string CurrentPath();
+inline std::string ExecutablePath();
 inline bool FileExists(const std::string & filename);
 inline bool RemoveFile(const std::string & filename);
 inline bool PathExists(const std::string path);
@@ -107,6 +115,20 @@ inline std::string CurrentPath()
     char buffer[1024];
     char *cwd = getcwd(buffer, sizeof(buffer));
     return std::string(cwd);
+#endif
+}
+
+inline std::string ExecutablePath()
+{
+#ifdef GENERIC_OS_WINDOWS
+    wchar_t path[4096] = { 0 };
+    GetModuleFileNameW(NULL, path, MAX_PATH);
+    std::wstring ws(path);
+    return std::string(ws.begin(), ws.end());
+#else
+    char result[4096];
+    auto count = readlink("/proc/self/exe", result, 4096);
+    return std::string(result, (count > 0) ? count : 0);
 #endif
 }
 
