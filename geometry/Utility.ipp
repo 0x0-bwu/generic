@@ -183,6 +183,16 @@ inline Point2D<float_type<num_type> > CircumCircle(const Point2D<num_type> & p1,
     return Point2D<float_type<num_type> >(x, y);
 }
 
+template <typename num_type>
+inline bool isInCircumCircle(const Point2D<num_type> & p1, const Point2D<num_type> & p2, const Point2D<num_type> & p3, const Point2D<num_type> & p4, bool considerTouch)
+{
+    using float_t = float_type<num_type>;
+    auto res = predicates::adaptive::inCircle(p1.template Cast<float_t>(), p2.template Cast<float_t>(), p3.template Cast<float_t>(), p4.template Cast<float_t>());
+    if(math::isNegative(res)) return false;
+    if(!considerTouch && res == float_t(0)) return false;
+    return true;
+}
+
 template <typename point_t, typename std::enable_if<traits::is_2d_point_t<point_t>::value, bool>::type>//todo point3d
 inline coor_f<point_t> CircumRadius2ShortestEdgeRatioSq(const point_t & p1, const point_t & p2, const point_t & p3)
 {

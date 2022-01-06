@@ -443,16 +443,8 @@ public:
     template <typename std::enable_if<point_t::dim == 2, bool>::type = true>
     static bool isInCircumCircle(const Triangulation<point_t> & tri, const TriIdx it, const point_t & p)
     {
-        auto circle = GetCircumCircle(tri, it);
-        return circle.Contains(p);
-    }
-
-    template <typename std::enable_if<point_t::dim == 2, bool>::type = true>
-    static bool isInScaledCircumCircle(const Triangulation<point_t> & tri, const TriIdx it, const point_t & p, float_t scale)
-    {
-        auto circle = GetCircumCircle(tri, it);
-        circle.r *= scale;
-        return circle.Contains(p);
+        auto [p1, p2, p3] = GetVertexPoints(tri, it);
+        return isInCircumCircle(p1, p2, p3, p, false);
     }
 
     static triangle_type<point_t> GetTriangle(const Triangulation<point_t> & tri, const TriIdx it)

@@ -6,6 +6,7 @@
 #include "generic/common/Version.hpp"
 #include "generic/math/Numbers.hpp"
 #include "GeometryTraits.hpp"
+#include "Predicates.hpp"
 #include "Trapezoid.hpp"
 #include "Sphere.hpp"
 #include "Plane.hpp"
@@ -69,6 +70,9 @@ inline Circle<float_type<num_type> > CircumCircle(const Point2D<num_type> & p1, 
 
 template <typename num_type>//return coor of circle
 inline Point2D<float_type<num_type> > CircumCircle(const Point2D<num_type> & p1, const Point2D<num_type> & p2, const Point2D<num_type> & p3, float_type<num_type> & radius2);
+
+template <typename num_type>
+inline bool isInCircumCircle(const Point2D<num_type> & p1, const Point2D<num_type> & p2, const Point2D<num_type> & p3, const Point2D<num_type> & p4, bool considerTouch = true);
 
 template <typename point_t, typename std::enable_if<traits::is_2d_point_t<point_t>::value, bool>::type = true>//todo point3d
 inline coor_f<point_t> CircumRadius2ShortestEdgeRatioSq(const point_t & p1, const point_t & p2, const point_t & p3);

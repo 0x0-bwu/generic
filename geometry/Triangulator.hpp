@@ -304,8 +304,7 @@ inline bool Triangulator2D<num_type>::isNeedFlip(VerIdx iv, TriIdx it, TriIdx it
 template <typename num_type>
 inline bool Triangulator2D<num_type>::isInCircumCircle(const Point & p, const Point & p1, const Point & p2, const Point & p3) const
 {
-    auto circle = CircumCircle(p1, p2, p3);
-    return circle.Contains(p);
+    return geometry::isInCircumCircle(p1, p2, p3, p, false);
 }
 
 template <typename num_type>
@@ -565,8 +564,7 @@ private:
             return;
         }
         VerIdx ix = tri.triangles[it].EgOpVe(e);
-        auto circle = Utility::GetCircumCircle(tri, it);
-        if(circle.Contains(tri.VerIdxPoint(iv))){
+        if(Utility::isInCircumCircle(tri, it, tri.VerIdxPoint(iv))){
             op.RemoveOneTriangle(it);
             ConvexInsertVertex(iv, Edge(iu, ix));
             ConvexInsertVertex(iv, Edge(ix, iw));
