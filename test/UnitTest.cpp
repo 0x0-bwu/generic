@@ -1,5 +1,4 @@
 #define GENERIC_UNIT_TEST
-#include <boost/test/included/unit_test.hpp>
 #include "TestMath.hpp"
 #include "TestThread.hpp"
 #include "TestGeometry.hpp"
