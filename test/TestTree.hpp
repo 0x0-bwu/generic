@@ -1,18 +1,13 @@
 #ifndef TEST_TESTTREE_HPP
 #define TEST_TESTTREE_HPP
-#define BOOST_TEST_INCLUDED
-#include <boost/test/unit_test.hpp>
-#include <boost/test/test_tools.hpp>
-#include <boost/mpl/list.hpp>
+#include "generic/test/TestCommon.hpp"
 #include "generic/tree/QuadTreeUtilityMT.hpp"
 #include "generic/tree/KdTreeUtilityMT.hpp"
 #include "generic/tree/Varification.hpp"
 #include "generic/tree/BVHUtilityMT.hpp"
 #include "generic/common/Traits.hpp"
 #include "generic/tree/IO.hpp"
-#include <iostream>
 #include <chrono>
-#include <vector>
 #include <array>
 #include <map>
 using namespace boost::unit_test;

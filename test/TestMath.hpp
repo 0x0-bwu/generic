@@ -1,9 +1,6 @@
 #ifndef TEST_TESTMATH_HPP
 #define TEST_TESTMATH_HPP
-#define BOOST_TEST_INCLUDED
-#include <boost/test/unit_test.hpp>
-#include <boost/test/test_tools.hpp>
-#include <boost/mpl/list.hpp>
+#include "generic/test/TestCommon.hpp"
 #include "generic/math/MathUtility.hpp"
 #include "generic/math/LinearAlgebra.hpp"
 #include "generic/math/MathIO.hpp"

@@ -1,8 +1,6 @@
 #ifndef TEST_TESTTHREAD_HPP
 #define TEST_TESTTHREAD_HPP
-#define BOOST_TEST_INCLUDED
-#include <boost/test/unit_test.hpp>
-#include <boost/test/test_tools.hpp>
+#include "generic/test/TestCommon.hpp"
 #include "generic/thread/MapReduce.hpp"
 #include "generic/thread/TaskFlow.hpp"
 #include <chrono>

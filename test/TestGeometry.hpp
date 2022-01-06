@@ -1,6 +1,6 @@
 #ifndef TEST_TESTGEOMETRY_HPP
 #define TEST_TESTGEOMETRY_HPP
-#define BOOST_TEST_INCLUDED
+#include "generic/test/TestCommon.hpp"
 #include "generic/geometry/BoostGeometryRegister.hpp"
 #include "generic/geometry/BoostPolygonRegister.hpp"
 #include "generic/geometry/BooleanOperation.hpp"
@@ -10,13 +10,6 @@
 #include "generic/geometry/Transform.hpp"
 #include "generic/geometry/Utility.hpp"
 #include "generic/math/Numbers.hpp"
-#include <boost/test/unit_test.hpp>
-#include <boost/test/test_tools.hpp>
-#include <boost/mpl/list.hpp>
-#include <functional>
-#include <numeric>
-#include <vector>
-#include <list>
 using namespace boost::unit_test;
 using namespace generic;
 using namespace generic::geometry;

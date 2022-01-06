@@ -4,30 +4,57 @@ import sys
 from sys import platform
 
 cwd = os.getcwd()
-env = Environment()
-env.Append(CXXFLAGS=[
+debug_mode = True
+
+# Compile flags
+cxx_flags = [
     "-g",
     "-Wall",
     "-w",
+    "-Wl,-rpath,\$$ORIGIN",
     "-std=c++17",
-    "-lpthread"
-])
+    "-lpthread",
+]
 
-env.Append(CPPPATH=[
-    cwd + "/.."
-])
+if debug_mode :
+    cxx_flags.append(["-g", "-O0"])
+else :
+    cxx_flags.append(["-s", "-O0", "-DNDEBUG"])
 
-program_name ='./build/UnitTest.exe'
+# Thirdpart
+## boost
+boost_include_path = '/usr/local/include'
+boost_library_path = '/usr/local/lib'
+
+# Build dir
+build_path = os.path.abspath(cwd + '/build')
+program_name = build_path + '/UnitTest.exe'
+
+cpp_path = [
+    '.',
+    '..',
+    '/usr/include',
+    boost_include_path
+]
 
 source_files = [
-    './test/UnitTest.cpp'
+    cwd + '/test/UnitTest.cpp'
 ]
 
 libs_name = [
-    'pthread'
+    # 'boost_unit_test_framework',
+    'pthread',
 ]
 
 libs_path = [
+    boost_library_path
 ]
 
-env.Program(program_name,source_files,LIBS=libs_name,LIBPATH=libs_path)
+rpath = libs_path
+
+#Environment
+env = Environment()
+env.Append(CPPPATH=cpp_path)
+env.Append(CXXFLAGS=cxx_flags)
+
+env.Program(program_name,source_files,LIBS=libs_name,LIBPATH=libs_path,RPATH=rpath)

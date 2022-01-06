@@ -1,8 +1,6 @@
 #ifndef TEST_TESTTOOLSHPP
 #define TEST_TESTTOOLSHPP
-#define BOOST_TEST_INCLUDED
-#include <boost/test/unit_test.hpp>
-#include <boost/test/test_tools.hpp>
+#include "generic/test/TestCommon.hpp"
 #include "generic/tools/ProgramOptions.hpp"
 #include "generic/tools/Parser.hpp"
 using namespace boost::unit_test;
