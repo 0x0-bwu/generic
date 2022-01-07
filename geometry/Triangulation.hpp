@@ -444,7 +444,7 @@ public:
     static bool isInCircumCircle(const Triangulation<point_t> & tri, const TriIdx it, const point_t & p)
     {
         auto [p1, p2, p3] = GetVertexPoints(tri, it);
-        return isInCircumCircle(p1, p2, p3, p, false);
+        return geometry::isInCircumCircle(p1, p2, p3, p, false);
     }
 
     static triangle_type<point_t> GetTriangle(const Triangulation<point_t> & tri, const TriIdx it)

@@ -12,6 +12,18 @@ struct PointHash
 };
 
 template <>
+struct PointHash<int32_t>
+{
+    size_t operator()(const Point2D<int32_t> & point) const noexcept
+    {
+        size_t seed(0);
+        boost::hash_combine(seed, point[0]);
+        boost::hash_combine(seed, point[1]);
+        return seed;
+    }
+};
+
+template <>
 struct PointHash<int64_t>
 {
     size_t operator()(const Point2D<int64_t> & point) const noexcept

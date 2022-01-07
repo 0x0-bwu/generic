@@ -48,6 +48,7 @@ protected:
 
     State state;
     Paras paras;
+    bool refined = false;
     Triangulation<Point> & tri;
     TriangulationOperator<Point> op;
 public:
@@ -71,6 +72,7 @@ public:
     virtual void MergeShortestEdge(){}//test, bwu
     virtual void UpdateState() = 0;
     virtual void Refine(index_t step) = 0;
+    virtual bool Refined() const { return refined; }
     virtual float_t LimitAlpha() const = 0;
     virtual std::optional<Point2D<num_type> > CurrVertexPoint() const
     {
@@ -520,6 +522,7 @@ public:
     {
         SplitEncroachedEdges(maxStep);
         RemoveSkinnyTriangles(maxStep);
+        if(maxStep > 0) Base::refined = true;
     }
 
     void ReallocateTriangulation()
@@ -659,10 +662,7 @@ private:
         while(DequeueInvalidEdges()){
             auto e = m_queueE.top();
             m_queueE.pop();
-            if(Base::Utility::GetEdgeLenSq(tri, e.edge) < paras.minEdgeLenSq){
-                continue;//test, bwu
-            }
-
+            
             auto res = SplitEncroachedEdge(e.edge);
             std::list<TriIdx> triangles;
             RemoveEncroachedCircumCenters(e.edge, triangles);
@@ -864,6 +864,7 @@ public:
             UpdateState();
             maxStep--;
         }
+        if(maxStep > 0) Base::refined = true;
     }
 private:
     void UpdateState()
@@ -1071,7 +1072,6 @@ public:
 
     void Refine(index_t maxStep)
     {
-        index_t step = 0;
         while(maxStep && state.curr.ft){
             if(state.curr.fe){
                 SliptEncroachedEdgeAndRemoveCircumCenters(state.curr.e);
@@ -1082,6 +1082,7 @@ public:
             UpdateState();
             maxStep--;
         }
+        if(maxStep > 0) Base::refined = true;
     }
 private:
     void UpdateState()
