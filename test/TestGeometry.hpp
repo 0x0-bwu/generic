@@ -277,6 +277,14 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_geometry_utility_t, num_type)
     BOOST_CHECK(points.size() == 2);
     BOOST_CHECK(points[0] == Point2D<num_type>(0, 0));
     BOOST_CHECK(points[1] == Point2D<num_type>(2, 2));
+
+    //predicates
+    BOOST_CHECK(PointLineLocation::Left   == GetPointSegmentLocation(Point2D<num_type>(0, 1), Segment2D<num_type>({0, 0}, {3, 3})));
+    BOOST_CHECK(PointLineLocation::OnLine == GetPointSegmentLocation(Point2D<num_type>(1, 1), Segment2D<num_type>({0, 0}, {3, 3})));
+    BOOST_CHECK(PointLineLocation::Right  == GetPointSegmentLocation(Point2D<num_type>(1, 0), Segment2D<num_type>({0, 0}, {3, 3})));
+    BOOST_CHECK(PointLineLocation::Right  == GetPointSegmentLocation(Point2D<num_type>(0, 1), Segment2D<num_type>({3, 3}, {0, 0})));
+    BOOST_CHECK(PointLineLocation::OnLine == GetPointSegmentLocation(Point2D<num_type>(1, 1), Segment2D<num_type>({3, 3}, {0, 0})));
+    BOOST_CHECK(PointLineLocation::Left   == GetPointSegmentLocation(Point2D<num_type>(1, 0), Segment2D<num_type>({3, 3}, {0, 0})));
 }
 
 void t_geometry_utility()

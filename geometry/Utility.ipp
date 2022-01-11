@@ -162,32 +162,33 @@ inline Circle<float_type<num_type> > CircumCircle(const Point2D<num_type> & p1, 
 template <typename num_type>//return coor of circle
 inline Point2D<float_type<num_type> > CircumCircle(const Point2D<num_type> & p1, const Point2D<num_type> & p2, const Point2D<num_type> & p3, float_type<num_type> & radius2)
 {   
-    float_type<num_type> epsilon = std::numeric_limits<float_type<num_type> >::epsilon();
-    float_type<num_type> a1 = p2[1] - p1[1];
-    float_type<num_type> a2 = p3[1] * p3[1] - p1[1] * p1[1] + p3[0] * p3[0] - p1[0] * p1[0];
-    float_type<num_type> b1 = p3[1] - p1[1];
-    float_type<num_type> b2 = p2[1] * p2[1] - p1[1] * p1[1] + p2[0] * p2[0] - p1[0] * p1[0];
-    float_type<num_type> c = 2.0 * ((p3[0] - p1[0]) * (p2[1] - p1[1]) - (p2[0] - p1[0]) * (p3[1] - p1[1]));
+    using float_t = float_type<num_type>;
+    float_t epsilon = std::numeric_limits<float_t>::epsilon();
+    float_t a1 = p2[1] - p1[1];
+    float_t a2 = p3[1] * p3[1] - p1[1] * p1[1] + p3[0] * p3[0] - p1[0] * p1[0];
+    float_t b1 = p3[1] - p1[1];
+    float_t b2 = p2[1] * p2[1] - p1[1] * p1[1] + p2[0] * p2[0] - p1[0] * p1[0];
+    float_t c = 2.0 * ((p3[0] - p1[0]) * (p2[1] - p1[1]) - (p2[0] - p1[0]) * (p3[1] - p1[1]));
     if(std::fabs(c) < epsilon) c = std::copysign(epsilon, c);
-    float_type<num_type> x = (a1 * a2 - b1 * b2) / c;
+    float_t x = (a1 * a2 - b1 * b2) / c;
 
-    float_type<num_type> d1 = p2[0] - p1[0];
-    float_type<num_type> d2 = p3[0] * p3[0] - p1[0] * p1[0] + p3[1] * p3[1] - p1[1] * p1[1];
-    float_type<num_type> e1 = p3[0] - p1[0];
-    float_type<num_type> e2 = p2[0] * p2[0] - p1[0] * p1[0] + p2[1] * p2[1] - p1[1] * p1[1];
-    float_type<num_type> f = 2.0 * ((p3[1] - p1[1]) * (p2[0] - p1[0]) - (p2[1] - p1[1]) * (p3[0] - p1[0]));
+    float_t d1 = p2[0] - p1[0];
+    float_t d2 = p3[0] * p3[0] - p1[0] * p1[0] + p3[1] * p3[1] - p1[1] * p1[1];
+    float_t e1 = p3[0] - p1[0];
+    float_t e2 = p2[0] * p2[0] - p1[0] * p1[0] + p2[1] * p2[1] - p1[1] * p1[1];
+    float_t f = 2.0 * ((p3[1] - p1[1]) * (p2[0] - p1[0]) - (p2[1] - p1[1]) * (p3[0] - p1[0]));
     if(std::fabs(f) < epsilon) f = std::copysign(epsilon, f);
-    float_type<num_type> y = (d1 * d2 - e1 * e2) / f;
+    float_t y = (d1 * d2 - e1 * e2) / f;
 
-    radius2 = float_type<num_type>((x - p1[0]) * (x - p1[0]) + (y - p1[1]) * (y - p1[1]));
-    return Point2D<float_type<num_type> >(x, y);
+    radius2 = float_t((x - p1[0]) * (x - p1[0]) + (y - p1[1]) * (y - p1[1]));
+    return Point2D<float_t>(x, y);
 }
 
 template <typename num_type>
 inline bool isInCircumCircle(const Point2D<num_type> & p1, const Point2D<num_type> & p2, const Point2D<num_type> & p3, const Point2D<num_type> & p4, bool considerTouch)
 {
     using float_t = float_type<num_type>;
-    auto res = predicates::adaptive::inCircle(p1.template Cast<float_t>(), p2.template Cast<float_t>(), p3.template Cast<float_t>(), p4.template Cast<float_t>());
+    auto res = predicates::adaptive::inCircle<float_t>(p1[0], p1[1], p2[0], p2[1], p3[0], p3[1], p4[0], p4[1]);
     if(math::isNegative(res)) return false;
     if(!considerTouch && res == float_t(0)) return false;
     return true;
@@ -351,26 +352,7 @@ template <typename point_t, typename segment_t,
           typename std::enable_if<traits::is_same_dim_t<point_t, segment_t>::value, bool>::type>
 inline PointLineLocation GetPointSegmentLocation(const point_t & p, const segment_t & seg)
 {
-    return GetPointSegmentLocationImp(p, seg, typename traits::is_same_coor_t<point_t, segment_t>::type{});
-}
-
-template <typename point_t, typename segment_t, 
-          typename std::enable_if<traits::is_same_dim_t<point_t, segment_t>::value, bool>::type = true>
-inline PointLineLocation GetPointSegmentLocationImp(const point_t & p, const segment_t & seg, std::false_type)//different coor_t
-{
-    if(traits::is_floating_t<point_t>::value)
-        return GetPointSegmentLocation(p, seg.template Cast<typename point_t::coor_t>());
-    else return GetPointSegmentLocation(p.template Cast<typename segment_t::coor_t>(), seg);
-}
-
-template <typename point_t, typename segment_t, 
-          typename std::enable_if<traits::is_same_dim_t<point_t, segment_t>::value, bool>::type = true>
-inline PointLineLocation GetPointSegmentLocationImp(const point_t & p, const segment_t & seg, std::true_type)//same coor_t
-{
-    auto res = boost::polygon::orientation(seg, p);
-    if(0 == res) return PointLineLocation::OnLine;
-    else if(0 < res) return PointLineLocation::Left;
-    else return PointLineLocation::Right;
+    return GetPointLineLocation(p, seg[0], seg[1]);
 }
 
 template <typename point_t, typename line_t, 
@@ -388,7 +370,12 @@ template <typename point_t1, typename point_t2,
           typename std::enable_if<traits::is_same_dim_t<point_t1, point_t2>::value, bool>::type>
 inline PointLineLocation GetPointLineLocation(const point_t1 & p, const point_t2 & v1, const point_t2 & v2)
 {
-    return GetPointSegmentLocation(p, segment_type<point_t2>(v1, v2));
+    static_assert(point_t1::dim == 2, "point line location only applied for 2d");
+    using float_t = float_type<typename traits::common_coor_t<typename point_t1::coor_t, typename point_t2::coor_t>::type>;
+    auto res = predicates::adaptive::Orient2D<float_t>(v1[0], v1[1], v2[0], v2[1], p[0], p[1]);
+    if(float_t(0) == res) return PointLineLocation::OnLine;
+    else if(0 < res) return PointLineLocation::Left;
+    else return PointLineLocation::Right;
 }
 
 template <typename point_t1, typename point_t2,
