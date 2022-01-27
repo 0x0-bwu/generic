@@ -544,14 +544,19 @@ inline bool ContainsDetail(const geometry_t1 & g1, const geometry_t2 & g2, bool 
 }
 
 template <typename geometry_t1, typename geometry_t2,
-          typename std::enable_if<traits::is_geometry_t<geometry_t1>::value &&
-                                  traits::is_geometry_t<geometry_t2>::value, bool>::type = true>
+          typename std::enable_if<traits::is_2d_geometry_t<geometry_t1>::value &&
+                                  traits::is_2d_geometry_t<geometry_t2>::value, bool>::type = true>
 inline bool ContainsDetail(const geometry_t1 & g1, const geometry_t2 & g2, bool considerTouch, traits::same_coor_t)
 {
-    static_assert(traits::is_same_coor_t<geometry_t1, geometry_t2>::value, "geometry type with different dimensions!");
-    if constexpr (traits::is_2d_geometry_t<geometry_t1>::value && traits::is_2d_geometry_t<geometry_t2>::value)
-        return ContainsImp2D(g1, g2, considerTouch);
-    else return ContainsImp3D(g1, g2, considerTouch);
+    return ContainsImp2D(g1, g2, considerTouch);
+}
+
+template <typename geometry_t1, typename geometry_t2,
+          typename std::enable_if<traits::is_3d_geometry_t<geometry_t1>::value &&
+                                  traits::is_3d_geometry_t<geometry_t2>::value, bool>::type = true>
+inline bool ContainsDetail(const geometry_t1 & g1, const geometry_t2 & g2, bool considerTouch, traits::same_coor_t)
+{
+    return ContainsImp3D(g1, g2, considerTouch);
 }
 
 template <typename geometry_t1, typename geometry_t2,

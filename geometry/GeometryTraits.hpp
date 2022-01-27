@@ -87,18 +87,18 @@ template <typename vector_t>
 using is_3d_vector_t = is_3d_point_t<vector_t>;
 
 template <typename geometry_t>
-using is_2d_geometry_t = typename std::conditional<geometry_t::dim == 2, std::true_type, std::false_type>::type;
-
-template <typename geometry_t>
-using is_3d_geometry_t = typename std::conditional<geometry_t::dim == 3, std::true_type, std::false_type>::type;
-
-template <typename geometry_t>
 using is_geometry_t = typename std::conditional<is_point_t<geometry_t>::value ||
                                                 is_segment_t<geometry_t>::value ||
                                                 is_triangle_t<geometry_t>::value ||
                                                 is_box_t<geometry_t>::value ||
                                                 is_polygon_t<geometry_t>::value ||
                                                 is_polygon_with_holes_t<geometry_t>::value, std::true_type, std::false_type>::type;
+                                                
+template <typename geometry_t>
+using is_2d_geometry_t = typename std::conditional<is_geometry_t<geometry_t>::value && geometry_t::dim == 2, std::true_type, std::false_type>::type;
+
+template <typename geometry_t>
+using is_3d_geometry_t = typename std::conditional<is_geometry_t<geometry_t>::value && geometry_t::dim == 3, std::true_type, std::false_type>::type;
 
 template <typename geometry_t>
 using is_2d_surf_geom_t = typename std::conditional<(is_triangle_t<geometry_t>::value ||

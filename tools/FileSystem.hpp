@@ -187,4 +187,4 @@ inline std::string FileName(const std::string & path)
 
 }//namespace filesystem
 }//namespace generic
-#endif//#define GENERIC_FILESYSTEM_HPP
+#endif//GENERIC_FILESYSTEM_HPP
