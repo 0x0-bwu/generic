@@ -133,12 +133,22 @@ inline void Interpolation<num_type>::SetSamples(const std::vector<num_type> & x,
         else { assert(false); }
 
         boost::numeric::ublas::permutation_matrix<size_t> pm(size);
-        lu_factorize(m, pm);
-        lu_substitute(m, pm, rhs);
+
+        //decay to linear method if fail at LU factorization  
+        try {
+            lu_factorize(m, pm);
+            lu_substitute(m, pm, rhs);
+        }
+        catch (...) {
+            m_method = Method::Linear;
+            SetSamples(x, y);
+            return;
+        }
+
         for(size_t i = 0; i < size; ++i)
             m_coef2[i] = rhs[i];
         
-        for(size_t i = 0, j = 1; j < size; ++i, ++j){
+        for(size_t i = 0, j = 1; j < size; ++i, ++j) {
             m_coef1[i] = (m_y[j] - m_y[i]) / (m_x[j] - m_x[i]) - 1.0 / 3.0 * (2.0 * m_coef2[i] + m_coef2[j]) * (m_x[j] - m_x[i]);
             m_coef3[i] = 1.0 / 3.0 * (m_coef2[j] - m_coef2[i]) / (m_x[j] - m_x[i]);
         }
