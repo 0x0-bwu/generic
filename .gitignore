@@ -4,4 +4,5 @@
 *.so
 *.exe
 build
+docs
 .sconsign.dblite

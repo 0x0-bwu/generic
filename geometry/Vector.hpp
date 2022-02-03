@@ -52,6 +52,8 @@ public:
     template <typename... Args>
     void Set(Args... args);
 
+    num_type Dot(const VectorN<num_type, N> & v);
+
     static num_type NormSquare(const VectorN<num_type, N> & v1, const VectorN<num_type, N> & v2);
 
 private:
@@ -98,6 +100,15 @@ template <typename... Args>
 inline void VectorN<num_type, N>::Set(Args... args)
 {
     VectorNSetter<num_type, 0, N>::Set(*this, num_type(args)...);
+}
+
+template <typename num_type, size_t N>
+inline num_type VectorN<num_type, N>::Dot(const VectorN<num_type, N> & v)
+{
+    num_type res(0);
+    for(size_t i = 0; i < N; ++i)
+        res += (*this)[i] * v[i];
+    return res;
 }
 
 template <typename num_type, size_t N>

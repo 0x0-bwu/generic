@@ -204,6 +204,16 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_geometry_box_t, num_type)
     BOOST_CHECK(box3d_3.isValid());
 }
 
+BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_geometry_vector_t, num_type)
+{
+    VectorN<num_type, 5> v1(1);
+    VectorN<num_type, 5> v2(2);
+    v2.Set(1, 2, 3, 4, 5);
+    BOOST_CHECK(v1 != v2);
+    BOOST_CHECK(v2[4] == 5);
+    BOOST_CHECK_EQUAL(v1.Dot(v2), 15);
+}
+
 BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_geometry_utility_t, num_type)
 {
     auto t = 1e-5;
@@ -718,6 +728,7 @@ test_suite * create_geometry_test_suite()
     geometry_suite->add(BOOST_TEST_CASE(&t_geometry_segment));
     geometry_suite->add(BOOST_TEST_CASE_TEMPLATE(t_geometry_triangle_t, t_geometry_num_types));
     geometry_suite->add(BOOST_TEST_CASE_TEMPLATE(t_geometry_box_t, t_geometry_num_types));
+    geometry_suite->add(BOOST_TEST_CASE_TEMPLATE(t_geometry_vector_t, t_geometry_num_types));
     geometry_suite->add(BOOST_TEST_CASE_TEMPLATE(t_geometry_utility_t, t_geometry_num_types));
     geometry_suite->add(BOOST_TEST_CASE(&t_geometry_utility));
     geometry_suite->add(BOOST_TEST_CASE_TEMPLATE(t_triangulation_t, t_geometry_num_types));

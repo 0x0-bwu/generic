@@ -40,83 +40,83 @@
 namespace generic  {
 namespace geometry {
 namespace  predicates {
-//@brief: geometric predicates using arbitrary precision arithmetic 
-//@note : these are provided primarily for illustrative purposes and adaptive routines should be preferred
+///@brief: geometric predicates using arbitrary precision arithmetic 
+///@note : these are provided primarily for illustrative purposes and adaptive routines should be preferred
 namespace exact {
-//@brief   : determine if the 2d point c is above, on, or below the line defined by a and b
-//@return  : determinant of {{ax - cx, ay - cy}, {bx - cx, by - cy}}
-//@note    : positive, 0, negative result for c above, on, or below the line defined by a -> b
+///@brief   : determine if the 2d point c is above, on, or below the line defined by a and b
+///@return  : determinant of {{ax - cx, ay - cy}, {bx - cx, by - cy}}
+///@note    : positive, 0, negative result for c above, on, or below the line defined by a -> b
 template <typename T>
 inline T Orient2D(T const ax, T const ay, T const bx, T const by, T const cx, T const cy);
 
-//@brief   : determine if the 2d point c is above, on, or below the line defined by a and b
-//@return  : determinant of {{ax - cx, ay - cy}, {bx - cx, by - cy}}
-//@note    : positive, 0, negative result for c above, on, or below the line defined by a -> b
+///@brief   : determine if the 2d point c is above, on, or below the line defined by a and b
+///@return  : determinant of {{ax - cx, ay - cy}, {bx - cx, by - cy}}
+///@note    : positive, 0, negative result for c above, on, or below the line defined by a -> b
 template <typename T>
 inline T Orient2D(const Point2D<T> & pa, const Point2D<T> & pb, const Point2D<T> & pc);
 
-//@brief   : determine if the 2d point d is inside, on, or outside the circle defined by a, b, and c
-//@return  : determinant of {{ax - dx, ay - dy, (ax - dx)^2 + (ay - dy)^2}, {bx - dx, by - dy, (bx - dx)^2 + (by - dy)^2}, {cx - dx, cy - dy, (cx - dx)^2 + (cy - dy)^2}}
-//@note    : positive, 0, negative result for d inside, on, or outside the circle defined by a, b, and c
+///@brief   : determine if the 2d point d is inside, on, or outside the circle defined by a, b, and c
+///@return  : determinant of {{ax - dx, ay - dy, (ax - dx)^2 + (ay - dy)^2}, {bx - dx, by - dy, (bx - dx)^2 + (by - dy)^2}, {cx - dx, cy - dy, (cx - dx)^2 + (cy - dy)^2}}
+///@note    : positive, 0, negative result for d inside, on, or outside the circle defined by a, b, and c
 template <typename T>
 inline T inCircle(T const ax, T const ay, T const bx, T const by, T const cx, T const cy, T const dx, T const dy);
 
-//@brief   : determine if the 2d point d is inside, on, or outside the circle defined by a, b, and c
-//@return  : determinant of {{ax - dx, ay - dy, (ax - dx)^2 + (ay - dy)^2}, {bx - dx, by - dy, (bx - dx)^2 + (by - dy)^2}, {cx - dx, cy - dy, (cx - dx)^2 + (cy - dy)^2}}
-//@note    : positive, 0, negative result for d inside, on, or outside the circle defined by a, b, and c
+///@brief   : determine if the 2d point d is inside, on, or outside the circle defined by a, b, and c
+///@return  : determinant of {{ax - dx, ay - dy, (ax - dx)^2 + (ay - dy)^2}, {bx - dx, by - dy, (bx - dx)^2 + (by - dy)^2}, {cx - dx, cy - dy, (cx - dx)^2 + (cy - dy)^2}}
+///@note    : positive, 0, negative result for d inside, on, or outside the circle defined by a, b, and c
 template <typename T>
 inline T inCircle(const Point2D<T> & pa, const Point2D<T> & pb, const Point2D<T> & pc, const Point2D<T> & pd);
 
-//@brief   : determine if the 3d point d is above, on, or below the plane defined by a, b, and c
-//@return  : determinant of {{ax - dx, ay - dy, az - dz}, {bx - dx, by - dy, bz - dz}, {cx - dx, cy - dy, cz - dz}}
-//@note    : positive, 0, negative result for c above, on, or below the plane defined by a, b, and c
+///@brief   : determine if the 3d point d is above, on, or below the plane defined by a, b, and c
+///@return  : determinant of {{ax - dx, ay - dy, az - dz}, {bx - dx, by - dy, bz - dz}, {cx - dx, cy - dy, cz - dz}}
+///@note    : positive, 0, negative result for c above, on, or below the plane defined by a, b, and c
 template <typename T>
 inline T Orient3D(const Point3D<T> & pa, const Point3D<T> & pb, const Point3D<T> & pc, const Point3D<T> & pd);
 
-//@brief   : determine if the 3d point e is inside, on, or outside the sphere defined by a, b, c, and d
-//@return  : determinant of {{ax - ex, ay - ey, az - ez, (ax - ex)^2 + (ay - ey)^2 + (az - ez)^2}, {bx - ex, by - ey, bz - ez, (bx - ex)^2 + (by - ey)^2 + (bz - ez)^2}, {cx - ex, cy - ey, cz - ez, (cx - ex)^2 + (cy - ey)^2 + (cz - ez)^2}, {dx - ex, dy - ey, dz - ez, (dx - ex)^2 + (dy - ey)^2 + (dz - ez)^2}}
-//@note    : positive, 0, negative result for d inside, on, or outside the circle defined by a, b, and c
+///@brief   : determine if the 3d point e is inside, on, or outside the sphere defined by a, b, c, and d
+///@return  : determinant of {{ax - ex, ay - ey, az - ez, (ax - ex)^2 + (ay - ey)^2 + (az - ez)^2}, {bx - ex, by - ey, bz - ez, (bx - ex)^2 + (by - ey)^2 + (bz - ez)^2}, {cx - ex, cy - ey, cz - ez, (cx - ex)^2 + (cy - ey)^2 + (cz - ez)^2}, {dx - ex, dy - ey, dz - ez, (dx - ex)^2 + (dy - ey)^2 + (dz - ez)^2}}
+///@note    : positive, 0, negative result for d inside, on, or outside the circle defined by a, b, and c
 template <typename T>
 inline T inSphere(const Point3D<T> & pa, const Point3D<T> & pb, const Point3D<T> & pc, const Point3D<T> & pd, const Point3D<T> & pe);
 
 }//namespace exact
 
-//@brief: geometric predicates using normal floating point arithmetic but falling back to arbitrary precision when needed
-//@note : these should have the same accuracy but are significantly faster when determinants are large
+///@brief: geometric predicates using normal floating point arithmetic but falling back to arbitrary precision when needed
+///@note : these should have the same accuracy but are significantly faster when determinants are large
 namespace adaptive {
-//@brief   : determine if the 2d point c is above, on, or below the line defined by a and b
-//@return  : determinant of {{ax - cx, ay - cy}, {bx - cx, by - cy}}
-//@note    : positive, 0, negative result for c above, on, or below the line defined by a -> b
+///@brief   : determine if the 2d point c is above, on, or below the line defined by a and b
+///@return  : determinant of {{ax - cx, ay - cy}, {bx - cx, by - cy}}
+///@note    : positive, 0, negative result for c above, on, or below the line defined by a -> b
 template <typename T>
 inline T Orient2D(T const ax, T const ay, T const bx, T const by, T const cx, T const cy);
 
-//@brief   : determine if the 2d point c is above, on, or below the line defined by a and b
-//@return  : determinant of {{ax - cx, ay - cy}, {bx - cx, by - cy}}
-//@note    : positive, 0, negative result for c above, on, or below the line defined by a -> b
+///@brief   : determine if the 2d point c is above, on, or below the line defined by a and b
+///@return  : determinant of {{ax - cx, ay - cy}, {bx - cx, by - cy}}
+///@note    : positive, 0, negative result for c above, on, or below the line defined by a -> b
 template <typename T>
 inline T Orient2D(const Point2D<T> & pa, const Point2D<T> & pb, const Point2D<T> & pc);
 
-//@brief   : determine if the 2d point d is inside, on, or outside the circle defined by a, b, and c
-//@return  : determinant of {{ax - dx, ay - dy, (ax - dx)^2 + (ay - dy)^2}, {bx - dx, by - dy, (bx - dx)^2 + (by - dy)^2}, {cx - dx, cy - dy, (cx - dx)^2 + (cy - dy)^2}}
-//@note    : positive, 0, negative result for d inside, on, or outside the circle defined by a, b, and c
+///@brief   : determine if the 2d point d is inside, on, or outside the circle defined by a, b, and c
+///@return  : determinant of {{ax - dx, ay - dy, (ax - dx)^2 + (ay - dy)^2}, {bx - dx, by - dy, (bx - dx)^2 + (by - dy)^2}, {cx - dx, cy - dy, (cx - dx)^2 + (cy - dy)^2}}
+///@note    : positive, 0, negative result for d inside, on, or outside the circle defined by a, b, and c
 template <typename T>
 inline T inCircle(T const ax, T const ay, T const bx, T const by, T const cx, T const cy, T const dx, T const dy);
 
-//@brief   : determine if the 2d point d is inside, on, or outside the circle defined by a, b, and c
-//@return  : determinant of {{ax - dx, ay - dy, (ax - dx)^2 + (ay - dy)^2}, {bx - dx, by - dy, (bx - dx)^2 + (by - dy)^2}, {cx - dx, cy - dy, (cx - dx)^2 + (cy - dy)^2}}
-//@note    : positive, 0, negative result for d inside, on, or outside the circle defined by a, b, and c
+///@brief   : determine if the 2d point d is inside, on, or outside the circle defined by a, b, and c
+///@return  : determinant of {{ax - dx, ay - dy, (ax - dx)^2 + (ay - dy)^2}, {bx - dx, by - dy, (bx - dx)^2 + (by - dy)^2}, {cx - dx, cy - dy, (cx - dx)^2 + (cy - dy)^2}}
+///@note    : positive, 0, negative result for d inside, on, or outside the circle defined by a, b, and c
 template <typename T>
 inline T inCircle(const Point2D<T> & pa, const Point2D<T> & pb, const Point2D<T> & pc, const Point2D<T> & pd);
 
-//@brief   : determine if the 3d point d is above, on, or below the plane defined by a, b, and c
-//@return  : determinant of {{ax - dx, ay - dy, az - dz}, {bx - dx, by - dy, bz - dz}, {cx - dx, cy - dy, cz - dz}}
-//@note    : positive, 0, negative result for c above, on, or below the plane defined by a, b, and c
+///@brief   : determine if the 3d point d is above, on, or below the plane defined by a, b, and c
+///@return  : determinant of {{ax - dx, ay - dy, az - dz}, {bx - dx, by - dy, bz - dz}, {cx - dx, cy - dy, cz - dz}}
+///@note    : positive, 0, negative result for c above, on, or below the plane defined by a, b, and c
 template <typename T>
 inline T Orient3D(const Point3D<T> & pa, const Point3D<T> & pb, const Point3D<T> & pc, const Point3D<T> & pd);
 
-//@brief   : determine if the 3d point e is inside, on, or outside the sphere defined by a, b, c, and d
-//@return  : determinant of {{ax - ex, ay - ey, az - ez, (ax - ex)^2 + (ay - ey)^2 + (az - ez)^2}, {bx - ex, by - ey, bz - ez, (bx - ex)^2 + (by - ey)^2 + (bz - ez)^2}, {cx - ex, cy - ey, cz - ez, (cx - ex)^2 + (cy - ey)^2 + (cz - ez)^2}, {dx - ex, dy - ey, dz - ez, (dx - ex)^2 + (dy - ey)^2 + (dz - ez)^2}}
-//@note    : positive, 0, negative result for d inside, on, or outside the circle defined by a, b, and c
+///@brief   : determine if the 3d point e is inside, on, or outside the sphere defined by a, b, c, and d
+///@return  : determinant of {{ax - ex, ay - ey, az - ez, (ax - ex)^2 + (ay - ey)^2 + (az - ez)^2}, {bx - ex, by - ey, bz - ez, (bx - ex)^2 + (by - ey)^2 + (bz - ez)^2}, {cx - ex, cy - ey, cz - ez, (cx - ex)^2 + (cy - ey)^2 + (cz - ez)^2}, {dx - ex, dy - ey, dz - ez, (dx - ex)^2 + (dy - ey)^2 + (dz - ez)^2}}
+///@note    : positive, 0, negative result for d inside, on, or outside the circle defined by a, b, and c
 template <typename T>
 inline T inSphere(const Point3D<T> & pa, const Point3D<T> & pb, const Point3D<T> & pc, const Point3D<T> & pd, const Point3D<T> & pe);
 }
@@ -125,7 +125,7 @@ namespace detail {
 
 template<typename T> class ExpansionBase;
 
-//@brief: class to exactly represent the result of a sequence of arithmetic operations as an sequence of values that sum to the result
+///@brief: class to exactly represent the result of a sequence of arithmetic operations as an sequence of values that sum to the result
 template<typename T, size_t N>
 class Expansion : private ExpansionBase<T>, public std::array<T, N>
 {
@@ -194,11 +194,11 @@ template <typename T> struct use_fma {static const bool value = (std::is_same<T,
                                                                 (std::is_same<T, double>::value      && fp_fast_fma)  ||
                                                                 (std::is_same<T, long double>::value && fp_fast_fmal);};
 
-//@brief  : helper function to sort by absolute value
-//@param a: lhs item to compare
-//@param b: rhs item to compare
-//@return : true if |a| < |b|
-//@note   : defined since lambda functions aren't allow in c++03
+///@brief  : helper function to sort by absolute value
+///@param a: lhs item to compare
+///@param b: rhs item to compare
+///@return : true if |a| < |b|
+///@note   : defined since lambda functions aren't allow in c++03
 template <typename T>
 inline bool absLess(const T & a, const T & b) { return std::abs(a) < std::abs(b); }
 
