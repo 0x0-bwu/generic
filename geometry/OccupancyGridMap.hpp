@@ -58,7 +58,7 @@ public:
     void Reset()
     {
         for(auto & col : m_grids){
-            std::fill(col.begin(), col.end(), 0.0f);
+            std::fill(col.begin(), col.end(), Occupancy{});
         }
     }
 
