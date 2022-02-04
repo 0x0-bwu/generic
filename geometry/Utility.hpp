@@ -364,47 +364,97 @@ template <typename point_t, typename triangle_t,
           typename std::enable_if<traits::is_same_dim_t<point_t, triangle_t>::value, bool>::type = true>
 inline PointTriangleLocation GetPointTriangleLocation(const point_t & p, const triangle_t & tri);
 
+/**
+ * @brief check if two segments intersected
+ * @param[in] s1 one of two segments
+ * @param[in] s2 one of two segments
+ * @param considerTouch treat touched segments as intersected if considerTouch=true
+ * @return whether two segments intersected 
+ */
 template <typename segment_t1, typename segment_t2,
           typename std::enable_if<traits::is_2d_geometry_t<segment_t1>::value && 
                                   traits::is_2d_geometry_t<segment_t2>::value, bool>::type = true>
 inline bool Intersects(const segment_t1 & s1, const segment_t2 & s2, bool considerTouch = true);
 
+/**
+ * @brief get intersection points of two segments
+ * @param[in] s1 one of two segments
+ * @param[in] s2 one of two segments
+ * @param[out] points intersection points
+ * @return true if segment s1 and s2 intersected
+ */
 template <typename num_type>
 inline bool Intersection(const Segment2D<num_type> & s1, const Segment2D<num_type> & s2, std::vector<Point2D<num_type> > & points);
 
+/**
+ * @brief get intersection points of segment and infinite line
+ * @param[in] s input segment 
+ * @param[in] line input line 
+ * @param[out] points intersect points 
+ * @return true if segment intersect with line 
+ */
 template <typename num_type>
 inline bool Intersection(const Segment2D<num_type> & s, const Line2D<num_type> & line, std::vector<Point2D<num_type> > & points);
 
+/**
+ * @brief check if one geometry contains another one
+ * @tparam geometry_t1 geometry type, could be Segment2D, Triangle2D, Box2D, Polygon2D, PolygonWithHoles2D, Box3D 
+ * @tparam geometry_t2 geometry type, could be Point2D, Segment2D, Triangle2D, Box2D, Polygon2D, PolygonWithHoles2D, Point3D, Segment3D, Box3D
+ * @param[in] g1 the outer geometry 
+ * @param[in] g2 the inner geometry
+ * @param[in] considerTouch treat g1 contains g2 even g1 touched with g2 if considerTouch=true
+ * @return true whether geometry g1 contains g2
+ */
 template <typename geometry_t1, typename geometry_t2,
           typename std::enable_if<traits::is_geometry_t<geometry_t1>::value &&
                                   traits::is_geometry_t<geometry_t2>::value, bool>::type = true>
 inline bool Contains(const geometry_t1 & g1, const geometry_t2 & g2, bool considerTouch = true);
 
+///@brief a help function to make consistance with Extent API, input could be Point2D or Point3D
 template <typename point_t, typename std::enable_if<traits::is_point_t<point_t>::value, bool>::type = true>
 inline point_t Extent(const point_t & p) { return p; }
 
+///@brief get envelope box of input segment, could be Segment2D or Segment3D
 template <typename segment_t, typename std::enable_if<traits::is_segment_t<segment_t>::value, bool>::type = true>
 inline box_type<segment_t> Extent(const segment_t & segment);
 
+///@brief get envelope box of input triangle, could be Triangle2D or Triangle3D
 template <typename triangle_t, typename std::enable_if<traits::is_triangle_t<triangle_t>::value, bool>::type = true>
 inline box_type<triangle_t> Extent(const triangle_t & triangle);
 
+///@brief get envelope box of input box, could be Box2D or Box3D
 template <typename box_t, typename std::enable_if<traits::is_box_t<box_t>::value, bool>::type = true>
 inline box_t Extent(const box_t & box) { return box; }
 
+///@brief get envelope box of input polygon, could be Polygon2D or PolygonWithHoles2D
 template <typename polygon_t, typename std::enable_if<traits::is_polygon_t<polygon_t>::value ||
                                                        traits::is_polygon_with_holes_t<polygon_t>::value, bool>::type = true>
 inline box_type<polygon_t> Extent(const polygon_t & polygon);
 
+/**
+ * @brief get envelope box of a sequence with geometries
+ * @tparam iterator collection iterator,the iterator value type could be one of 
+ * Point2D, Segment2D, Triangle2D, Box2D, Polygon2D, PolygonWithHoles2D, Point3D, Segment3D, Triangle3D, Box3D
+ * @param[in] begin  iterator to the beginning of the sequence
+ * @param[in] end iterator to the ending of the sequence
+ * @return Box2D with geometry2d input or Box3D with geometry3d input
+ */
 template <typename iterator,
           typename std::enable_if<traits::is_geometry_t<
           typename std::iterator_traits<iterator>::value_type>::value, bool>::type = true>
 inline box_type<typename std::iterator_traits<iterator>::value_type> Extent(iterator begin, iterator end);
 
+///@brief get envelope box of input Polyline2D
 template <typename num_type>
 inline Box2D<num_type> Extent(const Polyline2D<num_type> & polyline);
 
 #if GENERIC_CURRENT_BOOST_LIBRARY_VER >= 165
+/**
+ * @brief get convex hull of a sequence of polygons
+ * @tparam polygon_t polygon type, should be Polygon2D
+ * @param[in] polygons input polygon collections
+ * @return the convex hull of input polygons 
+ */
 template <typename polygon_t, template <typename, typename> class container, template <typename> class allocator = std::allocator>
 inline polygon_t ConvexHull(const container<polygon_t, allocator<polygon_t> > & polygons);
 #endif
