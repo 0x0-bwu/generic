@@ -13,6 +13,7 @@ namespace generic  {
 namespace geometry {
 namespace tri      {
 
+///@brief represents the base class of triangulation refinement
 template <typename num_type>
 class DelaunayRefinement2D
 {
@@ -52,10 +53,20 @@ protected:
     Triangulation<Point> & tri;
     TriangulationOperator<Point> op;
 public:
+    ///@brief construct a DelaunayRefinement2D that manipulating the triangulation data
     explicit DelaunayRefinement2D(Triangulation<Point> & t) : tri(t), op(t){}
     virtual ~DelaunayRefinement2D() = default;
 
+    ///@brief for internal debug
     const TriangulationOperator<Point> & GetOp() const { return op; }//test, bwu
+
+    /**
+     * @brief set parameter to control the triangulation refinement quality
+     * 
+     * @param alpha the minimum allowed interior angle of the triangle in triangulation 
+     * @param minEdgeLen the triangle with minimum edge length will be ignored when doing refinement 
+     * @param maxEdgeLen the maximum allowed edge length of the triangle in triangulation
+     */
     void SetParas(float_t alpha, num_type minEdgeLen, num_type maxEdgeLen)
     {
         auto limitAlpha = LimitAlpha();
@@ -69,11 +80,23 @@ public:
         paras.maxEdgeLenSq = maxEdgeLen * maxEdgeLen;
         UpdateState();
     }
+
+    ///@brief remove later
     virtual void MergeShortestEdge(){}//test, bwu
+
+    ///@brief update current encroached edges and skinny triangles state
     virtual void UpdateState() = 0;
+
+    ///@brief do triangulation refinement `step` times
     virtual void Refine(index_t step) = 0;
+
+    ///@brief check if current triangulation meets the requirement of ctrl parameters
     virtual bool Refined() const { return refined; }
+
+    ///@brief alpha limitation of each refinement method
     virtual float_t LimitAlpha() const = 0;
+
+    ///@brief for internal debug
     virtual std::optional<Point2D<num_type> > CurrVertexPoint() const
     {
         if(state.curr.ft){
@@ -84,18 +107,21 @@ public:
         return std::nullopt;
     }
 
+    ///@brief for internal debug
     virtual std::optional<Segment2D<num_type> > CurrEncroachedEdge() const
     {
         if(state.curr.fe) return Utility::GetSegment(tri, state.curr.e);
         return std::nullopt;
     }
 
+    ///@brief for internal debug
     virtual std::optional<Triangle2D<num_type> > CurrSkinnyTriangle() const
     {
         if(state.curr.ft) return Utility::GetTriangle(tri, state.curr.its);
         return std::nullopt;
     }
 
+    ///@brief for internal debug
     virtual std::optional<Segment2D<num_type> > CurrShortestEdge() const//test, bwu
     {
         if(stillExist(state.curr.se))
@@ -340,6 +366,7 @@ protected:
     }
 };
 
+///@brief implementation class of delaunay refinement, use Jonathan refinement method
 template <typename num_type>
 class JonathanRefinement2D : public DelaunayRefinement2D<num_type>
 {
@@ -818,6 +845,7 @@ private:
     mutable SkinnyTriangleQueue m_queueT;
 };
 
+///@brief implementation class of delaunay refinement, use Ruppert refinement method
 template <typename num_type>
 class RuppertRefinement2D : public DelaunayRefinement2D<num_type>
 {
@@ -1032,6 +1060,7 @@ private:
     }
 };
 
+///@brief implementation class of delaunay refinement, use Chew's second refinement method
 template <typename num_type>
 class ChewSecondRefinement2D : public DelaunayRefinement2D<num_type>
 {

@@ -9,12 +9,14 @@ namespace generic  {
 namespace geometry {
 namespace tri {
 
+///@base template of vertex index tree
 namespace bgi = boost::geometry::index;
 template <typename point_t>
 class VertexIndexTree
 {
 };
 
+///@brief represents a class that manage/search Point2D
 template <typename num_type>
 class VertexIndexTree<Point2D<num_type> >
 {
@@ -41,6 +43,7 @@ public:
     }
 };
 
+///@brief represents a class that operate triangulation data
 template <typename point_t>
 class TriangulationOperator
 {
@@ -59,6 +62,7 @@ class TriangulationOperator
     Triangulation<Point> & m_triangulation;
     VertexIndexTree<Point> m_vertexIndexTree;
 public:
+    ///@brief construct a TriangulationOperator that manipulating the triangulation data
     TriangulationOperator(Triangulation<Point> & triangulation)
      : m_triangulation(triangulation)
     {

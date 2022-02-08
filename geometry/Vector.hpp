@@ -7,9 +7,11 @@
 namespace generic  {
 namespace geometry {
 
+///@brief using Point2D as Vector2D
 template <typename num_type>
 using Vector2D = Point2D<num_type>;
 
+///@brief get normalized vector of input vector `vec`
 template <typename num_type>
 inline Vector2D<float_type<num_type> > Normalize(const Vector2D<num_type> & vec)
 {
@@ -19,9 +21,11 @@ inline Vector2D<float_type<num_type> > Normalize(const Vector2D<num_type> & vec)
     return vec.template Cast<float_type<num_type> >() / norm;
 }
 
+///@brief using Point3D as Vector3D
 template <typename num_type>
 using Vector3D = Point3D<num_type>;
 
+///@brief get normalized vector of input vector `vec`
 template <typename num_type>
 inline Vector3D<float_type<num_type> > Normalize(const Vector3D<num_type> & vec)
 {
@@ -31,29 +35,39 @@ inline Vector3D<float_type<num_type> > Normalize(const Vector3D<num_type> & vec)
     return vec.template Cast<float_type<num_type> >() / norm;
 }
 
+/**
+ * @brief represents a vector with `N` size of `num_type`
+ */
 template <typename num_type, size_t N>
 class VectorN
 {
 public:
     using coor_t = num_type;
     static const size_t dim = N;
+    ///@brief construct a VectorN with N size of zero
     VectorN() { std::fill(m_data.begin(), m_data.end(), 0); }
+    ///@brief construct a VectorN with N size of number s
     VectorN(num_type s) { std::fill(m_data.begin(), m_data.end(), s); }
-
+    ///@brief construct a VectorN with number {first, second, ....}
     template <typename... Args>
     VectorN(num_type first, num_type second, Args... args) { Set(first, second, args...); }
 
-    num_type& operator[](int dim);
-    const num_type& operator[](int dim) const;
+    ///@brief index access
+    num_type & operator[] (int dim);
+    const num_type & operator[] (int dim) const;
 
+    ///@brief equal operator
     bool operator== (const VectorN<num_type, N> & v) const;
     bool operator!= (const VectorN<num_type, N> & v) const;
 
+    ///@brief set self numbers from the beginning with args {first, second, ...}
     template <typename... Args>
     void Set(Args... args);
 
+    ///@brief get self dot product result with vector `v`
     num_type Dot(const VectorN<num_type, N> & v);
-
+    
+    ///@brief get norm2 result of two VectorN `v1` and `v2`
     static num_type NormSquare(const VectorN<num_type, N> & v1, const VectorN<num_type, N> & v2);
 
 private:

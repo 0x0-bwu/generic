@@ -381,7 +381,7 @@ inline bool Intersects(const segment_t1 & s1, const segment_t2 & s2, bool consid
  * @param[in] s1 one of two segments
  * @param[in] s2 one of two segments
  * @param[out] points intersection points
- * @return true if segment s1 and s2 intersected
+ * @return true if segment `s1` and `s2` intersected
  */
 template <typename num_type>
 inline bool Intersection(const Segment2D<num_type> & s1, const Segment2D<num_type> & s2, std::vector<Point2D<num_type> > & points);
@@ -402,8 +402,8 @@ inline bool Intersection(const Segment2D<num_type> & s, const Line2D<num_type> &
  * @tparam geometry_t2 geometry type, could be Point2D, Segment2D, Triangle2D, Box2D, Polygon2D, PolygonWithHoles2D, Point3D, Segment3D, Box3D
  * @param[in] g1 the outer geometry 
  * @param[in] g2 the inner geometry
- * @param[in] considerTouch treat g1 contains g2 even g1 touched with g2 if considerTouch=true
- * @return true whether geometry g1 contains g2
+ * @param[in] considerTouch treat `g1` contains `g2` even `g1` touched with `g2` if considerTouch=true
+ * @return true whether geometry `g1` contains `g2`
  */
 template <typename geometry_t1, typename geometry_t2,
           typename std::enable_if<traits::is_geometry_t<geometry_t1>::value &&

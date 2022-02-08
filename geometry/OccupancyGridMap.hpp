@@ -27,6 +27,11 @@
 namespace generic {
 namespace geometry {
 
+/**
+ * @brief a 2d dense grid map with Occupancy objects
+ * 
+ * @tparam Occupancy occupancy object type, should be trivial
+ */
 template <typename Occupancy>
 class OccupancyGridMap
 {
@@ -39,13 +44,16 @@ public:
        m_grids(width, std::vector<Occupancy>(height, Occupancy{}))
     {}
     ~OccupancyGridMap() = default;
-
+    
+    ///@brief access Occupancy reference by 1d index `i`, `i` = x * height + y
     Occupancy & operator[] (size_t i) { return m_grids[i / m_height][i % m_height]; }
     const Occupancy & operator[](size_t i) const { return m_grids[i / m_height][i % m_height]; }
 
+    ///@brief  access Occupancy reference by 2d index `x`, `y`
     Occupancy & operator() (size_t x, size_t y) { return m_grids[x][y]; }
     const Occupancy & operator() (size_t x, size_t y) const { return m_grids[x][y]; }
 
+    ///@brief resize grid map with `width` and `height`
     void Resize(size_t width, size_t height)
     {
         m_width = width;
@@ -55,6 +63,7 @@ public:
             col.resize(height);
     }
 
+    ///@brief reset all occupancy values in grid map with default data
     void Reset()
     {
         for(auto & col : m_grids){
@@ -62,12 +71,25 @@ public:
         }
     }
 
+    ///@brief clear all occupancy data
     void Clear() { m_grids.clear(); }
-
+    
+    ///@brief return grid map width
     size_t Width() const { return m_width; }
+
+    ///@brief return grid map height
     size_t Height() const { return m_height; }
+
+    ///@brief return grid map size
     size_t Size() const { return Width() * Height(); }
 
+    /**
+     * @brief get max occupancy object with the compare functioner
+     * 
+     * @tparam Compare the compare functioner
+     * @param cmp the Compare functioner object
+     * @return const reference of Occupancy object 
+     */
     template <typename Compare>
     const Occupancy & MaxOccupancy(Compare && cmp) const
     {
@@ -75,6 +97,13 @@ public:
         return m_grids[i][j];
     }
 
+    /**
+     * @brief get x, y index of max occupancy object with the compare functioner
+     * 
+     * @tparam Compare the compare functioner
+     * @param cmp the Compare functioner object
+     * @return x, y index of max ocupancy object
+     */
     template <typename Compare>
     std::pair<size_t, size_t> MaxElement(Compare && cmp) const
     {
@@ -90,6 +119,14 @@ public:
     }
 
 #ifdef BOOST_GIL_IO_PNG_SUPPORT
+    /**
+     * @brief convert grid map to png image with the color mapping functioner
+     * 
+     * @tparam RGBaFunc rgba functioner that take Occupancy as input and return r, g, b, a values range from 0 to 255
+     * @param[in] filename output image file path
+     * @param[in] rgbaFunc RGBaFunc functioner object 
+     * @return whether write the image file successfully
+     */
     template <typename RGBaFunc>
     bool WriteImgProfile(const std::string & filename, RGBaFunc && rgbaFunc)
     {
@@ -103,7 +140,7 @@ public:
         for(auto i = 0; i < m_width; ++i){
             for(auto j = 0; j < m_height; ++j){
                 auto [r, g, b, a] = rgbaFunc(m_grids[i][j]);
-                v(i, m_height - j - 1) = rgb8_pixel_t(r, g, b);
+                v(i, m_height - j - 1) = rgba8_pixel_t(r, g, b, a);
             }
         }
         write_view(filename, view(img), png_tag());
@@ -117,6 +154,7 @@ private:
     Container m_grids;
 };
 
+///@brief a factory class that calculate occupancy grid map from input geometries
 class OccupancyGridMappingFactory
 {  
 public:
@@ -150,7 +188,15 @@ public:
         size_t begin, end;
         GridCtrl<num_type> ctrl;
     };
-
+    
+    /**
+     * @brief function that calculate grid map size from bounding box and x, y stride
+     * 
+     * @tparam num_type 
+     * @param bbox 
+     * @param stride 
+     * @return std::pair<size_t, size_t> 
+     */
     template <typename num_type>
     static std::pair<size_t, size_t> GetGridMapSize(const Box2D<num_type> & bbox, const Vector2D<num_type> & stride)
     {

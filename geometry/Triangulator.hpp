@@ -17,6 +17,10 @@ class RuppertRefinement2D;
 template <typename num_type>
 class ChewSecondRefinement2D;
 
+/**
+ * @brief represents a class that make points and edges to trangulation
+ * @tparam num_type support integer and floating points number type
+ */
 template <typename num_type>
 class Triangulator2D
 {
@@ -33,22 +37,57 @@ public:
 
     Triangulation<Point> & tri;
     TriangulationOperator<Point> op;
+    ///@brief construct a Triangulator2D that manipulating the triangulation data
     Triangulator2D(Triangulation<Point> & t) : tri(t), op(t) {}
-
+    
+    /**
+     * @brief insert vertices and construct delaunay triangulation
+     * 
+     * @tparam VertexIterator iterator of the sequence of vertices
+     * @tparam CoorXGetter functioner type to get coordiante x of input vertex
+     * @tparam CoorYGetter functioner type to get coordinate y of input vertex
+     * @param begin iterator to the beginning of the vertices sequence
+     * @param end iterator to the ending of the vertices sequence
+     * @param xGetter functioner object to get coordiante x of input vertex
+     * @param yGetter functioner object to get coordiante y of input vertex
+     */
     template <typename VertexIterator,
               typename CoorXGetter,
               typename CoorYGetter>
     void InsertVertices(VertexIterator begin, VertexIterator end, CoorXGetter xGetter, CoorYGetter yGetter);
 
+    /**
+     * @brief insert edges and construct constrained delaunay triangulation
+     * 
+     * @tparam EdgeIterator iterator of the sequence of edges
+     * @tparam sVerIdxGetter functioner type to get start vertex index of edge 
+     * @tparam eVerIdxGetter functioner type to get end vertex index of edge
+     * @param begin iterator to the beginning of the edges sequence
+     * @param end iterator to the ending of the edges sequence
+     * @param sGetter functioner object to get start vertex index of edge
+     * @param eGetter functioner object to get end vertex index of edge
+     */
     template <typename EdgeIterator,
               typename sVerIdxGetter,
               typename eVerIdxGetter>
     void InsertEdges(EdgeIterator begin, EdgeIterator end, sVerIdxGetter sGetter, eVerIdxGetter eGetter);
 
+    ///@brief remove super triangle and produce a convex-hull 
     void EraseSuperTriangle();
+    ///@brief remove all outer triangles until a boundary defined by constrained edges
     void EraseOuterTriangles();
+    /**
+     * @brief remove outer triangles and automatically detected holes.
+     * Starts from super-triangle and traverses triangles until outer boundary.
+     * Triangles outside outer boundary will be removed.
+     * Then traversal continues until next boundary.
+     * hTriangles between two boundaries will be kept.
+     * Traversal to next boundary continues (this time removing triangles).
+     * Stops when all triangles are traversed.
+     */
     void EraseOuterTrianglesAndHoles();
 
+    ///@brief clear all data in triangulation
     void Clear();
 private:
     template <typename VertexIterator,
