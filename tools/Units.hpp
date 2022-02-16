@@ -8,7 +8,7 @@ namespace unit{
 
 enum class Time { Picosecond = -4, Nanosecond = -3, Microsecond = -2, Millisecond = -1, Second = 0, Minute = 60, Hour = 3600 };
 
-enum class Length { Nanometer = -3, Micrometer = -2, Millimeter  = -1, Meter = 0 };
+enum class Length { Nanometer = -3, Micrometer = -2, Millimeter  = -1, Meter = 0 , Inch = 100 };
 
 inline double Scale2Second(Time unit)
 {
@@ -24,7 +24,10 @@ inline double Scale2Millisecond(Time unit)
 
 inline double Scale2Meter(Length unit)
 {
-    return std::pow(10, int(unit) * 3);
+    switch (unit) {
+        case Length::Inch : return 0.0254;
+        default : return std::pow(10, int(unit) * 3);
+    }
 }
 
 }//namespace unit
