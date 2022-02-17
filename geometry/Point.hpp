@@ -40,8 +40,6 @@ public:
     template<typename other_num_type>
     Point2D<other_num_type> Cast() const;
 
-    static bool isCCW(const Point2D<num_type> & p1, const Point2D<num_type> & p2, const Point2D<num_type> & p3);
-
 private:
     num_type m_coor[2];
 };
@@ -200,13 +198,6 @@ template <typename other_num_type>
 inline Point2D<other_num_type> Point2D<num_type>::Cast() const
 {
     return Point2D<other_num_type>(other_num_type(m_coor[0]), other_num_type(m_coor[1]));
-}
-
-template <typename num_type>
-inline bool Point2D<num_type>::isCCW(const Point2D<num_type> & p1, const Point2D<num_type> & p2, const Point2D<num_type> & p3)
-{
-    auto v1 = p2 - p1, v2 = p3 - p1;
-    return math::GT(v1.CrossProduct(v2), num_type(0));
 }
 
 template <typename num_type>

@@ -87,6 +87,10 @@ inline typename point_t::coor_t DistanceSq(const point_t & a, const point_t & b)
 template <typename point_t>
 inline coor_f<point_t> Distance(const point_t & a, const point_t & b) { return std::sqrt(DistanceSq(a, b)); }
 
+///@brief convert an arc3 to arc
+template<typename num_type>
+inline Arc<num_type> toArc(const Arc3<num_type> & arc3);
+
 /**
  * @brief convert an arc to polyline
  * @param[in] arc the input arc
@@ -196,15 +200,6 @@ inline coor_f<point_t> CircumRadius2ShortestEdgeRatioSq(const point_t & p1, cons
  * /
 template <typename point_t, typename std::enable_if<traits::is_2d_point_t<point_t>::value, bool>::type = true>//todo point3d
 inline coor_f<point_t> CircumRadius2ShortestEdgeRatio(const point_t & p1, const point_t & p2, const point_t & p3);
-
-/**
- * @brief get angle formed by posivite x-axis and vector v
- * @tparam vector_t vector type, could be Vector2D
- * @param[in] v input vector
- * @return angle formed by posivite x-axis and v, unit: rad, range[0, 2pi)
- */
-template <typename vector_t, typename std::enable_if<traits::is_2d_point_t<vector_t>::value, bool>::type = true>
-inline coor_f<vector_t> AngleWithAxisXPositive(const vector_t & v);
 
 /**
  * @brief get angle formed by two vectors

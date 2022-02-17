@@ -24,29 +24,43 @@ inline auto SafeInverse(const vector_t & vec) -> vector_f<vector_t>
     return inv;
 }
 
+template<typename num_type>
+inline Arc<num_type> toArc(const Arc3<num_type> & arc3)
+{   
+    float_type<num_type> r2;
+    auto origin = CircumCircle(arc3.start, arc3.mid, arc3.end, r2).template Cast<num_type>();
+    auto radian = Angle(arc3.start, origin, arc3.end);
+    auto isCCW = Triangle2D<num_type>::isCCW(arc3.start, arc3.mid, arc3.end);
+    return Arc<num_type>(origin, arc3.start, isCCW ? radian : -radian);
+}
+
 template <typename num_type>
 inline Polyline2D<num_type> toPolyline(const Arc<num_type> & arc, size_t div)
 {
     GENERIC_ASSERT(div != 0);
     auto step = math::pi_2 / div;
-    auto range = arc.isCCW ? Angle(arc.start, arc.origin, arc.end) : Angle(arc.end, arc.origin, arc.start);
+    bool ccw = arc.radian > 0;
+    size_t size = std::abs(arc.radian / step);
 
     Polyline2D<num_type> polyline;
-    polyline.push_back(arc.start);
-    auto start = AngleWithAxisXPositive(arc.start);
-    for(size_t i = 1; i < size_t(range / step); ++i){
-        auto curr = arc.isCCW ? start + step * i : start - step * i;
-        auto point = Point2D<num_type>(std::cos(curr), std::sin(curr)) + arc.origin;
+    polyline.reserve(size + 2);
+
+    float_type<num_type> alpha, mag;
+    arc.GetStartAlphaMag(alpha, mag);
+    polyline.emplace_back(arc.start);
+    for(size_t i = 1; i < size; ++i){
+        auto theta = ccw ? alpha + step * i : alpha - step * i;
+        auto point = Point2D<num_type>(mag * std::cos(theta), mag * std::sin(theta)) + arc.origin;
         polyline.emplace_back(std::move(point));
     }
-    polyline.push_back(arc.end);
+    polyline.push_back(arc.EndPoint());
     return polyline;
 }
 
 template <typename num_type>
 inline Polyline2D<num_type> toPolyline(const Arc3<num_type> & arc3, size_t div)
 {
-    return toPolyline(arc3.toArc(), div);
+    return toPolyline(toArc(arc3), div);
 }
 
 template <typename num_type>
@@ -177,13 +191,36 @@ inline Circle<float_type<num_type> > DiametralCircle(const Point2D<num_type> & p
 template <typename num_type>
 inline Circle<float_type<num_type> > CircumCircle(const Point2D<num_type> & p1, const Point2D<num_type> & p2, const Point2D<num_type> & p3)
 {
-    return Circle<num_type>::CircumCircle(p1, p2, p3);
+    float_type<num_type> r2(0);
+    Circle<float_type<num_type> > circle;
+    circle.o = CircumCircle(p1, p2, p3, r2);
+    circle.r = std::sqrt(r2);
+    return circle;
 }
 
 template <typename num_type>//return coor of circle
 inline Point2D<float_type<num_type> > CircumCircle(const Point2D<num_type> & p1, const Point2D<num_type> & p2, const Point2D<num_type> & p3, float_type<num_type> & radius2)
 {   
-   return Circle<num_type>::CircumCircle(p1, p2, p3, radius2);
+    using float_t = float_type<num_type>;
+    float_t epsilon = std::numeric_limits<float_t>::epsilon();
+    float_t a1 = p2[1] - p1[1];
+    float_t a2 = p3[1] * p3[1] - p1[1] * p1[1] + p3[0] * p3[0] - p1[0] * p1[0];
+    float_t b1 = p3[1] - p1[1];
+    float_t b2 = p2[1] * p2[1] - p1[1] * p1[1] + p2[0] * p2[0] - p1[0] * p1[0];
+    float_t c = 2.0 * ((p3[0] - p1[0]) * (p2[1] - p1[1]) - (p2[0] - p1[0]) * (p3[1] - p1[1]));
+    if(std::fabs(c) < epsilon) c = std::copysign(epsilon, c);
+    float_t x = (a1 * a2 - b1 * b2) / c;
+
+    float_t d1 = p2[0] - p1[0];
+    float_t d2 = p3[0] * p3[0] - p1[0] * p1[0] + p3[1] * p3[1] - p1[1] * p1[1];
+    float_t e1 = p3[0] - p1[0];
+    float_t e2 = p2[0] * p2[0] - p1[0] * p1[0] + p2[1] * p2[1] - p1[1] * p1[1];
+    float_t f = 2.0 * ((p3[1] - p1[1]) * (p2[0] - p1[0]) - (p2[1] - p1[1]) * (p3[0] - p1[0]));
+    if(std::fabs(f) < epsilon) f = std::copysign(epsilon, f);
+    float_t y = (d1 * d2 - e1 * e2) / f;
+
+    radius2 = float_t((x - p1[0]) * (x - p1[0]) + (y - p1[1]) * (y - p1[1]));
+    return Point2D<float_t>(x, y);
 }
 
 template <typename num_type>
@@ -212,13 +249,6 @@ template <typename point_t, typename std::enable_if<traits::is_2d_point_t<point_
 inline coor_f<point_t> CircumRadius2ShortestEdgeRatio(const point_t & p1, const point_t & p2, const point_t & p3)
 {
     return std::sqrt(CircumRadius2ShortestEdgeRatioSq(p1, p2, p3));
-}
-
-template <typename vector_t, typename std::enable_if<traits::is_2d_point_t<vector_t>::value, bool>::type>
-inline coor_f<vector_t> AngleWithAxisXPositive(const vector_t & v)
-{
-    auto res = std::atan2<coor_f<vector_t>>(v[1], v[0]);
-    return math::LT<float_t>(res, 0) ? res + math::pi_2 : res;
 }
 
 template <typename vector_t, typename std::enable_if<traits::is_2d_point_t<vector_t>::value, bool>::type>
