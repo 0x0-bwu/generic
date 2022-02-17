@@ -25,6 +25,31 @@ inline auto SafeInverse(const vector_t & vec) -> vector_f<vector_t>
 }
 
 template <typename num_type>
+inline Polyline2D<num_type> toPolyline(const Arc<num_type> & arc, size_t div)
+{
+    GENERIC_ASSERT(div != 0);
+    auto step = math::pi_2 / div;
+    auto range = arc.isCCW ? Angle(arc.start, arc.origin, arc.end) : Angle(arc.end, arc.origin, arc.start);
+
+    Polyline2D<num_type> polyline;
+    polyline.push_back(arc.start);
+    auto start = AngleWithAxisXPositive(arc.start);
+    for(size_t i = 1; i < size_t(range / step); ++i){
+        auto curr = arc.isCCW ? start + step * i : start - step * i;
+        auto point = Point2D<num_type>(std::cos(curr), std::sin(curr)) + arc.origin;
+        polyline.emplace_back(std::move(point));
+    }
+    polyline.push_back(arc.end);
+    return polyline;
+}
+
+template <typename num_type>
+inline Polyline2D<num_type> toPolyline(const Arc3<num_type> & arc3, size_t div)
+{
+    return toPolyline(arc3.toArc(), div);
+}
+
+template <typename num_type>
 inline Polygon2D<num_type> toPolygon(const Triangle2D<num_type> & tri)
 {
     Polygon2D<num_type> p;
@@ -152,36 +177,13 @@ inline Circle<float_type<num_type> > DiametralCircle(const Point2D<num_type> & p
 template <typename num_type>
 inline Circle<float_type<num_type> > CircumCircle(const Point2D<num_type> & p1, const Point2D<num_type> & p2, const Point2D<num_type> & p3)
 {
-    float_type<num_type> r2(0);
-    Circle<float_type<num_type> > circle;
-    circle.o = CircumCircle(p1, p2, p3, r2);
-    circle.r = std::sqrt(r2);
-    return circle;
+    return Circle<num_type>::CircumCircle(p1, p2, p3);
 }
 
 template <typename num_type>//return coor of circle
 inline Point2D<float_type<num_type> > CircumCircle(const Point2D<num_type> & p1, const Point2D<num_type> & p2, const Point2D<num_type> & p3, float_type<num_type> & radius2)
 {   
-    using float_t = float_type<num_type>;
-    float_t epsilon = std::numeric_limits<float_t>::epsilon();
-    float_t a1 = p2[1] - p1[1];
-    float_t a2 = p3[1] * p3[1] - p1[1] * p1[1] + p3[0] * p3[0] - p1[0] * p1[0];
-    float_t b1 = p3[1] - p1[1];
-    float_t b2 = p2[1] * p2[1] - p1[1] * p1[1] + p2[0] * p2[0] - p1[0] * p1[0];
-    float_t c = 2.0 * ((p3[0] - p1[0]) * (p2[1] - p1[1]) - (p2[0] - p1[0]) * (p3[1] - p1[1]));
-    if(std::fabs(c) < epsilon) c = std::copysign(epsilon, c);
-    float_t x = (a1 * a2 - b1 * b2) / c;
-
-    float_t d1 = p2[0] - p1[0];
-    float_t d2 = p3[0] * p3[0] - p1[0] * p1[0] + p3[1] * p3[1] - p1[1] * p1[1];
-    float_t e1 = p3[0] - p1[0];
-    float_t e2 = p2[0] * p2[0] - p1[0] * p1[0] + p2[1] * p2[1] - p1[1] * p1[1];
-    float_t f = 2.0 * ((p3[1] - p1[1]) * (p2[0] - p1[0]) - (p2[1] - p1[1]) * (p3[0] - p1[0]));
-    if(std::fabs(f) < epsilon) f = std::copysign(epsilon, f);
-    float_t y = (d1 * d2 - e1 * e2) / f;
-
-    radius2 = float_t((x - p1[0]) * (x - p1[0]) + (y - p1[1]) * (y - p1[1]));
-    return Point2D<float_t>(x, y);
+   return Circle<num_type>::CircumCircle(p1, p2, p3, radius2);
 }
 
 template <typename num_type>
@@ -212,8 +214,21 @@ inline coor_f<point_t> CircumRadius2ShortestEdgeRatio(const point_t & p1, const 
     return std::sqrt(CircumRadius2ShortestEdgeRatioSq(p1, p2, p3));
 }
 
-template <typename vector_t, typename std::enable_if<traits::is_point_t<vector_t>::value, bool>::type>
+template <typename vector_t, typename std::enable_if<traits::is_2d_point_t<vector_t>::value, bool>::type>
+inline coor_f<vector_t> AngleWithAxisXPositive(const vector_t & v)
+{
+    auto res = std::atan2<coor_f<vector_t>>(v[1], v[0]);
+    return math::LT<float_t>(res, 0) ? res + math::pi_2 : res;
+}
+
+template <typename vector_t, typename std::enable_if<traits::is_2d_point_t<vector_t>::value, bool>::type>
 inline coor_f<vector_t> Angle(const vector_t & a, const vector_t & b)
+{
+    return math::LT<coor_f<vector_t> >(CrossProduct(a, b), 0) ? InnerAngle(a, b) + math::pi : InnerAngle(a, b);
+}
+
+template <typename vector_t, typename std::enable_if<traits::is_point_t<vector_t>::value, bool>::type>
+inline coor_f<vector_t> InnerAngle(const vector_t & a, const vector_t & b)
 {
     using float_t = float_type<typename vector_t::coor_t>;
     auto dot = DotProduct(a, b);
@@ -228,7 +243,7 @@ inline coor_f<triangle_t> InteriorAngle(const triangle_t & t)
     const auto & p1 = t[(vertex + 2) % 3];
     const auto & p2 = t[(vertex + 0) % 3];
     const auto & p3 = t[(vertex + 1) % 3];
-    return Angle(p1, p2, p3);
+    return InnerAngle(p1, p2, p3);
 }
 
 template <typename triangle_t, typename std::enable_if<traits::is_triangle_t<triangle_t>::value, bool>::type>
@@ -237,15 +252,15 @@ inline coor_f<triangle_t> InteriorAngle(const triangle_t & t, const size_t verte
     const auto & p1 = t[(vertex + 2) % 3];
     const auto & p2 = t[(vertex + 0) % 3];
     const auto & p3 = t[(vertex + 1) % 3];
-    return Angle(p1, p2, p3);
+    return InnerAngle(p1, p2, p3);
 }
 
 template <typename point_t, typename std::enable_if<traits::is_point_t<point_t>::value, bool>::type>
 inline std::array<coor_f<point_t>, 3> InteriorAngles(const point_t & p1, const point_t & p2, const point_t & p3)
 {
     std::array<float_type<typename point_t::coor_t>, 3> angles;
-    angles[0] = Angle(p3, p1, p2);
-    angles[1] = Angle(p1, p2, p3);
+    angles[0] = InnerAngle(p3, p1, p2);
+    angles[1] = InnerAngle(p1, p2, p3);
     angles[2] = math::pi - angles[0] - angles[1];
     return angles;
 }

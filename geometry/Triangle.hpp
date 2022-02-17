@@ -43,8 +43,6 @@ public:
     const_iterator ConstBegin() const { return m_vertices.begin(); }
     const_iterator ConstEnd() const { return m_vertices.end(); }
 
-    static bool isCCW(const Point2D<num_type> & p1, const Point2D<num_type> & p2, const Point2D<num_type> & p3);
-
 private:
     std::array<Point2D<num_type>, 3> m_vertices;
     mutable WindingDirection m_direction = WindingDirection::Unknown;
@@ -123,7 +121,7 @@ inline bool Triangle2D<num_type>::isCCW() const
     if(m_direction != WindingDirection::Unknown)
         return m_direction == WindingDirection::CounterClockwise;
     
-    if(isCCW(m_vertices[0], m_vertices[1], m_vertices[2]))
+    if(Point2D<num_type>::isCCW(m_vertices[0], m_vertices[1], m_vertices[2]))
         m_direction = WindingDirection::CounterClockwise;
     else m_direction = WindingDirection::Clockwise;
     return m_direction == WindingDirection::CounterClockwise;
@@ -156,13 +154,6 @@ inline Triangle2D<other_num_type> Triangle2D<num_type>::Cast() const
     return Triangle2D<other_num_type>(m_vertices[0].template Cast<other_num_type>(),
                                       m_vertices[1].template Cast<other_num_type>(),
                                       m_vertices[2].template Cast<other_num_type>());
-}
-
-template <typename num_type>
-inline bool Triangle2D<num_type>::isCCW(const Point2D<num_type> & p1, const Point2D<num_type> & p2, const Point2D<num_type> & p3)
-{
-    auto v1 = p2 - p1, v2 = p3 - p1;
-    return math::GT(v1.CrossProduct(v2), num_type(0));
 }
 
 template <typename num_type>

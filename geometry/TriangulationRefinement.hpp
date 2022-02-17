@@ -750,7 +750,7 @@ private:
             for(const auto & edge : edges){
                 if(edge == e) continue;
                 const auto & p = edge.v1() == e.v1() ? tri.VerIdxPoint(edge.v2()) : tri.VerIdxPoint(edge.v1());
-                if(Angle(p, p1, p2) < math::pi_half)
+                if(InnerAngle(p, p1, p2) < math::pi_half)
                     return Base::SplitEdgeAtCircularShell(e);
             }
         }
@@ -760,7 +760,7 @@ private:
             for(const auto & edge : edges){
                 if(edge == e) continue;
                 const auto & p = edge.v1() == e.v2() ? tri.VerIdxPoint(edge.v2()) : tri.VerIdxPoint(edge.v1());
-                if(Angle(p, p2, p1) < math::pi_half)
+                if(InnerAngle(p, p2, p1) < math::pi_half)
                     return Base::SplitEdgeAtCircularShell(e);
             }
         }
@@ -920,7 +920,7 @@ private:
             for(const auto & edge : edges){
                 if(edge == e) continue;
                 const auto & p = edge.v1() == e.v1() ? tri.VerIdxPoint(edge.v2()) : tri.VerIdxPoint(edge.v1());
-                if(Angle(p, p1, p2) < math::pi_half)
+                if(InnerAngle(p, p1, p2) < math::pi_half)
                     return Base::SplitEdgeAtCircularShell(e);
             }
         }
@@ -930,7 +930,7 @@ private:
             for(const auto & edge : edges){
                 if(edge == e) continue;
                 const auto & p = edge.v1() == e.v2() ? tri.VerIdxPoint(edge.v2()) : tri.VerIdxPoint(edge.v1());
-                if(Angle(p, p2, p1) < math::pi_half)
+                if(InnerAngle(p, p2, p1) < math::pi_half)
                     return Base::SplitEdgeAtCircularShell(e);
             }
         }
@@ -988,7 +988,7 @@ private:
             const auto & p1 = tri.TriIdxPoint(it, i);
             const auto & p2 = tri.TriIdxPoint(it, j);
             const auto & p3 = tri.TriIdxPoint(it, k);
-            if(Angle(p1, p2, p3) < math::pi / 3){
+            if(InnerAngle(p1, p2, p3) < math::pi / 3){
                 size_t l = 0;
                 float_t d1 = Distance(p1, p2);
                 float_t d2 = Distance(p2, p3);

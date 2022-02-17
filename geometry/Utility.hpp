@@ -8,6 +8,7 @@
 #include "GeometryTraits.hpp"
 #include "Predicates.hpp"
 #include "Trapezoid.hpp"
+#include "Curves.hpp"
 #include "Sphere.hpp"
 #include "Plane.hpp"
 #include "Line.hpp"
@@ -69,8 +70,8 @@ inline Vector3D<num_type> CrossProduct(const Vector3D<num_type> & a, const Vecto
 /**
  * @brief squared distance of two points
  * @tparam point_t point type, could be Point2D or Point3D
- * @param a one of the input points
- * @param b one of the input points
+ * @param[in] a one of the input points
+ * @param[in] b one of the input points
  * @return square of a-b 's euclidean distance
  */
 template <typename point_t>
@@ -79,12 +80,30 @@ inline typename point_t::coor_t DistanceSq(const point_t & a, const point_t & b)
 /**
  * @brief distance of two points
  * @tparam point_t point type, could be Point2D or Point3D
- * @param a one of the input points
- * @param b one of the input points
+ * @param[in] a one of the input points
+ * @param[in] b one of the input points
  * @return floating points type of a-b 's euclidean distance
  */
 template <typename point_t>
 inline coor_f<point_t> Distance(const point_t & a, const point_t & b) { return std::sqrt(DistanceSq(a, b)); }
+
+/**
+ * @brief convert an arc to polyline
+ * @param[in] arc the input arc
+ * @param[in] div circle divide number
+ * @return the converted polyline
+ */
+template <typename num_type>
+inline Polyline2D<num_type> toPolyline(const Arc<num_type> & arc, size_t div);
+
+/**
+ * @brief convert an arc3 to polyline
+ * @param[in] arc3 the input arc3
+ * @param[in] div circle divide number
+ * @return the converted polyline
+ */
+template <typename num_type>
+inline Polyline2D<num_type> toPolyline(const Arc3<num_type> & arc3, size_t div);
 
 ///@brief convert triangle2d to polygon2d
 template <typename num_type>
@@ -179,14 +198,44 @@ template <typename point_t, typename std::enable_if<traits::is_2d_point_t<point_
 inline coor_f<point_t> CircumRadius2ShortestEdgeRatio(const point_t & p1, const point_t & p2, const point_t & p3);
 
 /**
+ * @brief get angle formed by posivite x-axis and vector v
+ * @tparam vector_t vector type, could be Vector2D
+ * @param[in] v input vector
+ * @return angle formed by posivite x-axis and v, unit: rad, range[0, 2pi)
+ */
+template <typename vector_t, typename std::enable_if<traits::is_2d_point_t<vector_t>::value, bool>::type = true>
+inline coor_f<vector_t> AngleWithAxisXPositive(const vector_t & v);
+
+/**
+ * @brief get angle formed by two vectors
+ * @tparam vector_t vector type, could be Vector2D
+ * @param[in] a one of the input vectors
+ * @param[in] b one of the input vectors
+ * @return angle formed by vector a and b, unit: rad, range[0, 2pi)
+ */
+template <typename vector_t, typename std::enable_if<traits::is_2d_point_t<vector_t>::value, bool>::type = true>
+inline coor_f<vector_t> Angle(const vector_t & a, const vector_t & b);
+
+/**
+ * @brief get angle formed by three points
+ * @tparam point_t point type, could be Point2D
+ * @param[in] s start point 
+ * @param[in] p mid point that form the angle 
+ * @param[in] e end point
+ * @return angle of vector(p->s) and vector(p->e), unit: rad, range[0, 2pi)
+ */
+template <typename point_t, typename std::enable_if<traits::is_point_t<point_t>::value, bool>::type = true>//angle of vec(p, s) and vec(p, e)
+inline coor_f<point_t> Angle(const point_t & s, const point_t & p, const point_t & e) { return Angle(s - p, e - p); }
+
+/**
  * @brief get inner angle formed by two vectors
  * @tparam vector_t vector type, could be Vector2D or Vector3D
  * @param[in] a one of the input vectors
  * @param[in] b one of the input vectors
- * @return inner angle formed vector a and b, unit: rad
+ * @return inner angle formed vector a and b, unit: rad, range[0, pi]
  */
 template <typename vector_t, typename std::enable_if<traits::is_point_t<vector_t>::value, bool>::type = true>
-inline coor_f<vector_t> Angle(const vector_t & a, const vector_t & b);
+inline coor_f<vector_t> InnerAngle(const vector_t & a, const vector_t & b);
 
 /**
  * @brief get inner angle formed by three points
@@ -194,10 +243,10 @@ inline coor_f<vector_t> Angle(const vector_t & a, const vector_t & b);
  * @param[in] s start point 
  * @param[in] p mid point that form the angle 
  * @param[in] e end point
- * @return angle of vector(p->s) and vector(p->e)
+ * @return angle of vector(p->s) and vector(p->e), unit: rad, range[0, pi]
  */
 template <typename point_t, typename std::enable_if<traits::is_point_t<point_t>::value, bool>::type = true>//angle of vec(p, s) and vec(p, e)
-inline coor_f<point_t> Angle(const point_t & s, const point_t & p, const point_t & e) { return Angle(s - p, e - p); }
+inline coor_f<point_t> InnerAngle(const point_t & s, const point_t & p, const point_t & e) { return InnerAngle(s - p, e - p); }
 
 /**
  * @brief get inner angle of vertex in a triangle

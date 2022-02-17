@@ -210,7 +210,7 @@ public:
               typename std::enable_if<std::is_same<geometry,
               typename std::iterator_traits<iterator>::value_type>::value, bool>::type = true>
     static void WriteImgView(boost::gil::rgb8_image_t::view_t & view, iterator begin, iterator end,
-                             const typename geometry::coor_t stride,
+                             const Vector2D<typename geometry::coor_t> & stride,
                              const Point2D<typename geometry::coor_t> & ref, int rgb)
     {
         using namespace boost::gil;
@@ -254,7 +254,7 @@ public:
         generic::color::RGBFromInt(bgColor, r, g, b);
         fill_pixels(v, rgb8_pixel_t(r, g, b));
 
-        WriteImgView<geometry>(v, begin, end, stride, bbox[0], color);
+        WriteImgView<geometry>(v, begin, end, Vector2D<coor_t>(stride, stride), bbox[0], color);
 
         write_view(filename, boost::gil::view(img), png_tag());
         return true;
