@@ -1,3 +1,10 @@
+/**
+ * @file GeometryIO.hpp
+ * @author bwu
+ * @brief I/O functions of geometries
+ * @version 0.1
+ * @date 2022-02-14
+ */
 #ifndef GENERIC_GEOMETRY_GEOMETRYIO_HPP
 #define GENERIC_GEOMETRY_GEOMETRYIO_HPP
 #include <boost/geometry/io/wkt/write.hpp>
@@ -157,9 +164,17 @@ inline std::string toString(const geometry_t & geometry)
 namespace generic  {
 namespace geometry {
 
+///@brief class with geometrie I/O functions
 class GeometryIO
 {
 public:
+    /**
+     * @brief writes a collection of geometry to WKT(Well-Know Text) file
+     * @param[in] file the output *.wtk filename
+     * @param[in] begin iterator to the beginning of the geometry collection
+     * @param[in] end iterator to the ending of the geometry collection
+     * @return whether write file successfully
+     */
     template <typename geometry, typename iterator,
               typename std::enable_if<std::is_same<geometry,
               typename std::iterator_traits<iterator>::value_type>::value, bool>::type = true>
@@ -176,6 +191,13 @@ public:
         return true;
     }
 
+    /**
+     * @brief reads a collection of geometry from WKT(Well-Know Text) file
+     * @param[in] file the input *.wtk filename
+     * @param[in] result back insert iterator of the geometry collection
+     * @param[out] err error message if failed to read
+     * @return whether read file successfully 
+     */
     template <typename geometry, typename iterator>
     static bool Read(const std::string & file, iterator result, std::string * err = nullptr)
     {
@@ -206,6 +228,43 @@ public:
 
 #ifdef BOOST_GIL_IO_PNG_SUPPORT
 
+    /**
+     * @brief draws a collection of geometry to an image file with png format
+     * @param[in] filename the output *.png file name
+     * @param[in] begin iterator to the beginning of the geometry collection
+     * @param[in] end iterator to the beginning of the geometry collection
+     * @param[in] width pixel width of the image
+     * @param[in] color geometry outline color
+     * @param[in] bgColor back ground color
+     * @return whether read file successfully  
+     */
+    template <typename geometry, typename iterator,
+              typename std::enable_if<std::is_same<geometry,
+              typename std::iterator_traits<iterator>::value_type>::value, bool>::type = true>
+    static bool WritePNG(const std::string & filename, iterator begin, iterator end, size_t width = 512,
+                         int color = generic::color::black, int bgColor = generic::color::white)
+    {
+        using namespace boost::gil;
+        using coor_t = typename geometry::coor_t;
+
+        auto bbox = Extent(begin, end);
+        auto stride = bbox.Length() / coor_t(width);
+        size_t height = static_cast<size_t>(double(width) / bbox.Length() * bbox.Width());
+
+        rgb8_image_t img(width, height);
+        rgb8_image_t::view_t v = boost::gil::view(img);
+
+        int r, g, b;
+        generic::color::RGBFromInt(bgColor, r, g, b);
+        fill_pixels(v, rgb8_pixel_t(r, g, b));
+
+        WriteImgView<geometry>(v, begin, end, Vector2D<coor_t>(stride, stride), bbox[0], color);
+
+        write_view(filename, boost::gil::view(img), png_tag());
+        return true;
+    }
+
+private:
     template <typename geometry, typename iterator,
               typename std::enable_if<std::is_same<geometry,
               typename std::iterator_traits<iterator>::value_type>::value, bool>::type = true>
@@ -232,32 +291,6 @@ public:
                 view(grid[0], height - grid[1] - 1) = color;
             }
         }
-    }
-
-    template <typename geometry, typename iterator,
-              typename std::enable_if<std::is_same<geometry,
-              typename std::iterator_traits<iterator>::value_type>::value, bool>::type = true>
-    static bool WritePNG(const std::string & filename, iterator begin, iterator end, size_t width = 512,
-                         int color = generic::color::black, int bgColor = generic::color::white)
-    {
-        using namespace boost::gil;
-        using coor_t = typename geometry::coor_t;
-
-        auto bbox = Extent(begin, end);
-        auto stride = bbox.Length() / coor_t(width);
-        size_t height = static_cast<size_t>(double(width) / bbox.Length() * bbox.Width());
-
-        rgb8_image_t img(width, height);
-        rgb8_image_t::view_t v = boost::gil::view(img);
-
-        int r, g, b;
-        generic::color::RGBFromInt(bgColor, r, g, b);
-        fill_pixels(v, rgb8_pixel_t(r, g, b));
-
-        WriteImgView<geometry>(v, begin, end, Vector2D<coor_t>(stride, stride), bbox[0], color);
-
-        write_view(filename, boost::gil::view(img), png_tag());
-        return true;
     }
 
 #endif//BOOST_GIL_IO_PNG_SUPPORT

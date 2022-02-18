@@ -1,3 +1,10 @@
+/**
+ * @file Box.hpp
+ * @author bwu
+ * @brief Model of axis-aligned bounding box2d and box3d concept
+ * @version 0.1
+ * @date 2022-02-14
+ */
 #ifndef GENERIC_GEOMETRY_BOX_HPP
 #define GENERIC_GEOMETRY_BOX_HPP
 #include "Point.hpp"
@@ -13,44 +20,73 @@ public:
     const static size_t dim = 2;
     using coor_t = num_type;
     using point_t = Point2D<coor_t>;
-
+    
+    ///@brief constructs an invalid box2d
     Box2D();
+    ///@brief constructs a box2d by LL point and UR point
     Box2D(num_type llx, num_type lly, num_type urx, num_type ury);
+    ///@brief constructs a box2d formed by two points
     Box2D(const Point2D<num_type> & p1, const Point2D<num_type> & p2);
 
+    ///@brief checks if this box equal to box b
     bool operator== (const Box2D & b) const;
+    ///@brief checks if this box not equal to box b
     bool operator!= (const Box2D & b) const;
 
+    ///@brief accesses LL and UR point by index 0 and 1
     Point2D<num_type> & operator[] (size_t i);
     const Point2D<num_type> & operator[] (size_t i) const;
 
-    //Inside or outside checking
+    ///@brief checks if this box is inside box b
     bool operator<  (const Box2D<num_type> & b) const;
+    ///@brief checks if box b is inside this box
     bool operator>  (const Box2D<num_type> & b) const;
+    ///@brief checks if point p is inside this box
     bool operator>  (const Point2D<num_type> & p) const;
+    ///@brief checks if this box is inside box b, consider touch
     bool operator<= (const Box2D<num_type> & b) const;
+    ///@brief checks if box b is inside this box, consider touch
     bool operator>= (const Box2D<num_type> & b) const;
+    ///@brief checks if point p is inside this box, consider touch
     bool operator>= (const Point2D<num_type> & p) const;
+    ///@brief gets union box of this box with box b
     Box2D<num_type> operator+ (const Box2D<num_type> & b) const;
+    ///@brief self union with box b
     void operator+= (const Box2D<num_type> & b);
+    ///@brief same as operator+
     void operator|= (const Box2D<num_type> & b);
+    ///@brief gets union box of this box with point p
     Box2D<num_type> operator| (const Point2D<num_type> & p) const;
+    ///@brief same as operator+
     void operator|= (const Point2D<num_type> & p);
+    ///@brief gets intersect box of this box with box b
     Box2D<num_type> operator& (const Box2D<num_type> & b) const;
+    ///@brief self intersection with box b
     void operator&= (const Box2D<num_type> & b);
 
+    ///@brief gets box center
     Point2D<float_t> Center() const;
+    ///@brief gets box length in axis-x
     num_type Length() const;
+    ///@brief gets box width in axis-y
     num_type Width() const;
+    ///@brief gets box area
     num_type Area() const;
+    ///@brief checks if LL point is under UR point
     bool isValid() const;
+    ///@brief reorders the LL point and UR point location
     void Normalize();
+    ///@brief reverses LL and UR point location of a valid box
     void SetInvalid();
 
+    ///@brief converts this box to box with other number type explicitly
     template<typename other_num_type>
     Box2D<other_num_type> Cast() const;
 
+    ///@brief collision test of two boxes
     static bool Collision(const Box2D<num_type> & a, const Box2D<num_type> & b, bool considerTouch = false);
+
+private:
     static bool Collision(const Box2D<num_type> & a, const Box2D<num_type> & b, std::true_type);//consider touch
     static bool Collision(const Box2D<num_type> & a, const Box2D<num_type> & b, std::false_type);//not consider touch
 
@@ -67,47 +103,80 @@ public:
     using coor_t = num_type;
     using point_t = Point3D<coor_t>;
 
+    ///@brief constructs an invalid box3d
     Box3D();
+    ///@brief constructs a box3d by LL point and UR point
     Box3D(num_type llx, num_type lly, num_type llz, num_type urx, num_type ury, num_type urz);
+    ///@brief constructs a box3d formed by two points
     Box3D(const Point3D<num_type> & p1, const Point3D<num_type> & p2);
 
+    ///@brief checks if this box equal to box b
     bool operator== (const Box3D & b) const;
+    ///@brief checks if this box not equal to box b
     bool operator!= (const Box3D & b) const;
 
+    ///@brief accesses LL and UR point by index 0 and 1
     Point3D<num_type> & operator[] (size_t i);
     const Point3D<num_type> & operator[] (size_t i) const;
 
-    //Inside or outside checking
+    ///@brief checks if this box is inside box b
     bool operator<  (const Box3D<num_type> & b) const;
+    ///@brief checks if box b is inside this box
     bool operator>  (const Box3D<num_type> & b) const;
+    ///@brief checks if point p is inside this box
     bool operator>  (const Point3D<num_type> & p) const;
+    ///@brief checks if this box is inside box b, consider touch
     bool operator<= (const Box3D<num_type> & b) const;
+    ///@brief checks if box b is inside this box, consider touch
     bool operator>= (const Box3D<num_type> & b) const;
+    ///@brief checks if point p is inside this box, consider touch
     bool operator>= (const Point3D<num_type> & p) const;
+    ///@brief gets union box of this box with box b
     Box3D<num_type> operator+ (const Box3D<num_type> & b) const;
+    ///@brief self union with box b
     void operator+= (const Box3D<num_type> & b);
+    ///@brief same as operator+
     void operator|= (const Box3D<num_type> & b);
+    ///@brief self union with point p
     void operator|= (const Point3D<num_type> & p);
+    ///@brief gets intersect box of this box with box b
     Box3D<num_type> operator& (const Box3D<num_type> & b) const;
+    ///@brief self intersection with box b
     void operator&= (const Box3D<num_type> & b);
 
+    ///@brief gets box center
     Point3D<float_t> Center() const;
+    ///@brief gets box length in axis-x
     num_type Length() const;
+    ///@brief gets box width in axis-y
     num_type Width() const;
+    ///@brief gets box height in axis-z
     num_type Height() const;
+    ///@brief gets diagonal vector from LL to UR
     Point3D<num_type> Diagonal() const;
+    ///@brief gets half of the surface area of this box
     num_type HalfArea() const;
+    ///@brief gets surface area of this box
     num_type SurfArea() const;
+    ///@brief gets volume of this box
     num_type Volume() const;
+    ///@brief gets axis index with largest range
     size_t LargestAxis() const;
+    ///@brief checks if LL point is under UR point
     bool isValid() const;
+    ///@brief reorders the LL point and UR point location
     void Normalize();
+    ///@brief reverses LL and UR point location of a valid box
     void SetInvalid();
 
+    ///@brief converts this box to box with other number type explicitly
     template<typename other_num_type>
     Box3D<other_num_type> Cast() const;
 
+    ///@brief collision test of two boxes
     static bool Collision(const Box3D<num_type> & a, const Box3D<num_type> & b, bool considerTouch = false);
+
+private:
     static bool Collision(const Box3D<num_type> & a, const Box3D<num_type> & b, std::true_type);//consider touch
     static bool Collision(const Box3D<num_type> & a, const Box3D<num_type> & b, std::false_type);//not consider touch
 

@@ -1,3 +1,10 @@
+/**
+ * @file Vector.hpp
+ * @author bwu
+ * @brief Model of vector2d, vector3d and hyper vector concept
+ * @version 0.1
+ * @date 2022-02-14
+ */
 #ifndef GENERIC_GEOMETRY_VECTOR_HPP
 #define GENERIC_GEOMETRY_VECTOR_HPP
 #include "generic/math/MathUtility.hpp"
@@ -11,7 +18,7 @@ namespace geometry {
 template <typename num_type>
 using Vector2D = Point2D<num_type>;
 
-///@brief get normalized vector of input vector `vec`
+///@brief gets normalized vector of input vector `vec`
 template <typename num_type>
 inline Vector2D<float_type<num_type> > Normalize(const Vector2D<num_type> & vec)
 {
@@ -25,7 +32,7 @@ inline Vector2D<float_type<num_type> > Normalize(const Vector2D<num_type> & vec)
 template <typename num_type>
 using Vector3D = Point3D<num_type>;
 
-///@brief get normalized vector of input vector `vec`
+///@brief gets normalized vector of input vector `vec`
 template <typename num_type>
 inline Vector3D<float_type<num_type> > Normalize(const Vector3D<num_type> & vec)
 {
@@ -44,11 +51,11 @@ class VectorN
 public:
     using coor_t = num_type;
     static const size_t dim = N;
-    ///@brief construct a VectorN with N size of zero
+    ///@brief constructs a VectorN with N size of zero
     VectorN() { std::fill(m_data.begin(), m_data.end(), 0); }
-    ///@brief construct a VectorN with N size of number s
+    ///@brief constructs a VectorN with N size of number s
     VectorN(num_type s) { std::fill(m_data.begin(), m_data.end(), s); }
-    ///@brief construct a VectorN with number {first, second, ....}
+    ///@brief constructs a VectorN with number {first, second, ....}
     template <typename... Args>
     VectorN(num_type first, num_type second, Args... args) { Set(first, second, args...); }
 
@@ -60,20 +67,21 @@ public:
     bool operator== (const VectorN<num_type, N> & v) const;
     bool operator!= (const VectorN<num_type, N> & v) const;
 
-    ///@brief set self numbers from the beginning with args {first, second, ...}
+    ///@brief sets self numbers from the beginning with args {first, second, ...}
     template <typename... Args>
     void Set(Args... args);
 
-    ///@brief get self dot product result with vector `v`
+    ///@brief gets self dot product result with vector `v`
     num_type Dot(const VectorN<num_type, N> & v);
     
-    ///@brief get norm2 result of two VectorN `v1` and `v2`
+    ///@brief gets norm2 result of two VectorN `v1` and `v2`
     static num_type NormSquare(const VectorN<num_type, N> & v1, const VectorN<num_type, N> & v2);
 
 private:
     std::array<num_type, N> m_data;
 };
 
+///@brief a help class for set VectorN's parameters
 template <typename num_type, size_t I, size_t N>
 struct VectorNSetter
 {

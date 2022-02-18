@@ -1,3 +1,10 @@
+/**
+ * @file Triangulator.hpp
+ * @author bwu
+ * @brief Triangulator algrithom for triangulation
+ * @version 0.1
+ * @date 2022-02-14
+ */
 #ifndef GENERIC_GEOMETRY_TRI_TRIANGULATOR_HPP
 #define GENERIC_GEOMETRY_TRI_TRIANGULATOR_HPP
 #include <boost/geometry/index/rtree.hpp>
@@ -37,11 +44,11 @@ public:
 
     Triangulation<Point> & tri;
     TriangulationOperator<Point> op;
-    ///@brief construct a Triangulator2D that manipulating the triangulation data
+    ///@brief constructs a Triangulator2D that manipulating the triangulation data
     Triangulator2D(Triangulation<Point> & t) : tri(t), op(t) {}
     
     /**
-     * @brief insert vertices and construct delaunay triangulation
+     * @brief inserts vertices and construct delaunay triangulation
      * 
      * @tparam VertexIterator iterator of the sequence of vertices
      * @tparam CoorXGetter functioner type to get coordiante x of input vertex
@@ -57,7 +64,7 @@ public:
     void InsertVertices(VertexIterator begin, VertexIterator end, CoorXGetter xGetter, CoorYGetter yGetter);
 
     /**
-     * @brief insert edges and construct constrained delaunay triangulation
+     * @brief inserts edges and construct constrained delaunay triangulation
      * 
      * @tparam EdgeIterator iterator of the sequence of edges
      * @tparam sVerIdxGetter functioner type to get start vertex index of edge 
@@ -72,12 +79,12 @@ public:
               typename eVerIdxGetter>
     void InsertEdges(EdgeIterator begin, EdgeIterator end, sVerIdxGetter sGetter, eVerIdxGetter eGetter);
 
-    ///@brief remove super triangle and produce a convex-hull 
+    ///@brief removes super triangle and produce a convex-hull 
     void EraseSuperTriangle();
-    ///@brief remove all outer triangles until a boundary defined by constrained edges
+    ///@brief removes all outer triangles until a boundary defined by constrained edges
     void EraseOuterTriangles();
     /**
-     * @brief remove outer triangles and automatically detected holes.
+     * @brief removes outer triangles and automatically detected holes.
      * Starts from super-triangle and traverses triangles until outer boundary.
      * Triangles outside outer boundary will be removed.
      * Then traversal continues until next boundary.
@@ -87,7 +94,7 @@ public:
      */
     void EraseOuterTrianglesAndHoles();
 
-    ///@brief clear all data in triangulation
+    ///@brief clears all data in triangulation
     void Clear();
 private:
     template <typename VertexIterator,
@@ -618,6 +625,12 @@ struct DuplicatesInfo
     std::unordered_set<size_t> duplicates;
 };
 
+/**
+ * @brief utility functions to find duplicated points within given tolerance
+ * @param[in] points point collection
+ * @param[in] tolerance treat points distance less than tolerance as duplicated 
+ * @return DuplicatesInfo duplicate results
+ */
 template <typename num_type>
 inline DuplicatesInfo FindDuplicates(const std::vector<Point2D<num_type> > & points, num_type tolerance)
 {
@@ -666,6 +679,11 @@ inline DuplicatesInfo FindDuplicates(const std::vector<Point2D<num_type> > & poi
     return dup;
 }
 
+/**
+ * @brief remaps edges with duplicated functions
+ * @param[in, out] edges input edges
+ * @param[in] mapping duplicated info, point n is duplicated with mapping[n]
+ */
 inline void RemapEdges(std::list<IndexEdge> & edges, const std::vector<size_t> & mapping)
 {
     for(auto iter = edges.begin(); iter != edges.end();){
@@ -676,6 +694,11 @@ inline void RemapEdges(std::list<IndexEdge> & edges, const std::vector<size_t> &
     }
 }
 
+/**
+ * @brief removes duplicate points of a point collection
+ * @param[in, out] points the given point collection 
+ * @param duplicates duplicated info, point n is duplicated with mapping[n]
+ */
 template <typename num_type>
 inline void RemoveDuplicates(std::vector<Point2D<num_type> > & points, const std::unordered_set<size_t> & duplicates)
 {
@@ -687,6 +710,13 @@ inline void RemoveDuplicates(std::vector<Point2D<num_type> > & points, const std
     points.erase(points.end() - duplicates.size(), points.end());
 }
 
+/**
+ * @brief removes duplicate points and remap edges
+ * @param[in, out] points the given point collection 
+ * @param[in, out] edges the given edge collection 
+ * @param[in] tolerance merge tolerance
+ * @return DuplicatesInfo duplicate results
+ */
 template <typename num_type>
 inline DuplicatesInfo RemoveDuplicatesAndRemapEdges(std::vector<Point2D<num_type> > & points, std::list<IndexEdge> & edges, num_type tolerance)
 {

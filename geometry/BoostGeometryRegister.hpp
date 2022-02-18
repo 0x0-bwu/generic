@@ -1,3 +1,10 @@
+/**
+ * @file BoostGeometryRegister.hpp
+ * @author bwu
+ * @brief Adaption of the generic geometry models to boost geometry concept
+ * @version 0.1
+ * @date 2022-02-14
+ */
 #ifndef GENERIC_GEOMETRY_BOOSTGEOMETRYREGISTER_HPP
 #define GENERIC_GEOMETRY_BOOSTGEOMETRYREGISTER_HPP
 #include <boost/geometry/core/coordinate_dimension.hpp>

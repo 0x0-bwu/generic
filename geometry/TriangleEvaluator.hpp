@@ -1,3 +1,10 @@
+/**
+ * @file TriangleEvaluator.hpp
+ * @author bwu
+ * @brief Utility class for triangulation quality evaluation
+ * @version 0.1
+ * @date 2022-02-14
+ */
 #ifndef GENERIC_GEOMETRY_TRI_TRIANGLEEVALUATOR_HPP
 #define GENERIC_GEOMETRY_TRI_TRIANGLEEVALUATOR_HPP
 #include "generic/common/Traits.hpp"
@@ -23,7 +30,12 @@ struct TriangleEvaluation
     std::array<double, bins> triEdgeLenHistogram;
 };
 
-template <typename point_t>
+/**
+ * @brief represents a class that take triangulation evaluation
+ * @tparam point_t triangulation point type
+ * @tparam bins histogram numbers of triangulation angle and edge distribution
+ */
+template <typename point_t, size_t bins = 10>
 class TriangleEvaluator
 {
 public:
@@ -31,7 +43,7 @@ public:
     using float_t = float_type<coor_t>;
     using Utility = TriangulationUtility<point_t>;
 
-    static const size_t bins = 10;
+    // static const size_t bins = 10;
     using Evaluation = TriangleEvaluation<bins>;
 
     explicit TriangleEvaluator(const Triangulation<point_t> & tri,
@@ -39,8 +51,10 @@ public:
                                const VerIdxSet & skipV = {})
         : m_tri(tri), m_skipT(skipT), m_skipV(skipV) {}
 
+    ///@brief generates the evaluation result
     Evaluation Report() const;
 
+    ///@brief gets total edge size of the triangulation
     index_t EdgeSize() const
     {
         size_t size = 0;
@@ -53,16 +67,26 @@ public:
         }
         return size / 2;
     }
+    ///@brief gets total vertex size of the triangulation
     index_t VertexSize()    const { return m_tri.vertices.size()  - m_skipV.size(); }
+    ///@brief gets total triangle size of the triangulation
     index_t TriangleSize()  const { return m_tri.triangles.size() - m_skipT.size(); }
+    ///@brief gets minimum interior angle in triangulation
     float_t MinimumAngle()  const { return MinimumAngle(m_tri,  0, TriangleSize(), m_skipT); }
+    ///@brief gets maximum interior angle in triangulation
     float_t MaximumAngle()  const { return MaximumAngle(m_tri,  0, TriangleSize(), m_skipT); }
+    ///@brief gets minimum edge length in triangulation
     float_t MinEdgeLength() const { return MinEdgeLength(m_tri, 0, TriangleSize(), m_skipT); }
+    ///@brief gets maximum edge length in triangulation
     float_t MaxEdgeLength() const { return MaxEdgeLength(m_tri, 0, TriangleSize(), m_skipT); }
+    ///@brief gets average edge length of the triangulation
     float_t AveEdgeLength() const { return AveEdgeLength(m_tri, 0, TriangleSize(), m_skipT); }
+    ///@brief gets average minimum interior angle of triangulation
     float_t AveMinimumAngle() const { return AveMinimumAngle(m_tri, 0, TriangleSize(), m_skipT); }
-
+    
+    ///@brief gets minimum angle distribution counts histogram with range [0, 180] in bins size
     std::array<size_t, bins> MinimumAngleHistogram() const { return MinimumAngleHistogram<bins>(m_tri, 0, TriangleSize(), m_skipT); }
+    ///@brief gets edge length distribution counts histogram with length range [min, max] in bins size
     std::array<size_t, bins> EdgeLengthHistogram(float_t min, float_t max) const;
 
     static float_t MinimumAngle(const Triangulation<point_t> & tri, TriIdx begin, TriIdx end, const TriIdxSet & skipT = {});

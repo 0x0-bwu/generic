@@ -1,3 +1,10 @@
+/**
+ * @file Utility.ipp
+ * @author bwu
+ * @brief Implementation of funtions in header 'Utility.hpp'
+ * @version 0.1
+ * @date 2022-02-14
+ */
 #ifndef GENERIC_GEOMETRY_UTILITY_IPP
 #define GENERIC_GEOMETRY_UTILITY_IPP
 #include "Utility.hpp"

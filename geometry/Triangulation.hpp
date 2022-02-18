@@ -1,3 +1,10 @@
+/**
+ * @file Triangulation.hpp
+ * @author bwu
+ * @brief Model of triangulation concept
+ * @version 0.1
+ * @date 2022-02-14
+ */
 #ifndef GENERIC_GEOMETRY_TRI_TRIANGULATION_HPP
 #define GENERIC_GEOMETRY_TRI_TRIANGULATION_HPP
 #include "generic/topology/IndexGraph.hpp"
@@ -91,10 +98,14 @@ struct IndexTriangle
 
     static index_t cw(const index_t i)  { return (i + 2) % 3; }
     static index_t ccw(const index_t i) { return (i + 1) % 3; }
-    static index_t iVeOpiTn(const index_t iv) { return (iv + 1) % 3; }//opposed triangle neighbor index from vertex index iv;
-    static index_t iTnOpiVe(const index_t in) { return (in + 2) % 3; }//opposed vertex index from triangle neighbor index in;
-    static index_t iEgOpiVe(const index_t ie) { return (ie + 2) % 3; }//opposed vertex index from edge index ie;
-    static index_t iVeOpiEg(const index_t iv) { return (iv + 1) % 3; }//opposed edge index from vertex index iv;
+    ///@brief opposed triangle neighbor index from vertex index iv
+    static index_t iVeOpiTn(const index_t iv) { return (iv + 1) % 3; }
+    ///@brief opposed vertex index from triangle neighbor index in
+    static index_t iTnOpiVe(const index_t in) { return (in + 2) % 3; }
+    ///@brief opposed vertex index from edge index ie
+    static index_t iEgOpiVe(const index_t ie) { return (ie + 2) % 3; }
+    ///@brief opposed edge index from vertex index iv
+    static index_t iVeOpiEg(const index_t iv) { return (iv + 1) % 3; }
     index_t iVe(const VerIdx v) const
     {
         for(index_t i = 0; i < 3; ++i){ if(v == vertices[i]) return i; }

@@ -1,3 +1,10 @@
+/**
+ * @file Transform.hpp
+ * @author bwu
+ * @brief Model of transform vector, matrix and quaternion concept
+ * @version 0.1
+ * @date 2022-02-14
+ */
 #ifndef GENERIC_GEOMETRY_TRANSFORM_HPP
 #define GENERIC_GEOMETRY_TRANSFORM_HPP
 #include <boost/qvm/quat_vec_operations.hpp>
@@ -68,6 +75,7 @@ template <typename float_t> class Transform2D;
 template <typename float_t> class Transform3D;
 template <typename float_t> class Quaternion;
 
+///@brief makes a 2d shift transform matrix by a vector2d 
 template <typename float_t, typename num_type>
 inline Transform2D<float_t> makeShiftTransform2D(const Vector2D<num_type> & shift)
 {
@@ -77,6 +85,7 @@ inline Transform2D<float_t> makeShiftTransform2D(const Vector2D<num_type> & shif
     return trans;
 }
 
+///@brief makes a 2d rotation transform matrix by radian, unit: rad
 template <typename float_t>
 inline Transform2D<float_t> makeRotateTransform2D(float_t rot)
 {
@@ -88,6 +97,7 @@ inline Transform2D<float_t> makeRotateTransform2D(float_t rot)
     return trans;
 }
 
+///@brief makes a 2d scale transform matrix by scale factor
 template <typename float_t>
 inline Transform2D<float_t> makeScaleTransform2D(float_t scale)
 {
@@ -96,6 +106,7 @@ inline Transform2D<float_t> makeScaleTransform2D(float_t scale)
     return trans;
 }
 
+///@brief makes a 2d mirror transform matrix by given axis
 template <typename float_t>
 inline Transform2D<float_t> makeMirroredTransform2D(Axis axis)
 {
@@ -105,6 +116,7 @@ inline Transform2D<float_t> makeMirroredTransform2D(Axis axis)
     return trans;
 }
 
+///@brief makes a 3d shift transform matrix by a vector2d 
 template <typename float_t, typename num_type>
 inline Transform3D<float_t> makeShiftTransform3D(const Vector3D<num_type> & shift)
 {
@@ -115,6 +127,7 @@ inline Transform3D<float_t> makeShiftTransform3D(const Vector3D<num_type> & shif
     return trans;
 }
 
+///@brief makes a 3d scale transform matrix by scale factor
 template <typename float_t>
 inline Transform3D<float_t> makeScaleTransform3D(float_t scale)
 {
@@ -130,40 +143,54 @@ class Transform2D
 public:
     static const size_t dim = 2;
     Transform2D();
+    ///@brief constructs a transform2d model by matrix 3x3
     explicit Transform2D(const Matrix3x3<float_t> & m);
 
+    ///@brief accesses matrix element by row and col index 0-2
     float_t & operator() (size_t row, size_t col);
     const float_t & operator() (size_t row, size_t col) const;
 
+    ///@brief inverses the transform matrix, return false if the matrix det = 0
     bool Inverse();
 
+    ///@brief gets result transform of this * trans
     Transform2D<float_t> operator * (const Transform2D<float_t> & trans) const;
-    Transform2D<float_t> & Prod(const Transform2D<float_t> & tran);
+    ///@brief gets result transform of trans * this 
+    Transform2D<float_t> & Prod(const Transform2D<float_t> & trans);
     
+    ///@brief gets transformed point of input
     template <typename num_type>
     Point2D<num_type> operator * (const Point2D<num_type> & point) const;
 
+    ///@brief gets transformed segment of input
     template <typename num_type>
     Segment2D<num_type> operator * (const Segment2D<num_type> & segment) const;
 
+    ///@brief gets transformed triangle of input
     template <typename num_type>
     Triangle2D<num_type> operator * (const Triangle2D<num_type> & triangle) const;
 
+    ///@brief gets transformed box of input
     template <typename num_type>
     Polygon2D<num_type> operator * (const Box2D<num_type> & box) const;
 
+    ///@brief gets transformed polyline of input
     template <typename num_type>
     Polyline2D<num_type> operator * (const Polyline2D<num_type> & polyline) const;
 
+    ///@brief gets transformed polygon of input
     template <typename num_type>
     Polygon2D<num_type> operator * (const Polygon2D<num_type> & polygon) const;
 
+    ///@brief gets transformed polygon with holes of input
     template <typename num_type>
     PolygonWithHoles2D<num_type> operator * (const PolygonWithHoles2D<num_type> & pwh) const;
 
+    ///@brief accesses internal matrix data
     Matrix3x3<float_t> & GetMatrix() { return m_matrix; }
     const Matrix3x3<float_t> & GetMatrix() const { return m_matrix; }
 
+    ///@brief gets matrix elements in array, adapt for OpenGL API
     void GetCoeffs(float_t coeffs[], bool rowMajor = true);
 
 private:
@@ -177,30 +204,42 @@ class Transform3D
 public:
     static const size_t dim = 3;
     Transform3D();
+    ///@brief constructs a transform3d model from transform2d
     explicit Transform3D(const Transform2D<float_t> & trans2d);
+    ///@brief constructs a transform3d model by matrix 4x4
     explicit Transform3D(const Matrix4x4<float_t> & m);
 
+    ///@brief accesses matrix element by row and col index 0-2
     float_t & operator() (size_t row, size_t col);
     const float_t & operator() (size_t row, size_t col) const;
 
+    ///@brief inverses the transform matrix, return false if the matrix det = 0
     bool Inverse();
+    ///@brief gets transform2d(x, y) from transform3d(x, y, z)
     Transform2D<float_t> GetTransfrom2D() const;
 
+    ///@brief gets result transform of this * trans
     Transform3D<float_t> operator * (const Transform3D<float_t> & trans) const;
+    ///@brief gets result transform of trans * this 
     Transform3D<float_t> & Prod(const Transform3D<float_t> & tran);
 
+    ///@brief gets transformed point of input
     template <typename num_type>
     Point3D<num_type> operator * (const Point3D<num_type> & point) const;
 
+    ///@brief gets transformed segment of input
     template <typename num_type>
     Segment3D<num_type> operator * (const Segment3D<num_type> & segment) const;
 
+    ///@brief gets transformed triangle of input
     template <typename num_type>
     Triangle3D<num_type> operator * (const Triangle3D<num_type> & triangle) const;
 
+    ///@brief accesses internal matrix data
     Matrix4x4<float_t> & GetMatrix() { return m_matrix; }
     const Matrix4x4<float_t> & GetMatrix() const { return m_matrix; }
 
+    ///@brief gets matrix elements in array, adapt for OpenGL API
     void GetCoeffs(float_t coeffs[], bool rowMajor = true);
 
 private:
@@ -218,19 +257,30 @@ public:
     Quaternion(const Vector3D<float_t> & axis, float_t angle);
     Quaternion(const boost::qvm::quat<float_t> & q);
 
+    ///@brief accesses quaternion element by index 0-3
     float_t & operator[](size_t dim);
     const float_t & operator[](size_t dim) const;
+    ///@brief multiples this with q
     Quaternion<float_t> & operator *= (const Quaternion<float_t> & q);
+    ///@brief gets multiplie result of this * q
     Quaternion<float_t> operator * (const Quaternion<float_t> & q) const;
 
+    ///@brief performs a rotation around the axis at angle radians
     void SetAxisAndAngle(const Vector3D<float_t> & axis, float angle);
+    ///@brief gets axis reprented by this quaternion
     Vector3D<float_t> Axis() const;
+    ///@brief gets angle reprented by this quaternion
     float_t Angle() const;
 
+    ///@brief multiplicative inverse of this quaternion
     void Invert();
+    ///@brief megates all the coefficients of this quaternion
     void Negate();
-    void Normalize();           
+    ///@brief normalizes the quaternion oefficients with unit quaternions
+    void Normalize();
+    ///@brief returns the magnitude of this           
     float_t Mag() const;
+    ///@brief returns the squared magnitude of this
     float_t MagSqrt() const;
     Quaternion<float_t> Log() const;
     Quaternion<float_t> Exp() const;
@@ -238,8 +288,10 @@ public:
     Vector3D<float_t> Rotate(const Vector3D<float_t> & vec) const;
     Vector3D<float_t> InverseRotate(const Vector3D<float_t> & vec) const;
 
+    ///@brief returns dot product of this and q
     float_t Dot(const Quaternion<float_t> & q) const;
 
+    ///@brief accesses internal quat data
     boost::qvm::quat<float_t> & q() { return m_q; }
     const boost::qvm::quat<float_t> & q() const { return m_q; }
 
@@ -250,6 +302,7 @@ public:
     static Quaternion<float_t> Squad(const Quaternion<float_t> & a, const Quaternion<float_t> & tgA,
                                      const Quaternion<float_t> & b, const Quaternion<float_t> & tgB, float_t t);
 
+    ///@brief returns the result of spherical linear interpolation of the input quat `a`, `b` and interpolation parameter `t`
     static Quaternion<float_t> Slerp(const Quaternion<float_t> & a, const Quaternion<float_t> & b, float_t t);
 
 private:
@@ -688,6 +741,7 @@ inline Quaternion<float_t> Quaternion<float_t>::Slerp(const Quaternion<float_t> 
     return Quaternion<float_t>(slerp(a.q(), b.q(), t));
 }
 
+///@brief transforms the point by the transform matrix
 template <typename num_type, typename float_t>
 inline void Transform(Point2D<num_type> & point, const Transform2D<float_t> & trans)
 {
@@ -695,6 +749,7 @@ inline void Transform(Point2D<num_type> & point, const Transform2D<float_t> & tr
     point = Point2D<num_type>(vec[0], vec[1]);
 }
 
+///@brief transforms the segment by the transform matrix
 template <typename num_type, typename float_t>
 inline void Transform(Segment2D<num_type> & segment, const Transform2D<float_t> & trans)
 {
@@ -702,6 +757,7 @@ inline void Transform(Segment2D<num_type> & segment, const Transform2D<float_t> 
     Transform(segment[1], trans);
 }
 
+///@brief transforms the triangle by the transform matrix
 template <typename num_type, typename float_t>
 inline void Transform(Triangle2D<num_type> & triangle, const Transform2D<float_t> & trans)
 {
@@ -710,6 +766,7 @@ inline void Transform(Triangle2D<num_type> & triangle, const Transform2D<float_t
     Transform(triangle[2], trans);
 }
 
+///@brief transforms the polyline by the transform matrix
 template <typename num_type, typename float_t>
 inline void Transform(Polyline2D<num_type> & polyline, const Transform2D<float_t> & trans)
 {
@@ -717,6 +774,7 @@ inline void Transform(Polyline2D<num_type> & polyline, const Transform2D<float_t
         Transform(point, trans);
 }
 
+///@brief transforms the polygon by the transform matrix
 template <typename num_type, typename float_t>
 inline void Transform(Polygon2D<num_type> & polygon, const Transform2D<float_t> & trans)
 {
@@ -724,6 +782,7 @@ inline void Transform(Polygon2D<num_type> & polygon, const Transform2D<float_t> 
         Transform(*iter, trans);
 }
 
+///@brief transforms the polygon with holes by the transform matrix
 template <typename num_type, typename float_t>
 inline void Transform(PolygonWithHoles2D<num_type> & pwh, const Transform2D<float_t> & trans)
 {
@@ -733,6 +792,7 @@ inline void Transform(PolygonWithHoles2D<num_type> & pwh, const Transform2D<floa
         Transform(*iter, trans);
 }
 
+///@brief transforms the point by the transform matrix
 template <typename num_type, typename float_t>
 inline void Transform(Point3D<num_type> & point, const Transform3D<float_t> & trans)
 {
@@ -740,6 +800,7 @@ inline void Transform(Point3D<num_type> & point, const Transform3D<float_t> & tr
     point = Point3D<num_type>(vec[0], vec[1], vec[2]);
 }
 
+///@brief transforms the segment by the transform matrix
 template <typename num_type, typename float_t>
 inline void Transform(Segment3D<num_type> & segment, const Transform3D<float_t> & trans)
 {
@@ -747,6 +808,7 @@ inline void Transform(Segment3D<num_type> & segment, const Transform3D<float_t> 
     Transform(segment[1], trans);
 }
 
+///@brief transforms the triangle by the transform matrix
 template <typename num_type, typename float_t>
 inline void Transform(Triangle3D<num_type> & triangle, const Transform3D<float_t> & trans)
 {
@@ -755,6 +817,7 @@ inline void Transform(Triangle3D<num_type> & triangle, const Transform3D<float_t
     Transform(triangle[2], trans);
 }
 
+///@brief transfroms a collection of geometries by the transform matrix
 template <typename geometry_t, typename iterator, typename transform_t, 
           typename std::enable_if<geometry_t::dim == transform_t::dim && std::is_same<geometry_t,
           typename std::iterator_traits<iterator>::value_type>::value, bool>::type = true>

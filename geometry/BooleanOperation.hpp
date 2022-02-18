@@ -1,3 +1,10 @@
+/**
+ * @file BooleanOperation.hpp
+ * @author bwu
+ * @brief Boolean operation for geometries
+ * @version 0.1
+ * @date 2022-02-14
+ */
 #ifndef GENERIC_GEOMETRY_BOOLEANOPERATION_HPP
 #define GENERIC_GEOMETRY_BOOLEANOPERATION_HPP
 #include "BoostPolygonRegister.hpp"
@@ -11,6 +18,12 @@ namespace boolean  {
 template <typename num_type>
 using PolygonSet2D = boost::polygon::polygon_set_data<num_type>;
 
+/**
+ * @brief Boolean OR (polygon set union) operation of two geometries
+ * @param[in] g1 one of the input geometries, could be one of Triangle2D, Box2D, Polygon2D, PolygonWithHoles2D
+ * @param[in] g2 one of the input geometries, could be one of Triangle2D, Box2D, Polygon2D, PolygonWithHoles2D
+ * @param[out] results stl container with Polygon2D that hold the union result of two geometries
+ */
 template <typename geometry_t1, typename geometry_t2, 
           template <typename, typename> class container, 
           template <typename> class allocator = std::allocator,
@@ -26,6 +39,12 @@ inline void Unite(const geometry_t1 & g1, const geometry_t2 & g2, container<poly
     polygonSet.get(results);
 }
 
+/**
+ * @brief Boolean OR (polygon set union) operation of a collection of geometries
+ * @param[in] begin iterator to the beginning of the geometry collection
+ * @param[in] end iterator to the ending of the geometry collection
+ * @param[out] results stl container with Polygon2D that hold the union result of the collection of geometries
+ */
 template <typename iterator, 
           template <typename, typename> class container,
           template <typename> class allocator = std::allocator,
@@ -44,6 +63,12 @@ inline void Unite(iterator begin, iterator end,
     polygonSet.get(results);
 }
 
+/**
+ * @brief Boolean AND (polygon set intersection) operation of a two geometries
+ * @param[in] g1 one of the input geometries, could be one of Triangle2D, Box2D, Polygon2D, PolygonWithHoles2D
+ * @param[in] g2 one of the input geometries, could be one of Triangle2D, Box2D, Polygon2D, PolygonWithHoles2D
+ * @param[out] results stl container with Polygon2D that hold the intersection result of two geometries
+ */
 template <typename geometry_t1, typename geometry_t2, 
           template <typename, typename> class container, 
           template <typename> class allocator = std::allocator,
@@ -59,6 +84,14 @@ inline void Intersect(const geometry_t1 & g1, const geometry_t2 & g2, container<
     polygonSet.get(results);
 }
 
+/**
+ * @brief Boolean AND (polygon set intersection) operation of two geometry sets
+ * @param[in] begin1 iterator to the beginning of the geometry collection one
+ * @param[in] end1 iterator to the ending of the geometry collection one
+ * @param[in] begin2 iterator to the beginning of the geometry collection two
+ * @param[in] end2 iterator to the ending of the geometry collection two
+ * @param[out] results stl container with Polygon2D that hold the intersection result of two geometry sets
+ */
 template <typename iterator1, typename iterator2,
           template <typename, typename> class container,
           template <typename> class allocator = std::allocator,
@@ -80,6 +113,12 @@ inline void Intersect(iterator1 begin1, iterator1 end1, iterator2 begin2, iterat
     polygonSet1.get(results);
 }
 
+/**
+ * @brief Boolean SUBTRACT operation (polygon set difference) of two geometries
+ * @param[in] g1 one of the input geometries, could be one of Triangle2D, Box2D, Polygon2D, PolygonWithHoles2D
+ * @param[in] g2 one of the input geometries, could be one of Triangle2D, Box2D, Polygon2D, PolygonWithHoles2D
+ * @param[out] results stl container with Polygon2D that hold the difference result of two geometries
+ */
 template <typename geometry_t1, typename geometry_t2, 
           template <typename, typename> class container, 
           template <typename> class allocator = std::allocator,
@@ -95,6 +134,14 @@ inline void Subtract(const geometry_t1 & g1, const geometry_t2 & g2, container<p
     polygonSet.get(results);
 }
 
+/**
+ * @brief Boolean SUBTRACT operation (polygon set difference) of two geometry sets
+ * @param[in] begin1 iterator to the beginning of the geometry collection one
+ * @param[in] end1 iterator to the ending of the geometry collection one
+ * @param[in] begin2 iterator to the beginning of the geometry collection two
+ * @param[in] end2 iterator to the ending of the geometry collection two
+ * @param[out] results stl container with Polygon2D that hold the difference result of two geometry sets
+ */
 template <typename iterator1, typename iterator2,
           template <typename, typename> class container,
           template <typename> class allocator = std::allocator,
@@ -115,6 +162,12 @@ inline void Subtract(iterator1 begin1, iterator1 end1, iterator2 begin2, iterato
     polygonSet.get(results);
 }
 
+/**
+ * @brief Boolean XOR operation (polygon set disjoint-union) of two geometries
+ * @param[in] g1 one of the input geometries, could be one of Triangle2D, Box2D, Polygon2D, PolygonWithHoles2D
+ * @param[in] g2 one of the input geometries, could be one of Triangle2D, Box2D, Polygon2D, PolygonWithHoles2D
+ * @param[out] results stl container with Polygon2D that hold the disjoint-union result of two geometries
+ */
 template <typename geometry_t1, typename geometry_t2, 
           template <typename, typename> class container, 
           template <typename> class allocator = std::allocator,
@@ -130,6 +183,14 @@ inline void Xor(const geometry_t1 & g1, const geometry_t2 & g2, container<polygo
     polygonSet.get(results);
 }
 
+/**
+ * @brief Boolean XOR operation (polygon set disjoint-union) of two geometry sets
+ * @param[in] begin1 iterator to the beginning of the geometry collection one
+ * @param[in] end1 iterator to the ending of the geometry collection one
+ * @param[in] begin2 iterator to the beginning of the geometry collection two
+ * @param[in] end2 iterator to the ending of the geometry collection two
+ * @param[out] results stl container with Polygon2D that hold the disjoint-union result of two geometry sets
+ */
 template <typename iterator1, typename iterator2,
           template <typename, typename> class container,
           template <typename> class allocator = std::allocator,

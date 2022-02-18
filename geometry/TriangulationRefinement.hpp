@@ -1,3 +1,10 @@
+/**
+ * @file TriangulationRefinement.hpp
+ * @author bwu
+ * @brief Triangulation refinement algorithms
+ * @version 0.1
+ * @date 2022-02-14
+ */
 #ifndef GENERIC_GEOMETRY_TRI_TRIANGULATIONREFINEMENT_HPP
 #define GENERIC_GEOMETRY_TRI_TRIANGULATIONREFINEMENT_HPP
 #include "TriangleEvaluator.hpp"
@@ -53,7 +60,7 @@ protected:
     Triangulation<Point> & tri;
     TriangulationOperator<Point> op;
 public:
-    ///@brief construct a DelaunayRefinement2D that manipulating the triangulation data
+    ///@brief constructs a DelaunayRefinement2D that manipulating the triangulation data
     explicit DelaunayRefinement2D(Triangulation<Point> & t) : tri(t), op(t){}
     virtual ~DelaunayRefinement2D() = default;
 
@@ -61,7 +68,7 @@ public:
     const TriangulationOperator<Point> & GetOp() const { return op; }//test, bwu
 
     /**
-     * @brief set parameter to control the triangulation refinement quality
+     * @brief sets parameter to control the triangulation refinement quality
      * 
      * @param alpha the minimum allowed interior angle of the triangle in triangulation 
      * @param minEdgeLen the triangle with minimum edge length will be ignored when doing refinement 
@@ -81,22 +88,22 @@ public:
         UpdateState();
     }
 
-    ///@brief remove later
+    ///@note removes later
     virtual void MergeShortestEdge(){}//test, bwu
 
-    ///@brief update current encroached edges and skinny triangles state
+    ///@brief updates current encroached edges and skinny triangles state
     virtual void UpdateState() = 0;
 
-    ///@brief do triangulation refinement `step` times
+    ///@brief does triangulation refinement `step` times
     virtual void Refine(index_t step) = 0;
 
-    ///@brief check if current triangulation meets the requirement of ctrl parameters
+    ///@brief checks if current triangulation meets the requirement of ctrl parameters
     virtual bool Refined() const { return refined; }
 
     ///@brief alpha limitation of each refinement method
     virtual float_t LimitAlpha() const = 0;
 
-    ///@brief for internal debug
+    ///@note for internal debug
     virtual std::optional<Point2D<num_type> > CurrVertexPoint() const
     {
         if(state.curr.ft){
@@ -107,21 +114,21 @@ public:
         return std::nullopt;
     }
 
-    ///@brief for internal debug
+    ///@note for internal debug
     virtual std::optional<Segment2D<num_type> > CurrEncroachedEdge() const
     {
         if(state.curr.fe) return Utility::GetSegment(tri, state.curr.e);
         return std::nullopt;
     }
 
-    ///@brief for internal debug
+    ///@note for internal debug
     virtual std::optional<Triangle2D<num_type> > CurrSkinnyTriangle() const
     {
         if(state.curr.ft) return Utility::GetTriangle(tri, state.curr.its);
         return std::nullopt;
     }
 
-    ///@brief for internal debug
+    ///@note for internal debug
     virtual std::optional<Segment2D<num_type> > CurrShortestEdge() const//test, bwu
     {
         if(stillExist(state.curr.se))

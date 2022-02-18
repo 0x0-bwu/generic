@@ -1,3 +1,10 @@
+/**
+ * @file Triangle.hpp
+ * @author bwu
+ * @brief Model of triangle2d and triangle3d concept
+ * @version 0.1
+ * @date 2022-02-14
+ */
 #ifndef GENERIC_GEOMETRY_TRIANGLE_HPP
 #define GENERIC_GEOMETRY_TRIANGLE_HPP
 #include "generic/common/Traits.hpp"
@@ -23,26 +30,40 @@ public:
     Triangle2D(){}
     Triangle2D(const Point2D<num_type> & p0, const Point2D<num_type> & p1, const Point2D<num_type> & p2);
 
+    ///@brief accesses the vertex point by index 0-2
     Point2D<num_type> & operator[](size_t v);
     const Point2D<num_type> & operator[](size_t v) const;
 
+    ///@brief gets the bounding box of this triangle
     Box2D<num_type> BoundingBox() const;
+    ///@brief gets the gravitycentor of this triangle
     Point2D<float_t> Center() const;
+    ///@brief gets the area of this triangle
     float_t Area() const;
 
+    ///@brief checks whether the triangle vertex direction is CCW
     bool isCCW() const;
+    ///@brief reverses the triangle vertex direction
     void Reverse();
+    ///@brief gets triangle winding direction
     WindingDirection & GetWindingDirection();
     const WindingDirection & GetWindingDirection() const;
 
+
+    ///@brief converts this triangle to triangle with other number type explicitly
     template<typename other_num_type>
     Triangle2D<other_num_type> Cast() const;
 
+    ///@brief iterator to the beginning of the vertices
     iterator Begin() { return m_vertices.begin(); }
+    ///@brief iterator to the ending of the vertices
     iterator End() { return m_vertices.end(); }
-    const_iterator ConstBegin() const { return m_vertices.begin(); }
-    const_iterator ConstEnd() const { return m_vertices.end(); }
+    ///@brief const iterator to the beginning of the vertices
+    const_iterator ConstBegin() const { return m_vertices.cbegin(); }
+    ///@brief const iterator to the ending of the vertices
+    const_iterator ConstEnd() const { return m_vertices.cend(); }
 
+    ///@brief checks if triangle formed by order p1, p2, p3 is CCW
     static bool isCCW(const Point2D<num_type> & p1, const Point2D<num_type> & p2, const Point2D<num_type> & p3);
 
 private:
@@ -62,13 +83,18 @@ public:
     Triangle3D(){}
     Triangle3D(const Point3D<num_type> & p0, const Point3D<num_type> & p1, const Point3D<num_type> & p2);
 
+    ///@brief accesses the vertex point by index 0-2
     Point3D<num_type> & operator[](int v);
     const Point3D<num_type> & operator[](int v) const;
 
+    ///@brief gets the bounding box of this triangle
     Box3D<num_type> BoundingBox() const;
+    ///@brief gets the gravitycentor of this triangle
     Point3D<float_t> Center() const;
+    ///@brief gets the area of this triangle
     float_t Area() const;
  
+    ///@brief converts this triangle to triangle with other number type explicitly
     template<typename other_num_type>
     Triangle3D<other_num_type> Cast() const;
 

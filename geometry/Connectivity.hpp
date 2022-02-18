@@ -1,3 +1,10 @@
+/**
+ * @file Connectivity.hpp
+ * @author bwu
+ * @brief Connectivity extraction algorithm to build connectivity graph on layer based geometries
+ * @version 0.1
+ * @date 2022-02-14
+ */
 #ifndef GENERIC_GEOMETRY_CONNECTIVITY_HPP
 #define GENERIC_GEOMETRY_CONNECTIVITY_HPP
 #include "generic/topology/IndexGraph.hpp"
@@ -18,12 +25,12 @@ using namespace topology;
 using GeomConnGraph = SparseIndexGraph;
 
 /**
- * @brief extract objects's physical connection
+ * @brief extracts objects's physical connection
  * 
  * @tparam T object type, could be object or pointer.
  * @tparam GeomGetter a functor type to convert T to internal geometry type
  * @note the functor should have operator() (const & T) function
- * @note the functor return type should be object or reference in one of the Triangle2D, Box2D, Polygon2D, PolygonWithHoles2D
+ * @note the functor returns type should be object or reference in one of the Triangle2D, Box2D, Polygon2D, PolygonWithHoles2D
  * @param[in] objects a vector of objects for connectivity extraction
  * @param[in] geomGetter the functor object to convert T to internal geometry type
  * @param[out] connection return the connection index graph in adjacent list, the index is same as objects's vector index
@@ -127,7 +134,7 @@ public:
     }
 
     /**
-     * @brief add objects to connectivity extractor by iterator
+     * @brief adds objects to connectivity extractor by iterator
      * 
      * @tparam Iterator objects container iterator
      * @param begin the begin iterator of objects container
@@ -157,7 +164,7 @@ public:
     }
 
     /**
-     * @brief add connection that connected by jumpwire
+     * @brief adds connection that connected by jumpwire
      * 
      * @param layer1 start layer of jumpwire
      * @param layer2 end layer of jumpwire
@@ -173,7 +180,7 @@ public:
     }
 
     /**
-     * @brief add connection b/w two layers
+     * @brief adds connection b/w two layers
      * 
      * @param layer1 index of layer 1
      * @param layer2 index of layer 2
@@ -186,7 +193,7 @@ public:
     }
 
     /**
-     * @brief extract connection result of input objects.
+     * @brief extracts connection result of input objects.
      * 
      * @param threads threads number allowed in multi-threading extraction.
      * @return std::unique_ptr<GeomConnGraph> the extraction result, represented by a spares index graph
@@ -235,7 +242,7 @@ public:
         return graph;
     }
 
-    /// @brief clear former geometries, layer connections and jumpwires
+    /// @brief clears former geometries, layer connections and jumpwires
     void Clear()
     {
         m_layerGeoms.clear();

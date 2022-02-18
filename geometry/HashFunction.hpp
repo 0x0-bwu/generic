@@ -1,3 +1,10 @@
+/**
+ * @file HashFunction.hpp
+ * @author bwu
+ * @brief Hush functions of geometries
+ * @version 0.1
+ * @date 2022-02-14
+ */
 #ifndef GENERIC_GEOMETRY_HASHFUNCTION_HPP
 #define GENERIC_GEOMETRY_HASHFUNCTION_HPP
 #include "Point.hpp"

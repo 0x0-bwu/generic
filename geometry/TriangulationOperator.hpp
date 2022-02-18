@@ -1,3 +1,10 @@
+/**
+ * @file TriangulationOperator.hpp
+ * @author bwu
+ * @brief Triangulation operator that manipulating the triangulation data
+ * @version 0.1
+ * @date 2022-02-14
+ */
 #ifndef GENERIC_GEOMETRY_TRI_TRIANGULATIONOPERATOR_HPP
 #define GENERIC_GEOMETRY_TRI_TRIANGULATIONOPERATOR_HPP
 #include <boost/geometry/index/rtree.hpp>
@@ -62,7 +69,7 @@ class TriangulationOperator
     Triangulation<Point> & m_triangulation;
     VertexIndexTree<Point> m_vertexIndexTree;
 public:
-    ///@brief construct a TriangulationOperator that manipulating the triangulation data
+    ///@brief constructs a TriangulationOperator that manipulating the triangulation data
     TriangulationOperator(Triangulation<Point> & triangulation)
      : m_triangulation(triangulation)
     {

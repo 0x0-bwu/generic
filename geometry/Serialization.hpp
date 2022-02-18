@@ -1,3 +1,10 @@
+/**
+ * @file Serialization.hpp
+ * @author bwu
+ * @brief Boost serialization support for geometry classes
+ * @version 0.1
+ * @date 2022-02-14
+ */
 #ifndef GENERIC_GEOMETRY_SERIALIZATION_HPP
 #define GENERIC_GEOMETRY_SERIALIZATION_HPP
 #define GENERIC_GEOMETRY_ARCHIVE_VERSION 1

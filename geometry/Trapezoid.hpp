@@ -1,3 +1,10 @@
+/**
+ * @file Trapezoid.hpp
+ * @author bwu
+ * @brief Model of trapezoid concept
+ * @version 0.1
+ * @date 2022-02-14
+ */
 #ifndef GENERIC_GEOMETRY_TRAPEZOID_HPP
 #define GENERIC_GEOMETRY_TRAPEZOID_HPP
 #include "generic/common/Exception.hpp"
@@ -52,9 +59,12 @@ public:
         Normalize();
     }
 
+    ///@brief gets corner point by index 0-3
     Point2D<num_type> operator[] (size_t index) const;
 
+    ///@brief checks whether this trapezoid is valid
     bool isValid() const;
+    ///@brief makes this trapezoid valid
     void Normalize();
 };
 
@@ -93,6 +103,13 @@ inline Point2D<num_type> Trapezoid<num_type>::operator[] (size_t index) const
     else GENERIC_THROW(std::out_of_range("index out out range"))
 }
 
+/**
+ * @brief tries constructing a trapezoid with four points and given direction
+ * @param[in] points input points
+ * @param[in] direction trapezoid direction
+ * @param[out] res whether construct trapezoid successfully
+ * @return constructed trapezoid
+ */
 template <typename num_type>
 inline Trapezoid<num_type> toTrapezoid(const std::array<Point2D<num_type>, 4> & points, Orientation2D direction, bool & res)
 {
@@ -116,6 +133,12 @@ inline Trapezoid<num_type> toTrapezoid(const std::array<Point2D<num_type>, 4> & 
                                direction};
 }
 
+/**
+ * @brief tries constructing a trapezoid with four points
+ * @param[in] points input points
+ * @param[out] res whether construct trapezoid successfully
+ * @return constructed trapezoid
+ */
 template <typename num_type>
 inline Trapezoid<num_type> toTrapezoid(const std::array<Point2D<num_type>, 4> & points, bool & res)
 {

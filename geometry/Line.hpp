@@ -1,3 +1,10 @@
+/**
+ * @file Line.hpp
+ * @author bwu
+ * @brief Model of line concept
+ * @version 0.1
+ * @date 2022-02-14
+ */
 #ifndef GENERIC_GEOMETRY_LINE_HPP
 #define GENERIC_GEOMETRY_LINE_HPP
 #include "Segment.hpp"
@@ -16,19 +23,45 @@ public:
     float_t c = 0;
     bool normalized = false;
     static const size_t dim = 2;
+    ///@brief constructs an invalid line2d
     Line2D(){}
+    ///@brief constructs a line with coefficient a, b and c
     Line2D(float_t _a, float_t _b, float_t _c);
 
+    ///@brief checks if this line equals to line l
     bool operator== (const Line2D<num_type> & l) const;
+    ///@brief checks if this line not equals to line l
     bool operator!= (const Line2D<num_type> & l) const;
 
+    ///@brief normalizes the coefficient a, b, and c, make a^2 + b^2 + c^2 = 1
     void Normalize();
+    ///@brief checks if the line is valid(a and b not equal to zero at same time)
     bool isValid() const;
+
+    /**
+     * @brief checks if two lines intersected and get the intersect point
+     * @param[in] line1 one of the input line
+     * @param[in] line2 one of the input line
+     * @param[in] point the intersect location if two line intersected.
+     * @return whether two lines intersected 
+     */
     static bool Intersects(const Line2D<num_type> & line1, const Line2D<num_type> & line2, Point2D<float_t> & point);
 
+    /**
+     * @brief gets side value of line and point, usually use the sign to check the point line location, quick than Distance(line, point)
+     * @param[in] line the input line
+     * @param[in] point the input line
+     * @return side value of point to line
+     */
     template <typename point_t, typename std::enable_if<point_t::dim == 2, bool>::type = true>
     static float_t SideValue(const Line2D<num_type> & line, const point_t & point);
 
+    /**
+     * @brief gets distance of line and point
+     * @param[in] line the input line
+     * @param[in] point the input point
+     * @return distance of point to line
+     */
     template <typename point_t, typename std::enable_if<point_t::dim == 2, bool>::type = true>
     static float_t Distance(const Line2D<num_type> & line, const point_t & point);
 };

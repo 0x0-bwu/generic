@@ -1,3 +1,10 @@
+/**
+ * @file Topology.hpp
+ * @author bwu
+ * @brief Geometry topology relationships
+ * @version 0.1
+ * @date 2022-02-14
+ */
 #ifndef GENERIC_GEOMETRY_TOPOLOGY_HPP
 #define GENERIC_GEOMETRY_TOPOLOGY_HPP
 #include "generic/topology/IndexGraph.hpp"
@@ -7,6 +14,8 @@
 namespace generic  {
 namespace geometry {
 using namespace generic::topology;
+
+///@brief represents a class that extract vertex connection from geometries
 template <typename num_type>
 class GeoTopology2D
 {
@@ -14,15 +23,22 @@ class GeoTopology2D
     using Connection = SparseIndexGraph;
 
 public:
+    ///@brief adds a polygon to the topology network
     void AddGeometry(const Polygon2D<num_type> & polygon);
+    ///@brief adds a polygon with holes to the topology network
     void AddGeometry(const PolygonWithHoles2D<num_type> & pwh);
 
+    ///@brief gets all points in the topology network
     const std::vector<Point> & GetAllPoints() const { return m_points; }
+    ///@brief gets all edges in the topology network
     void GetAllEdges(std::list<std::pair<size_t, size_t> > & edges) const;
 
+    ///@brief imports vertex/edge topology network from file
     bool Read(const std::string & file, std::string * err = nullptr);
+    ///@brief exports vertex/edge topology network to file
     bool Write(const std::string & file, std::string * err = nullptr) const;
 
+    ///@brief clear all points and connection in this topology network
     void Clear();
 private:
     std::vector<Point> m_points;

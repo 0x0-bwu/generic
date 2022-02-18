@@ -1,3 +1,10 @@
+/**
+ * @file GeometryTraits.hpp
+ * @author bwu
+ * @brief Geometry traits
+ * @version 0.1
+ * @date 2022-02-14
+ */
 #ifndef GENERIC_GEOMETRY_GEOMETRYTRAITS_HPP
 #define GENERIC_GEOMETRY_GEOMETRYTRAITS_HPP
 #include "generic/common/Traits.hpp"
@@ -125,9 +132,13 @@ using narrow_coor_t = typename std::conditional<sizeof(coor_t1) < sizeof(coor_t2
 template <typename coor_t1, typename coor_t2>
 using wide_coor_t = typename std::conditional<sizeof(coor_t1) < sizeof(coor_t2), coor_t2, coor_t1>::type;
 
-//if all integrals, return integral type with wider size
-//if all floatings, return floating type with narrower size
-//if integrals and floatings, return floating
+/**
+ * @brief
+ *  if all integrals, returns integral type with wider size,
+ *  if all floatings, returns floating type with narrower size
+ *  if integrals and floatings, returns floating       
+ * @tparam args, different num types 
+ */
 template <typename... args>
 struct common_coor_t;
 
