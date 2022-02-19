@@ -1,3 +1,10 @@
+/**
+ * @file Point.hpp
+ * @author bwu
+ * @brief Model of point2d and point3d concept
+ * @version 0.1
+ * @date 2022-02-22
+ */
 #ifndef GENERIC_GEOMETRY_POINT_HPP
 #define GENERIC_GEOMETRY_POINT_HPP
 #include "generic/math/MathUtility.hpp"
@@ -13,14 +20,20 @@ public:
     static const size_t dim = 2;
     using coor_t = num_type;
 
+    ///@brief constructs a point2d(0, 0)
     Point2D();
+    ///@brief constructs a point2d(x, y)
     Point2D(num_type x, num_type y);
 
+    ///@brief check if this point equals to p
     bool operator== (const Point2D<num_type> & p) const;
+    ///@brief check if this point not equals to p
     bool operator!= (const Point2D<num_type> & p) const;
 
+    ///@brief access the x, y coordinate by index 0-1
     num_type & operator[] (size_t dim);
     const num_type & operator[] (size_t dim) const;
+
     Point2D operator+ (const Point2D<num_type> & coor) const;
     Point2D operator- () const;
     Point2D operator- (const Point2D<num_type> & coor) const;
@@ -32,11 +45,16 @@ public:
     void operator/= (float_t scale);
     Point2D operator* (const Point2D<num_type> & a) const;
 
+    ///@brief dot pruduct of this point with a
     num_type Dot(const Point2D<num_type> & a) const;
+    ///@brief squared norm2 value
     num_type NormSquare() const;
+    ///@brief norm2 vaule
     float_t Norm2() const;
+    ///@brief cross product of this point with a
     num_type CrossProduct(const Point2D<num_type> & a) const;
 
+    ///@brief converts to point with other number type explicitly
     template<typename other_num_type>
     Point2D<other_num_type> Cast() const;
 
@@ -52,12 +70,17 @@ public:
     static const size_t dim = 3;
     using coor_t = num_type;
 
+    ///@brief constructs a point3d(0, 0, 0)
     Point3D();
+    ///@brief constructs a point3d(x, y, z)
     Point3D(num_type x, num_type y, num_type z);
 
+    ///@brief check if this point equals to p
     bool operator== (const Point3D<num_type> & p) const;
+    ///@brief check if this point not equals to p
     bool operator!= (const Point3D<num_type> & p) const;
 
+    ///@brief access the x, y, zcoordinate by index 0-2
     num_type & operator[] (size_t dim);
     const num_type & operator[] (size_t dim) const;
 
@@ -72,11 +95,16 @@ public:
     void operator/= (float_t scale);
     Point3D operator* (const Point3D<num_type> & a) const;
 
+    ///@brief dot pruduct of this point with a
     num_type Dot(const Point3D<num_type> & a) const;
+    ///@brief squared norm2 value
     num_type NormSquare() const;
+    ///@brief norm2 vaule
     float_t Norm2() const;
+    ///@brief cross product of this point with a
     Point3D CrossProduct(const Point3D<num_type> & a) const;
 
+    ///@brief converts to point with other number type explicitly
     template<typename other_num_type>
     Point3D<other_num_type> Cast() const;
     

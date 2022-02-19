@@ -1,3 +1,10 @@
+/**
+ * @file Macros.hpp
+ * @author bwu
+ * @brief Macro defines
+ * @version 0.1
+ * @date 2022-02-22
+ */
 #ifndef GENERIC_COMMON_MACROS_HPP
 #define GENERIC_COMMON_MACROS_HPP
 #include "Version.hpp"

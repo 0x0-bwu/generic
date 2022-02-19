@@ -1,4 +1,11 @@
-#ifndef GENERIC_GEOMETRY_OCCUPANCYGRIDMAP_HPP
+
+/**
+ * @file OccupancyGridMap.hpp
+ * @author bwu
+ * @brief Grid map define and generation algorithm
+ * @version 0.1
+ * @date 2022-02-22 
+ */
 #define GENERIC_GEOMETRY_OCCUPANCYGRIDMAP_HPP
 #include "generic/thread/ThreadPool.hpp"
 #include "generic/math/MathUtility.hpp"
@@ -28,7 +35,7 @@ namespace generic {
 namespace geometry {
 
 /**
- * @brief a 2d dense grid map with Occupancy objects
+ * @brief represents a 2d dense grid map with Occupancy objects
  * 
  * @tparam Occupancy occupancy object type, should be trivial
  */
@@ -45,15 +52,15 @@ public:
     {}
     ~OccupancyGridMap() = default;
     
-    ///@brief access Occupancy reference by 1d index `i`, `i` = x * height + y
+    ///@brief accesses Occupancy reference by 1d index `i`, `i` = x * height + y
     Occupancy & operator[] (size_t i) { return m_grids[i / m_height][i % m_height]; }
     const Occupancy & operator[](size_t i) const { return m_grids[i / m_height][i % m_height]; }
 
-    ///@brief  access Occupancy reference by 2d index `x`, `y`
+    ///@brief  accesses Occupancy reference by 2d index `x`, `y`
     Occupancy & operator() (size_t x, size_t y) { return m_grids[x][y]; }
     const Occupancy & operator() (size_t x, size_t y) const { return m_grids[x][y]; }
 
-    ///@brief resize grid map with `width` and `height`
+    ///@brief resizes grid map with `width` and `height`
     void Resize(size_t width, size_t height)
     {
         m_width = width;
@@ -63,7 +70,7 @@ public:
             col.resize(height);
     }
 
-    ///@brief reset all occupancy values in grid map with default data
+    ///@brief resets all occupancy values in grid map with default data
     void Reset()
     {
         for(auto & col : m_grids){
@@ -71,20 +78,20 @@ public:
         }
     }
 
-    ///@brief clear all occupancy data
+    ///@brief clears all occupancy data
     void Clear() { m_grids.clear(); }
     
-    ///@brief return grid map width
+    ///@brief returns grid map width
     size_t Width() const { return m_width; }
 
-    ///@brief return grid map height
+    ///@brief returns grid map height
     size_t Height() const { return m_height; }
 
-    ///@brief return grid map size
+    ///@brief returns grid map size
     size_t Size() const { return Width() * Height(); }
 
     /**
-     * @brief get max occupancy object with the compare functioner
+     * @brief gets max occupancy object with the compare functioner
      * 
      * @tparam Compare the compare functioner
      * @param cmp the Compare functioner object
@@ -98,7 +105,7 @@ public:
     }
 
     /**
-     * @brief get x, y index of max occupancy object with the compare functioner
+     * @brief gets x, y index of max occupancy object with the compare functioner
      * 
      * @tparam Compare the compare functioner
      * @param cmp the Compare functioner object
@@ -120,7 +127,7 @@ public:
 
 #ifdef BOOST_GIL_IO_PNG_SUPPORT
     /**
-     * @brief convert grid map to png image with the color mapping functioner
+     * @brief converts grid map to png image with the color mapping functioner
      * 
      * @tparam RGBaFunc rgba functioner that take Occupancy as input and return r, g, b, a values range from 0 to 255
      * @param[in] filename output image file path
@@ -154,16 +161,27 @@ private:
     Container m_grids;
 };
 
-///@brief a factory class that calculate occupancy grid map from input geometries
+///@brief represents a factory class that calculate occupancy grid map from input geometries
 class OccupancyGridMappingFactory
 {  
 public:
+    ///@brief grid map data type
     template <typename Occupancy>
     using GridMap = OccupancyGridMap<Occupancy>;
 
+    /**
+     * @brief grid mapping factory product
+     * 
+     * @tparam property_type user defined property
+     * @param x grid x index
+     * @param y grid y index
+     * @param property user defined property mark
+     * @param ratio the proportion that the piece of the geometry ocuupying the grid area
+     */
     template <typename property_type>
     struct Product { int x, y; property_type property; double ratio; };
 
+    ///@brief a lockfree queue that hold and consume the grid mapping product
     template <typename property_type>
     using ProductPipe = boost::lockfree::queue<Product<property_type>, boost::lockfree::fixed_sized<false> >;
 
@@ -191,11 +209,9 @@ public:
     
     /**
      * @brief function that calculate grid map size from bounding box and x, y stride
-     * 
-     * @tparam num_type 
-     * @param bbox 
-     * @param stride 
-     * @return std::pair<size_t, size_t> 
+     * @param[in] bbox input bounding box
+     * @param[in] stride grid width and length in x, y direction 
+     * @return std::pair<size_t, size_t> x, y size of the grid map
      */
     template <typename num_type>
     static std::pair<size_t, size_t> GetGridMapSize(const Box2D<num_type> & bbox, const Vector2D<num_type> & stride)
@@ -206,6 +222,22 @@ public:
         return std::make_pair(x, y);
     }
 
+    /**
+     * @brief mapping the property of geometries to grid based on occupying area proportion
+     * 
+     * @tparam property_type geometry property type, for call back function when mapping the result
+     * @tparam Object input object type used for generating grid map
+     * @tparam GeomGetter functor tpye to convert user input object type to internal geometry type
+     * @note the GeomGetter functor should have operator() (const & T) function, the return type could be one of Box2D or Polygon2D
+     * @tparam Occupancy occupancy object type, should be trivial
+     * @tparam BlendFunc blend function type, used for calculating the occupying area proportion, for example, blend function usually different with solid and hole geometry
+     * @param[in] properties the properties of each input object
+     * @param[in] objects input objects
+     * @param[in] getter GeomGetter object
+     * @param[in] ctrl grid map generation ctrl parameters
+     * @param[out] gridMap output grid map that hold the the data of `Occupancy` each grid
+     * @param[in] blend BlendFunc object 
+     */
     template <typename property_type, typename Object, typename GeomGetter, typename Occupancy, typename BlendFunc,
               typename std::enable_if<traits::is_2d_geometry_t<typename std::result_of<GeomGetter(const Object&)>::type>::value &&
                                      (traits::is_polygon_t<typename std::result_of<GeomGetter(const Object&)>::type>::value ||
@@ -230,6 +262,8 @@ public:
         Map2Grid<property_type, geom_t, Occupancy, BlendFunc>(properties, geomPtrs, ctrl, gridMap, std::forward<BlendFunc>(blend));
     }
 
+    ///@brief Map2Grid implementation for internal geometry_type
+    ///@note the geometry_type should be one of Box2D or Polygon2D
     template <typename property_type, typename geometry_type, typename Occupancy, typename BlendFunc>
     static void Map2Grid(const std::vector<property_type> & properties, const std::vector<const geometry_type * > & geometries, const GridCtrl<typename geometry_type::coor_t> & ctrl, GridMap<Occupancy> & gridMap, BlendFunc && blend)
     {
@@ -576,7 +610,7 @@ private:
     }
 };
 
-//demo
+///@brief a demo class that use `OccupancyGridMappingFactory` to calculate grid metal density for a collection of geometries
 template <typename num_type>
 class DensityGridMapCalculator
 {
@@ -587,6 +621,11 @@ public:
     using Factory = OccupancyGridMappingFactory;
     using Product = Factory::Product<Property>;
 
+    /**
+     * @brief insert a polygon object to the calculator
+     * @param[in] polygon input polygon object
+     * @param[in] isHole whether input is a hole polyogn 
+     */
     void Insert(const Polygon2D<num_type> & polygon, bool isHole = false)
     {
         if(!isHole){
@@ -599,6 +638,10 @@ public:
         }
     }
 
+    /**
+     * @brief insert a polygon with hole object to the calculator
+     * @param[in] pwh input polygon with hole object 
+     */
     void Insert(const PolygonWithHoles2D<num_type> & pwh)
     {
         Insert(pwh.outline);
@@ -606,6 +649,13 @@ public:
             Insert(hole, true);
     }
 
+    /**
+     * @brief calculate metal density grid map of inserted geometries
+     * @param[in] bbox the bounding region of input geometries 
+     * @param[in] stride the grid width and length
+     * @param[in] threads thread number when generating the grid map parallelly
+     * @return[in] an unique pointer that hold the generated density grid map
+     */
     std::unique_ptr<DensityGridMap> CalculateGridMap(const Box2D<num_type> & bbox, const Vector2D<num_type> & stride, size_t threads = 1)
     {
         auto [width, height] = Factory::GetGridMapSize(bbox, stride);

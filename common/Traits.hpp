@@ -1,3 +1,10 @@
+/**
+ * @file Traits.hpp
+ * @author bwu
+ * @brief Common traits
+ * @version 0.1
+ * @date 2022-02-22
+ */
 #ifndef GENERIC_COMMON_TRAITS_HPP
 #define GENERIC_COMMON_TRAITS_HPP
 #include <type_traits>

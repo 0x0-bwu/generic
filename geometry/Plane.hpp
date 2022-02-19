@@ -1,3 +1,10 @@
+/**
+ * @file Plane.hpp
+ * @author bwu
+ * @brief Model of plane concept
+ * @version 0.1
+ * @date 2022-02-22
+ */
 #ifndef GENERIC_GEOMETRY_PLANE_HPP
 #define GENERIC_GEOMETRY_PLANE_HPP
 #include "generic/common/Traits.hpp"
@@ -11,9 +18,12 @@ class Plane
 {
     using float_t = float_type<num_type>;
 public:
+    ///@brief constructs a plane with three points that not on the same straight line
     Plane(const Point3D<num_type> & p1, const Point3D<num_type> & p2, const Point3D<num_type> & p3);
 
+    ///@brief gets plane normal, points x on the plane satisfy Dot(n, x) = d, d is the result of D()
     Vector3D<float_t> Normal() const { return m_normal; }
+    ///@brief the distance of this plane from the origin
     float_t D() const { return m_dot; }
 
 private:

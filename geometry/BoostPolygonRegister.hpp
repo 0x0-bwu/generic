@@ -3,7 +3,7 @@
  * @author bwu
  * @brief Adaption of the generic geometry models to boost polygon concept
  * @version 0.1
- * @date 2022-02-14
+ * @date 2022-02-22
  */
 #ifndef GENERIC_GEOMETRY_BOOSTPOLYGONREGISTER_HPP
 #define GENERIC_GEOMETRY_BOOSTPOLYGONREGISTER_HPP

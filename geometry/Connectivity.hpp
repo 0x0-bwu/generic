@@ -3,7 +3,7 @@
  * @author bwu
  * @brief Connectivity extraction algorithm to build connectivity graph on layer based geometries
  * @version 0.1
- * @date 2022-02-14
+ * @date 2022-02-22
  */
 #ifndef GENERIC_GEOMETRY_CONNECTIVITY_HPP
 #define GENERIC_GEOMETRY_CONNECTIVITY_HPP
@@ -29,10 +29,10 @@ using GeomConnGraph = SparseIndexGraph;
  * 
  * @tparam T object type, could be object or pointer.
  * @tparam GeomGetter a functor type to convert T to internal geometry type
- * @note the functor should have operator() (const & T) function
- * @note the functor returns type should be object or reference in one of the Triangle2D, Box2D, Polygon2D, PolygonWithHoles2D
+ * @note the GeomGetter functor should have operator() (const & T) function
+ * @note the GeomGetter functor returns type should be object or reference in one of the Triangle2D, Box2D, Polygon2D, PolygonWithHoles2D
  * @param[in] objects a vector of objects for connectivity extraction
- * @param[in] geomGetter the functor object to convert T to internal geometry type
+ * @param[in] geomGetter the GeomGetter functor object to convert T to internal geometry type
  * @param[out] connection return the connection index graph in adjacent list, the index is same as objects's vector index
  */
 template <typename T, typename GeomGetter,
@@ -109,11 +109,11 @@ public:
      * 
      * @tparam T object type, could be object, reference or pointer
      * @tparam GeomGetter a functor type to convert T to internal geometry type
-     * @note the functor should have operator() (const & T) function, the return type should be one of the Triangle2D, Box2D, Polygon2D, PolygonWithHoles2D
+     * @note the GeomGetter functor should have operator() (const & T) function, the return type should be one of the Triangle2D, Box2D, Polygon2D, PolygonWithHoles2D
      * @note the coor of the return type should be consitant with class template num_type
      * @param layer the index of the layer the obj belongs to
      * @param obj the geometry object for connectivity extraction
-     * @param getter the functor object to convert T to internal geometry type
+     * @param getter the GeomGetter functor object to convert T to internal geometry type
      * @return index_t global index of obj in the extraction result graph
      */
     template <typename T, typename GeomGetter,

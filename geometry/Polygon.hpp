@@ -1,3 +1,10 @@
+/**
+ * @file Polygon.hpp
+ * @author bwu
+ * @brief Model of polygon concept
+ * @version 0.1
+ * @date 2022-02-22
+ */
 #ifndef GENERIC_GEOMETRY_POLYGON_HPP
 #define GENERIC_GEOMETRY_POLYGON_HPP
 #include "Point.hpp"
@@ -22,19 +29,33 @@ public:
     using point_iterator = typename point_container::iterator;
     using const_point_iterator = typename point_container::const_iterator;
 
+    ///@brief constructs a polygon with no point
     Polygon2D(){}
+    ///@brief append point to this polygon by operator <<
     Polygon2D & operator<< (point_t point) { m_points.push_back(point); return  *this; }
 
+    ///@brief access point in this polygon by index
     Point2D<num_type> & operator[] (size_t i) { return m_points[i]; }
     const Point2D<num_type> & operator[] (size_t i) const { return m_points[i]; }
     
+    ///@brief empties the points in polygon
     void Clear() { m_points.clear(); }
+    ///@brief point size of this polyon
     size_t Size() const { return m_points.size(); }
+    ///@brief contour area covered by this area, the result will be negative if the points in clockwise
     float_t Area() const;
+    ///@brief checks whether the points order of this polygon is CCW
     bool isCCW() const;
 
+    /**
+     * @brief insert points from position of the polygon points
+     * @param position iterator to the insert position of this polygon
+     * @param begin iterator to the beginning of the insert points
+     * @param end iterator to the ending of the insert points
+     */
     template <typename input_iterator>
     void Insert(point_iterator position, input_iterator begin, input_iterator end);
+    ///@brief insert a point to the position of the polygon points
     void Insert(point_iterator position, const point_t & point);
 
     point_iterator Begin() { return m_points.begin(); }
@@ -49,12 +70,16 @@ public:
     void PopBack() { if(m_points.size()) m_points.pop_back(); }
     point_container & GetPoints() { return m_points; }
     const point_container & GetPoints() const { return m_points; }
+    ///@brief reverses the points order of this polygon
     void Reverse() { std::reverse(m_points.begin(), m_points.end()); }
+    ///@brief set polygon points
     void Set(point_container points) { m_points = std::move(points); }
 
+    ///@brief converts to polygon with other number type explicitly
     template <typename other_num_type>
     Polygon2D<other_num_type> Cast() const;
 
+    ///@brief remove duplicated points of `polygon`
     static void Clean(Polygon2D<num_type> & polygon);
     
 private:
