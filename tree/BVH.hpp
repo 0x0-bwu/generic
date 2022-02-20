@@ -24,6 +24,7 @@
 #include <list>
 namespace generic{
 namespace tree{
+///@brief bvh tree related
 namespace bvh
 {
 

@@ -7,6 +7,7 @@
 #include <thread>
 #include <vector>
 namespace generic{
+///@brief thread related classes and functions
 namespace thread {
 class FunctionWrapper
 {

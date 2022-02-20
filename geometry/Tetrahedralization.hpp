@@ -19,6 +19,7 @@
 
 namespace generic {
 namespace geometry {
+///@brief tetrahedralization related classes and functions
 namespace tet {
 
 using IndexEle4 = std::array<size_t,  4>;

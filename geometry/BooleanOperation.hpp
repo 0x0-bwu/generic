@@ -13,6 +13,7 @@
 #include <boost/polygon/polygon_set_data.hpp>
 namespace generic  {
 namespace geometry {
+///@brief boolean operations of geometry
 namespace boolean  {
 
 template <typename num_type>

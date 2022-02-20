@@ -26,6 +26,7 @@
 
 namespace generic  {
 namespace geometry {
+///@brief triangulation related classes and functions
 namespace tri {
 struct IndexVertex;
 struct IndexTriangle;

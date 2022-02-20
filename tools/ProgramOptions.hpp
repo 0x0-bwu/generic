@@ -17,6 +17,7 @@
 #include <string>
 #include <vector>
 namespace generic {
+///@brief program option library
 namespace program_options {
 
 enum class Argument { No = 0, Required, Optional };

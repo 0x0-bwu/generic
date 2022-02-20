@@ -20,6 +20,7 @@
 #include <chrono>
 #include <ctime>
 namespace generic {
+///@brief tools and basic utilities
 namespace tools {
 
 struct SystemClock

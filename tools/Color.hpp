@@ -9,6 +9,7 @@
 #define GENERIC_COLOR_HPP
 #include "generic/math/MathUtility.hpp"
 namespace generic{
+///@brief color related definitions, classes and functions
 namespace color {
 
 //a|R|G|B

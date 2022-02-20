@@ -20,6 +20,7 @@
 #include <map>
 namespace generic {
 namespace thread {
+///@brief namespace of map reduce library
 namespace mapreduce {
 
 struct HashPartitioner

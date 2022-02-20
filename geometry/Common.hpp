@@ -10,6 +10,7 @@
 #include "generic/common/Exception.hpp"
 
 namespace generic  {
+///@brief geometry classes and functions
 namespace geometry {
 
     enum class Axis { X = 0, Y = 1, Z = 2 };

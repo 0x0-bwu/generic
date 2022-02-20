@@ -23,6 +23,7 @@
 #include <fstream>
 #include <cstdio>
 namespace generic{
+///@brief filesystem related functions
 namespace filesystem {
 
 ///@brief returns absolute path of the current working directory

@@ -9,6 +9,7 @@
 #define GENERIC_TREE_BUILDER_HPP
 #include <stack>
 namespace generic{
+///@brief tree structures and algorithms
 namespace tree{
 
 ///@brief intermidiate store class for partition build

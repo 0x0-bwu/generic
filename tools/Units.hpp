@@ -11,6 +11,7 @@
 #include <string>
 #include <cmath>
 namespace generic{
+///@brief units definition and functions
 namespace unit{
 
 enum class Time { Picosecond = -4, Nanosecond = -3, Microsecond = -2, Millisecond = -1, Second = 0, Minute = 60, Hour = 3600 };

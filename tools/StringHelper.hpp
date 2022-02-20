@@ -10,6 +10,7 @@
 #include <boost/algorithm/string.hpp>
 #include <string>
 namespace generic {
+///@brief string handle functions
 namespace str {
 
 using CaseSensitive = std::true_type;

@@ -20,6 +20,7 @@
 #include <cmath>
 namespace generic{
 namespace math{
+///@brief linear algebra related classes and functions
 namespace la {
 using namespace generic::common;
 using namespace generic::math;

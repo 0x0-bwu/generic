@@ -35,6 +35,7 @@
 #define GENERIC_LOG_LEVEL_OFF   6
 
 namespace generic {
+///@brief namespace of log library
 namespace log {
 
 enum class Level
@@ -573,6 +574,7 @@ private:
 
 }//namespace details
 
+///@brief skink definitions
 namespace sinks {
 
 class Sink

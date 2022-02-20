@@ -9,6 +9,7 @@
 #define GENERIC_COMMON_TRAITS_HPP
 #include <type_traits>
 #include <string>
+
 namespace generic {
 namespace common {
 template <typename num_type>

@@ -10,6 +10,7 @@
 #include <boost/format.hpp>
 #include <iomanip>
 namespace generic {
+///@brief string format
 namespace format {
 
 using Format = boost::format;

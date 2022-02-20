@@ -8,6 +8,7 @@
 #ifndef GENERIC_MATH_NUMBERS_HPP
 #define GENERIC_MATH_NUMBERS_HPP
 namespace generic {
+///@brief math numbers, classes and functions
 namespace math {
     inline static constexpr double pi = 3.14159265358979323846;
     inline static constexpr double pi_2 = 2 * pi;

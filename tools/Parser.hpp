@@ -14,6 +14,7 @@
 #include <sstream>
 #include <string>
 namespace generic {
+///@brief parser functions
 namespace parser  {
 
 ///@brief parse `input` str by parser `p`

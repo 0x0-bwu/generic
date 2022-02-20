@@ -12,7 +12,7 @@
 #include "Vector.hpp"
 namespace generic  {
 namespace geometry {
-
+///@brief geometry traits
 namespace traits{
 
 template <typename geometry_t>

@@ -29,7 +29,9 @@
 #   define GENERIC_ASSERT(ex) assert(ex);
 #endif
 
+///@brief generic library namespace
 namespace generic{
+///@brief common classes and functions
 namespace common {
 
 class Exception : public std::exception

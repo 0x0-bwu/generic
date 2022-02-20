@@ -9,6 +9,7 @@
 #define GENERIC_TOPOLOGY_COMMON_HPP
 #include <utility>
 namespace generic {
+///@brief graph related concepts
 namespace topology{
 
 using index_t = std::size_t;

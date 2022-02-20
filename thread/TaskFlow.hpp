@@ -19,6 +19,7 @@
 #include <list>
 namespace generic {
 namespace thread {
+///@brief namespace of task flow library
 namespace taskflow {
 
 class TaskFlow;
