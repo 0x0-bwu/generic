@@ -3,7 +3,7 @@
  * @author bwu
  * @brief Utility class for triangulation quality evaluation
  * @version 0.1
- * @date 2022-02-14
+ * @date 2022-02-22
  */
 #ifndef GENERIC_GEOMETRY_TRI_TRIANGLEEVALUATOR_HPP
 #define GENERIC_GEOMETRY_TRI_TRIANGLEEVALUATOR_HPP

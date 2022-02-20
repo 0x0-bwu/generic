@@ -1,9 +1,9 @@
 /**
  * @file Topology.hpp
  * @author bwu
- * @brief Geometry topology relationships
+ * @brief Geometry topology relationship
  * @version 0.1
- * @date 2022-02-14
+ * @date 2022-02-22
  */
 #ifndef GENERIC_GEOMETRY_TOPOLOGY_HPP
 #define GENERIC_GEOMETRY_TOPOLOGY_HPP

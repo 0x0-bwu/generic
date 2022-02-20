@@ -1,3 +1,10 @@
+/**
+ * @file PolygonWithHoles.hpp
+ * @author bwu
+ * @brief Model of polygon with holes concept
+ * @version 0.1
+ * @date 2022-02-22
+ */
 #ifndef GENERIC_GEOMETRY_POLYGONWITHHOLES_HPP
 #define GENERIC_GEOMETRY_POLYGONWITHHOLES_HPP
 #include "Polygon.hpp"
@@ -25,8 +32,11 @@ public:
 
     PolygonWithHoles2D(){}
     
+    ///@brief clears outline points and holes data
     void Clear() { outline.clear(); holes.clear(); }
+    ///@brief checks whether has hole
     bool hasHole() const { return HolesSize() > 0; }
+    ///@brief gets total hole numbers
     size_t HolesSize() const { return holes.size(); }
 
     hole_iterator BeginHoles() { return holes.begin(); }
@@ -34,6 +44,7 @@ public:
     const_hole_iterator ConstBeginHoles() const { return holes.begin(); }
     const_hole_iterator ConstEndHoles() const { return holes.end(); }  
 
+    ///@brief converts to polygon with holes with other number type explicitly
     template <typename other_num_type>
     PolygonWithHoles2D<other_num_type> Cast() const;  
 };

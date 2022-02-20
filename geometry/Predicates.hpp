@@ -30,8 +30,13 @@
  *                                                                                 *
  * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * * */
 
-//Modified from predicates by William C. Lenthe.
-
+/**
+ * @file Predicates.hpp
+ * @author bwu
+ * @brief Robust geometric predicates for floating points, modified from predicates by William C. Lenthe.
+ * @version 0.1
+ * @date 2022-02-22
+ */
 #ifndef GENERIC_GEOMETRY_PREDICATES_PREDICATES_HPP
 #define GENERIC_GEOMETRY_PREDICATES_PREDICATES_HPP
 #include "Point.hpp"

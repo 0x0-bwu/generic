@@ -1,3 +1,10 @@
+/**
+ * @file Rasterization.hpp
+ * @author bwu
+ * @brief Rasterize geometry outline to pixel indices
+ * @version 0.1
+ * @date 2022-02-22
+ */
 #ifndef GENERIC_GEOMETRY_RASTERIZATION_HPP
 #define GENERIC_GEOMETRY_RASTERIZATION_HPP
 #include "generic/common/Exception.hpp"
@@ -11,33 +18,43 @@ using common::float_type;
 class Rasterization
 {
 public:
+    ///@brief gets rasterized pixel index of a point `p`, from reference point `ref` with x, y stride length `stride`
     template <typename num_type>
     static std::array<int, 2> Rasterize(const Point2D<num_type> & p, const Vector2D<num_type> & stride, const Point2D<num_type> & ref = Point2D<num_type>{0, 0});
 
+    ///@brief gets rasterized pixel indices of a point, from reference point `ref` with x, y stride length `stride`
     template <typename num_type>
     static void Rasterize(const Point2D<num_type> & p, const Vector2D<num_type> & stride, std::vector<std::array<int, 2> > & grids, const Point2D<num_type> & ref = Point2D<num_type>{0, 0});
     
+    ///@brief gets rasterized pixel indices of segment formed by point `s` to `e`, from reference point `ref` with x, y stride length `stride`
     template <typename num_type>
     static void Rasterize(const Point2D<num_type> & s, const Point2D<num_type> & e, const Vector2D<num_type> & stride, std::vector<std::array<int, 2> > & grids, const Point2D<num_type> & ref = Point2D<num_type>{0, 0});
     
+    ///@brief gets rasterized pixel indices of segment `seg`, from reference point `ref` with x, y stride length `stride`
     template <typename num_type>
     static void Rasterize(const Segment2D<num_type> & seg, const Vector2D<num_type> & stride, std::vector<std::array<int, 2> > & grids, const Point2D<num_type> & ref = Point2D<num_type>{0, 0});
 
+    ///@brief gets rasterized pixel indices of triangle formed by points `p1`, `p2` and `p3`, from reference point `ref` with x, y stride length `stride`
     template <typename num_type>
     static void Rasterize(const Point2D<num_type> & p1, const Point2D<num_type> & p2, const Point2D<num_type> & p3, const Vector2D<num_type> & stride, std::vector<std::array<int, 2> > & grids, const Point2D<num_type> & ref = Point2D<num_type>{0, 0});
     
+    ///@brief gets rasterized pixel indices of triangle `tri`, from reference point `ref` with x, y stride length `stride`
     template <typename num_type>
     static void Rasterize(const Triangle2D<num_type> & tri, const Vector2D<num_type> & stride, std::vector<std::array<int, 2> > & grids, const Point2D<num_type> & ref = Point2D<num_type>{0, 0});
     
+    ///@brief gets rasterized pixel indices of box `box`, from reference point `ref` with x, y stride length `stride`
     template <typename num_type>
     static void Rasterize(const Box2D<num_type> & box, const Vector2D<num_type> & stride, std::vector<std::array<int, 2> > & grids, const Point2D<num_type> & ref = Point2D<num_type>{0, 0});
     
+    ///@brief gets rasterized pixel indices of polygon `polygon`, from reference point `ref` with x, y stride length `stride`
     template <typename num_type>
     static void Rasterize(const Polygon2D<num_type> & polygon, const Vector2D<num_type> & stride, std::vector<std::array<int, 2> > & grids, const Point2D<num_type> & ref = Point2D<num_type>{0, 0});
 
+    ///@brief gets rasterized pixel indices of polygon with holes `pwh`, from reference point `ref` with x, y stride length `stride`
     template <typename num_type>
     static void Rasterize(const PolygonWithHoles2D<num_type> & pwh, const Vector2D<num_type> & stride, std::vector<std::array<int, 2> > & grids, const Point2D<num_type> & ref = Point2D<num_type>{0, 0});
 
+    ///@brief gets rasterized polygon from a polygon from reference point `ref` with x, y stride length `stride`, which each point on the rasterization grid
     template <typename num_type>
     static Polygon2D<num_type> Rasterize(const Polygon2D<num_type> & polygon, const Vector2D<num_type> & stride, const Point2D<num_type> & ref = Point2D<num_type>{0, 0});
 };

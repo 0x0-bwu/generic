@@ -1,3 +1,10 @@
+/**
+ * @file Sphere.hpp
+ * @author bwu
+ * @brief Model of circle and sphere concept
+ * @version 0.1
+ * @date 2022-02-22
+ */
 #ifndef GENERIC_GEOMETRY_SPHERE_HPP
 #define GENERIC_GEOMETRY_SPHERE_HPP
 #include "generic/math/MathUtility.hpp"
@@ -16,9 +23,12 @@ public:
     static const size_t dim = 2;
 
 public:
+    ///@brief constructs a circle at point (0, 0) with zero radius
     Circle(){ r = 0; }
+    ///@brief constructs a circle at point `origin` with radius `raiuds`
     Circle(const Point2D<num_type> & origin, num_type radius);
 
+    ///@brief checks if circle contains point `p`, not robust
     template <typename point_t>
     bool Contains(const point_t & p) const;
 };
@@ -33,7 +43,9 @@ public:
     static const size_t dim = 3;
 
 public:
+    ///@brief constructs a sphere at point (0, 0, 0) with zero radius
     Sphere(){ r = 0; }
+    ///@brief constructs a sphere at point `o` with radius `r`
     Sphere(const Point3D<num_type> & o, num_type r);
 };
 

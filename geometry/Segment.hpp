@@ -1,3 +1,10 @@
+/**
+ * @file Segment.hpp
+ * @author bwu
+ * @brief Model of segment concept
+ * @version 0.1
+ * @date 2022-02-22
+ */
 #ifndef GENERIC_GEOMETRY_SEGMENT_HPP
 #define GENERIC_GEOMETRY_SEGMENT_HPP
 #include "generic/common/Traits.hpp"
@@ -14,18 +21,25 @@ public:
     using coor_t = num_type;
     using point_t = Point2D<coor_t>;
 
+    ///@brief constructs a zero length segment from point(0, 0)
     Segment2D(){}
+    ///@brief constructs a segment from point `s` to `e`
     Segment2D(const Point2D<num_type> & s, const Point2D<num_type> & e);
 
+    ///@brief checks if this segment equals to `seg`
     bool operator== (const Segment2D & seg) const;
+    ///@brief checks if this segment not equals to `seg`
     bool operator!= (const Segment2D & seg) const;
 
+    ///@brief accesses segment point by index 0-1
     Point2D<num_type> & operator[](size_t i);
     const Point2D<num_type> & operator[](size_t i) const;
 
+    ///@brief converts to segment with other number type explicitly
     template<typename other_num_type>
     Segment2D<other_num_type> Cast() const;
-    
+
+    ///@brief gets shortest distance of two segments
     static float_type<num_type> Distance(const Segment2D<num_type> & p, const Segment2D<num_type> & q);
 
 private:
@@ -40,18 +54,25 @@ public:
     using coor_t = num_type;
     using point_t = Point3D<coor_t>;
 
+    ///@brief constructs a zero length segment from point(0, 0, 0)
     Segment3D(){}
+    ///@brief constructs a segment from point `s` to `e`
     Segment3D(const Point3D<num_type> & s, const Point3D<num_type> & e);
 
+    ///@brief checks if this segment equals to `seg`
     bool operator== (const Segment3D & seg) const;
+    ///@brief checks if this segment not equals to `seg`
     bool operator!= (const Segment3D & seg) const;
 
+    ///@brief accesses segment point by index 0-1
     Point3D<num_type> & operator[](int i);
     const Point3D<num_type> & operator[](int i) const;
 
+    ///@brief converts to segment with other number type explicitly
     template<typename other_num_type>
     Segment3D<other_num_type> Cast() const;
 
+    ///@brief gets shortest distance of two segments
     static float_type<num_type> Distance(const Segment3D<num_type> & p, const Segment3D<num_type> & q);
 
 private:
