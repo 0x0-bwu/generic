@@ -1,3 +1,10 @@
+/**
+ * @file TestThread.hpp
+ * @author bwu
+ * @brief Unit test of classes and functions in namespace thread
+ * @version 0.1
+ * @date 2022-02-22
+ */
 #ifndef TEST_TESTTHREAD_HPP
 #define TEST_TESTTHREAD_HPP
 #include "generic/test/TestCommon.hpp"

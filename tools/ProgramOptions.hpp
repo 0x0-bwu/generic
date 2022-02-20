@@ -1,3 +1,10 @@
+/**
+ * @file ProgramOptions.hpp
+ * @author bwu
+ * @brief A header only program option library
+ * @version 0.1
+ * @date 2022-02-22
+ */
 #ifndef GENERIC_PROGRAMOPTIONS_HPP
 #define GENERIC_PROGRAMOPTIONS_HPP
 #include "generic/common/Exception.hpp"

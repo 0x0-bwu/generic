@@ -1,3 +1,10 @@
+/**
+ * @file LinearAlgebra.hpp
+ * @author bwu
+ * @brief Model of vector and matrix concept in static dimension size, implement based on boost ublas
+ * @version 0.1
+ * @date 2022-02-22
+ */
 #ifndef GENERIC_MATH_LINEARALGEBRA_HPP
 #define GENERIC_MATH_LINEARALGEBRA_HPP
 #include "generic/common/Traits.hpp"
@@ -18,6 +25,7 @@ using namespace generic::common;
 using namespace generic::math;
 using namespace boost::numeric;
 
+///@brief constructs an unbounded array from initializer list
 template <typename num_type>
 inline ublas::unbounded_array<num_type> makeUbArray(std::initializer_list<num_type> l) {
     ublas::unbounded_array<num_type> res(l.size());
@@ -26,6 +34,7 @@ inline ublas::unbounded_array<num_type> makeUbArray(std::initializer_list<num_ty
     return res;
 }
 
+///@brief constructs an unbounded array from collection begin/end iterator
 template <typename num_type, typename iterator>
 inline ublas::unbounded_array<num_type> makeUbArray(iterator begin, iterator end) {
     size_t size = std::distance(begin, end);

@@ -1,3 +1,10 @@
+/**
+ * @file UnitTest.cpp
+ * @author bwu
+ * @brief Main entrance of unit test
+ * @version 0.1
+ * @date 2022-02-22
+ */
 #define GENERIC_UNIT_TEST
 #include "TestMath.hpp"
 #include "TestThread.hpp"

@@ -1,3 +1,10 @@
+/**
+ * @file Parser.hpp
+ * @author bwu
+ * @brief Parser functions
+ * @version 0.1
+ * @date 2022-02-22
+ */
 #ifndef GENERIC_PARSER_HPP
 #define GENERIC_PARSER_HPP
 #include "generic/common/Exception.hpp"
@@ -9,6 +16,7 @@
 namespace generic {
 namespace parser  {
 
+///@brief parse `input` str by parser `p`
 template <typename Parser, typename ... Args>
 inline bool Parse(const std::string & input, const Parser & p, Args&& ... args)
 {
@@ -18,6 +26,7 @@ inline bool Parse(const std::string & input, const Parser & p, Args&& ... args)
     return ok;
 }
 
+///@brief split sting `str` by `seperator`
 inline std::vector<std::string> Split(const std::string & str, char seperator)
 {
     std::vector<std::string> items;

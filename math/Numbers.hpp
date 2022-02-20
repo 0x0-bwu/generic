@@ -1,3 +1,10 @@
+/**
+ * @file Numbers.hpp
+ * @author bwu
+ * @brief Define of const numbers in math
+ * @version 0.1
+ * @date 2022-02-22
+ */
 #ifndef GENERIC_MATH_NUMBERS_HPP
 #define GENERIC_MATH_NUMBERS_HPP
 namespace generic {

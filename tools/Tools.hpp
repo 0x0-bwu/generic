@@ -1,3 +1,10 @@
+/**
+ * @file Tools.hpp
+ * @author bwu
+ * @brief Some tools
+ * @version 0.1
+ * @date 2022-02-22
+ */
 #ifndef GENERIC_TOOLS_HPP
 #define GENERIC_TOOLS_HPP
 #include "generic/common/Macros.hpp"
@@ -29,6 +36,7 @@ struct SystemClock
     }
 };
 
+///@brief Local Time
 inline std::tm LocalTime(const std::time_t & time)
 {
     std::tm t;
@@ -40,7 +48,7 @@ inline std::tm LocalTime(const std::time_t & time)
     return t;
 }
 
-//Greenwich Mean Time
+///@brief Greenwich Mean Time
 inline std::tm GMT(const std::time_t & time)
 {
     std::tm t;
@@ -52,11 +60,13 @@ inline std::tm GMT(const std::time_t & time)
     return t;
 }
 
+///@brief get current thread id
 inline size_t ThreadId() noexcept
 {
     return static_cast<size_t>(std::hash<std::thread::id>()(std::this_thread::get_id()));
 }
 
+///@brief sleep specified millisecond in current thread
 inline void SleepMilliseconds(size_t time)
 {
     std::this_thread::sleep_for(std::chrono::milliseconds(time));
@@ -85,9 +95,11 @@ private:
     unit::Time m_unit;
 };
 
+///@brief timer counter from this object construct to destroy, usually used to track process execute time
 class ProgressTimer
 {
 public:
+    ///@brief constructs a prog\ess timer with specified out stream and display time unit
     ProgressTimer(unit::Time displayUnit = unit::Time::Second, std::ostream & os = std::cout)
      : m_os(os), m_timer(displayUnit)
     {

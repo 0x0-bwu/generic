@@ -1,3 +1,10 @@
+/**
+ * @file MathIO.hpp
+ * @author bwu
+ * @brief I/O functions of math
+ * @version 0.1
+ * @date 2022-02-22 
+ */
 #ifndef GENERIC_MATH_MATHIO_HPP
 #define GENERIC_MATH_MATHIO_HPP
 #include "LinearAlgebra.hpp"
@@ -9,12 +16,15 @@
 namespace {
 using namespace generic::math;
 using namespace generic::math::la;
+
+///@brief out stream a vector
 template <typename num_type, size_t N>
 inline std::ostream & operator<< (std::ostream & os, const Vector<num_type, N> & v)
 {
     return os << v.Data();
 }
 
+///@brief out stream a matrix
 template <typename num_type, size_t M, size_t N>
 inline std::ostream & operator<< (std::ostream & os, const Matrix<num_type, M, N> & m)
 {

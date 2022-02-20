@@ -1,3 +1,10 @@
+/**
+ * @file TestTree.hpp
+ * @author bwu
+ * @brief Unit test of classes and functions in namespace tree
+ * @version 0.1
+ * @date 2022-02-22
+ */
 #ifndef TEST_TESTTREE_HPP
 #define TEST_TESTTREE_HPP
 #include "generic/test/TestCommon.hpp"

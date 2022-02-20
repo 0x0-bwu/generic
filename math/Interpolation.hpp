@@ -1,3 +1,10 @@
+/**
+ * @file Interpolation.hpp
+ * @author bwu
+ * @brief Interpolation method implementation
+ * @version 0.1
+ * @date 2022-02-22
+ */
 #ifndef GENERIC_MATH_INTERPOLATION_HPP
 #define GENERIC_MATH_INTERPOLATION_HPP
 #include <boost/numeric/ublas/matrix.hpp>
@@ -19,15 +26,31 @@ public:
     enum class Method { Linear = 1, Cubic = 2};
     enum class BCType { FirstDeriv = 1, SecondDeriv = 2, NotAKnot = 3 };
 
+    ///@brief constructs an interpolation object with method
     Interpolation(Method method = Method::Linear);
+    /**
+     * @brief constructs an interpolation object with parameters
+     * @param x input samples of x
+     * @param y input samples of y
+     * @param method interpolation method
+     * @note if Cubic method failed with input x, y samples, it will decay to Linear method
+     * @param monotonic set whether curve monotonic when interpolation
+     * @param left left boundary condition type
+     * @param lValue left boundary condition initial value
+     * @param right right boundary condition type
+     * @param rValue right boundary condition inital value
+     */
     Interpolation(const std::vector<num_type> & x, const std::vector<num_type> & y,
                     Method method, bool monotonic = false,
                     BCType left  = BCType::SecondDeriv, float_t lValue  = 0,
                     BCType right = BCType::SecondDeriv, float_t rValue = 0);
 
+    ///@brief sets boundary conditions and inital values
     void SetBoundary(BCType left, BCType right, float_t lVal, float_t rVal);
+    ///@brief sets input samples of x and y
     void SetSamples(const std::vector<num_type> & x, const std::vector<num_type> & y);
 
+    ///@brief gets interpolated value of input x
     num_type operator() (num_type x) const { return Interpolate(x); }
 
 private:

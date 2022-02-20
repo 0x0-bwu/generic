@@ -1,3 +1,10 @@
+/**
+ * @file Units.hpp
+ * @author bwu
+ * @brief Unit definition and functions
+ * @version 0.1
+ * @date 2022-02-22
+ */
 #ifndef GENERIC_UNITS_HPP
 #define GENERIC_UNITS_HPP
 #include <unistd.h>
@@ -10,6 +17,7 @@ enum class Time { Picosecond = -4, Nanosecond = -3, Microsecond = -2, Millisecon
 
 enum class Length { Nanometer = -3, Micrometer = -2, Millimeter  = -1, Meter = 0 , Inch = 100 };
 
+///@brief gets scale from input `unit` to second
 inline double Scale2Second(Time unit)
 {
     if(int(unit) < 0) return std::pow(10, int(unit) * 3);
@@ -17,11 +25,13 @@ inline double Scale2Second(Time unit)
     else return double(unit);
 }
 
+///@brief gets scale from input `unit` to millisecond
 inline double Scale2Millisecond(Time unit)
 {
     return Scale2Second(unit) * 1e3;
 }
 
+///@brief gets scale from input `unit` to meter
 inline double Scale2Meter(Length unit)
 {
     switch (unit) {

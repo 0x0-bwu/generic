@@ -1,3 +1,10 @@
+/**
+ * @file Varification.hpp
+ * @author bwu
+ * @brief Varification for tree build corectness and quality check
+ * @version 0.1
+ * @date 2022-02-22
+ */
 #ifndef GENERIC_TREE_VARIFICATION_HPP
 #define GENERIC_TREE_VARIFICATION_HPP
 #include "KdTree.hpp"

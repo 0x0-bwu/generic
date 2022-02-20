@@ -1,3 +1,10 @@
+/**
+ * @file Color.hpp
+ * @author bwu
+ * @brief Color related functions
+ * @version 0.1
+ * @date 2022-02-22
+ */
 #ifndef GENERIC_COLOR_HPP
 #define GENERIC_COLOR_HPP
 #include "generic/math/MathUtility.hpp"
@@ -13,6 +20,7 @@ inline static constexpr int32_t blue  = 0xFF0000FF;
 
 enum class ColorMap { Grey = 0, Jet };
 
+///@brief converts an 8 bit rgb color to an integral number
 inline int RGBToInt(int r, int g, int b)
 {
     int32_t c = 0xFF;
@@ -22,6 +30,7 @@ inline int RGBToInt(int r, int g, int b)
     return c;
 }
 
+///@brief converts an 8 bit rgb color with alpha channel to an integral number
 inline int RGBaToInt(int r, int g, int b, int a)
 {
     int32_t c = RGBToInt(r, g, b);
@@ -30,6 +39,7 @@ inline int RGBaToInt(int r, int g, int b, int a)
     return c;
 }
 
+///@brief gets 8 bit rgb values from an integral number
 inline void RGBFromInt(int c, int & r, int & g, int & b)
 {
     b = 0xFF & c; c >>= 8;
@@ -37,12 +47,14 @@ inline void RGBFromInt(int c, int & r, int & g, int & b)
     r = 0xFF & c; c >>= 8;
 }
 
+///@brief gets 8 bit rgb and alpha values from an integral number
 inline void RGBaFromInt(int c, int & r, int & g, int & b, int & a)
 {
     RGBFromInt(c, r, g, b);
     a = 0xFF & (c >> 24);
 }
 
+///@brief gets random 8 bit rgb color
 inline void RandomRGB(int & r, int & g, int & b)
 {
     r = 0xFF & math::Random(0, 255);
@@ -50,6 +62,7 @@ inline void RandomRGB(int & r, int & g, int & b)
     b = 0xFF & math::Random(0, 255);
 }
 
+///@brief mapping a scalar in range [0, 1] to jet colors rgb value
 inline void toJet(double scalar, int & r, int & g, int & b)
 {
     scalar *= 8;
@@ -62,7 +75,14 @@ inline void toJet(double scalar, int & r, int & g, int & b)
     else { r = 127; g = 0; b = 0; }
 }
 
-// @scalar, range [0, 1]
+/**
+ * @brief Mapping scalar value to color by color map
+ * @param[in] scalar input scalar in range [0, 1]
+ * @param[out] r 8 bit red channal value 
+ * @param[out] g 8 bit green channal value
+ * @param[out] b 8 bit blue channla value
+ * @param[in] colorMap color map used to map scaler
+ */
 inline void RGBFromScalar(double scalar, int & r, int & g, int & b, ColorMap colorMap = ColorMap::Jet)
 {
     switch(colorMap) {

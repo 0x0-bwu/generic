@@ -1,3 +1,10 @@
+/**
+ * @file StringHelper.hpp
+ * @author bwu
+ * @brief String related functions 
+ * @version 0.1
+ * @date 2022-02-22
+ */
 #ifndef GENERIC_STR_STRINGHELPER_HPP
 #define GENERIC_STR_STRINGHELPER_HPP
 #include <boost/algorithm/string.hpp>
@@ -8,6 +15,7 @@ namespace str {
 using CaseSensitive = std::true_type;
 using CaseInsensitive = std::false_type;
 
+///@brief checks if a string `s` starts with `prefix` case sensitive or case insensitive
 template <typename C = CaseSensitive> 
 inline bool StartsWith(const std::string & s, const std::string & prefix)
 {
@@ -16,6 +24,7 @@ inline bool StartsWith(const std::string & s, const std::string & prefix)
     else return boost::istarts_with(s, prefix);
 }
 
+///@brief checks if a string `s` ends with `suffix` case sensitive or case insensitive
 template <typename C = CaseSensitive> 
 inline bool EndsWith(const std::string & s, const std::string & suffix)
 {
@@ -24,6 +33,7 @@ inline bool EndsWith(const std::string & s, const std::string & suffix)
     else return boost::iends_with(s, suffix);
 }
 
+///@brief checks if string `s1` equals `s2` case sensitive or case insensitive
 template <typename C = CaseSensitive>
 inline bool Equals(const std::string & s1, const std::string & s2)
 {

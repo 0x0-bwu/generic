@@ -1,3 +1,10 @@
+/**
+ * @file FileSystem.hpp
+ * @author bwu
+ * @brief File system related functions
+ * @version 0.1
+ * @date 2022-02-22
+ */
 #ifndef GENERIC_FILESYSTEM_HPP
 #define GENERIC_FILESYSTEM_HPP
 
@@ -18,16 +25,30 @@
 namespace generic{
 namespace filesystem {
 
+///@brief returns absolute path of the current working directory
 inline std::string CurrentPath();
+
+///@brief returns absolute path of the current executable binary
 inline std::string ExecutablePath();
+
+///@brief checks if file exist
 inline bool FileExists(const std::string & filename);
+
+///@brief removes a file from disk
 inline bool RemoveFile(const std::string & filename);
+
+///@brief checks if path exists (file or directory)
 inline bool PathExists(const std::string path);
+
+///@brief makes a directory of given path
 inline bool MakeDir(const std::string & path);
+
+///@brief make a directory of given path, return true on success or if the directory already exists
 inline bool CreateDir(const std::string & path);
 inline std::string DirName(const std::string & path);
 inline std::string FileName(const std::string & path);
 
+///@brief represents a helper class for file writing
 class FileHelper
 {
 public:
@@ -37,6 +58,13 @@ public:
     FileHelper & operator= (const FileHelper & ) = delete;
     ~FileHelper() { Close(); }
 
+    /**
+     * @brief open a file on disk for write
+     * @param[in] filename file to open
+     * @param[in] truncate whether truncate when openning
+     * @param[out] err error message if filed to open file
+     * @return whether the file opened
+     */
     bool Open(const std::string & filename, bool truncate = true, std::string * err = nullptr)
     {
         Close();
@@ -61,6 +89,7 @@ public:
         return false;
     }
 
+    ///@brief reopens the closed file
     bool Reopen(bool truncate, std::string * err = nullptr)
     {
         if(m_filename.empty()){
@@ -70,11 +99,13 @@ public:
         return Open(m_filename, truncate, err);
     }
     
+    ///@brief flushes the string stream in cache to file
     void Flush()
     {
         std::fflush(m_file);
     }
 
+    ///@brief closes current file
     void Close()
     {
         if(nullptr != m_file){
@@ -83,18 +114,21 @@ public:
         }
     }
 
+    ///@brief writes the buf to cache
     void Write(const std::string & buf)
     {
         auto size = buf.size();
         std::fwrite(buf.data(), sizeof(char), size, m_file);
     }
 
+    ///@brief returns current file size
     size_t Size() const
     {
         if(nullptr == m_file) return 0;
         return ::fileno(m_file);
     }
 
+    ///@brief gets current file name
     const std::string & Filename() const
     {
         return m_filename;
@@ -143,20 +177,17 @@ inline bool RemoveFile(const std::string & filename)
     return 0 == std::remove(filename.c_str());
 }
 
-// Return true if path exists (file or directory)
 inline bool PathExists(const std::string path)
 {
     struct stat buffer;
     return (0 == ::stat(path.c_str(), &buffer));
 }
 
-// return true on success
 inline bool MakeDir(const std::string & path)
 {
     return 0 == ::mkdir(path.c_str(), mode_t(0755));
 }
 
-// return true on success or if the directory already exists
 inline bool CreateDir(const std::string & path)
 {
     if(PathExists(path)) return true;

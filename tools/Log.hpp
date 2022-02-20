@@ -1,3 +1,13 @@
+/**
+ * @file Log.hpp
+ * @author bwu
+ * @brief A header only log library
+ * @version 0.1
+ * @date 2022-02-22
+ * 
+ * @copyright Copyright (c) 2022
+ * 
+ */
 #ifndef GENERIC_LOG_HPP
 #define GENERIC_LOG_HPP
 #include "generic/common/Exception.hpp"
@@ -724,10 +734,14 @@ protected:
     details::BackTracer m_tracer;
     ErrHandler m_errHandler = nullptr;
 public:
+    ///@brief constructs an empty logger
     explicit Logger(std::string name) : m_name(std::move(name)), m_sinks() {}
     template <typename iterator>
+    ///@brief constructs a logger with range on sinks
     Logger(std::string name, iterator begin, iterator end) : m_name(std::move(name)), m_sinks(begin, end) {}
+    ///@brief constructs a logger with single sink
     Logger(std::string name, SinkPtr sink) : m_name(std::move(name)), m_sinks({std::move(sink)}) {}
+    ///@brief constructs a logger with a list of sinks
     Logger(std::string name, SinksInitializerList sinks) : Logger(std::forward<std::string>(name), sinks.begin(), sinks.end()) {}
     virtual ~Logger() = default;
 
@@ -1023,7 +1037,7 @@ public:
         return m_defaultLogger;
     }
 
-    //cannot be used concurrently with SetDefaultLogger(...)
+    ///@note cannot be used concurrently with SetDefaultLogger(...)
     Logger * GetDefaultRaw() { return m_defaultLogger.get(); }
 
     void SetDefaultLogger(std::shared_ptr<Logger> newDefaultLogger)
@@ -1127,108 +1141,128 @@ using FileSinkMT    = sinks::BasicFileSink<std::mutex>;
 using StreamSink    = sinks::BasicOstreamSink<DummyMutex>;
 using StreamSinkMT  = sinks::BasicOstreamSink<std::mutex>;
 
+///@brief creates and registers a logger with a templated sink type
 template <typename sink_t, typename... Args>
 inline std::shared_ptr<Logger> Create(std::string name, Args && ...args)
 {
     return SynchronousFactory::Create(std::move(name), std::forward<Args>(args)...);
 }
 
+///@brief creates and registers a basic file logger with multi-threading log support
 inline std::shared_ptr<Logger> BasicLoggerMT(std::string name, const std::string & filename, bool truncate = false)
 {
     return SynchronousFactory::Create<sinks::BasicFileSink<std::mutex> >(std::move(name), filename, truncate);
 }
 
+///@brief creates and registers a basic file logger without multi-threading log support
 inline std::shared_ptr<Logger> BasicLogger(std::string name, const std::string & filename, bool truncate = false)
 {
     return SynchronousFactory::Create<sinks::BasicFileSink<DummyMutex> >(std::move(name), filename, truncate);
 }
 
+///@brief creates and registers an out stream logger with multi-threading log support
 inline std::shared_ptr<Logger> OstreamLoggerMT(std::string name, std::ostream & os, bool forceFlush = false)
 {
     return SynchronousFactory::Create<sinks::BasicOstreamSink<std::mutex> >(std::move(name), os, forceFlush);
 }
 
+///@brief creates and registers an out stream logger without multi-threading log support
 inline std::shared_ptr<Logger> OstreamLogger(std::string name, std::ostream & os, bool forceFlush = false)
 {
     return SynchronousFactory::Create<sinks::BasicOstreamSink<DummyMutex> >(std::move(name), os, forceFlush);
 }
 
+///@brief creates and registers a logger with multi sinks
 inline std::shared_ptr<Logger> MultiSinksLogger(std::string name, SinksInitializerList sinks)
 {
     return SynchronousFactory::Create(std::move(name), std::move(sinks));
 }
 
+///@brief initializes a logger
 inline void InitializeLogger(std::shared_ptr<Logger> logger)
 {
     Registry::Instance().InitializeLogger(std::move(logger));
 }
 
+///@brief gets a logger by name
 inline std::shared_ptr<Logger> Get(const std::string & name)
 {
     return Registry::Instance().Get(name);
 }
 
+///@brief gets default logger
 inline std::shared_ptr<Logger> DefaultLogger()
 {
     return Registry::Instance().DefaultLogger();
 }
 
+///@brief gets row pointer of default logger
 inline Logger * DefaultLoggerRaw()
 {
     return Registry::Instance().GetDefaultRaw();
 }
 
+///@brief sets a logger as default logger, note: should not be used concurrently with logging APIs
 inline void SetDefaultLogger(std::shared_ptr<Logger> defaultLogger)
 {
     Registry::Instance().SetDefaultLogger(std::move(defaultLogger));
 }
 
+///@brief dump backtrace messages from default logger
 inline void DumpBacktrace()
 {
     DefaultLoggerRaw()->DumpBacktrace();
 }
 
+///@brief adds trace log message to default log with formatted args
 template <typename... Args>
 inline void Trace(std::string format, Args && ...args)
 {
     DefaultLoggerRaw()->Trace(format, std::forward<Args>(args)...);
 }
 
+///@brief adds debug log message to default log with formatted args 
 template <typename... Args>
 inline void Debug(std::string format, Args && ...args)
 {
     DefaultLoggerRaw()->Debug(format, std::forward<Args>(args)...);
 }
 
+///@brief adds info log message to default log with formatted args 
 template <typename... Args>
 inline void Info(std::string format, Args && ...args)
 {
     DefaultLoggerRaw()->Info(format, std::forward<Args>(args)...);
 }
 
+///@brief adds warn log message to default log with formatted args 
 template <typename... Args>
 inline void Warn(std::string format, Args && ...args)
 {
     DefaultLoggerRaw()->Warn(format, std::forward<Args>(args)...);
 }
 
+///@brief adds error log message to default log with formatted args 
 template <typename... Args>
 inline void Error(std::string format, Args && ...args)
 {
     DefaultLoggerRaw()->Error(format, std::forward<Args>(args)...);
 }
 
+///@brief adds fator log message to default log with formatted args 
 template <typename... Args>
 inline void Fatal(std::string format, Args && ...args)
 {
     DefaultLoggerRaw()->Fatal(format, std::forward<Args>(args)...);
 }
 
+///@brief logs message with specified source and level
 inline void Log(details::SourceLoc source, Level level, const std::string & msg)
 {
     DefaultLoggerRaw()->Log(source, level, msg);
 }
 
+///@brief clears and shuts down all the loggers
 inline void ShutDown()
 {
     Registry::Instance().ShutDown();

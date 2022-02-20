@@ -1,3 +1,10 @@
+/**
+ * @file IndexGraph.hpp
+ * @author bwu
+ * @brief Model of index graph concept and graph related algorithms
+ * @version 0.1
+ * @date 2022-02-22
+ */
 #ifndef GENERIC_TOPOLOGY_INDEXGRAPH_HPP
 #define GENERIC_TOPOLOGY_INDEXGRAPH_HPP
 #include "generic/common/Exception.hpp"
@@ -16,25 +23,35 @@
 namespace generic  {
 namespace topology {
 
+///@brief represents model of undirected index edge concept
 struct UndirectedIndexEdge
 {
+    ///@brief constructs an invalid edge
     UndirectedIndexEdge()
     {
         m_vertices = std::make_pair(noIndex, noIndex);
     }
 
+    ///@brief constructs an undirected edge with vertex `iv1` and `iv2`
     UndirectedIndexEdge(index_t iv1, index_t iv2)
     {
        SetVertices(iv1, iv2);
     }
 
+    ///@brief checks if this edge equals to `e`
     bool operator==(const UndirectedIndexEdge & e) const { return m_vertices == e.m_vertices; }
+    ///@brief checks if this edge not equals to `e`
     bool operator!=(const UndirectedIndexEdge & e) const { return !(*this == e); }
 
+    ///@brief set two vertices index of this edges
     void SetVertices(index_t iv1, index_t iv2) { m_vertices.first = std::min(iv1, iv2); m_vertices.second = std::max(iv1, iv2); }
 
+    ///@brief returns the smaller vertex index of this edge
     index_t v1() const { return m_vertices.first ; }
+    ///@brief returns the bigger vertex index of this edge
     index_t v2() const { return m_vertices.second; }
+
+    ///@brief chechks if this edge contains vertex `iv`
     bool hasVertex(index_t iv) const { return iv == m_vertices.first || iv == m_vertices.second; }
 
 private:
@@ -72,6 +89,7 @@ using UndirectedIndexEdgeSet = std::unordered_set<UndirectedIndexEdge, Undirecte
 template <typename T>
 using UndirectedIndexEdgeMap = std::unordered_map<UndirectedIndexEdge, T, UndirectedIndexEdgeHash, UndirectedIndexEdgeCompare>;
 
+///@brief represents model of sparse undirect index graph concept
 using SparseIndexGraph = boost::adjacency_list<
                          boost::setS,
                          boost::vecS,
@@ -104,7 +122,7 @@ inline SIGVertex Target(const SIGEdge & e, const SparseIndexGraph & g)
 }
 
 /**
- * @brief get connected component by BFS
+ * @brief gets connected component by BFS
  * 
  * @param[in] g the connection graph
  * @param[in] v the source vertex
@@ -129,7 +147,7 @@ inline void ConnectedComponent(const SparseIndexGraph & g, const index_t v, std:
 }
 
 /**
- * @brief get all connected components from graph
+ * @brief gets all connected components from graph
  * 
  * @param[in] g the connection graph
  * @param[out] cc connected components

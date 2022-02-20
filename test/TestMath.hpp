@@ -1,3 +1,10 @@
+/**
+ * @file TestMath.hpp
+ * @author bwu
+ * @brief Unit test of classes and functions in namespace math
+ * @version 0.1
+ * @date 2022-02-22
+ */
 #ifndef TEST_TESTMATH_HPP
 #define TEST_TESTMATH_HPP
 #include "generic/test/TestCommon.hpp"

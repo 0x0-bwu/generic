@@ -1,3 +1,10 @@
+/**
+ * @file TestGeometry.hpp
+ * @author bwu
+ * @brief Unit test of classes and functions in namespace geometry
+ * @version 0.1
+ * @date 2022-02-22
+ */
 #ifndef TEST_TESTGEOMETRY_HPP
 #define TEST_TESTGEOMETRY_HPP
 #include "generic/test/TestCommon.hpp"
