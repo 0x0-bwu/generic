@@ -1,3 +1,10 @@
+/**
+ * @file BVH.hpp
+ * @author bwu
+ * @brief Model of bounding volume hierarchy tree concept and related algorithms
+ * @version 0.1
+ * @date 2022-02-22
+ */
 #ifndef GENERIC_TREE_BVH_BVH_HPP
 #define GENERIC_TREE_BVH_BVH_HPP
 #include "generic/common/Traits.hpp"
@@ -26,13 +33,20 @@ using generic::geometry::Vector3D;
 using generic::geometry::Box3D;
 using generic::geometry::Triangle3D;
 using TopDownTaskSpawner = tree::TopDownTaskSpawner;
+///@brief model of bounding volume hierarchy tree concept
 template <typename num_type >
 struct BVH
 {
     struct BVHNode
     {
         Box3D<num_type > boundary;
+        ///@brief leaf size in a node, 0 indicates this node is not a leaf node
         size_t primitiveCount;
+        /**
+         * @brief if is leaf node, get primitve by primives[BVH.primIndices[BVHNode.firstChildOrPrim]]
+         * primive indices in a leaf node is from firstChildOrPrim to firstChilOrPrim + primitiveCount - 1
+         * if is internal node, get node by BVH.nodes[BVHNode.firstChildOrPrim]
+         */
         size_t firstChildOrPrim;
 
         bool operator== (const BVHNode & n) const
@@ -64,15 +78,28 @@ struct BVH
     {
         return nodeCount.fetch_add(2);
     }
-
+    
     std::vector<BVHNode> nodes;
     std::vector<size_t> primIndices;    
     std::atomic<size_t> nodeCount = { 0 };
 };
 
+///@brief bvh tree utility
 class BVHUtility
 {
 public:
+/**
+ * @brief calculate bbox and center of input primitives that used for bvh tree building
+ * 
+ * @tparam primitive input primitive type 
+ * @tparam num_type coordinate type of bvh
+ * @tparam extent functor to calculate bbox of primitive object
+ * @tparam centroid functor to calculate center of primitive object
+ * @param[in] primitives input primitives
+ * @param[out] bboxes calculated boxes
+ * @param[out] centers calculated center points
+ * @return bounding box that cover all input primitives
+ */
 template< typename primitive, typename num_type, typename extent, typename centroid >
 static Box3D<num_type> CalculateBBoxAndCenter(const std::vector<primitive * > & primitives, 
                                         std::vector<Box3D<num_type > > & bboxes, 
@@ -106,7 +133,8 @@ static Box3D<num_type> CalculateBlockBBoxAndCenter(prim_iterator begin, prim_ite
     return boundary;
 }
 };
-  
+
+///@brief SAH bvh tree build algorithm
 class SahBasedAlgorithm
 {
 protected:
@@ -127,6 +155,7 @@ protected:
     }
 };
 
+///@brief bvh tree builder based on SAH algorithm
 template <typename, size_t, size_t, typename> class BinnedSahBuildTask;
 template <typename num_type, size_t bin_count, size_t max_leaf, typename TaskSpawner = TopDownTaskSpawner>
 class BinnedSahBuilder
@@ -138,8 +167,16 @@ class BinnedSahBuilder
     num_type m_traversalCost = 1;
 public:
     size_t maxDepth = 1024;
+
+    ///@brief construct a builder with empty bvh data
     BinnedSahBuilder(BVH<num_type> & bvh) : m_bvh(bvh) {}
 
+    /**
+     * @brief builds the bvh tree based on inputs
+     * @param[in] boundary whole boundary of the bvh
+     * @param[in] bboxes input bbboxes got from primitives 
+     * @param[in] centers input center points got from primitives
+     */
     void Build(const Box3D<num_type> & boundary,
                 const std::vector<Box3D<num_type> > & bboxes,
                 const std::vector<Point3D<float_type<num_type> > > & centers)
@@ -324,15 +361,23 @@ public:
     }
 };
 
+///@brief utility class for collision detection of input bvh
 template <typename num_type>
 class BVHCollisionDetector
 {
     typedef typename BVH<num_type>::BVHNode Node;
 public:
+    ///@brief constructs a dector with input bvh, will treat touched boxes as collide if considerTouch=true
     explicit BVHCollisionDetector(const BVH<num_type> & bvh, bool considerTouch = false)
      : m_bvh(bvh)
      , m_bConsiderTouch(considerTouch){}
 
+    /**
+     * @brief gets collision dectect results
+     * 
+     * @param[out] result list of pairs of collide boxes indices
+     * @return wheher collison detected in this bvh 
+     */
     bool CollisionDectect(std::list<std::pair<size_t, size_t> > & result)
     {
         result.clear();
@@ -386,7 +431,7 @@ private:
     bool m_bConsiderTouch;
 };
 
-
+///@brief a model of ray concept in 3d world
 template <typename num_type>
 struct Ray {
     Point3D<num_type> origin;
@@ -395,6 +440,7 @@ struct Ray {
     num_type tmax = 0;
 
     Ray() = default;
+    ///@brief constructs a ray object with origin point and ray direction vector
     Ray(const Point3D<num_type> & _origin,
         const Vector3D<num_type>& _direction,
         num_type _tmin = num_type(0),

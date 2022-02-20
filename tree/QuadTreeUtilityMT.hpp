@@ -1,3 +1,13 @@
+/**
+ * @file QuadTreeUtilityMT.hpp
+ * @author bwu
+ * @brief Quad tree utility with multi-threads support
+ * @version 0.1
+ * @date 2022-02-22
+ * 
+ * @copyright Copyright (c) 2022
+ * 
+ */
 #ifndef GENERIC_TREE_QUADTREEUTILITYMT_HPP
 #define GENERIC_TREE_QUADTREEUTILITYMT_HPP
 #include "QuadTree.hpp"
@@ -5,6 +15,8 @@
 namespace generic{
 namespace tree
 {
+
+///@brief quad tree builder with multi-threads support
 template <typename object, typename Tree>
 class QuadTreeBuilderMT
 { 

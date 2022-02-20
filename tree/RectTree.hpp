@@ -1,3 +1,11 @@
+/**
+ * @file RectTree.hpp
+ * @author bwu
+ * @brief Model of R tree and related algorithms
+ * @note This is a boost R(ectangle) tree wapper for the convenient usage
+ * @version 0.1
+ * @date 2022-02-22
+ */
 #ifndef GENERIC_TREE_RECTTREE_HPP
 #define GENERIC_TREE_RECTTREE_HPP
 #include "generic/geometry/Box.hpp"
@@ -11,12 +19,16 @@
 #include <list>
 namespace generic{
 namespace tree {
-//this is a boost R(ectangle) tree wapper for the convenient usage
 using generic::geometry::Box2D;
 using generic::geometry::Point2D;
 namespace bg = boost::geometry;
 namespace bgid = bg::index::detail;
 
+/**
+ * @brief model of R tree node concept
+ * @tparam num_type coordinate type of R tree
+ * @tparam object the object that R tree node holes it's pointer
+ */
 template <typename num_type, typename object>
 class RectNode
 {
@@ -29,26 +41,41 @@ public:
     RectChildren m_children;
 
     virtual ~RectNode(){ Clear(); }
+    ///@brief build tree node with input `objs`
     void Build(std::list<object* > && objs);
 
+    ///@brief gets node level, the top level is 0, and sub node increasing
     int GetLevel() const { return m_level; }
+    ///@brief sets bounding box of this node
     void SetBBox(const Box2D<num_type > & bbox) { m_bbox = bbox; }
+    ///@brief gets bounding box of this node
     const Box2D<num_type > & GetBBox() const { return m_bbox; }
 
+    ///@brief gets objects contains in this node
     std::list<object * > & GetObjs() { return m_objs; }
     const std::list<object * > & GetObjs() const { return m_objs; }
 
+    ///@brief checks if this node is the root of tree
     bool isRoot() const { return nullptr == m_parent; }
+    ///@brief gets parent node of this node
     RectNode * GetParent() { return m_parent; }
+    ///@brief checks if this node has chiled
     bool hasChild() const { return m_children.size() != 0 ; }
+    ///@brief gets reference of children container
     RectChildren & GetChildren() { return m_children; }
+    ///@brief gets const reference of children container
     const RectChildren & GetChildren() const { return m_children; }
+    ///@brief gets all objects contains in this node and it's sub nodes
     void GetAllObjects(std::list<object * > & allObjs) const;
     void GetAllObjects(std::list<const object * > & allObjs) const;
+    ///@brief gets all leaf nodes from input node
     static void GetAllNodes(RectNode<num_type, object>  * node, std::list<RectNode<num_type, object> * > & allNodes);
+    ///@brief gets all leaf nodes from input node by level
     static void GetAllNodesByLevel(RectNode<num_type, object>  * node, std::map<int, std::list<RectNode<num_type, object> * > > & allNodes);
+    ///@brief gets all top nodes that bbox area less the given `arae` from input `node`
     static void GetTopNodesAreaLessThan(num_type area, RectNode<num_type, object> * node, std::list<RectNode<num_type, object> * > & allNodes);
 
+    ///@brief clear all nodes and object pointers
     void Clear();
 };
 
@@ -126,6 +153,12 @@ void RectNode<num_type, object>::Clear()
     m_objs.clear();
 }
 
+/**
+ * @brief model of R tree concept
+ * @tparam num_type coordinate type of R tree
+ * @tparam object the object that R tree node holes it's pointer
+ * @tparam extent functor to calculate bbox of object
+ */
 template <typename num_type, typename object, typename extent>
 class RectTree : public RectNode<num_type, object>
 {
@@ -143,6 +176,7 @@ class RectTree : public RectNode<num_type, object>
         typedef typename bgid::rtree::leaf<Value, typename Options::parameters_type, Box, Allocators, typename Options::node_tag>::type RtProxyLeaf;
 
     public:
+        ///@brief a visitor to contructs rtree node from boost rtree structure
         RtProxyVisitor(RectNode<num_type, object> * root) : m_root(root) { m_currNode = m_root; }
 
         void operator()(const RtProxyNode & proxyNode)
@@ -200,7 +234,14 @@ public:
         RectNode<num_type, object>::Clear();
     }
 
+    /**
+     * @brief build tree with input objects and threshold
+     * @param[in] objs input objects
+     * @param[in] max_objs_to_build_sub tree nodes will continue spliting if the objects numbers it holds greater than `max_objs_to_build_sub`
+     * @note if `max_objs_to_build_sub`=0, this node will take all objects and stop building
+     */
     void Build(std::list<object* > objs, size_t max_objs_to_build_sub);
+    ///@brief gets all top nodes that bbox area less the given `arae`
     void GetTopNodesAreaLessThan(num_type area, std::list<RectNode<num_type, object> * > & nodes);
 
 private:

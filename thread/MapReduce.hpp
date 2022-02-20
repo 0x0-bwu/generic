@@ -1,3 +1,10 @@
+/**
+ * @file MapReduce.hpp
+ * @author bwu
+ * @brief A header only map reduce library on single-machine platform 
+ * @version 0.1
+ * @date 2022-02-22
+ */
 #ifndef GENERIC_THREAD_MAPREDUCE_MAPREDUCE_HPP
 #define GENERIC_THREAD_MAPREDUCE_MAPREDUCE_HPP
 #include "generic/common/Exception.hpp"
@@ -452,6 +459,17 @@ inline bool FileKeyCombiner(const std::string & in, const std::string & out, con
 
 }//namespace intermediate
 
+/**
+ * @brief 
+ * 
+ * @tparam MapTaskType implements a mapping function to process key/value pairs to generate a set of intermediate key/value pairs
+ * @tparam ReduceTaskType implements a reduce function to merge all intermediate values associated with the same intermediate key
+ * @note ReduceTaskType should define the key/value types for the results of the reduce phase
+ * @tparam DataSourceType implements a mechanism to feed data to the map tasks
+ * @tparam CombinerType can by used to partially consolidate results of the map task before they are passed to the reduce tasks
+ * @tparam IntermediateStoreType handles storage, merging and sorting of intermediate results between the map and reduce phases
+ * @tparam StoreResult intermediate data result type
+ */
 template <typename MapTaskType, 
           typename ReduceTaskType,
           typename DataSourceType,
@@ -656,6 +674,7 @@ private:
 
 namespace schedule {
 
+///@brief Schedule policy that run one map task followed by one reduce task, useful for debug
 template <typename Job>
 class Sequential
 {
@@ -695,6 +714,7 @@ private:
     }
 };
 
+///@brief Schedule policy that uses avaliable cores to run as many map simultaneous tasks as possible
 template <typename Job>
 class Parallel
 {

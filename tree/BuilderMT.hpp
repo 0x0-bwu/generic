@@ -1,3 +1,13 @@
+/**
+ * @file BuilderMT.hpp
+ * @author bwu
+ * @brief General tree building helper classes in multi-threads
+ * @version 0.1
+ * @date 2022-02-22
+ * 
+ * @copyright Copyright (c) 2022
+ * 
+ */
 #ifndef GENERIC_TREE_BUILDERMT_HPP
 #define GENERIC_TREE_BUILDERMT_HPP
 #include "generic/thread/ThreadPool.hpp"
@@ -6,6 +16,7 @@ namespace generic{
 namespace tree {
 
 using generic::thread::ThreadPool;
+///@brief a multi threads task spawner when build tree from top to down
 struct TopDownTaskSpawnerMT
 {
     size_t taskSpawnThreshold = 1024;

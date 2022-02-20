@@ -1,10 +1,17 @@
+/**
+ * @file Builder.hpp
+ * @author bwu
+ * @brief General tree building helper classes
+ * @version 0.1
+ * @date 2022-02-22
+ */
 #ifndef GENERIC_TREE_BUILDER_HPP
 #define GENERIC_TREE_BUILDER_HPP
 #include <stack>
 namespace generic{
 namespace tree{
 
-//builder
+///@brief intermidiate store class for partition build
 struct WorkItem
 {
     size_t nodeIndex;
@@ -19,6 +26,7 @@ struct WorkItem
     size_t WorkSize() const { return end - begin; }
 };
 
+///@brief a single thread task spawner when build tree from top to down
 struct TopDownTaskSpawner
 {
     size_t taskSpawnThreshold = 1024;

@@ -1,3 +1,13 @@
+/**
+ * @file QuadTree.hpp
+ * @author bwu
+ * @brief Model of quad tree concept and related algorithms
+ * @version 0.1
+ * @date 2022-02-22
+ * 
+ * @copyright Copyright (c) 2022
+ * 
+ */
 #ifndef GENERIC_TREE_QUADTREE_HPP
 #define GENERIC_TREE_QUADTREE_HPP
 #include "generic/common/Traits.hpp"
@@ -13,6 +23,12 @@ using generic::geometry::Point2D;
 using generic::common::num_integer_tag;
 using generic::common::num_floating_tag;
 using generic::common::num_traits_float_or_int;
+/**
+ * @brief model of quad tree concept
+ * @tparam num_type coordinate type of quad tree
+ * @tparam object the object that quat tree node holes it's pointer
+ * @tparam extent functor to calculate bbox of object
+ */
 template <typename num_type, typename object, typename extent>
 class QuadTree
 {
@@ -29,38 +45,81 @@ public:
     }
     ~QuadTree(){ Clear(); }
     
+    ///@brief build tree with objects it hold if the objects numbers greater than `max_objs_to_build_sub`
     void Build(size_t max_objs_to_build_sub);
+    ///@brief build tree with input `objs`
     void Build(std::list<object* > && objs);
+    /**
+     * @brief build tree with input objects and threshold
+     * @param[in] objs input objects
+     * @param[in] max_objs_to_build_sub tree nodes will continue spliting if the objects numbers it holds greater than `max_objs_to_build_sub`
+     * @note if `max_objs_to_build_sub`=0, this node will take all objects and stop building
+     */
     void Build(std::list<object* > objs, size_t max_objs_to_build_sub);
+    ///@brief insert an `obj` to the tree by extent functor `ext`
     bool Insert(object * obj, extent & ext);
+    ///@brief create sub nodes if thoe object numbers it holds greater than `max_objs_to_build_sub`
     bool CreateSubNodes(size_t max_objs_to_build_sub);
+    ///@brief create sub nodes
     bool CreateSubNodes();
 
+    /**
+     * @brief tries to fill the object to this node
+     * 
+     * @param[in, out] objs objects to fill in this node, if object filled, it will be erased from the list 
+     * @return true if any of the object filled in this node
+     * @return false if none of the object filled in this node
+     */
     bool FillObjects(std::list<object * > & objs);
 
+    ///@brief gets node level, the top level is 0, and sub node increasing
     int GetLevel() const { return m_level; }
+    ///@brief sets bounding box of this node
     void SetBBox(const Box2D<num_type > & bbox) { m_bbox = bbox; }
+    ///@brief gets bounding box of this node
     const Box2D<num_type > & GetBBox() const { return m_bbox; }
 
+    ///@brief gets objects contains in this node
     std::list<object * > & GetObjs() { return m_objs; }
     const std::list<object * > & GetObjs() const { return m_objs; }
 
+    ///@brief checks if this node is the root of tree
     bool isRoot() const { return nullptr == m_parent; }
+    ///@brief gets parent node of this node
     QuadNode * GetParent() { return m_parent; }
+    ///@brief checks if this node has chiled
     bool hasChild() const { return m_children.front() != nullptr; }
+    ///@brief gets child in specified orientation
     QuadNode * GetChild(Orientation o) { return hasChild() ? m_children[ static_cast<size_t>(o) ] : nullptr; }
+    ///@brief gets reference of children container
     QuadChildren & GetChildren() { return m_children; }
+    ///@brief gets const reference of children container
     const QuadChildren & GetChildren() const { return m_children; }
+    ///@brief gets all objects contains in this node and it's sub nodes
     void GetAllObjects(std::list<object * > & allObjs) const;
     void GetAllObjects(std::list<const object * > & allObjs) const;
 
+    ///@brief creates sub nodes of this node
     void Split();
+    /**
+     * @brief makes the tree balanced start from this node,
+     * balanced means the level difference with neighbors of any node is less or equal to 1
+     */
     void Balance();
 
+    ///@brief gets all leaf nodes from input node
     static void GetAllLeafNodes(QuadNode * node, std::list<QuadNode * > & allNodes);
+    ///@brief gets all leaf nodes from input node by level
     static void GetAllNodesByLevel(QuadNode * node, std::map<int, std::list<QuadNode * > > & allNodes);
+    ///@brief gets neighbor node of input node by specified root and direction
     static QuadNode * Neighbor(QuadNode * node, QuadNode * root, Direction direction);
     
+    /**
+     * @brief continues creating sub nodes accroding to input condition
+     * @tparam Condition function type that has a bool result to determine whether continuing building
+     * @param[in] node the node to be built
+     * @param[in] condition Condition function object
+     */
     template <typename Condition>
     static void CreateSubNodesIf(QuadNode * node, Condition && condition);
 

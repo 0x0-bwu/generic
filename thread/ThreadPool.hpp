@@ -62,12 +62,15 @@ private:
     std::vector<std::unique_ptr<std::thread> > & m_threads;
 };
 
+///@brief a thread pool class that holds and runs tasks parallelly
 class ThreadPool
 {
     using Task = std::function<void()>;
     using PoolQueue = boost::lockfree::queue<Task * >;
 public:
+    ///@brief constructs a pool with hardware supported threads
     ThreadPool();
+    ///@brief constructs a poll with min(input threads, hardware supported threads) threads
     ThreadPool(size_t threads, size_t queueSize = 128);
     ThreadPool(ThreadPool & other) = delete;
     ThreadPool(const ThreadPool & other) = delete;
@@ -75,19 +78,36 @@ public:
 
     ThreadPool & operator= (const ThreadPool & pool) = delete;
 
+    ///@brief get thread number used in this pool
     size_t Threads() const { return m_threads.size(); }
+    ///@brief get current idel thread number in this pool
     size_t IdleThreads() const { return m_nWait.load(); }
+    ///@brief check whether current pool is empty with task
     bool isEmpty() const { return m_queue.empty(); }
+    ///@brief accesses thread by index
     std::thread & GetThread(size_t i) { return *(m_threads[i]); }
+    ///@brief resizes thread number of this pool
     void Resize(size_t tryThreads);
+    /**
+     * @brief submit a task to the pool
+     * 
+     * @tparam FunctionType could be one of std::bind, std::function or lambda expression  
+     * @param f Task function object
+     * @return std::future of the FunctionType result 
+     */
     template <typename FunctionType>
     std::future<typename std::result_of<FunctionType() >::type>
     Submit(FunctionType && f);
 
+    ///@brief pop one task from task queue
     Task PopTask();
+    ///@brief wait for all tasks done
     void Wait();
+    ///@brief wait for runing tasks done then stop
     void Stop();
+    ///@brief empties the task queue
     void EmptyQueue();
+    ///@brief gets current avaliable hardware thread number
     static size_t AvailableThreads(size_t tryThreads);
 
 private:

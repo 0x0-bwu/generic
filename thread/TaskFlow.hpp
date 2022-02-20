@@ -1,3 +1,10 @@
+/**
+ * @file TaskFlow.hpp
+ * @author bwu
+ * @brief A header only task flow library that run tasks based on dependency parallelly
+ * @version 0.1
+ * @date 2022-02-22
+ */
 #ifndef GENERIC_THREAD_TASKFLOW_HPP
 #define GENERIC_THREAD_TASKFLOW_HPP
 #include "ThreadPool.hpp"
@@ -19,17 +26,22 @@ class Executor;
 class Dispatcher;
 class TaskLabelWriter;
 
+///@brief task node that hold the task to be executed and dependency relationships with other task nodes
 class TaskNode
 {
     friend TaskFlow;
     friend Executor;
     friend Dispatcher;
 public:
+    ///@brief constructs a task node with node id and funtion object to be executed
     template<typename FunctionType>
     TaskNode(size_t id, FunctionType && func);
 
+    ///@brief add precede dependency for this node, input tasks will be executed after this task
     template <typename... Args>
     void Precede(TaskNode * task, Args &&... args);
+
+    ///@brief add success dependency for this node, this task will be executed after input tasks
     template <typename... Args>
     void Success(TaskNode * task, Args &&... args);
 
@@ -61,6 +73,7 @@ inline void TaskNode::Success(TaskNode * task, Args && ...args)
     Success(std::forward<Args &&>(args)...);
 }
 
+///@brief task flow class for registering and managing tasks
 class TaskFlow
 {
     using TaskGraph = boost::adjacency_list<
@@ -94,17 +107,35 @@ public:
     TaskFlow(const TaskFlow & other) = delete;
     TaskFlow & operator= (TaskFlow & other) = delete;
 
+    ///@brief accesses task node by index
     TaskNode& operator[] (size_t i) {return *m_tasks[i];}
 
+    /**
+     * @brief submit a task and get the internal task node
+     * @tparam FunctionType could be one of std::bind, std::function or lambda expression
+     * @param f Task function object
+     * @param label task label name
+     * @return a pair with internal task node and std::future of the FunctionType result
+     */
     template <typename FunctionType>
     std::pair<TaskNode *,
     std::future<typename std::result_of<FunctionType()>::type> >
     Submit(FunctionType && f, std::string label = std::string());
 
+    /**
+     * @brief emplace a task and get the internal task node
+     * 
+     * @tparam FunctionType could be one of std::bind, std::function or lambda expression 
+     * @param f Task function object
+     * @param label task label name
+     * @return TaskNode* internal task node
+     */
     template <typename FunctionType>
     TaskNode * Emplace(FunctionType && f, std::string label = std::string());
 
+    ///@brief build a direct task flow graph based on added tasks dependency
     void BuildTaskGraph();
+    ///@brief print *.dot format task graph to out stream
     void PrintTaskGraph(std::ostream & out);
 private:
     void TopologicalSort();
@@ -202,6 +233,7 @@ inline void TaskFlow::TopologicalSort()
     boost::topological_sort(*m_graph, std::front_inserter(m_sequence));
 }
 
+///@brief dispatcher class that dispatch tasks based on dependency
 class Dispatcher
 {
 public:
@@ -249,10 +281,19 @@ inline void Dispatcher::DispatchOne(TaskNode & node)
     m_cond.notify_all();
 }
 
+///@brief executor class to run taskflow in parallel
 class Executor
 {
 public:
+    ///@brief constructs a executor with specified thead numbers
     Executor(size_t threads) : m_threads(threads) {}
+
+    /**
+     * @brief execute input task flow `flow` parallelly in setting threads
+     * @param[in] flow the take flow to be executed
+     * @return true when task flow executed successfully
+     * @return false if any task has circular dependency 
+     */
     bool Run(TaskFlow & flow);
 private:
     size_t m_threads;

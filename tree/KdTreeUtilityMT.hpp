@@ -1,3 +1,10 @@
+/**
+ * @file KdTreeUtilityMT.hpp
+ * @author bwu
+ * @brief kd tree utility with multi-threads support
+ * @version 0.1
+ * @date 2022-02-22
+ */
 #ifndef GENERIC_TREE_KDTREEUTILITYMT_HPP
 #define GENERIC_TREE_KDTREEUTILITYMT_HPP
 #include "BuilderMT.hpp"
@@ -5,6 +12,7 @@
 namespace generic {
 namespace tree {
 using generic::thread::ThreadPool;
+///@brief kd tree utility with multi-threads support
 class KdTreeUtilityMT
 {
 public:

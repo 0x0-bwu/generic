@@ -1,3 +1,10 @@
+/**
+ * @file BVHUtilityMT.hpp
+ * @author bwu
+ * @brief BVH tree utility with multi-threads support
+ * @version 0.1
+ * @date 2022-02-22
+ */
 #ifndef GENERIC_TREE_BVH_BVHUTILITYMT_HPP
 #define GENERIC_TREE_BVH_BVHUTILITYMT_HPP
 #include "BuilderMT.hpp"
@@ -7,6 +14,7 @@ namespace tree{
 namespace bvh
 {
 using generic::thread::ThreadPool;
+///@brief bvh tree utility with multi-threads support
 class BVHUtilityMT
 {
 public:

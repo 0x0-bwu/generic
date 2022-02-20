@@ -23,6 +23,7 @@ enum class Argument { No = 0, Required, Optional };
 enum class OptionName { Unspecified, ShortName, LongName };
 enum class Attribute { Inactive = 0, Hidden = 1, Required = 2, Optional = 3, Advanced = 4, Expert = 5 };
 
+///@brief abstract base class for options
 class Option
 {
     friend class OptionParser;
@@ -31,6 +32,7 @@ public:
      : m_shortName(std::move(shortName)), m_longName(std::move(longName)), m_description(std::move(description)) {}
     virtual ~Option() = default;
 
+    ///@brief returns character of the option's short name or 0 if no short name defined
     char ShortName() const
     {
         if(!m_shortName.empty())
@@ -38,11 +40,18 @@ public:
         return 0;
     }
 
+    ///@brief returns long name of the option or empty string if no long name defined
     const std::string & LongName() const
     {
         return m_longName;
     }
 
+    /**
+     * @brief returns the option's long or short name
+     * @param whatName long or short name to return
+     * @param withHypen with or without hypen
+     * @return request name of the option, empty if no name defined
+     */
     std::string Name(OptionName whatName, bool withHypen = false) const
     {
         if(whatName == OptionName::ShortName)
@@ -52,24 +61,34 @@ public:
         return "";
     }
 
+    ///@brief returns the opton description
     const std::string & Description() const
     {
         return m_description;
     }
 
+    ///@brief set options' attribute
     void SetAttribute(Attribute attribute)
     {
         m_attribute = attribute;
     }
 
+    ///@brief get option's attribute
     Attribute GetAttribute() const
     {
         return m_attribute;
     }
     
+    ///@brief writes the option's default value to out stream, return false if deault value not available
     virtual bool GetDefault(std::ostream & out) const = 0;
+    
+    ///@brief returns argument type (no, required or optional)
     virtual Argument ArgumentType() const = 0;
+
+    ///@brief returns the option's count on command line
     virtual size_t Count() const = 0;
+    
+    ///@brief returns if the option is set on command line
     virtual bool isSet() const = 0;
 
 protected:
@@ -105,16 +124,25 @@ struct InvalidOption : public std::invalid_argument
      : InvalidOption(option, error, OptionName::Unspecified, "", text) {}
 };
 
-//Value option with optional default value
+///@brief value option with optional default value
 template <typename T>
 class Value : public Option
 {
 public:
+    ///@brief consturcts an value option with short name, long name and description, the description will show in help message
     Value(std::string shortName, std::string longName, std::string description)
      : Option(std::forward<std::string>(shortName),
               std::forward<std::string>(longName),
               std::forward<std::string>(description)) {}
     
+    /**
+     * @brief consturcts an value option
+     * @param shortName option's short name
+     * @param longName option's long name
+     * @param description option's descrption
+     * @param defaultValue option's default value
+     * @param assignTo pointer to a variable to assign the parsed command line value to
+     */
     Value(std::string shortName, std::string longName, std::string description, const T & defaultValue, T * assignTo = nullptr)
      : Option(std::forward<std::string>(shortName),
               std::forward<std::string>(longName),
@@ -132,18 +160,21 @@ public:
         return !m_values.empty();
     }
 
+    ///@brief assign the last parsed command line value to `var`
     void AssignTo(T * var)
     {
         m_assignTo = var;
         UpdateReference();
     }
 
+    ///@brief manually set value to option
     void SetValue(const T & value)
     {
         Clear();
         AddValue(value);
     }
 
+    ///@brief get option value by index
     T GetValue(size_t index = 0) const
     {
         if(!isSet() && m_default) return *m_default;
@@ -164,6 +195,7 @@ public:
         return m_values[index];
     }
 
+    ///@brief returns option's value access by index, or default value if not set
     T ValueOr(const T & defaultValue, size_t index) const
     {
         if(index < m_values.size()) return m_values[index];
@@ -171,17 +203,20 @@ public:
         else return defaultValue;
     }
 
+    ///@brief sets option's default value
     void SetDefault(const T & value)
     {
         m_default.reset(new T(value));
         UpdateReference();
     }
 
+    ///@brief returns if option has default value
     bool hasDefault() const
     {
         return m_default != nullptr;
     }
 
+    ///@brief get option's default value, will throw if no default value set
     T GetDefault() const
     {
         if(!hasDefault())
@@ -264,7 +299,11 @@ protected:
     std::vector<T> m_values;
 };
 
-//Value option with implicit default value
+/**
+ * @brief value option with implicit default value
+ * if without argument, it carries the implicit default value
+ * if wtih argument, it carries the explicit value
+ */
 template <typename T>
 class Implicit : public Value<T>
 {
@@ -285,7 +324,10 @@ protected:
     }
 };
 
-//Value option without value
+/**@brief value option without value
+ * value option that not require an argument
+ * could be either set or not set
+ */
 class Switch : public Value<bool>
 {
 public:
@@ -306,6 +348,8 @@ protected:
 
 using OptionPtr = std::shared_ptr<Option>;
 class OptionParser;
+
+///@brief Base class for an option printer, prints help message from a given `parser`
 class OptionPrinter
 {
 public:
@@ -318,6 +362,7 @@ protected:
     const OptionParser * m_parser;
 };
 
+///@brief an option printer that print help message to console
 class ConsoleOptionPrinter : public OptionPrinter
 {
 public:
@@ -329,19 +374,33 @@ private:
     std::string toString(OptionPtr option) const;
 };
 
-
+///@brief represents an option parser that manages all options
 class OptionParser
 {
 public:
+    ///@brief construct a option parser with `description` used for the help message
     explicit OptionParser(std::string description = "") : m_description(std::move(description)) {}
     virtual ~OptionParser() = default;
 
+    /**
+     * @brief add an option, e.g. 'add<Value<int> >("i", "int", "description for option -i")
+     * @tparam T option type, could be Value, Switch or Implicit
+     * @param args Option's parameters
+     * @return added option
+     */
     template <typename T, typename... Args>
     std::shared_ptr<T> Add(Args&&... args)
     {
         return Add<T, Attribute::Optional>(std::forward<Args>(args)...);
     }
 
+    /**
+     * @brief add an option, e.g. 'add<Value<int> >("i", "int", "description for option -i")
+     * @tparam T option type, could be Value, Switch or Implicit
+     * @tparam attribute the options' attribute (Inactive, Hidden, Required, Optional, ...)
+     * @param args Option's parameters
+     * @return shared_ptr of added option
+     */
     template <typename T, Attribute attribute, typename... Args>
     std::shared_ptr<T> Add(Args&&... args)
     {
@@ -363,7 +422,8 @@ public:
         m_options.push_back(option);
         return option;
     }
-
+    
+    ///@brief parse an config file into the added options
     bool Parse(const std::string & configFile)
     {
         auto trim = [](std::string & s) {
@@ -404,6 +464,11 @@ public:
         return true;
     }
 
+    /**
+     * @brief parse the command line into the added options
+     * @param argc command line argument count
+     * @param argv command line arguments
+     */
     void Parse(int argc, const char * const argv[])
     {
         for(auto n = 1; n < argc; ++n){
@@ -471,6 +536,7 @@ public:
         }
     }
 
+    ///@brief delete all parsed options
     void Reset()
     {
         m_unknowOptions.clear();
@@ -479,20 +545,34 @@ public:
             opt->Clear();
     }
 
+    /**
+     * @brief produce a help message
+     * @param showLevel show options up to this level (Optional, Advanced or Expert)
+     * @return the help message
+     */
     std::string Help(Attribute showLevel = Attribute::Optional) const
     {
         ConsoleOptionPrinter printer(this);
         return printer.Print(showLevel);
     }
 
+    ///@brief get option parser's description
     std::string Description() const { return m_description; }
 
+    ///@brief get all added options
     const std::vector<OptionPtr> & Options() const { return m_options; }
 
+    ///@brief get command line arguments without option
     const std::vector<std::string> & NonOptionArgs() const { return m_noOptionArgs; }
 
+    ///@brief get unknown command options
     const std::vector<std::string> & UnknowOptions() const { return m_unknowOptions; }
 
+    /**
+     * @brief get an option by long name
+     * @param longName the option's long name
+     * @return a shared pointer of type Value, Switch or Implicit, or nullptr
+     */
     template <typename T>
     std::shared_ptr<T> GetOption(const std::string & longName) const
     {
@@ -500,6 +580,11 @@ public:
         return TryGetOption<T>(option, longName);
     }
 
+    /**
+     * @brief get an option by short name
+     * @param longName the option's short name
+     * @return a shared pointer of type Value, Switch or Implicit, or nullptr
+     */
     template <typename T>
     std::shared_ptr<T> GetOption(char shortName) const
     {

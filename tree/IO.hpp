@@ -1,3 +1,10 @@
+/**
+ * @file IO.hpp
+ * @author bwu
+ * @brief I/O function for trees
+ * @version 0.1
+ * @date 2022-02-22
+ */
 #ifndef GENERIC_TREE_IO_HPP
 #define GENERIC_TREE_IO_HPP
 #include "KdTree.hpp"

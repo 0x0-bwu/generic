@@ -1,3 +1,10 @@
+/**
+ * @file KdTree.hpp
+ * @author bwu
+ * @brief Model of k-dimensional tree and related algorithms
+ * @version 0.1
+ * @date 2022-02-22
+ */
 #ifndef GENERIC_TREE_KDTREE_HPP
 #define GENERIC_TREE_KDTREE_HPP
 #include "generic/math/MathUtility.hpp"
@@ -16,14 +23,27 @@ namespace tree {
 
 using generic::common::float_type;
 using generic::geometry::VectorN;
+/**
+ * @brief model of k-dimensional tree concept
+ * 
+ * @tparam num_type coordinate type
+ * @tparam K dimension
+ */
 template <typename num_type, size_t K>
 struct KdTree
 {
     struct KdNode
     {
+        ///@brief split dimension index
         size_t split;
+        ///@brief left node index
         size_t left;
+        ///@brief right node index
         size_t right;
+        /**
+         * @brief get primitve by primives[KdTree.primIndices[KdNode.firstPrim]]
+         * primive indices is from firstPrim to firstPrim + primCount - 1
+         */
         size_t firstPrim;
         size_t primCount;
         static constexpr size_t noLeaf = std::numeric_limits<size_t>::max();
@@ -45,9 +65,20 @@ struct KdTree
     std::vector<VectorN<num_type, K> > vectors;
 };
 
+///@brief kd tree utility
 class KdTreeUtility
 {
 public:
+    /**
+     * @brief calculate vector of input primitives that used for kd tree building
+     * 
+     * @tparam primitive input primitive type 
+     * @tparam dimension kd tree dimension
+     * @tparam num_type coordinate type of kd tree
+     * @tparam vectorizer functor to calculate vector from primitive object
+     * @param[in] primitives input primitive objects
+     * @param[out] vectors calculated vectors
+     */
     template <typename primitive, size_t dimension, typename num_type, typename vectorizer>
     static void CalculateVector(const std::vector<primitive * > & primitives, std::vector<VectorN<num_type, dimension> > & vectors)
     {
@@ -67,6 +98,13 @@ public:
         }
     }
 
+    /**
+     * @brief find k numbers of nearest primitives of given primitive
+     * @param[in] tree input search tree
+     * @param[in] vec input query vector of given primitve
+     * @param[in] k total number of nearest primitives needs to get
+     * @return list of pairs of primive index and squared distance
+     */
     template <typename num_type, size_t K>//return [prim index, distance square]
     static std::list<std::pair<size_t, num_type> > FindKNearestPrims(const KdTree<num_type, K> & tree, const VectorN<num_type, K> & vec, size_t k)
     {
@@ -155,6 +193,13 @@ public:
         return items;
     }
 
+    /**
+     * @brief find primitives that distance within R of given primitive
+     * @param[in] tree input search tree
+     * @param[in] vec input query vector of given primitve
+     * @param[in] r input query norm2 distance
+     * @return list of pairs of primive index and squared distance
+     */
     template <typename num_type, size_t K>//return [prim index, distance square]
     static std::list<std::pair<size_t, num_type> > FindRNearestPrims(const KdTree<num_type, K> & tree, const VectorN<num_type, K> & vec, float_type<num_type> r)
     {
@@ -224,6 +269,7 @@ using generic::geometry::VectorN;
 enum class PlaneSplitMethod { Sequential = 0, MaxRange = 1, MaxVariance = 2 };
 enum class ValueSplitMethod { Random = 0, Median = 1 };
 
+///@brief kd tree builder widh different plane split method and value split method
 template <typename, size_t, typename> class BuildTask;
 template <typename num_type, size_t K, typename TaskSpawner = TopDownTaskSpawner>
 class TreeBuilder
@@ -231,6 +277,13 @@ class TreeBuilder
     using Task = BuildTask<num_type, K, TaskSpawner>;
     friend Task;
 public:
+    /**
+     * @brief constructs a kd tree builder with plane split method and value split method
+     * 
+     * @param[in, out] tree tree structure to be build
+     * @param[in] planeMethod define the method how to split plane
+     * @param[in] valueMethod define the method how to split value
+     */
     TreeBuilder(KdTree<num_type, K> & tree,
                   PlaneSplitMethod planeMethod = PlaneSplitMethod::MaxRange,
                   ValueSplitMethod valueMethod = ValueSplitMethod::Median)

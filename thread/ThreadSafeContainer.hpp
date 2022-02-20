@@ -7,6 +7,7 @@
 namespace generic{
 namespace thread {
 
+///@brief a thread-safe task queue that can execute pop, push and other function simultaneously
 template <typename Task>
 class ThreadSafeQueue
 {
