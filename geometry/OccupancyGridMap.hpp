@@ -6,6 +6,7 @@
  * @version 0.1
  * @date 2022-02-22 
  */
+#ifndef GENERIC_GEOMETRY_OCCUPANCYGRIDMAP_HPP
 #define GENERIC_GEOMETRY_OCCUPANCYGRIDMAP_HPP
 #include "generic/thread/ThreadPool.hpp"
 #include "generic/math/MathUtility.hpp"
