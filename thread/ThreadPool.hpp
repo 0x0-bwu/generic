@@ -1,3 +1,10 @@
+/**
+ * @file ThreadPool.hpp
+ * @author bwu
+ * @brief A header only thread pool implementation
+ * @version 0.1
+ * @date 2022-02-22
+ */
 #ifndef GENERIC_THREAD_THREADPOOL
 #define GENERIC_THREAD_THREADPOOL
 #include <boost/lockfree/queue.hpp>
