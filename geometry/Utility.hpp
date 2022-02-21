@@ -204,7 +204,7 @@ inline coor_f<point_t> CircumRadius2ShortestEdgeRatioSq(const point_t & p1, cons
  * @param[in] p2 one of three points that form a triangle2d
  * @param[in] p3 one of three points that form a triangle2d
  * @return ratio of circumradius to shortest edge
- * /
+ */
 template <typename point_t, typename std::enable_if<traits::is_2d_point_t<point_t>::value, bool>::type = true>//todo point3d
 inline coor_f<point_t> CircumRadius2ShortestEdgeRatio(const point_t & p1, const point_t & p2, const point_t & p3);
 
