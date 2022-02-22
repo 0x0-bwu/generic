@@ -1,7 +1,7 @@
 /**
  * @file Archive.hpp
  * @author bwu
- * @brief Serialization head files
+ * @brief Serialization header files
  * @version 0.1
  * @date 2022-02-22
  */

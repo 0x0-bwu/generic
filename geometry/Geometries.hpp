@@ -1,7 +1,7 @@
 /**
  * @file Geometries.hpp
  * @author bwu
- * @brief Head file that include some of the geometris model
+ * @brief Header file that include some of the geometris model
  * @version 0.1
  * @date 2022-02-22
  */

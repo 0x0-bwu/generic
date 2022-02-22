@@ -1,7 +1,7 @@
 /**
  * @file TestCommon.hpp
  * @author bwu
- * @brief Unit test common head files
+ * @brief Unit test common header files
  * @version 0.1
  * @date 2022-02-22
  */
