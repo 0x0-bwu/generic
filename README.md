@@ -1,7 +1,7 @@
 # Generic Library
 
 ## Introduction
-A Header only library for geometry handling and others.<br>
+A header-only library for geometry handling and others.<br>
 
 Implement with C++17 features, templated design for easy usage and embedding.<br>
 
