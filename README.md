@@ -25,27 +25,27 @@ if defined BOOST_FILESYSTEM_SUPPORT, need link with libboost_filesystem.<br>
 if defined BOOST_GIL_IO_PNG_SUPPORT, need link with libpng.<br>
 
 ## Namespace Description
-+ generic                       : top namespace<br> 
-    + color                     : color related definitions, classes and functions<br>  
-    + common                    : common definitions, classes, and functions<br>  
-    + filesystem                : filesystem related functions<br>  
-    + format	                : string format<br>  
-    + geometry                  : models, boost polygon/geometry adaption, geometry algorithms<br>   
-        + boolean     	        : geometry Boolean operation APIs<br>    
-	    + tri			        : triangulation data, construction, and refinement<br>     
-    + log 				        : log library<br>  
-    + math				        : math numbers, classes, and functions<br>  
-	    + la			        : linear algebra<br>  
-    + parser 			        : parser functions<br>  
-    + program_options		    : program option library<br>  
-    + str				        : string related functions<br>  
-    + thread			        : concurrency patterns, thread pool<br>  
-	    + mapreduce		        : pattern of map reduce<br>     
-	    + taskflow		        : pattern of task flow<br>  
-    + tools				        : tools and basic utilities<br>  
-    + topology			        : graph related<br>  
-    + tree				        : tree structures and algorithms<br>  
-    + unit				        : unit definition and convertion<br>
++ `generic`                         : top namespace<br> 
+    + `color`                       : color related definitions, classes and functions<br>  
+    + `common`                      : common definitions, classes, and functions<br>  
+    + `filesystem`                  : filesystem related functions<br>  
+    + `format`	                    : string format<br>  
+    + `geometry`                    : models, boost polygon/geometry adaption, geometry algorithms<br>   
+        + `boolean`     	        : geometry Boolean operation APIs<br>    
+	    + `tri`			            : triangulation data, construction, and refinement<br>     
+    + `log` 				        : log library<br>  
+    + `math`				        : math numbers, classes, and functions<br>  
+	    + `la`			            : linear algebra<br>  
+    + `parser` 			            : parser functions<br>  
+    + `program_options`		        : program option library<br>  
+    + `str`				            : string related functions<br>  
+    + `thread`			            : concurrency patterns, thread pool<br>  
+	    + `mapreduce`		        : pattern of map reduce<br>     
+	    + `taskflow`		        : pattern of task flow<br>  
+    + `tools`				        : tools and basic utilities<br>  
+    + `topology`			        : graph related<br>  
+    + `tree`				        : tree structures and algorithms<br>  
+    + `unit`				        : unit definition and convertion<br>
 
 ## Documents
 You can generate documents of this library by run `doxygen Doxyfile` in current folder, the documents will be generated in folder `docs/`.<br>  
