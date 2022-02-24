@@ -29,6 +29,7 @@
 #include <boost/serialization/vector.hpp>
 #include <boost/serialization/array.hpp>
 #include <boost/serialization/list.hpp>
+#include <boost/serialization/map.hpp>
 #include <fstream>
 #endif
 
