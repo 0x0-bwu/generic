@@ -7,7 +7,7 @@ Implement with C++17 features, templated design for easy usage and embedding.<br
 
 It has multiple 2d/3d geometry models, and model adaption with Boost Polygon/Geometry Library, so the algorithms in these two libraries can be applied directly with those models.<br>
 
-It offers lots of basic geometry test utility as well as high level algorithms like multi-layer geometry connectivity extraction, occupancy grid mapping and Delaunay triangulation construction and refinement, etc.<br>
+It offers lots of basic geometry test utility as well as high level algorithms like polygon merge, multi-layer geometry connectivity extraction, occupancy grid mapping and Delaunay triangulation construction and refinement, etc.<br>
 
 It offers templated tree structures like KdTree, QuadTree, RTree, and BVH Tree for geometry indexing and other algorithms.<br>
 

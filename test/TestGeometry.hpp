@@ -12,8 +12,8 @@
 #include "generic/geometry/BoostPolygonRegister.hpp"
 #include "generic/geometry/BooleanOperation.hpp"
 #include "generic/geometry/Connectivity.hpp"
+#include "generic/geometry/PolygonMerge.hpp"
 #include "generic/geometry/Triangulator.hpp"
-#include "generic/geometry/Geometries.hpp"
 #include "generic/geometry/Transform.hpp"
 #include "generic/geometry/Utility.hpp"
 #include "generic/math/Numbers.hpp"
@@ -715,6 +715,48 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_connectivity_t, num_type)
     BOOST_CHECK(!(cc != std::vector<std::list<index_t> >{c1, c2, c3, c4}));
 }
 
+BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_polygon_merge_t, num_type)
+{
+    using PorpType = size_t;
+    using Settings = typename PolygonMerger<PorpType, num_type>::MergeSettings;
+    using PolygonData = typename PolygonMerger<PorpType, num_type>::PolygonData;
+
+    Settings settings;
+    PolygonMerger<PorpType, num_type> merger;
+    merger.SetMergeSettings(settings);
+
+    
+    Box2D<num_type> box1(Point2D<num_type>(0, 0), Point2D<num_type>(100, 100));
+    Box2D<num_type> box2(Point2D<num_type>(20, 20), Point2D<num_type>(80, 80));
+    PolygonWithHoles2D<num_type> pwh;
+    pwh.outline = toPolygon(box1);
+    pwh.holes.emplace_back(toPolygon(box2));
+
+    Box2D<num_type> box3(Point2D<num_type>(40, 0), Point2D<num_type>(60, 100));
+
+    merger.AddObject(0, pwh);
+    merger.AddObject(0, box3);
+
+    merger.Merge();
+
+    std::list<PolygonData * > polygons;
+    merger.GetAllPolygons(polygons);
+    BOOST_CHECK(polygons.size() == 1);
+    BOOST_CHECK(polygons.front()->holes.size() == 2);
+
+    merger.Clear();
+    merger.AddObject(0, pwh);
+    merger.AddObject(0, box3);
+
+    PolygonMergeRunner runner(merger, 4);
+    runner.Run();
+    
+    polygons.clear();
+    merger.GetAllPolygons(polygons);
+    BOOST_CHECK(polygons.size() == 1);
+    BOOST_CHECK(polygons.front()->holes.size() == 2);
+}
+
 void t_geometry_additional()
 {
     Point2D<double> p1(0, 0), p2(3e-16, -3e-16), p3(-1e-16, 1e-16);
@@ -743,6 +785,7 @@ test_suite * create_geometry_test_suite()
     geometry_suite->add(BOOST_TEST_CASE_TEMPLATE(t_boost_geometry_t, t_geometry_num_types));
     geometry_suite->add(BOOST_TEST_CASE_TEMPLATE(t_boolean_operation_t, t_geometry_num_types));
     geometry_suite->add(BOOST_TEST_CASE_TEMPLATE(t_connectivity_t, t_geometry_num_types));
+    geometry_suite->add(BOOST_TEST_CASE_TEMPLATE(t_polygon_merge_t, t_geometry_num_types));
     geometry_suite->add(BOOST_TEST_CASE(&t_geometry_additional));
     //
     return geometry_suite;

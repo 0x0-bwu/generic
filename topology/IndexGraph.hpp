@@ -121,6 +121,22 @@ inline SIGVertex Target(const SIGEdge & e, const SparseIndexGraph & g)
     return boost::target(e, g);
 }
 
+///@brief construct a sparse index grahp from adjecent list formed by vector of set
+inline std::unique_ptr<SparseIndexGraph> makeSparseIndexGraph(const std::vector<std::set<int> > & connection)
+{
+    size_t vertex = connection.size();
+    auto graph = std::make_unique<SparseIndexGraph>();
+    for(size_t v = 0; v < vertex; ++v) {
+        const auto & adjecent = connection[v];
+        for(int w : adjecent) {
+            if(w < 0 || w >= vertex) continue;
+                AddEdge(v, static_cast<index_t>(w), *graph);
+        }
+    }
+
+    return graph;
+}
+
 /**
  * @brief gets connected component by BFS
  * 
