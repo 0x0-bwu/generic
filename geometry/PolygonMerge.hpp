@@ -30,12 +30,7 @@ public:
     using float_t = common::float_type<num_type>;
     property_type property;
     Polygon2D<num_type> solid;
-    std::list<Polygon2D<num_type>> holes;
-
-    bool hasSolid() const
-    {
-        return solid.Size() > 0;
-    }
+    std::list<Polygon2D<num_type> > holes;
 
     bool hasHole() const
     {
@@ -53,7 +48,7 @@ public:
 
     void Normalize()
     {
-        if(hasSolid() && !solid.isCCW())
+        if(!solid.isCCW())
             solid.Reverse();
         for(auto & hole : holes)
             if(hole.isCCW()) hole.Reverse();
@@ -182,8 +177,8 @@ public:
 
     void SetMergeSettings(const MergeSettings & settings);
 
-    PolygonData * AddObject(property_type property, Box2D<num_type> box, bool isHole = false);
-    PolygonData * AddObject(property_type property, Polygon2D<num_type> polygon, bool isHole = false);
+    PolygonData * AddObject(property_type property, Box2D<num_type> box);
+    PolygonData * AddObject(property_type property, Polygon2D<num_type> polygon);
     PolygonData * AddObject(property_type property, PolygonWithHoles2D<num_type> pwh);
 
     void Merge();//single thread
@@ -266,23 +261,21 @@ inline void PolygonMerger<property_type, num_type>::SetMergeSettings(const Merge
 
 template <typename property_type, typename num_type>
 inline typename PolygonMerger<property_type, num_type>::PolygonData *
-PolygonMerger<property_type, num_type>::AddObject(property_type property, Box2D<num_type> box, bool isHole)
+PolygonMerger<property_type, num_type>::AddObject(property_type property, Box2D<num_type> box)
 {
     auto data = new PolygonData;
     data->property = property;
-    if(!isHole) data->solid = toPolygon(box);
-    else data->holes.emplace_back(toPolygon(box));
+    data->solid = toPolygon(box);
     return AddPolygonData(data);
 }
 
 template <typename property_type, typename num_type>
 inline typename PolygonMerger<property_type, num_type>::PolygonData *
-PolygonMerger<property_type, num_type>::AddObject(property_type property, Polygon2D<num_type> polygon, bool isHole)
+PolygonMerger<property_type, num_type>::AddObject(property_type property, Polygon2D<num_type> polygon)
 {
     auto data = new PolygonData;
     data->property = property;
-    if(!isHole) data->solid = std::move(polygon);
-    else data->holes.emplace_back(std::move(polygon));
+    data->solid = std::move(polygon);
     return AddPolygonData(data);
 }
 
@@ -415,7 +408,6 @@ inline void PolygonMerger<property_type, num_type>::FilterOutTinyArea(std::list<
 {
     if(m_mergeSettings.ignoreTinySolid && math::isPositive(m_mergeSettings.tinySolidArea)) {
         for(auto iter = polygons.begin(); iter != polygons.end();) {
-            if(!(*iter)->hasSolid()) continue;
             if(math::LT((*iter)->CoveredArea(), m_mergeSettings.tinySolidArea)) {
                 delete (*iter);
                 iter = polygons.erase(iter);
@@ -470,8 +462,7 @@ inline void PolygonMerger<property_type, num_type>::MergePolygons(std::list<Poly
     for(auto * pd : polygons) {
         auto property = m_propertyMap.count(pd->property) ?
                         m_propertyMap.at(pd->property) : pd->property;
-        if(pd->hasSolid())
-            merger.insert(pd->solid, property, false);
+        merger.insert(pd->solid, property, false);
         for(const auto & hole : pd->holes) {
             merger.insert(hole, property, true);
         }
@@ -602,8 +593,7 @@ inline void PolygonMergeUtils<property_type, num_type>::CleanPolygons(std::list<
 template <typename property_type, typename num_type>
 inline void PolygonMergeUtils<property_type, num_type>::CleanPolygon(PolygonData * polygon, const float_t dist)
 {
-    if(polygon->hasSolid())
-        CleanPolygon(polygon->solid, dist);
+    CleanPolygon(polygon->solid, dist);
     for(auto & hole : polygon->holes)
         CleanPolygon(hole, dist);
 }
