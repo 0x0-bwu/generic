@@ -92,7 +92,13 @@ template <typename num_type>
 inline Polygon2D<num_type> toPolygon(const Polyline2D<num_type> & polyline, num_type width)
 {
     using float_t = float_type<num_type>;
-    GENERIC_ASSERT(polyline.size() >= 2)
+    GENERIC_ASSERT(polyline.size() > 0)
+    
+    if(polyline.size() == 1) {
+        Point2D<num_type> half(0.5 * width, 0.5 * width);
+        Box2D<num_type> box(polyline.front() - half, polyline.front() + half);
+        return toPolygon(box);
+    }
 
     std::deque<Point2D<num_type> > points;
 
