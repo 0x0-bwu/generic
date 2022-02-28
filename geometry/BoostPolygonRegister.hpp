@@ -174,6 +174,67 @@ struct rectangle_mutable_traits<Box2D<num_type> >
     }
 };
 
+//polyline
+template <typename num_type>
+struct geometry_concept<Polyline2D<num_type> >
+{
+    using type = polygon_concept;
+};
+
+template <typename num_type>
+struct polygon_traits_general<Polyline2D<num_type> >
+{
+    using coordinate_type = num_type;
+    using iterator_type = typename Polyline2D<num_type>::const_iterator;
+    using point_type = Point2D<num_type>;
+
+    static inline iterator_type begin_points(const Polyline2D<num_type> & polyline)
+    {
+        return polyline.begin();
+    }
+
+    static inline iterator_type end_points(const Polyline2D<num_type> & polyline)
+    {
+        return polyline.end();
+    }
+
+    static inline std::size_t size(const Polyline2D<num_type> & polyline)
+    {
+        return polyline.size();
+    }
+
+    static inline winding_direction winding(const Polyline2D<num_type> & polyline)
+    {
+        return unknown_winding;
+    }
+};
+
+template <typename num_type>
+struct polygon_mutable_traits<Polyline2D<num_type> >
+{
+    template <typename iterator, typename std::enable_if<std::is_same<
+              typename std::iterator_traits<iterator>::value_type, point_data<num_type> >::value, bool>::type = true>
+    static inline Polyline2D<num_type> & set_points(Polyline2D<num_type> & polyline,
+                                                    iterator input_begin, iterator input_end)
+    {
+        polyline.clear();
+        polyline.reserve(std::distance(input_begin, input_end));
+        for(auto iter = input_begin; iter != input_end; ++iter)
+            polyline.emplace_back(point_mutable_traits<Point2D<num_type> >::construct(*iter));
+        return polyline;
+    }
+
+    template <typename iterator, typename std::enable_if<std::is_same<
+              typename std::iterator_traits<iterator>::value_type, Point2D<num_type> >::value, bool>::type = true>
+    static inline Polygon2D<num_type> & set_points(Polyline2D<num_type> & polyline,
+                                                    iterator input_begin, iterator input_end)
+    {
+        polyline.clear();
+        polyline.insert(polyline.end(), input_begin, input_end);
+        return polyline;
+    }
+};
+
 //polygon
 template <typename num_type>
 struct geometry_concept<Polygon2D<num_type> >
