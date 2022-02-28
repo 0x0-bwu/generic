@@ -94,15 +94,15 @@ template <typename property_type, typename num_type>
 using PolygonMergeTaskTree = tree::QuadTree<num_type, PolygonWithProp<property_type, num_type>, PolygonWithPropExt<property_type, num_type> >;
 
 template <typename property_type, typename num_type>
-using PolygonMergeTaskNode = tree::QuadTree<num_type, PolygonWithProp<property_type, num_type> >;
+using PolygonMergeTaskNode = tree::QuadTree<num_type, PolygonWithProp<property_type, num_type>, PolygonWithPropExt<property_type, num_type> >;
 
 template <typename property_type, typename num_type>
-using PolygonMergeSubTaskNodes = typename tree::QuadTree<num_type, PolygonWithProp<property_type, num_type> >::QuadChildren;
+using PolygonMergeSubTaskNodes = typename tree::QuadTree<num_type, PolygonWithProp<property_type, num_type>, PolygonWithPropExt<property_type, num_type> >::QuadChildren;
 
 #endif//GENERIC_GEOMETRY_POLYGONMERGE_USE_RTREE
 
 template <typename property_type, typename num_type>
-using PropDiffPolygon = std::pair<std::set<property_type>, std::list<Polygon2D<num_type> > >;
+using PropDiffPolygon = std::pair<std::set<property_type>, std::list<Polyline2D<num_type> > >;
 template <typename property_type, typename num_type>
 using PropDiffPolygons = std::list<PropDiffPolygon<property_type, num_type> >;
 
@@ -187,6 +187,8 @@ public:
 
     void GetAllPolygons(std::list<const PolygonData * > & polygons);
 
+    const Box2D<num_type> & GetBBox() const { return m_bbox; }
+
     const PropDiffAreas & GetPropDiffAreas() const { return m_propDiffAreas; }
 
     void Clear();
@@ -206,7 +208,7 @@ private:
     void MergePolygons(std::list<PolygonData * > & polygons);
 
     PolygonData * AddPolygonData(PolygonData * pd);
-    PolygonData * makePolygonData(Polygon2D<num_type> & in, property_type prop);
+    PolygonData * makePolygonData(Polyline2D<num_type> & in, property_type prop);
 
 private:
     Box2D<num_type> m_bbox;
@@ -462,9 +464,9 @@ inline void PolygonMerger<property_type, num_type>::MergePolygons(std::list<Poly
     for(auto * pd : polygons) {
         auto property = m_propertyMap.count(pd->property) ?
                         m_propertyMap.at(pd->property) : pd->property;
-        merger.insert(pd->solid, property, false);
+        merger.insert(pd->solid.GetPoints(), property, false);
         for(const auto & hole : pd->holes) {
-            merger.insert(hole, property, true);
+            merger.insert(hole.GetPoints(), property, true);
         }
         delete pd;
     }
@@ -472,9 +474,11 @@ inline void PolygonMerger<property_type, num_type>::MergePolygons(std::list<Poly
 
     merger.merge(results);
 
-    for(const auto & result : results) {
-        std::list<Polygon2D<num_type> > outs;
-        result.second.get(outs);
+    for(auto & result : results) {
+        std::list<Polyline2D<num_type> > outs;
+
+        if(!result.second.empty())
+            result.second.get(outs);
 
         auto & properties = result.first;
         GENERIC_ASSERT(!properties.empty())
@@ -510,13 +514,13 @@ PolygonMerger<property_type, num_type>::AddPolygonData(PolygonData * pd)
 
 template <typename property_type, typename num_type>
 inline typename PolygonMerger<property_type, num_type>::PolygonData * 
-PolygonMerger<property_type, num_type>::makePolygonData(Polygon2D<num_type> & in, property_type prop)
+PolygonMerger<property_type, num_type>::makePolygonData(Polyline2D<num_type> & in, property_type prop)
 {
-    if(in.Front() == in.Back()) in.PopBack();
+    if(in.front() == in.back()) in.pop_back();
     auto pd = new PolygonData;
     pd->property = prop;
 
-    size_t size = in.Size();
+    size_t size = in.size();
     struct PtNode { size_t prev; size_t next; };
     std::vector<PtNode> nodeList(size);
     for(size_t i = 0; i < size; ++i) {
@@ -525,7 +529,7 @@ PolygonMerger<property_type, num_type>::makePolygonData(Polygon2D<num_type> & in
     }
 
     detail::Point2DIndexMap<num_type> ptMap;
-    for(size_t i = 0; i < in.Size(); ++i){
+    for(size_t i = 0; i < in.size(); ++i){
         if(ptMap.Count(in[i])) {
             size_t prev = ptMap.At(in[i]);
             size_t curr = i;
@@ -540,8 +544,13 @@ PolygonMerger<property_type, num_type>::makePolygonData(Polygon2D<num_type> & in
                 index = nodeList[index].next;
             }
             Box2D<num_type> bbox = Extent(polygon);
-            if(bbox.Area() > 0) {
-                pd->holes.emplace_back(std::move(polygon));
+            if constexpr (std::is_integral<num_type>::value) {
+                if(bbox.Length() > 1 && bbox.Width() > 1)
+                    pd->holes.emplace_back(std::move(polygon));
+            }
+            else {
+                if(math::GT<num_type>(bbox.Area(), 0))
+                    pd->holes.emplace_back(std::move(polygon));
             }
 
             prev = nodeList[prev].prev;
