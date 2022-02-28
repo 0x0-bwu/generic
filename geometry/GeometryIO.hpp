@@ -169,8 +169,66 @@ class GeometryIO
 {
 public:
     /**
+     * @brief writes a collection of geometry to VTK(e Visualization Toolkit) file
+     * @param[in] file the output *.vtk filename
+     * @param[in] begin iterator to the beginning of the geometry collection
+     * @param[in] end iterator to the ending of the geometry collection
+     * @return whether write file successfully
+     */
+    template <typename geometry, typename iterator,
+              typename std::enable_if<traits::is_polygon_t<geometry>::value && std::is_same<geometry,
+              typename std::iterator_traits<iterator>::value_type>::value, bool>::type = true>
+    static bool WriteVTK(const std::string & file, iterator begin, iterator end, typename geometry::coor_t zRef = 0)
+    {
+        std::ofstream out(file);
+        if(!out.is_open()) return false;
+
+        using Point = typename geometry::point_t;
+        using IndexPolygon = std::vector<size_t>;
+
+        std::vector<Point> points;
+        std::vector<IndexPolygon> polygons;
+        polygons.reserve(std::distance(begin, end));
+
+        auto addPoint = [&points](const Point & p) mutable { points.push_back(p); return points.size() - 1; };
+        for(auto iter = begin; iter != end; ++iter){
+            typename std::iterator_traits<iterator>::reference r = *iter;
+            IndexPolygon polygon(r.Size());
+            for(size_t i = 0; i < r.Size(); ++i)
+                polygon[i] = addPoint(r[i]);
+            polygons.emplace_back(std::move(polygon));
+        }
+
+        char sp(32);
+        out << "# vtk DataFile Version 2.0" << GENERIC_DEFAULT_EOL;
+        out << "Unstructured Grid" << GENERIC_DEFAULT_EOL;
+        out << "ASCII" << GENERIC_DEFAULT_EOL;
+        out << "DATASET UNSTRUCTURED_GRID" << GENERIC_DEFAULT_EOL;
+        out << "POINTS" << sp << points.size() << sp << common::toString<typename geometry::coor_t>() << GENERIC_DEFAULT_EOL;
+        for(const auto & point : points) {
+            out << point[0] << sp << point[1] << sp << zRef << GENERIC_DEFAULT_EOL;
+        }
+        out << GENERIC_DEFAULT_EOL;
+        out << "CELLS" << sp << polygons.size() << sp << points.size() + polygons.size() << GENERIC_DEFAULT_EOL;
+        for(const auto & polygon : polygons) {
+            out << polygon.size();
+            for(const auto & index : polygon)
+                out << sp << index;
+            out << GENERIC_DEFAULT_EOL;
+        }
+
+        out << "CELL_TYPES" << sp << polygons.size() << GENERIC_DEFAULT_EOL;
+        for(const auto & polygon : polygons)
+            out << '7' << GENERIC_DEFAULT_EOL;
+
+        out.close();
+        
+        return true;
+    }
+
+    /**
      * @brief writes a collection of geometry to WKT(Well-Know Text) file
-     * @param[in] file the output *.wtk filename
+     * @param[in] file the output *.wkt filename
      * @param[in] begin iterator to the beginning of the geometry collection
      * @param[in] end iterator to the ending of the geometry collection
      * @return whether write file successfully
@@ -178,7 +236,7 @@ public:
     template <typename geometry, typename iterator,
               typename std::enable_if<std::is_same<geometry,
               typename std::iterator_traits<iterator>::value_type>::value, bool>::type = true>
-    static bool Write(const std::string & file, iterator begin, iterator end)
+    static bool WriteWKT(const std::string & file, iterator begin, iterator end)
     {
         std::ofstream out(file);
         if(!out.is_open()) return false;
@@ -193,13 +251,13 @@ public:
 
     /**
      * @brief reads a collection of geometry from WKT(Well-Know Text) file
-     * @param[in] file the input *.wtk filename
+     * @param[in] file the input *.wkt filename
      * @param[in] result back insert iterator of the geometry collection
      * @param[out] err error message if failed to read
      * @return whether read file successfully 
      */
     template <typename geometry, typename iterator>
-    static bool Read(const std::string & file, iterator result, std::string * err = nullptr)
+    static bool ReadWKT(const std::string & file, iterator result, std::string * err = nullptr)
     {
         std::ifstream in(file);
         if(!in.is_open()) {
@@ -248,8 +306,17 @@ public:
         using coor_t = typename geometry::coor_t;
 
         auto bbox = Extent(begin, end);
+        if(!bbox.isValid()) return false;
+
+        //expand the canvas by 10%
+        auto expX = bbox.Length() * 0.1;
+        auto expY = bbox.Width() * 0.1;
+        bbox[0][0] -= expX; bbox[0][1] -= expY;
+        bbox[1][0] += expX; bbox[1][1] += expY;
+
         auto stride = bbox.Length() / coor_t(width);
         size_t height = static_cast<size_t>(double(width) / bbox.Length() * bbox.Width());
+        if(width == 0 || height == 0) return false;
 
         rgb8_image_t img(width, height);
         rgb8_image_t::view_t v = boost::gil::view(img);

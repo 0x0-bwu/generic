@@ -261,7 +261,9 @@ inline coor_f<point_t> CircumRadius2ShortestEdgeRatio(const point_t & p1, const 
 template <typename vector_t, typename std::enable_if<traits::is_2d_point_t<vector_t>::value, bool>::type>
 inline coor_f<vector_t> Angle(const vector_t & a, const vector_t & b)
 {
-    return math::LT<coor_f<vector_t> >(CrossProduct(a, b), 0) ? InnerAngle(a, b) + math::pi : InnerAngle(a, b);
+    auto result = std::atan2(CrossProduct(a, b), DotProduct(a, b));
+    if(math::isNegative(result)) result += math::pi_2;
+    return result;
 }
 
 template <typename vector_t, typename std::enable_if<traits::is_point_t<vector_t>::value, bool>::type>
