@@ -295,6 +295,16 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_geometry_utility_t, num_type)
     BOOST_CHECK(points[0] == Point2D<num_type>(0, 0));
     BOOST_CHECK(points[1] == Point2D<num_type>(2, 2));
 
+    {
+        Point3D<float_type<num_type> > p;
+        Segment3D<num_type> s{{0, 0, 1}, {1, 1, 0}};
+        Plane<num_type> plane{{0, 0, 0}, {1, 0, 1}, {0, 1, 1}};
+        BOOST_CHECK(Intersection(s, plane, p));
+        BOOST_CHECK_CLOSE(p[0], float_type<num_type>(1.0 / 3), t);
+        BOOST_CHECK_CLOSE(p[1], float_type<num_type>(1.0 / 3), t);
+        BOOST_CHECK_CLOSE(p[2], float_type<num_type>(2.0 / 3), t);
+    }
+
     //predicates
     BOOST_CHECK(PointLineLocation::Left   == GetPointSegmentLocation(Point2D<num_type>(0, 1), Segment2D<num_type>({0, 0}, {3, 3})));
     BOOST_CHECK(PointLineLocation::OnLine == GetPointSegmentLocation(Point2D<num_type>(1, 1), Segment2D<num_type>({0, 0}, {3, 3})));
