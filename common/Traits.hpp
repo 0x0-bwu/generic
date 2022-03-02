@@ -67,6 +67,18 @@ struct integral_type_check<num_type, args...>
     static constexpr bool value = type{};
 };
 
+template <typename Container, typename T>
+auto append_to_std_container(Container & container, T && t, int) -> decltype(container.push_back(std::forward<T>(t)), void())
+{
+    container.push_back(std::forward<T>(t));
+}
+
+template <typename Container, typename T>
+void append_to_std_container(Container & container, T && t, ...)
+{
+    container.insert(std::forward<T>(t));
+}  
+
 template <typename type> inline std::string toString()      { return "unknown"; }
 template <> inline std::string toString<unsigned char>()    { return "unsigned char"; }
 template <> inline std::string toString<char>()             { return "char"; }

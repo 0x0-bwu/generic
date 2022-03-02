@@ -9,6 +9,7 @@
 #define GENERIC_TOPOLOGY_INDEXGRAPH_HPP
 #include "generic/common/Exception.hpp"
 #include "generic/common/Archive.hpp"
+#include "generic/common/Traits.hpp"
 #include "Common.hpp"
 #include <boost/graph/connected_components.hpp>
 #include <boost/graph/breadth_first_search.hpp>
@@ -22,6 +23,8 @@
 
 namespace generic  {
 namespace topology {
+
+using namespace common;
 
 ///@brief represents model of undirected index edge concept
 struct UndirectedIndexEdge
@@ -143,18 +146,23 @@ inline std::unique_ptr<SparseIndexGraph> makeSparseIndexGraph(const std::vector<
  * @param[in] g the connection graph
  * @param[in] v the source vertex
  * @param[out] c contains the vertices connected to source v
+ * @note `c` should be one of the std containers
  */
-inline void ConnectedComponent(const SparseIndexGraph & g, const index_t v, std::list<index_t> & c)
+template <template <typename, typename> class container,
+          template <typename> class allocator = std::allocator>
+inline void ConnectedComponent(const SparseIndexGraph & g, const index_t v, container<index_t, allocator<index_t> > & c)
 {
     using namespace boost;
+    using namespace common;
     GENERIC_ASSERT(v < num_vertices(g))
 
+    using Component = container<index_t, allocator<index_t> >;
     class BFSVisitor : public default_bfs_visitor
     {
     public:
-        std::list<index_t> & visited;
-        BFSVisitor(std::list<index_t> & _visited) : visited(_visited) {}
-        void discover_vertex(index_t s, const SparseIndexGraph &) { visited.push_back(s); }
+        Component & visited;
+        BFSVisitor(Component & _visited) : visited(_visited) {}
+        void discover_vertex(index_t s, const SparseIndexGraph &) { append_to_std_container(visited, s, 0); }
     };
 
     c.clear();
@@ -167,8 +175,11 @@ inline void ConnectedComponent(const SparseIndexGraph & g, const index_t v, std:
  * 
  * @param[in] g the connection graph
  * @param[out] cc connected components
+ * @note the value type of `cc` should be one of the std containers
  */
-inline void ConnectedComponents(const SparseIndexGraph & g, std::vector<std::list<index_t> > & cc)
+template <template <typename, typename> class container,
+          template <typename> class allocator = std::allocator>
+inline void ConnectedComponents(const SparseIndexGraph & g, std::vector<container<index_t, allocator<index_t> > > & cc)
 {
     using namespace boost;
     std::vector<index_t> c(num_vertices(g));
@@ -177,7 +188,7 @@ inline void ConnectedComponents(const SparseIndexGraph & g, std::vector<std::lis
     cc.clear();
     cc.resize(numComp);
     for(size_t i = 0; i < c.size(); ++i)
-        cc[c[i]].push_back(i);
+        append_to_std_container(cc[c[i]], i, 0);
 }
 
 inline UndirectedIndexEdgeSet EdgeSet(const SparseIndexGraph & g)

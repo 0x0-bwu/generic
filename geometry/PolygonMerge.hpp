@@ -205,6 +205,10 @@ private:
     void FilterOutTinyArea(std::list<PolygonData * > & polygons);
     void FilterOutTinyHoles(std::list<PolygonData * > & polygons);
     void GetOverlappedSubTaskNodes(MergeTaskNode * node, std::vector<std::list<MergeTaskNode * > > & nodeGroups);
+    void ExtractAndMergeComponentsPolygons(std::list<PolygonData * > & polygons);
+    void ExtractComponentsByPolygonPropertye(const std::vector<PolygonData * > & vecPolys, std::vector<std::vector<size_t> > & cc);
+    void ExtractComponentsByPhysicConnection(const std::vector<PolygonData * > & vecPolys, std::vector<std::vector<size_t> > & cc);
+    void MergeComponentsPolygons(std::list<PolygonData * > & polygons, const std::vector<PolygonData * > & vecPolys, const std::vector<std::vector<size_t> > & cc);
     void MergePolygons(std::list<PolygonData * > & polygons);
 
     PolygonData * AddPolygonData(PolygonData * pd);
@@ -353,7 +357,7 @@ inline void PolygonMerger<property_type, num_type>::MergeRegion(MergeTaskNode * 
                 objs.insert(objs.end(), subObjs.begin(), subObjs.end());
                 subNode->Clear();
             }
-            MergePolygons(objs);
+            ExtractAndMergeComponentsPolygons(objs);
             mergedObjs.insert(mergedObjs.end(), objs.begin(), objs.end());
         }
         merged = true;
@@ -364,8 +368,8 @@ inline void PolygonMerger<property_type, num_type>::MergeRegion(MergeTaskNode * 
     if(mergedObjs.size())
         allObjs.insert(allObjs.end(), mergedObjs.begin(), mergedObjs.end());
     
-    if(!(node->GetObjs().empty())) {
-        MergePolygons(allObjs);
+    if(false == node->GetObjs().empty()) {
+        ExtractAndMergeComponentsPolygons(allObjs);
         merged = true;
     }
 
@@ -431,6 +435,7 @@ inline void PolygonMerger<property_type, num_type>::FilterOutTinyHoles(std::list
 template <typename property_type, typename num_type>
 inline void PolygonMerger<property_type, num_type>::GetOverlappedSubTaskNodes(MergeTaskNode * node, std::vector<std::list<MergeTaskNode * > > & nodeGroups)
 {
+    using namespace topology;
     auto subNodes = node->GetChildren();
     std::vector<MergeTaskNode * > vecNodes;
     vecNodes.reserve(subNodes.size());
@@ -456,6 +461,85 @@ inline void PolygonMerger<property_type, num_type>::GetOverlappedSubTaskNodes(Me
 }
 
 template <typename property_type, typename num_type>
+inline void PolygonMerger<property_type, num_type>::ExtractAndMergeComponentsPolygons(std::list<PolygonData * > & polygons)
+{
+    if(polygons.size() <= 1) return;
+
+    std::vector<PolygonData *> vecPolys;
+    vecPolys.assign(polygons.begin(), polygons.end());
+
+    std::vector<std::vector<size_t> > cc;
+    if(m_mergeSettings.checkPropertyDiff) {
+        ExtractComponentsByPhysicConnection(vecPolys, cc);
+    }
+    else {
+        ExtractComponentsByPolygonPropertye(vecPolys, cc);
+    }
+
+    MergeComponentsPolygons(polygons, vecPolys, cc);
+}
+
+template <typename property_type, typename num_type>
+inline void PolygonMerger<property_type, num_type>::ExtractComponentsByPolygonPropertye(const std::vector<PolygonData * > & vecPolys, std::vector<std::vector<size_t> > & cc)
+{
+    cc.clear();
+    std::unordered_map<property_type, size_t> ccMap;
+    for(size_t i = 0; i < vecPolys.size(); ++i) {
+        const auto & prop = vecPolys[i]->property;
+        auto iter = ccMap.find(prop);
+        if(iter == ccMap.end()){
+            iter = ccMap.insert(std::make_pair(prop, ccMap.size())).first;
+            cc.push_back(std::vector<size_t>{});
+        }
+        cc[iter->second].push_back(i);
+    }
+}
+
+template <typename property_type, typename num_type>
+inline void PolygonMerger<property_type, num_type>::ExtractComponentsByPhysicConnection(const std::vector<PolygonData * > & vecPolys, std::vector<std::vector<size_t> > & cc)
+{
+    auto dup = [](const Polygon2D<num_type> & from, Polygon2D<num_type> & to) {
+        std::copy(from.GetPoints().begin(), from.GetPoints().end(), std::back_inserter(to.GetPoints()));
+    };
+
+    auto geomGetter = [&dup](const PolygonData * pd) {
+        PolygonWithHoles2D<num_type> pwh;
+        dup(pd->solid, pwh.outline);
+        for(const auto & hole : pd->holes) {
+            pwh.holes.push_back(Polygon2D<num_type>{});
+            dup(hole, pwh.holes.back());
+        }
+        return pwh;
+    };
+
+    using namespace topology;
+    std::vector<std::set<int> > connection;
+    ConnectivityExtraction(vecPolys, geomGetter, connection);
+
+    auto g = topology::makeSparseIndexGraph(connection);
+
+    ConnectedComponents(*g, cc);
+}
+
+template <typename property_type, typename num_type>
+inline void PolygonMerger<property_type, num_type>::MergeComponentsPolygons(std::list<PolygonData * > & polygons, const std::vector<PolygonData * > & vecPolys, const std::vector<std::vector<size_t> > & cc)
+{
+    polygons.clear();
+    std::list<PolygonData * > tmp;
+    for(const auto & c : cc) {
+        if(c.size() == 1) polygons.push_back(vecPolys[c.front()]);
+        else {
+            tmp.clear();
+            for(auto i : c)
+                tmp.push_back(vecPolys[i]);
+            
+            MergePolygons(tmp);
+            polygons.insert(polygons.end(), tmp.begin(), tmp.end());
+        }
+    }
+}
+
+template <typename property_type, typename num_type>
 inline void PolygonMerger<property_type, num_type>::MergePolygons(std::list<PolygonData * > & polygons)
 {
     if(polygons.size() <= 1) return;
@@ -470,8 +554,8 @@ inline void PolygonMerger<property_type, num_type>::MergePolygons(std::list<Poly
         }
         delete pd;
     }
-    polygons.clear();
 
+    polygons.clear();
     merger.merge(results);
 
     for(auto & result : results) {

@@ -33,7 +33,7 @@ private:
     float_t m_dot;
 };
 
-template <typename num_type
+template <typename num_type>
 inline Plane<num_type>::Plane(const Vector3D<num_type> & normal, const Point3D<num_type> & p)
 {
     m_normal = Normalize(normal);
