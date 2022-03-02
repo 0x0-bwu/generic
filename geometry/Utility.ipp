@@ -509,6 +509,20 @@ inline bool Intersection(const Segment2D<num_type> & s, const Line2D<num_type> &
     return true;
 }
 
+template <typename num_type>
+inline bool Intersection(const Segment3D<num_type> & s, const Plane<num_type> & plane, Point3D<float_type<num_type> > & point)
+{
+    using float_t = float_type<num_type>;
+    auto n = plane.Normal();
+    auto vec = (s[1] - s[0]).template Cast<float_t>();
+    auto t = plane.D() - DotProduct(n, s[0].template Cast<float_t>()) / DotProduct(n, vec);
+    if(math::GE<float_t>(t, 0) && math::LE<float_t>(t, 1)) {
+        point = s[0].template Cast<float_t>() + vec.template Cast<float_t>() * t;
+        return true;
+    }
+    return false;
+}
+
 template <typename geometry_t1, typename geometry_t2,
           typename std::enable_if<(traits::is_segment_t<geometry_t1>::value  && traits::is_point_t<geometry_t2>::value)   ||
                                   (traits::is_segment_t<geometry_t1>::value  && traits::is_segment_t<geometry_t2>::value) ||

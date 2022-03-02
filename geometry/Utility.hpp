@@ -448,6 +448,17 @@ template <typename num_type>
 inline bool Intersection(const Segment2D<num_type> & s, const Line2D<num_type> & line, std::vector<Point2D<num_type> > & points);
 
 /**
+ * @brief gets intersection point of segment and plane
+ * @param[in] s input segment
+ * @param[in] plane input plane 
+ * @param[out] point intersect point if have
+ * @note the coordinate type of intersect point is floating point 
+ * @return true if segment intersect with plane 
+ */
+template <typename num_type>
+inline bool Intersection(const Segment3D<num_type> & s, const Plane<num_type> & plane, Point3D<float_type<num_type> > & point);
+
+/**
  * @brief checks if one geometry contains another one
  * @tparam geometry_t1 geometry type, could be Segment2D, Triangle2D, Box2D, Polygon2D, PolygonWithHoles2D, Box3D 
  * @tparam geometry_t2 geometry type, could be Point2D, Segment2D, Triangle2D, Box2D, Polygon2D, PolygonWithHoles2D, Point3D, Segment3D, Box3D
