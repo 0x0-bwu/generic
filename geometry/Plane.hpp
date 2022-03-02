@@ -18,6 +18,8 @@ class Plane
 {
     using float_t = float_type<num_type>;
 public:
+    ///@brief constructs a plane with the normal vector and through point
+    Plane(const Vector3D<num_type> & normal, const Point3D<num_type> & p);
     ///@brief constructs a plane with three points that not on the same straight line
     Plane(const Point3D<num_type> & p1, const Point3D<num_type> & p2, const Point3D<num_type> & p3);
 
@@ -30,6 +32,13 @@ private:
     Vector3D<float_t> m_normal;
     float_t m_dot;
 };
+
+template <typename num_type
+inline Plane<num_type>::Plane(const Vector3D<num_type> & normal, const Point3D<num_type> & p)
+{
+    m_normal = Normalize(normal);
+    m_dot = DotProduct(m_normal, p.template Cast<float_t>());
+}
 
 template <typename num_type>
 inline Plane<num_type>::Plane(const Point3D<num_type> & p1, const Point3D<num_type> & p2, const Point3D<num_type> & p3)
