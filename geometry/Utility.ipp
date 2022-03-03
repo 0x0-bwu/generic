@@ -515,7 +515,7 @@ inline bool Intersection(const Segment3D<num_type> & s, const Plane<num_type> & 
     using float_t = float_type<num_type>;
     auto n = plane.Normal();
     auto vec = (s[1] - s[0]).template Cast<float_t>();
-    auto t = plane.D() - DotProduct(n, s[0].template Cast<float_t>()) / DotProduct(n, vec);
+    auto t = (plane.D() - DotProduct(n, s[0].template Cast<float_t>())) / DotProduct(n, vec);
     if(math::GE<float_t>(t, 0) && math::LE<float_t>(t, 1)) {
         point = s[0].template Cast<float_t>() + vec.template Cast<float_t>() * t;
         return true;

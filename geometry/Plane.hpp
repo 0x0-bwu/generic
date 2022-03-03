@@ -37,7 +37,7 @@ template <typename num_type>
 inline Plane<num_type>::Plane(const Vector3D<num_type> & normal, const Point3D<num_type> & p)
 {
     m_normal = Normalize(normal);
-    m_dot = DotProduct(m_normal, p.template Cast<float_t>());
+    m_dot = m_normal.Dot(p.template Cast<float_t>());
 }
 
 template <typename num_type>
