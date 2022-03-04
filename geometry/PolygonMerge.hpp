@@ -102,7 +102,7 @@ using PolygonMergeSubTaskNodes = typename tree::QuadTree<num_type, PolygonWithPr
 #endif//GENERIC_GEOMETRY_POLYGONMERGE_USE_RTREE
 
 template <typename property_type, typename num_type>
-using PropDiffPolygon = std::pair<std::set<property_type>, std::list<Polyline2D<num_type> > >;
+using PropDiffPolygon = std::pair<std::set<property_type>, std::list<Polygon2D<num_type> > >;
 template <typename property_type, typename num_type>
 using PropDiffPolygons = std::list<PropDiffPolygon<property_type, num_type> >;
 
@@ -118,9 +118,20 @@ public:
     using Point = Point2D<num_type>;
 
     void Clear() { m_ptMap.clear(); }
-    bool Count(const Point & p) const { return m_ptMap.count(p); }
     void Insert(const Point & p, size_t index) { m_ptMap.insert(std::make_pair(p, index)); }
-    size_t At(const Point & p) const { return m_ptMap.at(p); }
+    bool Find(const Point & p, size_t & index) const
+    {
+        for(int i : {0, -1, 1}) {
+            for(int j : {0, -1, 1}) {
+                auto iter = m_ptMap.find(Point(p[0] + i, p[1] + j));
+                if(iter != m_ptMap.end()) {
+                    index = iter->second;
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
 private:
     std::unordered_map<Point, size_t, PointHash<num_type> > m_ptMap;
 };
@@ -133,14 +144,17 @@ public:
     using IndexPoint = std::pair<Point, size_t>;
 
     void Clear() { m_rtree.clear(); }
-    bool Count(const Point & p) const { return m_rtree.count(p) > 0; }
     void Insert(const Point & p, size_t index) { m_rtree.insert(std::make_pair(p, index)); }
-    size_t At(const Point & p) const
+    bool Find(const Point & p, size_t & index) const
     {
         std::vector<IndexPoint> query;
         m_rtree.query(boost::geometry::index::nearest(p, 1), std::back_inserter(query));
-        GENERIC_ASSERT(query.front().first == p)
-        return query.front().second;
+        if(query.empty()) return false;
+        if(query.front().first == p) {
+            index = query.front().second;
+            return true;
+        }
+        return false;
     }
 private:
     boost::geometry::index::rtree<IndexPoint, boost::geometry::index::linear<16, 4> > m_rtree;
@@ -212,7 +226,8 @@ private:
     void MergePolygons(std::list<PolygonData * > & polygons);
 
     PolygonData * AddPolygonData(PolygonData * pd);
-    PolygonData * makePolygonData(Polyline2D<num_type> & in, property_type prop);
+    PolygonData * makePolygonData(Polygon2D<num_type> & in, property_type prop);
+    static void Simplify(Polygon2D<num_type> & polygon, std::list<Polygon2D<num_type> > & holes);
 
 private:
     Box2D<num_type> m_bbox;
@@ -548,9 +563,9 @@ inline void PolygonMerger<property_type, num_type>::MergePolygons(std::list<Poly
     for(auto * pd : polygons) {
         auto property = m_propertyMap.count(pd->property) ?
                         m_propertyMap.at(pd->property) : pd->property;
-        merger.insert(pd->solid.GetPoints(), property, false);
+        merger.insert(pd->solid, property, false);
         for(const auto & hole : pd->holes) {
-            merger.insert(hole.GetPoints(), property, true);
+            merger.insert(hole, property, true);
         }
         delete pd;
     }
@@ -559,7 +574,7 @@ inline void PolygonMerger<property_type, num_type>::MergePolygons(std::list<Poly
     merger.merge(results);
 
     for(auto & result : results) {
-        std::list<Polyline2D<num_type> > outs;
+        std::list<Polygon2D<num_type> > outs;
 
         if(!result.second.empty())
             result.second.get(outs);
@@ -597,14 +612,13 @@ PolygonMerger<property_type, num_type>::AddPolygonData(PolygonData * pd)
 }
 
 template <typename property_type, typename num_type>
-inline typename PolygonMerger<property_type, num_type>::PolygonData * 
-PolygonMerger<property_type, num_type>::makePolygonData(Polyline2D<num_type> & in, property_type prop)
+inline void PolygonMerger<property_type, num_type>::Simplify(Polygon2D<num_type> & polygon, std::list<Polygon2D<num_type> > & holes)
 {
-    if(in.front() == in.back()) in.pop_back();
-    auto pd = new PolygonData;
-    pd->property = prop;
+    holes.clear();
+    if(polygon.Front() == polygon.Back()) polygon.PopBack();
+    if(polygon.Size() <= 3) return;
 
-    size_t size = in.size();
+    size_t size = polygon.Size();
     struct PtNode { size_t prev; size_t next; };
     std::vector<PtNode> nodeList(size);
     for(size_t i = 0; i < size; ++i) {
@@ -612,49 +626,54 @@ PolygonMerger<property_type, num_type>::makePolygonData(Polyline2D<num_type> & i
         nodeList[i].next = (i + 1) % size;
     }
 
+    size_t res;
+    std::list<Polygon2D<num_type> > tmp;
     detail::Point2DIndexMap<num_type> ptMap;
-    for(size_t i = 0; i < in.size(); ++i){
-        if(ptMap.Count(in[i])) {
-            size_t prev = ptMap.At(in[i]);
+    for(size_t i = 0; i < polygon.Size(); ++i) {
+        auto found = ptMap.Find(polygon[i], res);
+        if(found) {
+            size_t prev = res;
             size_t curr = i;
             size_t next = nodeList[curr].next;
 
             nodeList[curr].next = prev;
-            Polygon2D<num_type> polygon;
+            Polygon2D<num_type> hole;
             size_t start = prev;
             size_t index = start;
             while(start != nodeList[index].next) {
-                polygon << in[index];
+                hole << polygon[index];
                 index = nodeList[index].next;
             }
-            Box2D<num_type> bbox = Extent(polygon);
-            if constexpr (std::is_integral<num_type>::value) {
-                if(bbox.Length() > 1 && bbox.Width() > 1)
-                    pd->holes.emplace_back(std::move(polygon));
-            }
-            else {
-                if(math::GT<num_type>(bbox.Area(), 0))
-                    pd->holes.emplace_back(std::move(polygon));
-            }
-
+            Simplify(hole, tmp);
+            if(hole.Size() >= 3)
+                holes.emplace_back(std::move(hole));
             prev = nodeList[prev].prev;
             nodeList[prev].next = curr;
             nodeList[curr].prev = prev;
             nodeList[curr].next = next;
         }
-        ptMap.Insert(in[i], i);
+        ptMap.Insert(polygon[i], i);
     }
 
-    Polygon2D<num_type> solid;
     size_t start = size - 1;
     size_t index = start;
+    Polygon2D<num_type> simplified;
     while(start != nodeList[index].next) {
-        solid << in[index];
+        simplified << polygon[index];
         index = nodeList[index].next;
     }
-    solid << in[index];
-    pd->solid = std::move(solid);
+    simplified << polygon[index];
+    std::swap(polygon, simplified);
+}
 
+template <typename property_type, typename num_type>
+inline typename PolygonMerger<property_type, num_type>::PolygonData * 
+PolygonMerger<property_type, num_type>::makePolygonData(Polygon2D<num_type> & in, property_type prop)
+{
+    auto pd = new PolygonData;
+    pd->property = prop;
+    pd->solid = std::move(in);
+    Simplify(pd->solid, pd->holes);
     return pd;
 }
 
@@ -709,15 +728,20 @@ inline void PolygonMergeUtils<property_type, num_type>::CleanPolygon(Polygon2D<n
 template <typename Merger>
 inline void PolygonMergeRunner<Merger>::Run()
 {
-    m_merger.PreProcess();
+    if(m_threads > 1) {
+        m_merger.PreProcess();
 
-    auto & topNode = m_merger.GetMergeTaskTree();
-    ScheduleTasks(topNode);
+        auto & topNode = m_merger.GetMergeTaskTree();
+        ScheduleTasks(topNode);
 
-    thread::taskflow::Executor executor(m_threads);
-    executor.Run(*m_taskFlow);
+        thread::taskflow::Executor executor(m_threads);
+        executor.Run(*m_taskFlow);
 
-    m_merger.PostProcess();
+        m_merger.PostProcess();
+    }
+    else {
+        m_merger.Merge();
+    }
 }
 
 template <typename Merger>

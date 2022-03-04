@@ -45,17 +45,16 @@ template <typename num_type>
 inline Polyline2D<num_type> toPolyline(const Arc<num_type> & arc, size_t div)
 {
     GENERIC_ASSERT(div != 0);
-    auto step = math::pi_2 / div;
     bool ccw = arc.radian > 0;
-    size_t size = std::abs(arc.radian / step);
+    auto step = std::fabs(arc.radian) / div;
 
     Polyline2D<num_type> polyline;
-    polyline.reserve(size + 2);
+    polyline.reserve(div + 1);
 
     float_type<num_type> alpha, mag;
     arc.GetStartAlphaMag(alpha, mag);
     polyline.emplace_back(arc.start);
-    for(size_t i = 1; i < size; ++i){
+    for(size_t i = 1; i < div; ++i){
         auto theta = ccw ? alpha + step * i : alpha - step * i;
         auto point = Point2D<num_type>(mag * std::cos(theta), mag * std::sin(theta)) + arc.origin;
         polyline.emplace_back(std::move(point));
