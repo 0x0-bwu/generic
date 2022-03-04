@@ -65,66 +65,66 @@ inline bool EQ(num_type num1, num_type num2, num_type tolerance = std::numeric_l
     return std::fabs(num1 - num2) <= tolerance;
 }
 
-///@brief check if two integral numbers not equal
+///@brief checks if two integral numbers not equal
 template <typename num_type, typename std::enable_if<std::is_integral<num_type>::value, bool>::type = true>
 inline bool NE(num_type num1, num_type num2)
 {
     return !EQ(num1, num2);
 }
 
-///@brief check if two floating point numbers not equal in given tolerance
+///@brief checks if two floating point numbers not equal in given tolerance
 template <typename num_type, typename std::enable_if<std::is_floating_point<num_type>::value, bool>::type = true>
 inline bool NE(num_type num1, num_type num2, num_type tolerance = std::numeric_limits<num_type>::epsilon())
 { 
     return !EQ(num1, num2, tolerance);
 }
 
-///@brief check if integral number `num1` is greater than or equal to integral number `num2`
+///@brief checks if integral number `num1` is greater than or equal to integral number `num2`
 template <typename num_type, typename std::enable_if<std::is_integral<num_type>::value, bool>::type = true>
 inline bool GE(num_type num1, num_type num2) {
     return num1 >= num2;
 }
 
-///@brief check if floating point number `num1` is greater than or equal to floaing point number `num2` in given tolerance
+///@brief checks if floating point number `num1` is greater than or equal to floaing point number `num2` in given tolerance
 template <typename num_type, typename std::enable_if<std::is_floating_point<num_type>::value, bool>::type = true>
 inline bool GE(num_type num1, num_type num2, num_type tolerance = std::numeric_limits<num_type>::epsilon())
 {
     return num1 > num2 || EQ(num1, num2, tolerance);
 }
 
-///@brief check if integral number `num1` is less than or equal to integral number `num2`
+///@brief checks if integral number `num1` is less than or equal to integral number `num2`
 template <typename num_type, typename std::enable_if<std::is_integral<num_type>::value, bool>::type = true>
 inline bool LE(num_type num1, num_type num2) {
     return num1 <= num2;
 }
 
-///@brief check if floating point number `num1` is less than or equal to floaing point number `num2` in given tolerance
+///@brief checks if floating point number `num1` is less than or equal to floaing point number `num2` in given tolerance
 template <typename num_type, typename std::enable_if<std::is_floating_point<num_type>::value, bool>::type = true>
 inline bool LE(num_type num1, num_type num2, num_type tolerance = std::numeric_limits<num_type>::epsilon())
 {
     return num1 < num2 || EQ(num1, num2, tolerance);
 }
 
-///@brief check if integral number `num1` is greater than integral number `num2`
+///@brief checks if integral number `num1` is greater than integral number `num2`
 template <typename num_type, typename std::enable_if<std::is_integral<num_type>::value, bool>::type = true>
 inline bool GT(num_type num1, num_type num2) {
     return num1 > num2;
 }
 
-///@brief check if floating point number `num1` is greater than floaing point number `num2` in given tolerance
+///@brief checks if floating point number `num1` is greater than floaing point number `num2` in given tolerance
 template <typename num_type, typename std::enable_if<std::is_floating_point<num_type>::value, bool>::type = true>
 inline bool GT(num_type num1, num_type num2, num_type tolerance = std::numeric_limits<num_type>::epsilon())
 {
     return num1 - num2 > tolerance;
 }
 
-///@brief check if integral number `num1` is less than integral number `num2`
+///@brief checks if integral number `num1` is less than integral number `num2`
 template <typename num_type, typename std::enable_if<std::is_integral<num_type>::value, bool>::type = true>
 inline bool LT(num_type num1, num_type num2) {
     return num1 < num2;
 }
 
-///@brief check if floating point number `num1` is less than floaing point number `num2` in given tolerance
+///@brief checks if floating point number `num1` is less than floaing point number `num2` in given tolerance
 template <typename num_type, typename std::enable_if<std::is_floating_point<num_type>::value, bool>::type = true>
 inline bool LT(num_type num1, num_type num2, num_type tolerance = std::numeric_limits<num_type>::epsilon())
 {
