@@ -15,6 +15,7 @@
 #include "generic/geometry/PolygonMerge.hpp"
 #include "generic/geometry/Triangulator.hpp"
 #include "generic/geometry/Transform.hpp"
+#include "generic/geometry/Clipper.hpp"
 #include "generic/geometry/Utility.hpp"
 #include "generic/math/Numbers.hpp"
 using namespace boost::unit_test;
