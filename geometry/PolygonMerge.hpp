@@ -12,6 +12,7 @@
 #include "BooleanOperation.hpp"
 #include "Connectivity.hpp"
 #include "HashFunction.hpp"
+#include "Clipper.hpp"
 #include "Utility.hpp"
 
 #ifdef  GENERIC_GEOMETRY_POLYGONMERGE_USE_RTREE
@@ -175,9 +176,10 @@ public:
     using MergeTaskNode = PolygonMergeTaskNode<property_type, num_type>;
     using MergeSubTaskNodes = PolygonMergeSubTaskNodes<property_type, num_type>;
     using PropertyMap = std::unordered_map<property_type, property_type>;
-
     struct MergeSettings
     {
+        enum class Kernal { Clipper, Boost };
+        Kernal kernal = Kernal::Clipper;
         bool cleanPolyonPoints = false;
         bool checkPropertyDiff = false;
         bool ignoreTinySolid = false;
@@ -219,11 +221,15 @@ private:
     void FilterOutTinyArea(std::list<PolygonData * > & polygons);
     void FilterOutTinyHoles(std::list<PolygonData * > & polygons);
     void GetOverlappedSubTaskNodes(MergeTaskNode * node, std::vector<std::list<MergeTaskNode * > > & nodeGroups);
-    void ExtractAndMergeComponentsPolygons(std::list<PolygonData * > & polygons);
+    void ExtractAndMergeComponentsPolygons(std::list<PolygonData * > & polygons, const Box2D<num_type> & bbox);
     void ExtractComponentsByPolygonPropertye(const std::vector<PolygonData * > & vecPolys, std::vector<std::vector<size_t> > & cc);
     void ExtractComponentsByPhysicConnection(const std::vector<PolygonData * > & vecPolys, std::vector<std::vector<size_t> > & cc);
-    void MergeComponentsPolygons(std::list<PolygonData * > & polygons, const std::vector<PolygonData * > & vecPolys, const std::vector<std::vector<size_t> > & cc);
-    void MergePolygons(std::list<PolygonData * > & polygons);
+    void MergeComponentsPolygons(std::list<PolygonData * > & polygons, const std::vector<PolygonData * > & vecPolys, const std::vector<std::vector<size_t> > & cc, const Box2D<num_type> & bbox);
+    void MergePolygons(std::list<PolygonData * > & polygons, const Box2D<num_type> & bbox);
+    void MergePolygonsBoost(std::list<PolygonData * > & polygons, const Box2D<num_type> & bbox);
+    void MergePolygonsClipper(std::list<PolygonData * > & polygons, const Box2D<num_type> & bbox);
+    void GetClipperMergedPolygons(const clipper::PolyTree<num_type> & solution, property_type prop, std::list<PolygonData * > & polygons);
+    void GetClipperMergedPolygons(const clipper::PolyNode<num_type> * node, property_type prop, PolygonData * pd, std::list<PolygonData * > & polygons);
 
     PolygonData * AddPolygonData(PolygonData * pd);
     PolygonData * makePolygonData(Polygon2D<num_type> & in, property_type prop);
@@ -372,7 +378,7 @@ inline void PolygonMerger<property_type, num_type>::MergeRegion(MergeTaskNode * 
                 objs.insert(objs.end(), subObjs.begin(), subObjs.end());
                 subNode->Clear();
             }
-            ExtractAndMergeComponentsPolygons(objs);
+            ExtractAndMergeComponentsPolygons(objs, node->GetBBox());
             mergedObjs.insert(mergedObjs.end(), objs.begin(), objs.end());
         }
         merged = true;
@@ -384,7 +390,7 @@ inline void PolygonMerger<property_type, num_type>::MergeRegion(MergeTaskNode * 
         allObjs.insert(allObjs.end(), mergedObjs.begin(), mergedObjs.end());
     
     if(false == node->GetObjs().empty()) {
-        ExtractAndMergeComponentsPolygons(allObjs);
+        ExtractAndMergeComponentsPolygons(allObjs, node->GetBBox());
         merged = true;
     }
 
@@ -476,7 +482,7 @@ inline void PolygonMerger<property_type, num_type>::GetOverlappedSubTaskNodes(Me
 }
 
 template <typename property_type, typename num_type>
-inline void PolygonMerger<property_type, num_type>::ExtractAndMergeComponentsPolygons(std::list<PolygonData * > & polygons)
+inline void PolygonMerger<property_type, num_type>::ExtractAndMergeComponentsPolygons(std::list<PolygonData * > & polygons, const Box2D<num_type> & bbox)
 {
     if(polygons.size() <= 1) return;
 
@@ -491,7 +497,7 @@ inline void PolygonMerger<property_type, num_type>::ExtractAndMergeComponentsPol
         ExtractComponentsByPolygonPropertye(vecPolys, cc);
     }
 
-    MergeComponentsPolygons(polygons, vecPolys, cc);
+    MergeComponentsPolygons(polygons, vecPolys, cc, bbox);
 }
 
 template <typename property_type, typename num_type>
@@ -537,7 +543,7 @@ inline void PolygonMerger<property_type, num_type>::ExtractComponentsByPhysicCon
 }
 
 template <typename property_type, typename num_type>
-inline void PolygonMerger<property_type, num_type>::MergeComponentsPolygons(std::list<PolygonData * > & polygons, const std::vector<PolygonData * > & vecPolys, const std::vector<std::vector<size_t> > & cc)
+inline void PolygonMerger<property_type, num_type>::MergeComponentsPolygons(std::list<PolygonData * > & polygons, const std::vector<PolygonData * > & vecPolys, const std::vector<std::vector<size_t> > & cc, const Box2D<num_type> & bbox)
 {
     polygons.clear();
     std::list<PolygonData * > tmp;
@@ -548,14 +554,22 @@ inline void PolygonMerger<property_type, num_type>::MergeComponentsPolygons(std:
             for(auto i : c)
                 tmp.push_back(vecPolys[i]);
             
-            MergePolygons(tmp);
+            MergePolygons(tmp, bbox);
             polygons.insert(polygons.end(), tmp.begin(), tmp.end());
         }
     }
 }
 
 template <typename property_type, typename num_type>
-inline void PolygonMerger<property_type, num_type>::MergePolygons(std::list<PolygonData * > & polygons)
+inline void PolygonMerger<property_type, num_type>::MergePolygons(std::list<PolygonData * > & polygons, const Box2D<num_type> & bbox)
+{
+    if(m_mergeSettings.kernal == MergeSettings::Kernal::Clipper && std::is_integral<num_type>::value)
+        MergePolygonsClipper(polygons, bbox);
+    else MergePolygonsBoost(polygons, bbox);
+}
+
+template <typename property_type, typename num_type>
+inline void PolygonMerger<property_type, num_type>::MergePolygonsBoost(std::list<PolygonData * > & polygons, const Box2D<num_type> &)
 {
     if(polygons.size() <= 1) return;
     boost::polygon::property_merge<num_type, property_type> merger;
@@ -599,6 +613,60 @@ inline void PolygonMerger<property_type, num_type>::MergePolygons(std::list<Poly
             polygons.push_back(makePolygonData(out, prop));
         }
     }
+}
+
+template <typename property_type, typename num_type>
+inline void PolygonMerger<property_type, num_type>::MergePolygonsClipper(std::list<PolygonData * > & polygons, const Box2D<num_type> & bbox)
+{
+    if(polygons.size() <= 1) return;
+    auto prop = polygons.front()->property;
+    using namespace clipper;
+    Clipper<num_type> c;
+    PolyTree<num_type> solution;
+
+    for(auto * pd : polygons) {
+        c.AddPath(pd->solid.GetPoints(), PolyType::Subject, true);
+        for(const auto & hole : pd->holes) {
+            c.AddPath(hole.GetPoints(), PolyType::Subject, true);
+        }
+        delete pd;
+    }
+
+    c.AddPath(toPolygon(bbox).GetPoints(), PolyType::Clip, true);
+    c.Execute(ClipType::Intersection, solution, PolyFillType::NonZero, PolyFillType::NonZero);
+
+    polygons.clear();
+    GetClipperMergedPolygons(solution, prop, polygons);
+}
+
+template <typename property_type, typename num_type>
+inline void PolygonMerger<property_type, num_type>::GetClipperMergedPolygons(const clipper::PolyTree<num_type> & solution, property_type prop, std::list<PolygonData * > & polygons)
+{
+    for(const auto * child : solution.children)
+        GetClipperMergedPolygons(child, prop, nullptr, polygons);
+}
+
+template <typename property_type, typename num_type>
+inline void PolygonMerger<property_type, num_type>::GetClipperMergedPolygons(const clipper::PolyNode<num_type> * node, property_type prop, PolygonData * pd, std::list<PolygonData * > & polygons)
+{
+    auto * tmp = pd;
+    if(!node->isOpen()) {
+        if(false == node->isHole()) {
+            tmp = new PolygonData;
+            tmp->property = prop;
+            tmp->solid.Set(std::move(node->contour));
+            polygons.push_back(tmp);
+        }
+        else {
+            if(tmp){
+                tmp->holes.emplace_back(Polygon2D<num_type>{});
+                tmp->holes.back().Set(std::move(node->contour));
+            }
+        }        
+    }
+
+    for(const auto * child : node->children)
+        GetClipperMergedPolygons(child, prop, tmp, polygons);
 }
 
 template <typename property_type, typename num_type>

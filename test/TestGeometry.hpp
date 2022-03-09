@@ -733,6 +733,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_polygon_merge_t, num_type)
     using PolygonData = typename PolygonMerger<PorpType, num_type>::PolygonData;
 
     Settings settings;
+    settings.kernal = Settings::Kernal::Boost;
     PolygonMerger<PorpType, num_type> merger;
     merger.SetMergeSettings(settings);
 
@@ -755,6 +756,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_polygon_merge_t, num_type)
     BOOST_CHECK(polygons.size() == 1);
     BOOST_CHECK(polygons.front()->holes.size() == 2);
 
+    //parallel merge
     merger.Clear();
     merger.AddObject(0, pwh);
     merger.AddObject(0, box3);
@@ -762,6 +764,20 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_polygon_merge_t, num_type)
     PolygonMergeRunner runner(merger, 4);
     runner.Run();
     
+    polygons.clear();
+    merger.GetAllPolygons(polygons);
+    BOOST_CHECK(polygons.size() == 1);
+    BOOST_CHECK(polygons.front()->holes.size() == 2);
+
+    merger.Clear();
+    merger.AddObject(0, pwh);
+    merger.AddObject(0, box3);
+
+    //use clipper kernal
+    settings.kernal = Settings::Kernal::Clipper;
+    merger.SetMergeSettings(settings);
+    merger.Merge();
+
     polygons.clear();
     merger.GetAllPolygons(polygons);
     BOOST_CHECK(polygons.size() == 1);
