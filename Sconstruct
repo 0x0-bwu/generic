@@ -38,6 +38,7 @@ cpp_path = [
 ]
 
 source_files = [
+    # cwd + '/test.cpp',
     cwd + '/test/UnitTest.cpp'
 ]
 

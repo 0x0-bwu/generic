@@ -10,6 +10,7 @@
 #include <boost/multiprecision/cpp_int.hpp>
 #include "generic/common/Exception.hpp"
 #include "Polygon.hpp"
+#include <queue>
 
 namespace generic  {
 namespace geometry {
@@ -1003,7 +1004,7 @@ inline bool ClipperBase<num_type>::AddPath(const Path<num_type> & path, PolyType
     if ((closed && highI < 2) || (!closed && highI < 1)) return false;
 
     //create a new edge array ...
-    auto * edges = new TEdge<num_type>[highI +1];
+    auto * edges = new TEdge<num_type>[highI + 1];
 
     bool isFlat = true;
     //1. Basic (first) edge initialization ...
