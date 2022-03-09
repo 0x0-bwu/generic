@@ -563,7 +563,7 @@ inline void PolygonMerger<property_type, num_type>::MergeComponentsPolygons(std:
 template <typename property_type, typename num_type>
 inline void PolygonMerger<property_type, num_type>::MergePolygons(std::list<PolygonData * > & polygons, const Box2D<num_type> & bbox)
 {
-    if(m_mergeSettings.kernal == MergeSettings::Kernal::Clipper && std::is_integral<num_type>::value)
+    if(m_mergeSettings.kernal == MergeSettings::Kernal::Clipper/* && std::is_integral<num_type>::value*/)
         MergePolygonsClipper(polygons, bbox);
     else MergePolygonsBoost(polygons, bbox);
 }

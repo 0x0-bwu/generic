@@ -293,7 +293,7 @@ inline void ReverseHorizontal(TEdge<num_type> & e)
     //swap horizontal edges' Top and Bottom x's so they follow the natural
     //progression of the bounds - ie so their xbots will align with the
     //adjoining lower edge. [Helpful in the ProcessHorizontal() method.]
-    std::swap(e.top[0], e.bot[1]);
+    std::swap(e.top[0], e.bot[0]);
 }
 
 template <typename num_type>
@@ -968,7 +968,7 @@ inline void ClipperBase<num_type>::Reset()
 
     using LM = LocalMinimum<num_type>;
     std::sort(m_minimaList.begin(), m_minimaList.end(),
-            [](const LM & lm1, const LM & lm2){ return math::LT(lm1.y, lm2.y); });
+            [](const LM & lm1, const LM & lm2){ return math::LT(lm2.y, lm1.y); });
 
     m_scanbeam = ScanbeamList{}; //clears/resets priority_queue
     //reset all edges ...
@@ -1000,7 +1000,7 @@ inline bool ClipperBase<num_type>::AddPath(const Path<num_type> & path, PolyType
 
     int highI = static_cast<int>(path.size()) - 1;
     if (closed) while (highI > 0 && (path[highI] == path[0])) --highI;
-    while (highI > 0 && (path[highI] == path[highI -1])) --highI;
+    while (highI > 0 && (path[highI] == path[highI - 1])) --highI;
     if ((closed && highI < 2) || (!closed && highI < 1)) return false;
 
     //create a new edge array ...
@@ -1133,7 +1133,7 @@ inline bool ClipperBase<num_type>::AddPath(const Path<num_type> & path, PolyType
         else if(locMin.boundL->next == locMin.boundR)
             locMin.boundL->windDelta = -1;
         else locMin.boundL->windDelta = 1;
-            locMin.boundR->windDelta = -locMin.boundL->windDelta;
+        locMin.boundR->windDelta = -locMin.boundL->windDelta;
 
         e = ProcessBound(locMin.boundL, leftBoundIsForward);
         if (e->outIdx == constant::skip) e = ProcessBound(e, leftBoundIsForward);
@@ -1146,7 +1146,7 @@ inline bool ClipperBase<num_type>::AddPath(const Path<num_type> & path, PolyType
             locMin.boundL = nullptr;
         else if(locMin.boundR->outIdx == constant::skip)
             locMin.boundR = nullptr;
-            m_minimaList.push_back(locMin);
+        m_minimaList.push_back(locMin);
         if (!leftBoundIsForward) e = e2;
     }
     return true;
@@ -3262,10 +3262,10 @@ inline void Clipper<num_type>::AddEdgeToSEL(TEdge<num_type> * edge)
 template <typename num_type>
 inline bool Clipper<num_type>::PopEdgeFromSEL(TEdge<num_type> * & edge)
 {
-  if(!m_sortedEdges) return false;
+    if(!m_sortedEdges) return false;
     edge = m_sortedEdges;
-  DeleteFromSEL(m_sortedEdges);
-  return true;
+    DeleteFromSEL(m_sortedEdges);
+    return true;
 }
 
 template <typename num_type>
