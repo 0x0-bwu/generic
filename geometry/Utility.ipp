@@ -93,16 +93,14 @@ inline Polygon2D<num_type> toPolygon(const Polyline2D<num_type> & polyline, num_
     using float_t = float_type<num_type>;
     GENERIC_ASSERT(polyline.size() > 0)
     
-    if(polyline.size() == 1) {
-        Point2D<num_type> half(0.5 * width, 0.5 * width);
-        Box2D<num_type> box(polyline.front() - half, polyline.front() + half);
-        return toPolygon(box);
-    }
-
-    std::deque<Point2D<num_type> > points;
-
+    auto roundOrForward = [] (float_t value) {
+        if constexpr (std::is_integral<num_type>::value)
+            return std::round(value);
+        return value;
+    };
+    
     float_t theta[2] = {0, 0};
-
+    std::deque<Point2D<num_type> > points;
     auto iter = polyline.begin();
     for(; iter != polyline.end(); ++iter){
         auto prev = iter, next = iter;
@@ -129,12 +127,12 @@ inline Polygon2D<num_type> toPolygon(const Polyline2D<num_type> & polyline, num_
         else if(theta[1] == std::numeric_limits<float_t>::max()) theta[1] = theta[0] + math::pi;
         
         if (iter == prev){
-            point[0] = std::round(point[0] + width / 2.0 * std::cos(theta[0]));
-            point[1] = std::round(point[1] + width / 2.0 * std::sin(theta[0]));
+            point[0] = roundOrForward(point[0] + width / 2.0 * std::cos(theta[0]));
+            point[1] = roundOrForward(point[1] + width / 2.0 * std::sin(theta[0]));
         }
         if (iter == next){
-            point[0] = std::round(point[0] + width / 2.0 * std::cos(theta[1]));
-            point[1] = std::round(point[1] + width / 2.0 * std::sin(theta[1]));
+            point[0] = roundOrForward(point[0] + width / 2.0 * std::cos(theta[1]));
+            point[1] = roundOrForward(point[1] + width / 2.0 * std::sin(theta[1]));
         }
 
         float_t targetTheta = 0.5 * (theta[0] + theta[1]);
@@ -142,19 +140,19 @@ inline Polygon2D<num_type> toPolygon(const Polyline2D<num_type> & polyline, num_
         if(points.empty()){
             float_t targetDx = width / 2.0 * std::cos(targetTheta);
             float_t targetDy = width / 2.0 * std::sin(targetTheta);
-            pps[0] = Point2D<num_type>(std::round(point[0] + targetDx), std::round(point[1] + targetDy));
-            pps[1] = Point2D<num_type>(std::round(point[0] - targetDx), std::round(point[1] - targetDy));
+            pps[0] = Point2D<num_type>(roundOrForward(point[0] + targetDx), roundOrForward(point[1] + targetDy));
+            pps[1] = Point2D<num_type>(roundOrForward(point[0] - targetDx), roundOrForward(point[1] - targetDy));
         }
         else {
             for(size_t i = 0; i < 2; ++i){
                 auto pp = (i == 0) ? points.front() : points.back();//prev point
-                pps[i][0] = std::round((pp[1] * std::cos(theta[0]) * std::cos(targetTheta) -
+                pps[i][0] = roundOrForward((pp[1] * std::cos(theta[0]) * std::cos(targetTheta) -
                                         point[1] * std::cos(theta[0]) * std::cos(targetTheta) - 
                                         pp[0] * std::cos(targetTheta) * std::sin(theta[0]) + 
                                         point[0] * std::cos(theta[0]) * std::sin(targetTheta)) / 
                                         (std::cos(theta[0]) * std::sin(targetTheta) - std::cos(targetTheta) * std::sin(theta[0])));
 
-                pps[i][1] = std::round((pp[1] * std::cos(theta[0]) * std::sin(targetTheta) - 
+                pps[i][1] = roundOrForward((pp[1] * std::cos(theta[0]) * std::sin(targetTheta) - 
                                         point[1] * std::cos(targetTheta) * std::sin(theta[0]) - 
                                         pp[0] * std::sin(theta[0]) * std::sin(targetTheta) + 
                                         point[0] * std::sin(theta[0]) * std::sin(targetTheta)) /
@@ -167,6 +165,12 @@ inline Polygon2D<num_type> toPolygon(const Polyline2D<num_type> & polyline, num_
 
     Polygon2D<num_type> polygon;
     polygon.Insert(polygon.End(), points.begin(), points.end());
+
+    if(polygon.Size() == 0) {
+        Point2D<num_type> half(roundOrForward(0.5 * width), roundOrForward(0.5 * width));
+        Box2D<num_type> box(polyline.front() - half, polyline.front() + half);
+        polygon = toPolygon(box);
+    }
     return polygon;
 }
 
