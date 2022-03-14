@@ -463,7 +463,9 @@ private:
         rects.clear();
         triangles.clear();
         auto size = trapezoid.Size();
-        if(3 == size){
+        if(2 >= size)
+            return;
+        else if(3 == size){
             triangles.push_back({trapezoid[0], trapezoid[1], trapezoid[2]});
             return;
         }
