@@ -390,6 +390,7 @@ private:
         boolean::PolygonSet2D<num_type> ps;
         ps.insert(*polygon);
         ps.get_trapezoids(trapezoids, (o == Orientation2D::Horizontal) ? orientation_2d_enum::HORIZONTAL : orientation_2d_enum::VERTICAL);
+        return true;
     } 
 
     template <typename num_type>
