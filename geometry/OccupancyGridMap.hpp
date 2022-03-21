@@ -11,7 +11,6 @@
 #include "generic/thread/ThreadPool.hpp"
 #include "generic/math/MathUtility.hpp"
 #include "generic/common/Exception.hpp"
-#include "generic/tools/Tools.hpp"
 #include "BooleanOperation.hpp"
 #include "Triangulation.hpp"
 #include "Rasterization.hpp"
@@ -46,10 +45,10 @@ class OccupancyGridMap
     using Container = std::vector<std::vector<Occupancy> >;
 public:
     using ResultType = Occupancy;
-    OccupancyGridMap(size_t width, size_t height)
+    OccupancyGridMap(size_t width, size_t height, const Occupancy & occupancy = Occupancy{})
      : m_width(width),
        m_height(height),
-       m_grids(width, std::vector<Occupancy>(height, Occupancy{}))
+       m_grids(width, std::vector<Occupancy>(height, occupancy))
     {}
     ~OccupancyGridMap() = default;
     
@@ -72,10 +71,10 @@ public:
     }
 
     ///@brief resets all occupancy values in grid map with default data
-    void Reset()
+    void Reset(const Occupancy & occupancy = Occupancy{})
     {
         for(auto & col : m_grids){
-            std::fill(col.begin(), col.end(), Occupancy{});
+            std::fill(col.begin(), col.end(), occupancy);
         }
     }
 
@@ -274,17 +273,19 @@ public:
         std::atomic_bool done{false};
         auto pipeline = std::make_unique<ProductPipe<property_type> >(32767);
 
-        // For single-thread
-        // Gridding<property_type, geometry_type>(properties, geometries, ctrl, *pipeline);
-        // done.store(true);
-        // Mapping<property_type, Occupancy, BlendFunc>(*pipeline, done, gridMap, std::forward<BlendFunc>(blend));
-
-        std::thread gridding(&OccupancyGridMappingFactory::Gridding<property_type, geometry_type>, std::ref(properties), std::ref(geometries), std::ref(ctrl), std::ref(*pipeline));
-        std::thread mapping(&OccupancyGridMappingFactory::Mapping<property_type, Occupancy, BlendFunc>, std::ref(*pipeline), std::ref(done), std::ref(gridMap), std::ref(blend));
-        
-        gridding.join();
-        done.store(true);
-        mapping.join();
+        if(ctrl.threads <= 1) {
+            Gridding<property_type, geometry_type>(properties, geometries, ctrl, *pipeline);
+            done.store(true);
+            Mapping<property_type, Occupancy, BlendFunc>(*pipeline, done, gridMap, std::forward<BlendFunc>(blend));
+        }
+        else {
+            std::thread gridding(&OccupancyGridMappingFactory::Gridding<property_type, geometry_type>, std::ref(properties), std::ref(geometries), std::ref(ctrl), std::ref(*pipeline));
+            std::thread mapping(&OccupancyGridMappingFactory::Mapping<property_type, Occupancy, BlendFunc>, std::ref(*pipeline), std::ref(done), std::ref(gridMap), std::ref(blend));
+            
+            gridding.join();
+            done.store(true);
+            mapping.join();
+        }
     }
 
 private:
@@ -311,7 +312,7 @@ private:
     template <typename property_type, typename geometry_type>
     static void Gridding(const std::vector<property_type> & properties, const std::vector<const geometry_type * > & geometries, const GridCtrl<typename geometry_type::coor_t> & ctrl, ProductPipe<property_type> & pipeline)
     {
-        thread::ThreadPool pool(ctrl.threads);
+        thread::ThreadPool pool(ctrl.threads - 1);
         size_t size = geometries.size();
         size_t blocks = pool.Threads();
         size_t blockSize = size / blocks;
