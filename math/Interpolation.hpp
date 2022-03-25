@@ -15,7 +15,8 @@
 #include <vector>
 namespace generic {
 namespace math    {
-using generic::common::float_type;
+
+using namespace common;
 template <typename num_type>
 class Interpolation
 {
@@ -215,13 +216,13 @@ inline bool Interpolation<num_type>::makeMonotonic()
 
     for(size_t i = 0; i < m_x.size() - 1; ++i){
         float_t avg = float_t(m_y[i + 1] - m_y[i]) / float_t(m_x[i + 1] - m_x[i]);
-        if(EQ(avg, 0.0) && (!EQ(m_coef1[i], 0.0) || !EQ(m_coef1[i], 0.0))){
+        if(EQ<float_t>(avg, 0) && (!EQ<float_t>(m_coef1[i], 0) || !EQ<float_t>(m_coef1[i], 0))){
             modified = true;
             m_coef1[i] = 0;
             m_coef1[i + 1] = 0;
         }
-        else if((GE(m_coef1[i], 0.0) && GE(m_coef1[i + 1], 0.0) && GE(avg, 0.0)) ||
-                (LE(m_coef1[i], 0.0) && LE(m_coef1[i + 1], 0.0) && LE(avg, 0.0))) {
+        else if((GE<float_t>(m_coef1[i], 0) && GE<float_t>(m_coef1[i + 1], 0) && GE<float_t>(avg, 0)) ||
+                (LE<float_t>(m_coef1[i], 0) && LE<float_t>(m_coef1[i + 1], 0) && LE<float_t>(avg, 0))) {
             float_t r = std::sqrt(m_coef1[i] * m_coef1[i] + m_coef1[i + 1] * m_coef1[i + 1]) / std::fabs(avg);
             if(r > 3.0){
                 modified = true;
