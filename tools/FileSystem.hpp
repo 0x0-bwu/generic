@@ -8,7 +8,7 @@
 #ifndef GENERIC_FILESYSTEM_HPP
 #define GENERIC_FILESYSTEM_HPP
 
-#if GENERIC_CURRENT_CXX_VERSION >= 20
+#if GENERIC_CURRENT_CXX_VERSION >= 17
 #include <filesystem>
 #endif
 
@@ -44,10 +44,27 @@ inline bool PathExists(const std::string path);
 ///@brief makes a directory of given path
 inline bool MakeDir(const std::string & path);
 
-///@brief make a directory of given path, return true on success or if the directory already exists
+///@brief makes a directory of given path, return true on success or if the directory already exists
 inline bool CreateDir(const std::string & path);
+
+///@brief gets folder name of given file path
 inline std::string DirName(const std::string & path);
+
+///@brief gets file name of given file path
 inline std::string FileName(const std::string & path);
+
+///@brief gets base file name of given file path
+inline std::string BaseName(const std::string & path);
+
+#ifndef GENERIC_OS_WINDOWS
+///@brief checks if given folder is writable
+inline bool isDirWritable(const std::string & path);
+#endif//GENERIC_OS_WINDOWS
+
+#if GENERIC_CURRENT_CXX_VERSION >= 17
+///@brief empties given folder
+inline bool RemoveDir(const std::string & path);
+#endif
 
 ///@brief represents a helper class for file writing
 class FileHelper
@@ -216,6 +233,27 @@ inline std::string FileName(const std::string & path)
     auto pos = path.find_last_of(GENERIC_FOLDER_SEPS);
     return pos != std::string::npos ? path.substr(pos + 1) : path.substr(0);
 }
+
+inline std::string BaseName(const std::string & path){
+    auto filename = FileName(path);
+    auto pos = filename.find_first_of('.');
+    return pos != std::string::npos ? filename.substr(0, pos) : filename.substr(0);
+}
+
+#ifndef GENERIC_OS_WINDOWS
+inline bool isDirWritable(const std::string & path)
+{
+    if(access(path.c_str(), W_OK) == 0) return true;
+    return false;
+}
+#endif//GENERIC_OS_WINDOWS
+
+#if GENERIC_CURRENT_CXX_VERSION >= 17
+inline bool RemoveDir(const std::string & path)
+{
+    return std::filesystem::remove_all(path) > 0;
+}
+#endif
 
 }//namespace filesystem
 }//namespace generic
