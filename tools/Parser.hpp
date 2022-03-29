@@ -10,7 +10,6 @@
 #include "generic/common/Exception.hpp"
 #include <boost/spirit/include/phoenix.hpp>
 #include <boost/spirit/include/qi.hpp>
-#include <boost/tokenizer.hpp>
 #include <sstream>
 #include <string>
 namespace generic {
@@ -27,17 +26,68 @@ inline bool Parse(const std::string & input, const Parser & p, Args&& ... args)
     return ok;
 }
 
-///@brief split sting `str` by `seperator`
-inline std::vector<std::string> Split(const std::string & str, char seperator)
+///@brief print line number and line content if error is met 
+template <typename Iterator>
+struct ErrorHandler
 {
-    std::vector<std::string> items;
-    using Tokenizer = boost::tokenizer<boost::char_separator<char> >;
-    boost::char_separator<char> sep(std::string(1, seperator).c_str());
-    Tokenizer tokens(str, sep);
-    for(auto iter = tokens.begin(); iter != tokens.end(); ++iter)
-        items.push_back(*iter);
-    return items;
-}
+	template <typename, typename, typename>
+	struct result { using type = void; };
+
+	ErrorHandler(Iterator first, Iterator last, std::ostream & os = std::cout)
+	  : first(first), last(last), os(os) {}
+
+	template <typename Message, typename What>
+	void operator() (const Message & message, const What & what, Iterator errPos) const
+	{
+		int line;
+		Iterator lineStart = GetPos(errPos, line);
+		if (errPos != last) {
+			os << message << what << " line " << line << ':' << std::endl;
+			os << GetLine(lineStart) << std::endl;
+			for (; lineStart != errPos; ++lineStart)
+				os << ' ';
+			os << '^' << std::endl;
+		}
+		else {
+			os << "Unexpected end of file. ";
+			os << message << what << " line " << line << std::endl;
+		}
+	}
+
+	Iterator GetPos(Iterator errPos, int & line) const
+	{
+		line = 1;
+		Iterator i = first;
+		Iterator lineStart = first;
+		while (i != errPos) {
+			bool eol = false;
+			if (i != errPos && *i == '\r') {// CR
+				eol = true;
+				lineStart = ++i;
+			}
+			if (i != errPos && *i == '\n') {// LF
+				eol = true;
+				lineStart = ++i;
+			}
+			if (eol) ++line;
+			else ++i;
+		}
+		return lineStart;
+	}
+
+	std::string GetLine(Iterator errPos) const
+	{
+		Iterator i = errPos;
+		// position i to the next EOL
+		while (i != last && (*i != '\r' && *i != '\n')) { ++i; }
+		return std::string(errPos, i);
+	}
+
+	Iterator first;
+	Iterator last;
+	std::vector<Iterator> iters;
+    std::ostream & os;
+};
 
 }//namespace parser
 }//namespace 
