@@ -53,6 +53,12 @@ inline bool Contains(const std::string & str, const std::string & sub)
     else return boost::ifind_first(str, sub); 
 }
 
+///@brief trims the space in `str`
+inline std::string Trim(const std::string & str)
+{
+    return boost::trim_copy(str);
+}
+
 ///@brief overload version of `Split`
 inline void Split(const std::string & str, std::vector<std::string> & items, const std::string & seperators = " ")
 {

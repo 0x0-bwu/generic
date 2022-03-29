@@ -135,7 +135,7 @@ public:
      * @return whether write the image file successfully
      */
     template <typename RGBaFunc>
-    bool WriteImgProfile(const std::string & filename, RGBaFunc && rgbaFunc)
+    bool WriteImgProfile(const std::string & filename, RGBaFunc && rgbaFunc) const
     {
         auto dir = generic::filesystem::DirName(filename);
         if(!generic::filesystem::PathExists(dir))
