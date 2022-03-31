@@ -20,6 +20,7 @@
 #include "Sphere.hpp"
 #include "Plane.hpp"
 #include "Line.hpp"
+#include <unordered_map>
 #include <algorithm>
 #include <cassert>
 #include <deque>
