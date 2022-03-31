@@ -13,6 +13,7 @@
 #include "BoostGeometryRegister.hpp"
 #include "BoostPolygonRegister.hpp"
 #include "GeometryTraits.hpp"
+#include "HashFunction.hpp"
 #include "Predicates.hpp"
 #include "Trapezoid.hpp"
 #include "Curves.hpp"
@@ -509,6 +510,14 @@ inline box_type<typename std::iterator_traits<iterator>::value_type> Extent(iter
 ///@brief gets envelope box of input Polyline2D
 template <typename num_type>
 inline Box2D<num_type> Extent(const Polyline2D<num_type> & polyline);
+
+/**
+ * @brief @brief simplifies a complex polygon to outline and holes
+ * @param[in/out] polygon input polygon, will get only outline after simplify
+ * @param holes[out] inner holes in polygon after simplify
+ */
+template <typename num_type>
+inline void Simplify(Polygon2D<num_type> & polygon, std::list<Polygon2D<num_type> > & holes);
 
 #if GENERIC_CURRENT_BOOST_LIBRARY_VER >= 165
 /**

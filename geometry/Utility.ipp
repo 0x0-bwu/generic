@@ -12,6 +12,61 @@ namespace generic {
 namespace geometry {
 using generic::common::float_type;
 
+namespace detail {
+
+template <typename num_type, typename = void>
+class Point2DIndexMap {};
+
+template <typename num_type>
+class Point2DIndexMap<num_type, typename std::enable_if<std::is_integral<num_type>::value>::type>
+{
+public:
+    using Point = Point2D<num_type>;
+
+    void Clear() { m_ptMap.clear(); }
+    void Insert(const Point & p, size_t index) { m_ptMap.insert(std::make_pair(p, index)); }
+    bool Find(const Point & p, size_t & index) const
+    {
+        for(int i : {0, -1, 1}) {
+            for(int j : {0, -1, 1}) {
+                auto iter = m_ptMap.find(Point(p[0] + i, p[1] + j));
+                if(iter != m_ptMap.end()) {
+                    index = iter->second;
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+private:
+    std::unordered_map<Point, size_t, PointHash<num_type> > m_ptMap;
+};
+
+template <typename num_type>
+class Point2DIndexMap<num_type, typename std::enable_if<std::is_floating_point<num_type>::value>::type>
+{
+public:
+    using Point = Point2D<num_type>;
+    using IndexPoint = std::pair<Point, size_t>;
+
+    void Clear() { m_rtree.clear(); }
+    void Insert(const Point & p, size_t index) { m_rtree.insert(std::make_pair(p, index)); }
+    bool Find(const Point & p, size_t & index) const
+    {
+        std::vector<IndexPoint> query;
+        m_rtree.query(boost::geometry::index::nearest(p, 1), std::back_inserter(query));
+        if(query.empty()) return false;
+        if(query.front().first == p) {
+            index = query.front().second;
+            return true;
+        }
+        return false;
+    }
+private:
+    boost::geometry::index::rtree<IndexPoint, boost::geometry::index::linear<16, 4> > m_rtree;
+};
+}//namespace detail
+
 template<typename vector_t, typename std::enable_if<traits::is_vector_t<vector_t>::value, bool>::type>
 inline auto Inverse(const vector_t & vec) -> vector_f<vector_t>
 {
@@ -689,6 +744,61 @@ template <typename num_type>
 inline Box2D<num_type> Extent(const Polyline2D<num_type> & polyline)
 {
     return boost::geometry::return_envelope<Box2D<num_type> >(polyline);
+}
+
+template <typename num_type>
+inline void Simplify(Polygon2D<num_type> & polygon, std::list<Polygon2D<num_type> > & holes)
+{
+    holes.clear();
+    if(polygon.Front() == polygon.Back()) polygon.PopBack();
+    if(polygon.Size() <= 3) return;
+
+    size_t size = polygon.Size();
+    struct PtNode { size_t prev; size_t next; };
+    std::vector<PtNode> nodeList(size);
+    for(size_t i = 0; i < size; ++i) {
+        nodeList[i].prev = (i + size - 1) % size;
+        nodeList[i].next = (i + 1) % size;
+    }
+
+    size_t res;
+    std::list<Polygon2D<num_type> > tmp;
+    detail::Point2DIndexMap<num_type> ptMap;
+    for(size_t i = 0; i < polygon.Size(); ++i) {
+        auto found = ptMap.Find(polygon[i], res);
+        if(found) {
+            size_t prev = res;
+            size_t curr = i;
+            size_t next = nodeList[curr].next;
+
+            nodeList[curr].next = prev;
+            Polygon2D<num_type> hole;
+            size_t start = prev;
+            size_t index = start;
+            while(start != nodeList[index].next) {
+                hole << polygon[index];
+                index = nodeList[index].next;
+            }
+            Simplify(hole, tmp);
+            if(hole.Size() >= 3)
+                holes.emplace_back(std::move(hole));
+            prev = nodeList[prev].prev;
+            nodeList[prev].next = curr;
+            nodeList[curr].prev = prev;
+            nodeList[curr].next = next;
+        }
+        ptMap.Insert(polygon[i], i);
+    }
+
+    size_t start = size - 1;
+    size_t index = start;
+    Polygon2D<num_type> simplified;
+    while(start != nodeList[index].next) {
+        simplified << polygon[index];
+        index = nodeList[index].next;
+    }
+    simplified << polygon[index];
+    std::swap(polygon, simplified);
 }
 
 #if GENERIC_CURRENT_BOOST_LIBRARY_VER >= 165

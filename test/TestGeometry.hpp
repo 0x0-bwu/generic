@@ -313,6 +313,25 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_geometry_utility_t, num_type)
     BOOST_CHECK(PointLineLocation::Right  == GetPointSegmentLocation(Point2D<num_type>(0, 1), Segment2D<num_type>({3, 3}, {0, 0})));
     BOOST_CHECK(PointLineLocation::OnLine == GetPointSegmentLocation(Point2D<num_type>(1, 1), Segment2D<num_type>({3, 3}, {0, 0})));
     BOOST_CHECK(PointLineLocation::Left   == GetPointSegmentLocation(Point2D<num_type>(1, 0), Segment2D<num_type>({3, 3}, {0, 0})));
+
+    //simplify
+    {
+        std::vector<Point2D<num_type> > points{ {822860000, 900000000}, {655310000, 900000000}, {655310000, 442610000}, {655310000, 355610000}, {568310000, 355610000},
+                                                {568310000, 442610000}, {655310000, 442610000}, {655310000, 900000000}, {170000000, 900000000}, {170000000, 100000000}, 
+                                                {163301270, 74999999}, {144999999, 56698729}, {120000000,50000000}, {94999999, 56698729}, {76698729, 75000000},
+                                                {70000000, 100000000}, {76698729, 125000000}, {95000000, 143301270}, {120000000, 150000000}, {145000000, 143301270},
+                                                {163301270, 125000000}, {170000000, 100000000}, {170000000, 900000000}, {0, 900000000}, {0, 0},
+                                                {580000000, 0}, {787046666, 241993}, {787046666, 453186666}, {773000000, 453186666}, {691286666, 534898666},
+                                                {690826666, 534898666}, {690853333, 806753333}, {822860000, 806753333}, {822860000, 900000000} };
+
+        Polygon2D<num_type> complex;
+        complex.Set(points);
+
+        std::list<Polygon2D<num_type> > holes;
+        Simplify(complex, holes);
+        BOOST_CHECK(complex.Size() == 13);
+        BOOST_CHECK(holes.size() == 2);
+    }
 }
 
 void t_geometry_utility()
