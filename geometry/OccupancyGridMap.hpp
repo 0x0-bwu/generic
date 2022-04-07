@@ -52,6 +52,18 @@ public:
     {}
     ~OccupancyGridMap() = default;
     
+    bool operator== (const OccupancyGridMap<Occupancy> & other) const
+    {
+        return !(*this != other);
+    }
+
+    bool operator!= (const OccupancyGridMap<Occupancy> & other) const
+    {
+        for(size_t i = 0; i < m_width; ++i)
+            if(m_grids[i] != other.m_grids[i]) return true;
+        return false;
+    }
+
     ///@brief accesses Occupancy reference by 1d index `i`, `i` = x * height + y
     Occupancy & operator[] (size_t i) { return m_grids[i / m_height][i % m_height]; }
     const Occupancy & operator[](size_t i) const { return m_grids[i / m_height][i % m_height]; }
