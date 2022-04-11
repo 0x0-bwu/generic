@@ -41,9 +41,6 @@ inline bool RemoveFile(const std::string & filename);
 ///@brief checks if path exists (file or directory)
 inline bool PathExists(const std::string path);
 
-///@brief makes a directory of given path
-inline bool MakeDir(const std::string & path);
-
 ///@brief makes a directory of given path, return true on success or if the directory already exists
 inline bool CreateDir(const std::string & path);
 
@@ -62,8 +59,14 @@ inline bool isDirWritable(const std::string & path);
 #endif//GENERIC_OS_WINDOWS
 
 #if GENERIC_CURRENT_CXX_VERSION >= 17
+///@brief makes a directory of given path, if `recursively` is true, will make parent dir firstly if not exists
+inline bool MakeDir(const std::string & path, bool recursively = true);
+
 ///@brief empties given folder
 inline bool RemoveDir(const std::string & path);
+
+///@brief gets parent folder of given file path
+inline std::string ParentPath(const std::string & path);
 #endif
 
 ///@brief represents a helper class for file writing
@@ -201,11 +204,6 @@ inline bool PathExists(const std::string path)
     return (0 == ::stat(path.c_str(), &buffer));
 }
 
-inline bool MakeDir(const std::string & path)
-{
-    return 0 == ::mkdir(path.c_str(), mode_t(0755));
-}
-
 inline bool CreateDir(const std::string & path)
 {
     if(PathExists(path)) return true;
@@ -249,9 +247,25 @@ inline bool isDirWritable(const std::string & path)
 #endif//GENERIC_OS_WINDOWS
 
 #if GENERIC_CURRENT_CXX_VERSION >= 17
+inline bool MakeDir(const std::string & path, bool recursively)
+{
+    if(recursively) {
+        auto parent = ParentPath(path);
+        if(!PathExists(parent))
+            if(!MakeDir(parent, recursively)) return false;
+    }
+    return 0 == ::mkdir(path.c_str(), mode_t(0755));
+}
+
 inline bool RemoveDir(const std::string & path)
 {
     return std::filesystem::remove_all(path) > 0;
+}
+
+inline std::string ParentPath(const std::string & path)
+{
+    std::filesystem::path p(path);
+    return p.parent_path().string();
 }
 #endif
 
