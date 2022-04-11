@@ -37,6 +37,16 @@ public:
     Point2D<num_type> & operator[] (size_t i);
     const Point2D<num_type> & operator[] (size_t i) const;
 
+    ///@brief gets scaled box by factor `scale`
+    Box2D<num_type> operator* (float_t scale) const;
+    ///@brief gets scaled box by factor 1 / `scale`
+    Box2D<num_type> operator/ (float_t scale) const;
+
+    ///@brief scalew box by factor `scale`
+    void operator*= (float_t scale);
+    ///@brief scalew box by factor 1 / `scale`
+    void operator/= (float_t scale);
+
     ///@brief checks if this box is inside box b
     bool operator<  (const Box2D<num_type> & b) const;
     ///@brief checks if box b is inside this box
@@ -118,6 +128,16 @@ public:
     ///@brief accesses LL and UR point by index 0 and 1
     Point3D<num_type> & operator[] (size_t i);
     const Point3D<num_type> & operator[] (size_t i) const;
+
+    ///@brief gets scaled box by factor `scale`
+    Box3D<num_type> operator* (float_t scale) const;
+    ///@brief gets scaled box by factor 1 / `scale`
+    Box3D<num_type> operator/ (float_t scale) const;
+
+    ///@brief scalew box by factor `scale`
+    void operator*= (float_t scale);
+    ///@brief scalew box by factor 1 / `scale`
+    void operator/= (float_t scale);
 
     ///@brief checks if this box is inside box b
     bool operator<  (const Box3D<num_type> & b) const;
@@ -225,6 +245,36 @@ inline Point2D<num_type> & Box2D<num_type>::operator[] (size_t i) { return m_cor
 
 template <typename num_type>
 inline const Point2D<num_type> & Box2D<num_type>::operator[] (size_t i) const { return m_corner[i]; }
+
+template <typename num_type>
+inline Box2D<num_type> Box2D<num_type>::operator* (float_t scale) const
+{
+    auto box = *this;
+    box *= scale;
+    return box;
+}
+
+template <typename num_type>
+inline Box2D<num_type> Box2D<num_type>::operator/ (float_t scale) const
+{
+    auto box = *this;
+    box /= scale;
+    return box;
+}
+
+template <typename num_type>
+inline void Box2D<num_type>::operator*= (float_t scale)
+{
+    m_corner[0] *= scale;
+    m_corner[1] *= scale;
+}
+
+template <typename num_type>
+inline void Box2D<num_type>::operator/= (float_t scale)
+{
+    m_corner[0] /= scale;
+    m_corner[1] /= scale;   
+}
 
 template <typename num_type>
 inline bool Box2D<num_type>::operator< (const Box2D<num_type> & b) const
@@ -453,6 +503,36 @@ inline Point3D<num_type> & Box3D<num_type>::operator[] (size_t i) { return m_cor
 
 template <typename num_type>
 inline const Point3D<num_type> & Box3D<num_type>::operator[] (size_t i) const { return m_corner[i]; }
+
+template <typename num_type>
+inline Box3D<num_type> Box3D<num_type>::operator* (float_t scale) const
+{
+    auto box = *this;
+    box *= scale;
+    return box;
+}
+
+template <typename num_type>
+inline Box3D<num_type> Box3D<num_type>::operator/ (float_t scale) const
+{
+    auto box = *this;
+    box /= scale;
+    return box;
+}
+
+template <typename num_type>
+inline void Box3D<num_type>::operator*= (float_t scale)
+{
+    m_corner[0] *= scale;
+    m_corner[1] *= scale;
+}
+
+template <typename num_type>
+inline void Box3D<num_type>::operator/= (float_t scale)
+{
+    m_corner[0] /= scale;
+    m_corner[1] /= scale;   
+}
 
 template <typename num_type>
 inline bool Box3D<num_type>::operator< (const Box3D<num_type> & b) const
