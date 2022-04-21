@@ -38,6 +38,8 @@ void t_math_utility()
     BOOST_CHECK(LE(1.1e-4, 1e-4, 1e-5) == true);
     BOOST_CHECK(GE(1e-4, 1.1e-4) == false);
     BOOST_CHECK(GE(1e-4, 1.1e-4, 1e-5) == true);
+    BOOST_CHECK(Within<OpenInterval>(1e-4, 1.0e-4, 1.1e-4) == false);
+    BOOST_CHECK(Within<LeftClosedRightOpen>(1e-4, 1.0e-4, 1.1e-4) == true); 
 }
 
 BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_math_linear_algebra_t, math_num_types)

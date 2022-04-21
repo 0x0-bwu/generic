@@ -131,6 +131,77 @@ inline bool LT(num_type num1, num_type num2, num_type tolerance = std::numeric_l
     return num2 - num1 > tolerance;
 }
 
+struct OpenInterval {};
+struct ClosedInterval {};
+struct LeftOpenRightClosed {};
+struct LeftClosedRightOpen {};
+
+namespace detail {
+
+template <typename num_type, typename std::enable_if<std::is_integral<num_type>::value, bool>::type = true>
+inline bool Within(num_type num, num_type min, num_type max, OpenInterval)
+{
+    return GT<num_type>(num, min) && LT<num_type>(num, max);
+}
+
+template <typename num_type, typename std::enable_if<std::is_floating_point<num_type>::value, bool>::type = true>
+inline bool Within(num_type num, num_type min, num_type max, num_type tolerance, OpenInterval)
+{
+    return GT<num_type>(num, min, tolerance) && LT<num_type>(num, max, tolerance);
+}
+
+template <typename num_type, typename std::enable_if<std::is_integral<num_type>::value, bool>::type = true>
+inline bool Within(num_type num, num_type min, num_type max, ClosedInterval)
+{
+    return GE<num_type>(num, min) && LE<num_type>(num, max);
+}
+
+template <typename num_type, typename std::enable_if<std::is_floating_point<num_type>::value, bool>::type = true>
+inline bool Within(num_type num, num_type min, num_type max, num_type tolerance, ClosedInterval)
+{
+    return GE<num_type>(num, min, tolerance) && LE<num_type>(num, max, tolerance);
+}
+
+template <typename num_type, typename std::enable_if<std::is_integral<num_type>::value, bool>::type = true>
+inline bool Within(num_type num, num_type min, num_type max, LeftOpenRightClosed)
+{
+    return GT<num_type>(num, min) && LE<num_type>(num, max);
+}
+
+template <typename num_type, typename std::enable_if<std::is_floating_point<num_type>::value, bool>::type = true>
+inline bool Within(num_type num, num_type min, num_type max, num_type tolerance, LeftOpenRightClosed)
+{
+    return GT<num_type>(num, min, tolerance) && LE<num_type>(num, max, tolerance);
+}
+
+template <typename num_type, typename std::enable_if<std::is_integral<num_type>::value, bool>::type = true>
+inline bool Within(num_type num, num_type min, num_type max, LeftClosedRightOpen)
+{
+    return GE<num_type>(num, min) && LT<num_type>(num, max);
+}
+
+template <typename num_type, typename std::enable_if<std::is_floating_point<num_type>::value, bool>::type = true>
+inline bool Within(num_type num, num_type min, num_type max, num_type tolerance, LeftClosedRightOpen)
+{
+    return GE<num_type>(num, min, tolerance) && LT<num_type>(num, max, tolerance);
+}
+
+}//namespace detail
+
+template <typename interval_type, typename num_type, 
+          typename std::enable_if<std::is_integral<num_type>::value, bool>::type = true>
+inline bool Within(num_type num, num_type min, num_type max)
+{
+    return detail::Within<num_type>(num, min, max, interval_type{});
+}
+
+template <typename interval_type, typename num_type,
+          typename std::enable_if<std::is_floating_point<num_type>::value, bool>::type = true>
+inline bool Within(num_type num, num_type min, num_type max, num_type tolerance = std::numeric_limits<num_type>::epsilon())
+{
+    return detail::Within<num_type>(num, min, max, tolerance, interval_type{});
+}
+
 ///@brief returns inverse of a scalar, a huge number but not INF if input is closed or equal to zero
 template <typename num_type>
 inline float_type<num_type> SafeInv(num_type scalar)
