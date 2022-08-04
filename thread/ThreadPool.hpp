@@ -241,7 +241,7 @@ ThreadPool::Submit(FunctionType && f)
     using result_type = typename std::result_of<FunctionType()>::type;
     auto pkg = std::make_shared<std::packaged_task<result_type()> >(std::forward<FunctionType>(f));
     auto task = new std::function<void()>([pkg]{(*pkg)();});
-    m_queue.push(task);
+    while(not m_queue.push(task));
 
     std::unique_lock<std::mutex> lock(m_mutex);
     m_cond.notify_one();

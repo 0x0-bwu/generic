@@ -12,7 +12,6 @@
 #include <boost/graph/adjacency_list.hpp>
 #include <boost/graph/graph_traits.hpp>
 #include <boost/graph/graphviz.hpp>
-#include <condition_variable>
 #include <atomic>
 #include <vector>
 #include <deque>
@@ -243,43 +242,36 @@ public:
     
     void Dispatch(size_t threads);
 private:
-    void DispatchOne(TaskNode & node);
+    void DispatchOne(TaskNode & node, ThreadPool & pool);
 private:
     TaskFlow & m_flow;
-    mutable std::mutex m_mutex;
-    std::condition_variable m_cond;
 };
 
 inline void Dispatcher::Dispatch(size_t threads)
 {
     ThreadPool pool(threads);
-    while(!m_flow.m_sequence.empty()){
-        TaskFlow::Vertex v = m_flow.m_sequence.front();
-        std::unique_lock<std::mutex> lock(m_mutex);
-        m_cond.wait(lock, [&]{ return m_flow.m_dependents[v]->load() == 0; });
-        
-        size_t count = 0;
-        auto iter = m_flow.m_sequence.begin();
-        for(; iter != m_flow.m_sequence.end() && count < threads;){
-            if(m_flow.m_dependents[*iter]->load() == 0){
-                TaskNode & node = m_flow[*iter];
-                pool.Submit(std::bind(&Dispatcher::DispatchOne, this, std::ref(node)));
-                iter = m_flow.m_sequence.erase(iter);
-                count++;
-            }
-            else{ ++iter; }
-        }
+
+    std::list<TaskNode *> nodes;
+    for(auto v : m_flow.m_sequence) {
+        auto dep = m_flow.m_dependents[v]->load();
+        if(0 == dep) nodes.emplace_back(&m_flow[v]);
+        else break;
     }
+    
+    for(auto * node : nodes)
+        pool.Submit(std::bind(&Dispatcher::DispatchOne, this, std::ref(*node), std::ref(pool)));
+    
+    pool.Wait();
 }
 
-inline void Dispatcher::DispatchOne(TaskNode & node)
+inline void Dispatcher::DispatchOne(TaskNode & node, ThreadPool & pool)
 {
     (*node.m_work)();
-    std::list<TaskNode * > successors = m_flow.Successors(node);
-    for(auto * successor : successors){
-        m_flow.m_dependents[successor->m_id]->fetch_sub(1);
+    auto successors = m_flow.Successors(node);
+    for(auto * s : successors){
+        if(auto dep = m_flow.m_dependents[s->m_id]->fetch_sub(1); dep == 1)
+            pool.Submit(std::bind(&Dispatcher::DispatchOne, this, std::ref(*s), std::ref(pool)));
     }
-    m_cond.notify_all();
 }
 
 ///@brief executor class to run taskflow in parallel
