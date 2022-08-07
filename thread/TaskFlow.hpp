@@ -242,36 +242,39 @@ public:
     
     void Dispatch(size_t threads);
 private:
-    void DispatchOne(TaskNode & node, ThreadPool & pool);
+    void DispatchOne(TaskNode & node, ThreadPool * pool);
 private:
     TaskFlow & m_flow;
+    std::atomic<size_t> m_nWait;
 };
 
 inline void Dispatcher::Dispatch(size_t threads)
 {
     ThreadPool pool(threads);
+    m_nWait.store(m_flow.m_sequence.size());
 
     std::list<TaskNode *> nodes;
     for(auto v : m_flow.m_sequence) {
         auto dep = m_flow.m_dependents[v]->load();
         if(0 == dep) nodes.emplace_back(&m_flow[v]);
-        else break;
     }
     
     for(auto * node : nodes)
-        pool.Submit(std::bind(&Dispatcher::DispatchOne, this, std::ref(*node), std::ref(pool)));
+        pool.Submit(std::bind(&Dispatcher::DispatchOne, this, std::ref(*node), &pool));
     
-    pool.Wait();
+    while(m_nWait.load());
 }
 
-inline void Dispatcher::DispatchOne(TaskNode & node, ThreadPool & pool)
+inline void Dispatcher::DispatchOne(TaskNode & node, ThreadPool * pool)
 {
     (*node.m_work)();
     auto successors = m_flow.Successors(node);
     for(auto * s : successors){
         if(auto dep = m_flow.m_dependents[s->m_id]->fetch_sub(1); dep == 1)
-            pool.Submit(std::bind(&Dispatcher::DispatchOne, this, std::ref(*s), std::ref(pool)));
+            pool->Submit(std::bind(&Dispatcher::DispatchOne, this, std::ref(*s), pool));
     }
+
+    m_nWait.fetch_sub(1);
 }
 
 ///@brief executor class to run taskflow in parallel

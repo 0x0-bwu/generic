@@ -74,7 +74,7 @@ private:
 class ThreadPool
 {
     using Task = std::function<void()>;
-    using PoolQueue = boost::lockfree::queue<Task * >;
+    using PoolQueue = boost::lockfree::queue<Task *, boost::lockfree::fixed_sized<false> >;
 public:
     ///@brief constructs a pool with hardware supported threads
     ThreadPool();
