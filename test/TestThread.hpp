@@ -10,8 +10,7 @@
 #include "generic/test/TestCommon.hpp"
 #include "generic/thread/MapReduce.hpp"
 #include "generic/thread/TaskFlow.hpp"
-#include <chrono>
-#include <atomic>
+#include <sstream>
 using namespace boost::unit_test;
 using namespace generic;
 using namespace generic::thread;
@@ -129,11 +128,11 @@ void t_taskflow()
     auto mul4 = [&num]{ num.exchange(num.load() * 4);};
     auto div5 = [&num]{ num.exchange(num.load() / 5);};
 
-    auto a = taskflow.Emplace(add2);
-    auto b = taskflow.Emplace(sub3);
-    auto c = taskflow.Emplace(mul4);
-    auto d = taskflow.Emplace(div5);
-    auto e = taskflow.Submit([&num]{ return num + 43; });
+    auto a = taskflow.Emplace(add2, "add2");
+    auto b = taskflow.Emplace(sub3, "sub3");
+    auto c = taskflow.Emplace(mul4, "mul4");
+    auto d = taskflow.Emplace(div5, "div5");
+    auto e = taskflow.Submit([&num]{ return num + 43; }, "+43");
 
     d->Precede(a, b);
     a->Success(c);
@@ -141,8 +140,16 @@ void t_taskflow()
     e.first->Success(a, b);
 
     Executor executor(4);
-    executor.Run(taskflow);
+    auto res = executor.Run(taskflow);
     BOOST_CHECK(e.second.get() == 42);
+
+    std::stringstream ss;
+    taskflow.PrintTaskGraph(ss);
+    BOOST_TEST_MESSAGE("task graph:\n" + ss.str());
+
+    BOOST_CHECK(res);
+    res = executor.Run(taskflow);
+    BOOST_CHECK(res == false);
 }
 
 test_suite * create_thread_test_suite()
