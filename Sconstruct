@@ -38,8 +38,8 @@ cpp_path = [
 ]
 
 source_files = [
-    # cwd + '/test.cpp',
-    cwd + '/test/UnitTest.cpp'
+    cwd + '/test.cpp',
+    # cwd + '/test/UnitTest.cpp'
 ]
 
 libs_name = [
