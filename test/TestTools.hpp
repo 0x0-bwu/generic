@@ -8,8 +8,10 @@
 #ifndef TEST_TESTTOOLSHPP
 #define TEST_TESTTOOLSHPP
 #include "generic/test/TestCommon.hpp"
+#include "generic/thread/ThreadPool.hpp"
 #include "generic/tools/ProgramOptions.hpp"
 #include "generic/tools/Parser.hpp"
+#include "generic/tools/Tools.hpp"
 using namespace boost::unit_test;
 using namespace generic;
 void t_program_options()
@@ -45,12 +47,33 @@ void t_parser()
 	BOOST_CHECK(true);
 }
 
+void t_timer()
+{
+	using namespace generic::tools;
+    
+	auto task = []{
+        auto t = tools::AccumulatedTimer::InsertTimer();
+        tools::SleepMilliseconds(1e3);
+    };
+
+	tools::Timer timer;
+    thread::ThreadPool pool(4);
+    for(size_t i = 0; i < 4; ++i) {
+        pool.Submit(task);
+    }
+    pool.Wait();
+    tools::AccumulatedTimer::SetUnit(unit::Time::Second);
+   	auto accumulated = tools::AccumulatedTimer::Count();
+	BOOST_CHECK_CLOSE(accumulated /  timer.Count(), 4, 0.1);
+}
+
 test_suite * create_tools_test_suite()
 {
     test_suite * tools_suite = BOOST_TEST_SUITE("s_tools");
     //
     tools_suite->add(BOOST_TEST_CASE(&t_program_options));
 	tools_suite->add(BOOST_TEST_CASE(&t_parser));
+	tools_suite->add(BOOST_TEST_CASE(&t_timer));
     //
     return tools_suite;
 }

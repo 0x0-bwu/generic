@@ -32,6 +32,7 @@ init_unit_test_suite( int argc, char* argv[] )
     framework::master_test_suite().add(create_geometry_test_suite());
     framework::master_test_suite().add(create_tree_test_suite());
     framework::master_test_suite().add(create_thread_test_suite());
+    framework::master_test_suite().add(create_tools_test_suite());
     framework::master_test_suite().add(BOOST_TEST_CASE(&t_additional));
     return 0;
 }
