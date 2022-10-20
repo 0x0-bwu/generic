@@ -64,7 +64,7 @@ void t_timer()
     pool.Wait();
     tools::AccumulatedTimer::SetUnit(unit::Time::Second);
    	auto accumulated = tools::AccumulatedTimer::Count();
-	BOOST_CHECK_CLOSE(accumulated /  timer.Count(), 4, 0.1);
+	BOOST_CHECK_CLOSE(accumulated / timer.Count(), 4, 1);
 }
 
 test_suite * create_tools_test_suite()
