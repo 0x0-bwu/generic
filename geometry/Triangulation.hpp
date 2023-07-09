@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_GEOMETRY_TRI_TRIANGULATION_HPP
-#define GENERIC_GEOMETRY_TRI_TRIANGULATION_HPP
+#pragma once
 #include "generic/topology/IndexGraph.hpp"
 #include "generic/math/MathUtility.hpp"
 #include "generic/common/Traits.hpp"
@@ -637,4 +636,3 @@ inline void VertexGraph::GetEdges(Edges & edges) const
 }//namespace tri
 }//namespace geometry
 }//namespace generic
-#endif//GENERIC_GEOMETRY_TRI_TRIANGULATION_HPP

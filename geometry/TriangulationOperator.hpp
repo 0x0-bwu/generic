@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_GEOMETRY_TRI_TRIANGULATIONOPERATOR_HPP
-#define GENERIC_GEOMETRY_TRI_TRIANGULATIONOPERATOR_HPP
+#pragma once
 #include <boost/geometry/index/rtree.hpp>
 #include <boost/container/flat_set.hpp>
 #include "Triangulation.hpp"
@@ -603,4 +602,3 @@ public:
 }//namespace tri
 }//namespace geometry
 }//namespace generic
-#endif//GENERIC_GEOMETRY_TRI_TRIANGULATIONOPERATOR_HPP

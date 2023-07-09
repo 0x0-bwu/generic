@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_GEOMETRY_TRI_TRIANGULATOR_HPP
-#define GENERIC_GEOMETRY_TRI_TRIANGULATOR_HPP
+#pragma once
 #include <boost/geometry/index/rtree.hpp>
 #include <boost/geometry/geometry.hpp>
 #include "TriangulationOperator.hpp"
@@ -729,4 +728,3 @@ inline DuplicatesInfo RemoveDuplicatesAndRemapEdges(std::vector<Point2D<num_type
 }//namespace tri
 }//namespace geometry
 }//namespace generic
-#endif//GENERIC_GEOMETRY_TRI_TRIANGULATOR_HPP

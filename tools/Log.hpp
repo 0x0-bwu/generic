@@ -8,8 +8,7 @@
  * @copyright Copyright (c) 2022
  * 
  */
-#ifndef GENERIC_LOG_HPP
-#define GENERIC_LOG_HPP
+#pragma once
 #include "generic/common/Exception.hpp"
 #include "FileSystem.hpp"
 #include "Format.hpp"
@@ -1272,4 +1271,3 @@ inline void ShutDown()
 
 }//namespace log
 }//namespace generic
-#endif//GENERIC_LOG_HPP

@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_MATH_INTERPOLATION_HPP
-#define GENERIC_MATH_INTERPOLATION_HPP
+#pragma once
 #include <boost/numeric/ublas/matrix.hpp>
 #include <boost/numeric/ublas/banded.hpp>
 #include <boost/numeric/ublas/lu.hpp>
@@ -273,4 +272,3 @@ inline float_type<num_type> Interpolation<num_type>::Interpolate(num_type x, con
 
 }//namespace math
 }//namespace generic
-#endif//GENERIC_MATH_INTERPOLATION_HPP

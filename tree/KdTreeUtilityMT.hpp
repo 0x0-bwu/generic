@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_TREE_KDTREEUTILITYMT_HPP
-#define GENERIC_TREE_KDTREEUTILITYMT_HPP
+#pragma once
 #include "BuilderMT.hpp"
 #include "KdTree.hpp"
 namespace generic {
@@ -49,4 +48,3 @@ public:
 };
 }//namespace tree
 }//namespace generic
-#endif//GENERIC_TREE_KDTREEUTILITYMT_HPP

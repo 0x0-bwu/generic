@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_COMMON_TRAITS_HPP
-#define GENERIC_COMMON_TRAITS_HPP
+#pragma once
 #include <type_traits>
 #include <string>
 
@@ -88,4 +87,3 @@ template <> inline std::string toString<double>()           { return "double"; }
 
 }//namespace common
 }//namespace generic
-#endif//GENERIC_COMMON_TRAITS_HPP

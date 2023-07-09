@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_TREE_BUILDER_HPP
-#define GENERIC_TREE_BUILDER_HPP
+#pragma once
 #include <stack>
 namespace generic{
 ///@brief tree structures and algorithms
@@ -66,4 +65,3 @@ struct TopDownTaskSpawner
 
 }//namespace tree
 }//namespace generic
-#endif//GENERIC_TREE_BUILDER_HPP

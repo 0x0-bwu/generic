@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_GEOMETRY_GEOMETRYIO_HPP
-#define GENERIC_GEOMETRY_GEOMETRYIO_HPP
+#pragma once
 #include <boost/geometry/io/wkt/write.hpp>
 #include <boost/geometry/io/wkt/read.hpp>
 #include "BoostGeometryRegister.hpp"
@@ -365,5 +364,3 @@ private:
 
 }//namespace geometry
 }//namespace generic
-
-#endif//GENERIC_GEOMETRY_GEOMETRYIO_HPP

@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_GEOMETRY_POLYGONWITHHOLES_HPP
-#define GENERIC_GEOMETRY_POLYGONWITHHOLES_HPP
+#pragma once
 #include "Polygon.hpp"
 #include <list>
 namespace generic  {
@@ -62,4 +61,3 @@ inline PolygonWithHoles2D<other_num_type> PolygonWithHoles2D<num_type>::Cast() c
 
 }//namespace geometry
 }//namespace generic
-#endif//GENERIC_GEOMETRY_POLYGONWITHHOLES_HPP

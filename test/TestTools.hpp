@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef TEST_TESTTOOLSHPP
-#define TEST_TESTTOOLSHPP
+#pragma once
 #include "generic/test/TestCommon.hpp"
 #include "generic/thread/ThreadPool.hpp"
 #include "generic/tools/ProgramOptions.hpp"
@@ -77,4 +76,3 @@ test_suite * create_tools_test_suite()
     //
     return tools_suite;
 }
-#endif//TEST_TESTTOOLSHPP

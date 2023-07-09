@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef TEST_TESTTHREAD_HPP
-#define TEST_TESTTHREAD_HPP
+#pragma once
 #include "generic/test/TestCommon.hpp"
 #include "generic/thread/MapReduce.hpp"
 #include "generic/thread/TaskFlow.hpp"
@@ -161,4 +160,3 @@ test_suite * create_thread_test_suite()
     //
     return thread_suite;
 }
-#endif//TEST_TESTTHREAD_HPP

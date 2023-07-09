@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef TEST_TESTGEOMETRY_HPP
-#define TEST_TESTGEOMETRY_HPP
+#pragma once
 #include "generic/test/TestCommon.hpp"
 #include "generic/geometry/BoostGeometryRegister.hpp"
 #include "generic/geometry/BoostPolygonRegister.hpp"
@@ -836,4 +835,3 @@ test_suite * create_geometry_test_suite()
     //
     return geometry_suite;
 }
-#endif//TEST_TESTGEOMETRY_HPP

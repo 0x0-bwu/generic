@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_UNITS_HPP
-#define GENERIC_UNITS_HPP
+#pragma once
 #include <unistd.h>
 #include <string>
 #include <cmath>
@@ -61,5 +60,3 @@ inline std::string toString(unit::Time unit)
     }       
 }
 }
-
-#endif//GENERIC_UNITS_HPP

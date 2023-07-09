@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-25
  */
-#ifndef GENERIC_GEOMETRY_POLYGONMERGE_HPP
-#define GENERIC_GEOMETRY_POLYGONMERGE_HPP
+#pragma once
 #define GENERIC_GEOMETRY_POLYGONMERGE_USE_RTREE
 #include "generic/thread/TaskFlow.hpp"
 #include "BooleanOperation.hpp"
@@ -721,4 +720,3 @@ inline void PolygonMergeRunner<Merger>::ScheduleSubTasks(MergeTaskNode * parent,
 
 }//namespace geometry
 }//namespace generic
-#endif//GENERIC_GEOMETRY_POLYGONMERGE_HPP

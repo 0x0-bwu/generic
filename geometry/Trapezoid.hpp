@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_GEOMETRY_TRAPEZOID_HPP
-#define GENERIC_GEOMETRY_TRAPEZOID_HPP
+#pragma once
 #include "generic/common/Exception.hpp"
 #include "generic/common/Traits.hpp"
 #include "Common.hpp"
@@ -149,5 +148,3 @@ inline Trapezoid<num_type> toTrapezoid(const std::array<Point2D<num_type>, 4> & 
 
 }//namespace geometry
 }//namespace generic
-
-#endif//GENERIC_GEOMETRY_TRAPEZOID_HPP

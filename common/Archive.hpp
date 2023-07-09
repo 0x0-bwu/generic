@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_COMMON_ARCHIVE_HPP
-#define GENERIC_COMMON_ARCHIVE_HPP
+#pragma once
 #include "Macros.hpp"
 
 #ifdef BOOST_SERIALIZATION_SUPPORT
@@ -32,5 +31,3 @@
 #include <boost/serialization/map.hpp>
 #include <fstream>
 #endif
-
-#endif//GENERIC_COMMON_ARCHIVE_HPP

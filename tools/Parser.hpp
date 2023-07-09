@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_PARSER_HPP
-#define GENERIC_PARSER_HPP
+#pragma once
 #include "generic/common/Exception.hpp"
 #include <boost/spirit/include/phoenix.hpp>
 #include <boost/spirit/include/qi.hpp>
@@ -89,6 +88,5 @@ struct ErrorHandler
     std::ostream & os;
 };
 
-}//namespace parser
-}//namespace 
-#endif//GENERIC_PARSER_HPP
+} // namespace parser
+} // namespace generic

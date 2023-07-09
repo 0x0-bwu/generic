@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_FORMAT_HPP
-#define GENERIC_FORMAT_HPP
+#pragma once
 #include <boost/format.hpp>
 #include <iomanip>
 namespace generic {
@@ -55,4 +54,3 @@ public:
 
 }//namespace format
 }//namespace generic
-#endif//GENERIC_FORMAT_HPP

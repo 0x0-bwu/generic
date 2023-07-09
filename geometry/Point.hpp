@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_GEOMETRY_POINT_HPP
-#define GENERIC_GEOMETRY_POINT_HPP
+#pragma once
 #include "generic/math/MathUtility.hpp"
 namespace generic  {
 namespace geometry {
@@ -351,4 +350,3 @@ inline Point3D<other_num_type> Point3D<num_type>::Cast() const
 
 }//namespace geometry
 }//namespace generic
-#endif //GENERIC_GEOMETRY_POINT_HPP

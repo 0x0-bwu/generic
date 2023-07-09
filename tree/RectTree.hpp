@@ -6,8 +6,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_TREE_RECTTREE_HPP
-#define GENERIC_TREE_RECTTREE_HPP
+#pragma once
 #include "generic/geometry/Box.hpp"
 #include <boost/geometry.hpp>
 #include <boost/geometry/core/point_type.hpp>
@@ -302,4 +301,3 @@ void RectTree<num_type, object, extent>::GetTopNodesAreaLessThan(num_type area, 
 
 }//namespace tree
 }//namespace generic
-#endif//GENERIC_TREE_RECTTREE_HPP

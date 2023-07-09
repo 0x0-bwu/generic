@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_GEOMETRY_GEOMETRYTRAITS_HPP
-#define GENERIC_GEOMETRY_GEOMETRYTRAITS_HPP
+#pragma once
 #include "generic/common/Traits.hpp"
 #include "Geometries.hpp"
 #include "Vector.hpp"
@@ -249,4 +248,3 @@ struct geometry_tag<Box3D<num_type> > { using tag = geometry_3d_box_tag; };
 
 }//namespace geometry
 }//namespace generic
-#endif//GENERIC_GEOMETRY_GEOMETRYTRAITS_HPP

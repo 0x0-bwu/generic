@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_GEOMETRY_SPHERE_HPP
-#define GENERIC_GEOMETRY_SPHERE_HPP
+#pragma once
 #include "generic/math/MathUtility.hpp"
 #include "Common.hpp"
 #include "Point.hpp"
@@ -65,4 +64,3 @@ Sphere<num_type>::Sphere(const Point3D<num_type> & origin, num_type radius){ o =
     
 }//namespace geometry
 }//namespace generic
-#endif//GENERIC_GEOMETRY_SPHERE_HPP

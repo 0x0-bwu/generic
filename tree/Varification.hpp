@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_TREE_VARIFICATION_HPP
-#define GENERIC_TREE_VARIFICATION_HPP
+#pragma once
 #include "KdTree.hpp"
 #include "BVH.hpp"
 #include <string>
@@ -203,4 +202,3 @@ private:
 
 }//namespace tree
 }//namespace generic
-#endif//GENERIC_TREE_VARIFICATION_HPP

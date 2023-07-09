@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_GEOMETRY_BOOLEANOPERATION_HPP
-#define GENERIC_GEOMETRY_BOOLEANOPERATION_HPP
+#pragma once
 #include "BoostPolygonRegister.hpp"
 #include "GeometryTraits.hpp"
 #include <boost/polygon/polygon_set_traits.hpp>
@@ -216,4 +215,3 @@ inline void Xor(iterator1 begin1, iterator1 end1, iterator2 begin2, iterator2 en
 } //namespace boolean
 } //namespace geometry
 } //namespace generic
-#endif//GENERIC_GEOMETRY_BOOLEANOPERATION_HPP

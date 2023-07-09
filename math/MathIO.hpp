@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22 
  */
-#ifndef GENERIC_MATH_MATHIO_HPP
-#define GENERIC_MATH_MATHIO_HPP
+#pragma once
 #include "LinearAlgebra.hpp"
 #include <boost/numeric/ublas/matrix_sparse.hpp>
 #include <boost/numeric/ublas/io.hpp>
@@ -113,4 +112,3 @@ public:
 }//namespace la
 }//namespace math
 }//namespace generic
-#endif//GENERIC_MATH_MATHIO_HPP

@@ -3,6 +3,7 @@
 *.a
 *.so
 *.exe
+.vscode
 build
 docs
 .sconsign.dblite

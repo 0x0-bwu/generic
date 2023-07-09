@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_TOPOLOGY_INDEXGRAPH_HPP
-#define GENERIC_TOPOLOGY_INDEXGRAPH_HPP
+#pragma once
 #include "generic/common/Exception.hpp"
 #include "generic/common/Archive.hpp"
 #include "generic/common/Traits.hpp"
@@ -205,4 +204,3 @@ inline UndirectedIndexEdgeSet EdgeSet(const SparseIndexGraph & g)
 
 }//namespace topology
 }//namespace generic
-#endif//GENERIC_TOPOLOGY_INDEXGRAPH_HPP

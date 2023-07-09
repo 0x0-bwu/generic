@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_THREAD_TASKFLOW_HPP
-#define GENERIC_THREAD_TASKFLOW_HPP
+#pragma once
 #include "ThreadPool.hpp"
 #include <condition_variable>
 #include <unordered_map>
@@ -269,4 +268,3 @@ inline void Executor::SetCheckCyclicDependency(bool check)
 }//namespace taskflow
 }//namespace thread
 }//namespace generic
-#endif//GENERIC_THERAD_TASKFLOW_HPP

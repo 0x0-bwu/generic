@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_GEOMETRY_CLIPPER_CLIPPER_HPP
-#define GENERIC_GEOMETRY_CLIPPER_CLIPPER_HPP
+#pragma once
 #include <boost/multiprecision/cpp_int.hpp>
 #include "generic/common/Exception.hpp"
 #include "Polygon.hpp"
@@ -3298,5 +3297,3 @@ inline void Clipper<num_type>::DeleteFromSEL(TEdge<num_type> * e)
 }//namespace clipper
 }//namespace geometry
 }//namespace generic
-
-#endif //GENERIC_GEOMETRY_CLIPPER_CLIPPER_HPP

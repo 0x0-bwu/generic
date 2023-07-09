@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_GEOMETRY_TET_TETRAHEDRALIZATION_HPP
-#define GENERIC_GEOMETRY_TET_TETRAHEDRALIZATION_HPP
+#pragma once
 #include "generic/topology/IndexGraph.hpp"
 #include "Point.hpp"
 #include <vector>
@@ -175,4 +174,3 @@ private:
 }//namespace tet
 }//namespace geometry
 }//namespace generic
-#endif//GENERIC_GEOMETRY_TET_TETRAHEDRALIZATION_HPP

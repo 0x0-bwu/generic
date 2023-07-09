@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_COLOR_HPP
-#define GENERIC_COLOR_HPP
+#pragma once
 #include "generic/math/MathUtility.hpp"
 namespace generic{
 ///@brief color related definitions, classes and functions
@@ -94,4 +93,3 @@ inline void RGBFromScalar(double scalar, int & r, int & g, int & b, ColorMap col
 
 }//namespace color
 }//namespace generic
-#endif//GENERIC_COLOR_HPP

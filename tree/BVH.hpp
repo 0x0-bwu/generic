@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_TREE_BVH_BVH_HPP
-#define GENERIC_TREE_BVH_BVH_HPP
+#pragma once
 #include "generic/common/Traits.hpp"
 #include "generic/geometry/Box.hpp"
 #include "generic/geometry/Vector.hpp"
@@ -663,4 +662,3 @@ private:
 }//namespace bvh
 }//namespace tree
 }//namespace generic
-#endif//GENERIC_TREE_BVH_BVH_HPP

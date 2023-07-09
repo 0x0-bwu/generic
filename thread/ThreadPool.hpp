@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_THREAD_THREADPOOL
-#define GENERIC_THREAD_THREADPOOL
+#pragma once
 #include <boost/lockfree/queue.hpp>
 #include <functional>
 #include <future>
@@ -288,4 +287,3 @@ inline size_t ThreadPool::AvailableThreads(size_t tryThreads)
 }
 }//namespace thread
 }//namespace generic
-#endif//GENERIC_THREAD_THREADPOOL

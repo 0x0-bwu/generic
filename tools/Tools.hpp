@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_TOOLS_HPP
-#define GENERIC_TOOLS_HPP
+#pragma once
 #include "generic/common/Macros.hpp"
 #include "Units.hpp"
 
@@ -230,4 +229,3 @@ private:
 
 }//namespace tools
 }//namespace generic
-#endif//GENERIC_TOOLS_HPP

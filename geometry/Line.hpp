@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_GEOMETRY_LINE_HPP
-#define GENERIC_GEOMETRY_LINE_HPP
+#pragma once
 #include "Segment.hpp"
 #include "Vector.hpp"
 namespace generic  {
@@ -146,4 +145,3 @@ inline Line2D<num_type> makeLineBySegment(const Segment2D<num_type> & s)
 
 }//namespace geometry
 }//namespace generic
-#endif//GENERIC_GEOMETRY_LINE_HPP

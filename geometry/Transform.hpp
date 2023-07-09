@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_GEOMETRY_TRANSFORM_HPP
-#define GENERIC_GEOMETRY_TRANSFORM_HPP
+#pragma once
 #include <boost/qvm/quat_vec_operations.hpp>
 #include <boost/qvm/vec_mat_operations.hpp>
 #include <boost/qvm/quat_operations.hpp>
@@ -830,4 +829,3 @@ inline void Transform(iterator begin, iterator end, const transform_t & trans)
 }
 }//namespace geometry
 }//namespace generic
-#endif//GENERIC_GEOMETRY_TRANSFORM_HPP

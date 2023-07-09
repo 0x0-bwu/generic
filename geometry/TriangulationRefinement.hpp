@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_GEOMETRY_TRI_TRIANGULATIONREFINEMENT_HPP
-#define GENERIC_GEOMETRY_TRI_TRIANGULATIONREFINEMENT_HPP
+#pragma once
 #include "TriangleEvaluator.hpp"
 #include "Triangulator.hpp"
 #include "Utility.hpp"
@@ -1320,4 +1319,3 @@ private:
 }//namespace tri
 }//namespace geometry
 }//namespace generic
-#endif//GENERIC_GEOMETRY_TRI_TRIANGULATIONREFINEMENT_HPP

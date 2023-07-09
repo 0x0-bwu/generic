@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_COMMON_MACROS_HPP
-#define GENERIC_COMMON_MACROS_HPP
+#pragma once
 #include "Version.hpp"
 
 #define BOOST_SERIALIZATION_SUPPORT
@@ -38,6 +37,3 @@
     #define GENERIC_FOLDER_SEPS "/"
     #define GENERIC_DEFAULT_EOL "\n"
 #endif
-
-
-#endif//GENERIC_COMMON_MACROS_HPP

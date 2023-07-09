@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_GEOMETRY_VECTOR_HPP
-#define GENERIC_GEOMETRY_VECTOR_HPP
+#pragma once
 #include "generic/math/MathUtility.hpp"
 #include "Common.hpp"
 #include "Point.hpp"
@@ -144,4 +143,3 @@ inline num_type VectorN<num_type, N>::NormSquare(const VectorN<num_type, N> & v1
 
 }// namespace geometry
 }// namespace generic
-#endif//GENERIC_GEOMETRY_VECTOR_HPP

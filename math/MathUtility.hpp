@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_MATH_MATHUTILITY_HPP
-#define GENERIC_MATH_MATHUTILITY_HPP
+#pragma once
 #include "generic/common/Traits.hpp"
 #include "Numbers.hpp"
 #include <type_traits>
@@ -215,4 +214,3 @@ inline float_type<num_type> SafeInv(num_type scalar)
 
 }//namespace math
 }//namespace generic
-#endif//GENERIC_MATH_MATHUTILITY_HPP

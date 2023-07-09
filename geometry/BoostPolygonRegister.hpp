@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_GEOMETRY_BOOSTPOLYGONREGISTER_HPP
-#define GENERIC_GEOMETRY_BOOSTPOLYGONREGISTER_HPP
+#pragma once
 #include "Geometries.hpp"
 #include <boost/polygon/polygon.hpp>
 #include <type_traits>
@@ -379,5 +378,3 @@ struct polygon_with_holes_mutable_traits<PolygonWithHoles2D<num_type> >
 
 }//namespace polygon
 }//namespace boost
-
-#endif//GENERIC_GEOMETRY_BOOSTPOLYGONREGISTER_HPP

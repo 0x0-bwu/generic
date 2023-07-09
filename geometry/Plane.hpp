@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_GEOMETRY_PLANE_HPP
-#define GENERIC_GEOMETRY_PLANE_HPP
+#pragma once
 #include "generic/common/Traits.hpp"
 #include "Point.hpp"
 #include "Vector.hpp"
@@ -48,4 +47,3 @@ inline Plane<num_type>::Plane(const Point3D<num_type> & p1, const Point3D<num_ty
 }
 }//namespace geometry
 }//namespace generic
-#endif//GENERIC_GEOMETRY_PLANE_HPP

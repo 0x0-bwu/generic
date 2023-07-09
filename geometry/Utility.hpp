@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_GEOMETRY_UTILITY_HPP
-#define GENERIC_GEOMETRY_UTILITY_HPP
+#pragma once
 #include "generic/math/MathUtility.hpp"
 #include "generic/common/Version.hpp"
 #include "generic/math/Numbers.hpp"
@@ -535,4 +534,3 @@ inline polygon_t ConvexHull(const container<polygon_t, allocator<polygon_t> > & 
 }//namespace generic
 
 #include "Utility.ipp"
-#endif //GENERIC_GEOMETRY_UTILITY_HPP

@@ -1,5 +1,4 @@
-#ifndef GENERIC_THREAD_THREADSAFECONTAINER_HPP
-#define GENERIC_THREAD_THREADSAFECONTAINER_HPP
+#pragma once
 #include <mutex>
 #include <queue>
 #include <atomic>
@@ -321,4 +320,3 @@ inline void LockFreeQueue<Task>::FreeExternalCount_(CountedNodePtr & preNodePtr)
 
 }//namespace thread
 }//namespace generic
-#endif//THREAD_THREADSAFECONTAINER_HPP

@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_GEOMETRY_SERIALIZATION_HPP
-#define GENERIC_GEOMETRY_SERIALIZATION_HPP
+#pragma once
 #define GENERIC_GEOMETRY_ARCHIVE_VERSION 1
 #include "generic/common/Archive.hpp"
 #include "Geometries.hpp"
@@ -90,4 +89,3 @@ void serialize(Archive & ar, PolygonWithHoles2D<num_type> & pwh, const unsigned 
 
 }//namespace serialization
 }//namespace boost
-#endif//GENERIC_GEOMETRY_SERIALIZATION_HPP

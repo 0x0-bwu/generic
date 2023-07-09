@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_TREE_KDTREE_HPP
-#define GENERIC_TREE_KDTREE_HPP
+#pragma once
 #include "generic/math/MathUtility.hpp"
 #include "generic/geometry/Vector.hpp"
 #include "generic/common/Traits.hpp"
@@ -473,4 +472,3 @@ private:
 }//namespace kdtree
 }//namespace tree
 }//namespace generic
-#endif//GENERIC_TREE_KDTREE_HPP

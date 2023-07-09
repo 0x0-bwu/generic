@@ -5,9 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_FILESYSTEM_HPP
-#define GENERIC_FILESYSTEM_HPP
-
+#pragma once
 #if GENERIC_CURRENT_CXX_VERSION >= 17
 #include <filesystem>
 #endif
@@ -271,4 +269,3 @@ inline std::string ParentPath(const std::string & path)
 
 }//namespace filesystem
 }//namespace generic
-#endif//GENERIC_FILESYSTEM_HPP

@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_GEOMETRY_BOX_HPP
-#define GENERIC_GEOMETRY_BOX_HPP
+#pragma once
 #include "Point.hpp"
 namespace generic  {
 namespace geometry {
@@ -741,4 +740,3 @@ inline bool Box3D<num_type>::Collision(const Box3D<num_type> & a, const Box3D<nu
 
 }//namespace geometry
 }//namespace generic
-#endif//GENERIC_GEOMETRY_BOX_HPP

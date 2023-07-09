@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_MATH_LINEARALGEBRA_HPP
-#define GENERIC_MATH_LINEARALGEBRA_HPP
+#pragma once
 #include "generic/common/Traits.hpp"
 #include "generic/common/Version.hpp"
 #include "MathUtility.hpp"
@@ -516,4 +515,3 @@ inline bool Matrix<num_type, M, N>::Same(const Matrix<num_type, M, N> & m1, cons
 }//namespace la
 }//namespace math
 }//namespace generic
-#endif//GENERIC_MATH_LINEARALGEBRA_HPP

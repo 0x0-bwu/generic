@@ -8,8 +8,7 @@
  * @copyright Copyright (c) 2022
  * 
  */
-#ifndef GENERIC_TREE_QUADTREEUTILITYMT_HPP
-#define GENERIC_TREE_QUADTREEUTILITYMT_HPP
+#pragma once
 #include "QuadTree.hpp"
 #include "generic/thread/ThreadPool.hpp"
 namespace generic{
@@ -64,4 +63,3 @@ void QuadTreeBuilderMT<object, Tree>::BuildNodeInThread(Node * node, size_t max_
 }    
 }//namespace tree
 }//namespace generic
-#endif//GENERIC_TREE_QUADTREEUTILITYMT_HPP

@@ -8,8 +8,7 @@
  * @copyright Copyright (c) 2022
  * 
  */
-#ifndef GENERIC_TREE_QUADTREE_HPP
-#define GENERIC_TREE_QUADTREE_HPP
+#pragma once
 #include "generic/common/Traits.hpp"
 #include "generic/geometry/Box.hpp"
 #include "generic/geometry/Utility.hpp"
@@ -426,4 +425,3 @@ inline bool QuadTree<num_type, object, extent>::CreateSubBoxCondition(const num_
 
 }//namespace tree
 }//namespace generic
-#endif//GENERIC_TREE_QUADTREE_HPP

@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_GEOMETRY_SEGMENT_HPP
-#define GENERIC_GEOMETRY_SEGMENT_HPP
+#pragma once
 #include "generic/common/Traits.hpp"
 #include "Point.hpp"
 #include <cmath>
@@ -203,4 +202,3 @@ float_type<num_type> Segment3D<num_type>::Distance(const Segment3D<num_type> & p
 }
 }//namespace geometry
 }//namespace generic
-#endif//GENERIC_GEOMETRY_SEGMENT_HPP

@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_GEOMETRY_TRI_TRIANGLEEVALUATOR_HPP
-#define GENERIC_GEOMETRY_TRI_TRIANGLEEVALUATOR_HPP
+#pragma once
 #include "generic/common/Traits.hpp"
 #include "generic/math/Numbers.hpp"
 #include "Triangulation.hpp"
@@ -114,8 +113,8 @@ private:
     const VerIdxSet & m_skipV;
 };
 
-template <typename point_t>
-inline typename TriangleEvaluator<point_t>::Evaluation TriangleEvaluator<point_t>::Report() const
+template <typename point_t, size_t bins>
+inline typename TriangleEvaluator<point_t, bins>::Evaluation TriangleEvaluator<point_t, bins>::Report() const
 {
     std::array<double, bins> angles, edges;
     auto minEdge = MinEdgeLength();
@@ -132,9 +131,9 @@ inline typename TriangleEvaluator<point_t>::Evaluation TriangleEvaluator<point_t
     return Evaluation{ VertexSize(), TriangleSize(), static_cast<double>(MinimumAngle()), static_cast<double>(MaximumAngle()), static_cast<double>(minEdge), static_cast<double>(maxEdge), angles, edges };
 }
 
-template <typename point_t>
-inline typename TriangleEvaluator<point_t>::float_t
-TriangleEvaluator<point_t>::MinimumAngle(const Triangulation<point_t> & tri, TriIdx begin, TriIdx end, const TriIdxSet & skipT)
+template <typename point_t, size_t bins>
+inline typename TriangleEvaluator<point_t, bins>::float_t
+TriangleEvaluator<point_t, bins>::MinimumAngle(const Triangulation<point_t> & tri, TriIdx begin, TriIdx end, const TriIdxSet & skipT)
 {
     float_t min(math::pi);
     for(TriIdx i = begin; i < end; ++i){
@@ -144,9 +143,9 @@ TriangleEvaluator<point_t>::MinimumAngle(const Triangulation<point_t> & tri, Tri
     return min;
 }
 
-template <typename point_t>
-inline typename TriangleEvaluator<point_t>::float_t
-TriangleEvaluator<point_t>::MaximumAngle(const Triangulation<point_t> & tri, TriIdx begin, TriIdx end, const TriIdxSet & skipT)
+template <typename point_t, size_t bins>
+inline typename TriangleEvaluator<point_t, bins>::float_t
+TriangleEvaluator<point_t, bins>::MaximumAngle(const Triangulation<point_t> & tri, TriIdx begin, TriIdx end, const TriIdxSet & skipT)
 {
     float_t max(0);
     for(TriIdx i = begin; i < end; ++i){
@@ -156,9 +155,9 @@ TriangleEvaluator<point_t>::MaximumAngle(const Triangulation<point_t> & tri, Tri
     return max; 
 }
 
-template <typename point_t>
-inline typename TriangleEvaluator<point_t>::float_t
-TriangleEvaluator<point_t>::MaxEdgeLength(const Triangulation<point_t> & tri, TriIdx begin, TriIdx end, const TriIdxSet & skipT)
+template <typename point_t, size_t bins>
+inline typename TriangleEvaluator<point_t, bins>::float_t
+TriangleEvaluator<point_t, bins>::MaxEdgeLength(const Triangulation<point_t> & tri, TriIdx begin, TriIdx end, const TriIdxSet & skipT)
 {
     float_t max(0);
     for(TriIdx i = begin; i < end; ++i){
@@ -168,9 +167,9 @@ TriangleEvaluator<point_t>::MaxEdgeLength(const Triangulation<point_t> & tri, Tr
     return max;
 }
 
-template <typename point_t>
-inline typename TriangleEvaluator<point_t>::float_t
-TriangleEvaluator<point_t>::MinEdgeLength(const Triangulation<point_t> & tri, TriIdx begin, TriIdx end, const TriIdxSet & skipT)
+template <typename point_t, size_t bins>
+inline typename TriangleEvaluator<point_t, bins>::float_t
+TriangleEvaluator<point_t, bins>::MinEdgeLength(const Triangulation<point_t> & tri, TriIdx begin, TriIdx end, const TriIdxSet & skipT)
 {
     float_t min = std::numeric_limits<float_t>::max();
     for(TriIdx i = begin; i < end; ++i){
@@ -180,9 +179,9 @@ TriangleEvaluator<point_t>::MinEdgeLength(const Triangulation<point_t> & tri, Tr
     return min;
 }
 
-template <typename point_t>
-inline typename TriangleEvaluator<point_t>::float_t
-TriangleEvaluator<point_t>::AveEdgeLength(const Triangulation<point_t> & tri, TriIdx begin, TriIdx end, const TriIdxSet & skipT)
+template <typename point_t, size_t bins>
+inline typename TriangleEvaluator<point_t, bins>::float_t
+TriangleEvaluator<point_t, bins>::AveEdgeLength(const Triangulation<point_t> & tri, TriIdx begin, TriIdx end, const TriIdxSet & skipT)
 {
     size_t  num = 0;
     float_t sum = 0;
@@ -194,9 +193,9 @@ TriangleEvaluator<point_t>::AveEdgeLength(const Triangulation<point_t> & tri, Tr
     return sum / num;
 }
 
-template <typename point_t>
-inline typename TriangleEvaluator<point_t>::float_t
-TriangleEvaluator<point_t>::AveMinimumAngle(const Triangulation<point_t> & tri, TriIdx begin, TriIdx end, const TriIdxSet & skipT)
+template <typename point_t, size_t bins>
+inline typename TriangleEvaluator<point_t, bins>::float_t
+TriangleEvaluator<point_t, bins>::AveMinimumAngle(const Triangulation<point_t> & tri, TriIdx begin, TriIdx end, const TriIdxSet & skipT)
 {
     size_t  num = 0;
     float_t sum = 0;
@@ -208,18 +207,18 @@ TriangleEvaluator<point_t>::AveMinimumAngle(const Triangulation<point_t> & tri, 
     return sum / num;
 }
 
-template <typename point_t>
-inline std::array<size_t, TriangleEvaluator<point_t>::bins>
-TriangleEvaluator<point_t>::EdgeLengthHistogram(float_t min, float_t max) const
+template <typename point_t, size_t bins>
+inline std::array<size_t, bins>
+TriangleEvaluator<point_t, bins>::EdgeLengthHistogram(float_t min, float_t max) const
 {
    auto histogram = EdgeLengthHistogramDoubleCount<bins>(m_tri, 0, TriangleSize(), min, max, m_skipT);
    for(auto & count : histogram) count /= 2;
    return histogram;
 }
 
-template <typename point_t>
+template <typename point_t, size_t bins>
 template <size_t colums>
-inline  std::array<size_t, colums> TriangleEvaluator<point_t>::MinimumAngleHistogram(const Triangulation<point_t> & tri, TriIdx begin, TriIdx end, const TriIdxSet & skipT)
+inline  std::array<size_t, colums> TriangleEvaluator<point_t, bins>::MinimumAngleHistogram(const Triangulation<point_t> & tri, TriIdx begin, TriIdx end, const TriIdxSet & skipT)
 {
     std::array<size_t, colums> histogram {0};
     float_t coef = 3 * colums * math::pi_inv;
@@ -231,9 +230,9 @@ inline  std::array<size_t, colums> TriangleEvaluator<point_t>::MinimumAngleHisto
     return histogram;
 }
 
-template <typename point_t>
+template <typename point_t, size_t bins>
 template <size_t colums>
-inline std::array<size_t, colums> TriangleEvaluator<point_t>::EdgeLengthHistogramDoubleCount(const Triangulation<point_t> & tri, TriIdx begin, TriIdx end, float_t min, float_t max, const TriIdxSet & skipT)
+inline std::array<size_t, colums> TriangleEvaluator<point_t, bins>::EdgeLengthHistogramDoubleCount(const Triangulation<point_t> & tri, TriIdx begin, TriIdx end, float_t min, float_t max, const TriIdxSet & skipT)
 {
     std::array<size_t, colums> histogram {0};
     float_t coef = float_t(colums) / (max - min);
@@ -249,39 +248,39 @@ inline std::array<size_t, colums> TriangleEvaluator<point_t>::EdgeLengthHistogra
     return histogram;
 }
 
-template <typename point_t>
-inline typename TriangleEvaluator<point_t>::float_t
-TriangleEvaluator<point_t>::MinimumAngle(const Triangulation<point_t> & tri, TriIdx it)
+template <typename point_t, size_t bins>
+inline typename TriangleEvaluator<point_t, bins>::float_t
+TriangleEvaluator<point_t, bins>::MinimumAngle(const Triangulation<point_t> & tri, TriIdx it)
 {
     return Utility::GetMinimumAngle(tri, it);
 }
 
-template <typename point_t>
-inline typename TriangleEvaluator<point_t>::float_t
-TriangleEvaluator<point_t>::MaximumAngle(const Triangulation<point_t> & tri, TriIdx it)
+template <typename point_t, size_t bins>
+inline typename TriangleEvaluator<point_t, bins>::float_t
+TriangleEvaluator<point_t, bins>::MaximumAngle(const Triangulation<point_t> & tri, TriIdx it)
 {
     return Utility::GetMaximumAngle(tri, it);
 }
 
-template <typename point_t>
-inline typename TriangleEvaluator<point_t>::float_t
-TriangleEvaluator<point_t>::MaxEdgeLength(const Triangulation<point_t> & tri, TriIdx it)
+template <typename point_t, size_t bins>
+inline typename TriangleEvaluator<point_t, bins>::float_t
+TriangleEvaluator<point_t, bins>::MaxEdgeLength(const Triangulation<point_t> & tri, TriIdx it)
 {
     auto maxE = Utility::GetMaxLenEdge(tri, it);
     return Utility::GetEdgeLength(tri,maxE);
 }
 
-template <typename point_t>
-inline typename TriangleEvaluator<point_t>::float_t
-TriangleEvaluator<point_t>::MinEdgeLength(const Triangulation<point_t> & tri, TriIdx it)
+template <typename point_t, size_t bins>
+inline typename TriangleEvaluator<point_t, bins>::float_t
+TriangleEvaluator<point_t, bins>::MinEdgeLength(const Triangulation<point_t> & tri, TriIdx it)
 {
     auto minE = Utility::GetMinLenEdge(tri, it);
     return Utility::GetEdgeLength(tri,minE);
 }
 
-template <typename point_t>
-inline typename TriangleEvaluator<point_t>::float_t
-TriangleEvaluator<point_t>::AveEdgeLength(const Triangulation<point_t> & tri, TriIdx it)
+template <typename point_t, size_t bins>
+inline typename TriangleEvaluator<point_t, bins>::float_t
+TriangleEvaluator<point_t, bins>::AveEdgeLength(const Triangulation<point_t> & tri, TriIdx it)
 {
     float_t ave = 0;
     for(size_t i = 0; i < 3; ++i)
@@ -292,4 +291,3 @@ TriangleEvaluator<point_t>::AveEdgeLength(const Triangulation<point_t> & tri, Tr
 }//namespace tri
 }//namespace geometry
 }//namespace generic
-#endif//GENERIC_GEOMETRY_TRI_TRIANGLEEVALUATOR_HPP

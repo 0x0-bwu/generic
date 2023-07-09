@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_STR_STRINGHELPER_HPP
-#define GENERIC_STR_STRINGHELPER_HPP
+#pragma once
 #include <boost/algorithm/string.hpp>
 #include <boost/tokenizer.hpp>
 #include <string>
@@ -70,7 +69,7 @@ inline void Split(const std::string & str, std::vector<std::string> & items, con
         items.push_back(*iter);
 }
 
-///@brief split sting `str` by `seperator`
+///@brief split sting `str` by `seperators`
 inline std::vector<std::string> Split(const std::string & str, const std::string & seperators = " ")
 {
     std::vector<std::string> items;
@@ -78,6 +77,13 @@ inline std::vector<std::string> Split(const std::string & str, const std::string
     return items;
 }
 
+///@brief split sting `str` by `seperator`
+inline std::vector<std::string> Split(const std::string & str, char c)
+{
+    std::vector<std::string> items;
+    Split(str, items, std::string(1, c));
+    return items;
+}
+
 }//str
 }//generic
-#endif//GENERIC_STR_STRINGHELPER_HPP

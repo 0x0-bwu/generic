@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_GEOMETRY_CONNECTIVITY_HPP
-#define GENERIC_GEOMETRY_CONNECTIVITY_HPP
+#pragma once
 #include "generic/topology/IndexGraph.hpp"
 #include "generic/thread/ThreadPool.hpp"
 #include "generic/geometry/Utility.hpp"
@@ -427,5 +426,3 @@ private:
 
 }//namespace geometry
 }//namespace generic
-
-#endif//GENERIC_GEOMETRY_CONNECTIVITY_HPP

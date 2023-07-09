@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_GEOMETRY_TRIANGLE_HPP
-#define GENERIC_GEOMETRY_TRIANGLE_HPP
+#pragma once
 #include "generic/common/Traits.hpp"
 #include "Common.hpp"
 #include "Point.hpp"
@@ -240,4 +239,3 @@ inline Triangle3D<other_num_type> Triangle3D<num_type>::Cast() const
 
 }//namespace geometry
 }//namespace generic
-#endif //GENERIC_GEOMETRY_TRIANGLE_HPP

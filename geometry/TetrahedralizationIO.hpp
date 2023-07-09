@@ -5,10 +5,9 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_GEOMETRY_TET_TETRAHEDRALIZATIONIO_HPP
-#define GENERIC_GEOMETRY_TET_TETRAHEDRALIZATIONIO_HPP
+#pragma once
+#include "generic/tools/StringHelper.hpp"
 #include "generic/common/Traits.hpp"
-#include "generic/tools/Parser.hpp"
 #include "Tetrahedralization.hpp"
 namespace generic {
 namespace geometry {
@@ -28,7 +27,7 @@ bool LoadElesFromFile(std::ifstream & in, size_t & line, std::vector<element_t> 
         std::getline(in, tmp);
         if(tmp.empty()) continue;
 
-        auto items = parser::Split(tmp, sp);
+        auto items = str::Split(tmp, sp);
         if(items.size() < 2){
             if(err) *err = "Error: column mismatch in line " + std::to_string(line);
             return false;  
@@ -49,7 +48,7 @@ bool LoadElesFromFile(std::ifstream & in, size_t & line, std::vector<element_t> 
         std::getline(in, tmp);
         if(tmp.empty()) continue;
 
-        auto items = parser::Split(tmp, sp);
+        auto items = str::Split(tmp, sp);
         if(items.size() < dim + 1){
             if(err) *err = "Error: column mismatch in line " + std::to_string(line);
             return false;  
@@ -91,7 +90,7 @@ bool LoadEdgesFromFile(std::ifstream & in, size_t & line, std::vector<IndexEdge>
         std::getline(in, tmp);
         if(tmp.empty()) continue;
 
-        auto items = parser::Split(tmp, sp);
+        auto items = str::Split(tmp, sp);
         if(items.size() != 2){
             if(err) *err = "Error: column mismatch in line " + std::to_string(line);
             return false;  
@@ -108,7 +107,7 @@ bool LoadEdgesFromFile(std::ifstream & in, size_t & line, std::vector<IndexEdge>
         std::getline(in, tmp);
         if(tmp.empty()) continue;
 
-        auto items = parser::Split(tmp, sp);
+        auto items = str::Split(tmp, sp);
         if(items.size() < 3){
             if(err) *err = "Error: column mismatch in line " + std::to_string(line);
             return false;  
@@ -152,7 +151,7 @@ bool LoadPointsFromFile(std::ifstream & in, size_t & line, std::vector<point_t> 
         std::getline(in, tmp);
         if(tmp.empty()) continue;
 
-        auto items = parser::Split(tmp, sp);
+        auto items = str::Split(tmp, sp);
         if(items.size() != 4){
             if(err) *err = "Error: column mismatch in line " + std::to_string(line);
             return false;  
@@ -182,7 +181,7 @@ bool LoadPointsFromFile(std::ifstream & in, size_t & line, std::vector<point_t> 
         std::getline(in, tmp);
         if(tmp.empty()) continue;
 
-        auto items = parser::Split(tmp, sp);
+        auto items = str::Split(tmp, sp);
         if(items.size() < (dim + 1)){
             if(err) *err = "Error: column mismatch in line " + std::to_string(line);
             return false;  
@@ -239,7 +238,7 @@ inline bool LoadSurfacesFromFile(std::ifstream & in, size_t & line,  std::vector
         std::getline(in, tmp);
         if(tmp.empty()) continue;
 
-        auto items = parser::Split(tmp, sp);
+        auto items = str::Split(tmp, sp);
         if(items.size() != 2){
             if(err) *err = "Error: column mismatch in line " + std::to_string(line);
             return false;  
@@ -267,7 +266,7 @@ inline bool LoadSurfacesFromFile(std::ifstream & in, size_t & line,  std::vector
         std::getline(in, tmp);
         if(tmp.empty()) continue;
 
-        auto items = parser::Split(tmp, sp);
+        auto items = str::Split(tmp, sp);
         if(items.size() == 0){
             if(err) *err = "Error: column mismatch in line " + std::to_string(line);
             return false;  
@@ -287,7 +286,7 @@ inline bool LoadSurfacesFromFile(std::ifstream & in, size_t & line,  std::vector
             std::getline(in, tmp);
             if(tmp.empty()) continue;
 
-            auto items = parser::Split(tmp, sp);
+            auto items = str::Split(tmp, sp);
             if(items.size() == 0){
                 if(err) *err = "Error: column mismatch in line " + std::to_string(line);
                 return false;  
@@ -315,7 +314,7 @@ inline bool LoadSurfacesFromFile(std::ifstream & in, size_t & line,  std::vector
             std::getline(in, tmp);
             if(tmp.empty()) continue;
 
-            auto items = parser::Split(tmp, sp);
+            auto items = str::Split(tmp, sp);
             if(items.size() != (dim + 1)){
                 if(err) *err = "Error: column mismatch in line " + std::to_string(line);
                 return false;  
@@ -482,4 +481,3 @@ bool WriteVtkFile(const std::string & filename, const Tetrahedralization<point_t
 }//namespace tet
 }//namespace geometry
 }//namespace generic
-#endif//GENERIC_GEOMETRY_TET_IO_TETRAHEDRALIZATIONIO_HPP

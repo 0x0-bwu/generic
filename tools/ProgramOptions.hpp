@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_PROGRAMOPTIONS_HPP
-#define GENERIC_PROGRAMOPTIONS_HPP
+#pragma once
 #include "generic/common/Exception.hpp"
 #include <type_traits>
 #include <algorithm>
@@ -717,4 +716,3 @@ inline std::ostream & operator<< (std::ostream & os, const generic::program_opti
     return os << op.Help();
 }
 }
-#endif//GENERIC_PROGRAMOPTIONS_HPP

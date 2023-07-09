@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef TEST_TESTMATH_HPP
-#define TEST_TESTMATH_HPP
+#pragma once
 #include "generic/test/TestCommon.hpp"
 #include "generic/math/MathUtility.hpp"
 #include "generic/math/LinearAlgebra.hpp"
@@ -83,4 +82,3 @@ test_suite * create_math_test_suite()
     //
     return math_suite;
 }
-#endif//TEST_TESTMATH_HPP

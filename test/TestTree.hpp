@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef TEST_TESTTREE_HPP
-#define TEST_TESTTREE_HPP
+#pragma once
 #include "generic/test/TestCommon.hpp"
 #include "generic/tree/QuadTreeUtilityMT.hpp"
 #include "generic/tree/KdTreeUtilityMT.hpp"
@@ -328,5 +327,3 @@ test_suite * create_tree_test_suite()
     //
     return tree_suite;
 }
-
-#endif//TEST_TESTTREE_HPP

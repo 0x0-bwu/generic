@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_GEOMETRY_CURVES_HPP
-#define GENERIC_GEOMETRY_CURVES_HPP
+#pragma once
 #include "generic/math/MathUtility.hpp"
 #include "Point.hpp"
 #include <complex>
@@ -79,4 +78,3 @@ Point2D<num_type> Arc<num_type>::EndPoint() const
 
 }//namespace geometry
 }//namespace generic
-#endif//GENERIC_GEOMETRY_CURVES_HPP

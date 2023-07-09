@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_TREE_BVH_BVHUTILITYMT_HPP
-#define GENERIC_TREE_BVH_BVHUTILITYMT_HPP
+#pragma once
 #include "BuilderMT.hpp"
 #include "BVH.hpp"
 namespace generic{
@@ -64,4 +63,3 @@ static Box3D<num_type> CalculateBBoxAndCenter(const std::vector<primitive * > & 
 }//namespace bvh
 }//namespace tree
 }//namespace generic
-#endif//GENERIC_TREE_BVH_BVHUTILITYMT_HPP

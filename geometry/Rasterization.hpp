@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_GEOMETRY_RASTERIZATION_HPP
-#define GENERIC_GEOMETRY_RASTERIZATION_HPP
+#pragma once
 #include "generic/common/Exception.hpp"
 #include "Geometries.hpp"
 #include "Vector.hpp"
@@ -201,4 +200,3 @@ inline Polygon2D<num_type> Rasterization::Rasterize(const Polygon2D<num_type> & 
 
 }//namespace geometry
 }//namespace generic
-#endif//GENERIC_GEOMETRY_RASTERIZATION_HPP

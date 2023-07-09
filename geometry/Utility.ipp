@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_GEOMETRY_UTILITY_IPP
-#define GENERIC_GEOMETRY_UTILITY_IPP
+#pragma once
 #include "Utility.hpp"
 namespace generic {
 namespace geometry {
@@ -820,4 +819,3 @@ inline polygon_t ConvexHull(const container<polygon_t, allocator<polygon_t> > & 
 
 }//namespace geometry
 }//namespace generic
-#endif//GENERIC_GEOMETRY_UTILITY_IPP

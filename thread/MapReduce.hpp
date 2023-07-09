@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_THREAD_MAPREDUCE_MAPREDUCE_HPP
-#define GENERIC_THREAD_MAPREDUCE_MAPREDUCE_HPP
+#pragma once
 #include "generic/common/Exception.hpp"
 #include "generic/thread/ThreadPool.hpp"
 #include <boost/iterator/iterator_facade.hpp>
@@ -812,5 +811,3 @@ private:
 }//mapreduce
 }//thread
 }//generic
-
-#endif//GENERIC_THREAD_MAPREDUCE_MAPREDUCE_HPP

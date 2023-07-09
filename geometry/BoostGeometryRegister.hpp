@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_GEOMETRY_BOOSTGEOMETRYREGISTER_HPP
-#define GENERIC_GEOMETRY_BOOSTGEOMETRYREGISTER_HPP
+#pragma once
 #include <boost/geometry/core/coordinate_dimension.hpp>
 #include <boost/geometry/geometries/geometries.hpp>
 #include <boost/geometry/core/coordinate_type.hpp>
@@ -463,5 +462,3 @@ inline PolygonWithHoles2D<num_type> toPolygonWithHoles2D(const boost_polygon_t<n
 }
 }//namespace geometry
 }//namespace generic
-
-#endif//GENERIC_GEOMETRY_BOOSTGEOMETRYREGISTER_HPP

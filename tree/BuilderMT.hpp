@@ -8,8 +8,7 @@
  * @copyright Copyright (c) 2022
  * 
  */
-#ifndef GENERIC_TREE_BUILDERMT_HPP
-#define GENERIC_TREE_BUILDERMT_HPP
+#pragma once
 #include "generic/thread/ThreadPool.hpp"
 #include "Builder.hpp"
 namespace generic{
@@ -64,4 +63,3 @@ private:
 };
 }//namespace tree
 }//namespace generic
-#endif//GENERIC_TREE_BUILDERMT_HPP

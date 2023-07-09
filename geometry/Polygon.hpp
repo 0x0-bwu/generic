@@ -5,8 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
-#ifndef GENERIC_GEOMETRY_POLYGON_HPP
-#define GENERIC_GEOMETRY_POLYGON_HPP
+#pragma once
 #include "Point.hpp"
 #include <vector>
 namespace generic  {
@@ -148,4 +147,3 @@ inline void Polygon2D<num_type>::Clean(Polygon2D<num_type> & polygon)
 
 } //namespace geometry
 } //namespace generic
-#endif//GENERIC_GEOMETRY_POLYGON_HPP
