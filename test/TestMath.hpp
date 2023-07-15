@@ -9,6 +9,7 @@
 #include "generic/test/TestCommon.hpp"
 #include "generic/math/MathUtility.hpp"
 #include "generic/math/LinearAlgebra.hpp"
+#include "generic/math/PolynomialFit.hpp"
 #include "generic/math/MathIO.hpp"
 using namespace boost::unit_test;
 using namespace generic;
@@ -39,6 +40,19 @@ void t_math_utility()
     BOOST_CHECK(GE(1e-4, 1.1e-4, 1e-5) == true);
     BOOST_CHECK(Within<OpenInterval>(1e-4, 1.0e-4, 1.1e-4) == false);
     BOOST_CHECK(Within<LeftClosedRightOpen>(1e-4, 1.0e-4, 1.1e-4) == true); 
+}
+
+void t_math_polynominal_fit()
+{
+
+    // y = 2 - x;
+    auto coeffs = PolyFit(std::vector<double>{0, 1, 2}, std::vector<double>{2, 1, 0}, 1);
+    BOOST_CHECK(coeffs[0] ==  2);
+    BOOST_CHECK(coeffs[1] == -1);
+
+    auto yValues = Polyval(coeffs, {3, 4});
+    BOOST_CHECK(yValues[0] == -1);
+    BOOST_CHECK(yValues[1] == -2);
 }
 
 BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_math_linear_algebra_t, math_num_types)
@@ -78,6 +92,7 @@ test_suite * create_math_test_suite()
     //
     math_suite->add(BOOST_TEST_CASE_TEMPLATE(t_math_utility_t, t_math_num_types));
     math_suite->add(BOOST_TEST_CASE(&t_math_utility));
+    math_suite->add(BOOST_TEST_CASE(&t_math_polynominal_fit));
     math_suite->add(BOOST_TEST_CASE_TEMPLATE(t_math_linear_algebra_t, t_math_num_types));
     //
     return math_suite;
