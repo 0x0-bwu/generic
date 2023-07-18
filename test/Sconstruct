@@ -25,25 +25,24 @@ else :
 ## boost
 boost_include_path = '/usr/local/include'
 boost_library_path = '/usr/local/lib'
-eigen_library_path = '/home/bwu/code/thirdpart/eigen3'
 
 # Build dir
-build_path = os.path.abspath(cwd)
-program_name = build_path + '/test.exe'
+build_path = os.path.abspath(cwd + '/../build')
+program_name = build_path + '/UnitTest.exe'
 
 cpp_path = [
     '.',
-    '..',
+    '../..',
     '/usr/include',
-    boost_include_path,
-    eigen_library_path
+    boost_include_path
 ]
 
 source_files = [
-    cwd + '/test.cpp'
+    cwd + '/UnitTest.cpp'
 ]
 
 libs_name = [
+    # 'boost_unit_test_framework',
     'pthread',
 ]
 
