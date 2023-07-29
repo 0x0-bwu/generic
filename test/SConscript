@@ -1,0 +1,28 @@
+Import('env')
+import os
+import fnmatch
+#Source to generate lib
+def get_source_files(dir, pattern) :
+    source_files = []
+    for root, dirs, files in os.walk(dir) :
+        for file in files :
+            if fnmatch.fnmatch(file, pattern) :
+                source_files.append(os.path.join(root, file))
+    return source_files
+
+curr_dir = env['CURRENTDIR']
+build_dir = env['BUILDPATH']
+source_files = get_source_files(curr_dir, '*.cpp')
+
+# Build dir
+program_name = build_dir + '/UnitTest.exe'
+
+libs_name = [
+    # 'boost_unit_test_framework',
+    'pthread',
+]
+libs_path = env['LIBPATH']
+rpath = libs_path
+
+#Environment
+env.Program(program_name,source_files,LIBS=libs_name,LIBPATH=libs_path,RPATH=rpath, )

@@ -12,7 +12,7 @@
 #include <cassert>
 #include <string>
 
-#ifdef GENERIC_NO_EXCEPTION
+#if GENERIC_NO_EXCEPTION
 #   define GENERIC_TRY
 #   define GENERIC_CATCH
 #   define GENERIC_THROW(ex) do{} while(0);
@@ -22,7 +22,7 @@
 #   define GENERIC_THROW(ex) throw(ex);
 #endif
 
-#ifdef GENERIC_NO_ASSERT
+#if GENERIC_NO_ASSERT
 #   define GENERIC_ASSERT(ex) do{} while(0);
 #else
 #   define GENERIC_ASSERT(ex) assert(ex);

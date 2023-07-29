@@ -59,7 +59,7 @@ struct UndirectedIndexEdge
 private:
     std::pair<index_t, index_t> m_vertices;
 
-#ifdef BOOST_SERIALIZATION_SUPPORT
+#if BOOST_SERIALIZATION_SUPPORT
 private:
     friend class boost::serialization::access;
     template <typename Archive>

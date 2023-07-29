@@ -1,61 +1,52 @@
-
 import os
 import sys
-from sys import platform
 
 cwd = os.getcwd()
-debug_mode = True
+
+#Environment
+main_env = Environment()
 
 # Compile flags
-cxx_flags = [
+main_env.Append(CXXFLAGS=[
     "-g",
     "-Wall",
     "-w",
     "-Wl,-rpath,\$$ORIGIN",
     "-std=c++17",
-    "-lpthread",
-]
-
-if debug_mode :
-    cxx_flags.append(["-g", "-O0"])
-else :
-    cxx_flags.append(["-s", "-O0", "-DNDEBUG"])
+    "-lpthread"
+])
 
 # Thirdpart
 ## boost
 boost_include_path = '/usr/local/include'
 boost_library_path = '/usr/local/lib'
-eigen_library_path = '/home/bwu/code/thirdpart/eigen3'
+
+## eigen
+eigen_include_path = '/home/bwu/code/thirdpart/eigen3'
+
+# Include dirs
+main_env.Append(CPPPATH=[
+    cwd,
+    cwd + '/..',
+    boost_include_path,
+    eigen_include_path,
+])
+
+# Library dirs
+main_env.Append(LIBPATH=[
+    boost_library_path,
+])
 
 # Build dir
-build_path = os.path.abspath(cwd)
-program_name = build_path + '/test.exe'
+build_path = os.path.abspath(cwd + '/build')
+main_env.Append(BUILDPATH=build_path)
 
-cpp_path = [
-    '.',
-    '..',
-    '/usr/include',
-    boost_include_path,
-    eigen_library_path
+# SCONS scripts to build
+build_scripts = [
+    'test/SConscript',
 ]
 
-source_files = [
-    cwd + '/test.cpp'
-]
-
-libs_name = [
-    'pthread',
-]
-
-libs_path = [
-    boost_library_path
-]
-
-rpath = libs_path
-
-#Environment
-env = Environment()
-env.Append(CPPPATH=cpp_path)
-env.Append(CXXFLAGS=cxx_flags)
-
-env.Program(program_name,source_files,LIBS=libs_name,LIBPATH=libs_path,RPATH=rpath)
+for script in build_scripts:
+    env = main_env.Clone()
+    env.Append(CURRENTDIR=os.path.dirname(cwd + '/' + script))
+    SConscript(script, exports='env', variant_dir=build_path)

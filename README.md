@@ -20,9 +20,8 @@ Some components depend on Boost library(header-only), need include boost library
 
 Some function implementation depends on third part library binaries with the Macro control defined in common/Macros.hpp:<br>       
 
-if defined BOOST_SERIALIZATION_SUPPORT, need link with libboost_serialization.<br>
-if defined BOOST_FILESYSTEM_SUPPORT, need link with libboost_filesystem.<br>
-if defined BOOST_GIL_IO_PNG_SUPPORT, need link with libpng.<br>
+if enable BOOST_SERIALIZATION_SUPPORT, need link with libboost_serialization.<br>
+if enable BOOST_GIL_IO_PNG_SUPPORT, need link with libpng.<br>
 
 ## Namespace Description
 + `generic`                         : top namespace<br> 

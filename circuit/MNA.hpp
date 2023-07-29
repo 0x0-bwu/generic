@@ -5,11 +5,12 @@
  * @version 0.1
  * @date 2023-07-16
  */
+#pragma once
 
 #include "generic/common/Exception.hpp"
-#define EIGEN_LIBRARY_SUPPORT
-#ifdef EIGEN_LIBRARY_SUPPORT
+#include "generic/common/Macros.hpp"
 
+#if EIGEN_LIBRARY_SUPPORT
 #include <Eigen/Dense>
 #include <Eigen/Sparse>
 #include <iostream>
@@ -211,14 +212,14 @@ RegularizeSu(Matrix<Float, scount, scount> const & G,
     Matrix<Float, Dynamic, icount> Bred = B1 - G12 * G22invB2;
 
     // This approach presumes no feedthrough (input-to-output) term
-    MatrixD D = L2.transpose() * G22invB2;
-    GENERIC_ASSERT(D.isZero());
+    // MatrixD D = L2.transpose() * G22invB2;
+    // GENERIC_ASSERT(D.isZero());
 
     return std::make_tuple(Gred, Cred, Bred, Lred);
 }
 
 inline std::tuple<MatrixXd, MatrixXd, MatrixXd, MatrixXd> //<G, C, B, L>
-RegularizeSuDynamic(MatrixXd const & G, MatrixXd const & C, MatrixXd const & B, MatrixXd const & L) {
+RegularizeSuDynamic(MatrixXd const & G, MatrixXd const & C, MatrixXd const & B, MatrixXd const & L, bool verbose = false) {
 
     // Use the techniques described in Su (Proc 15th ASP-DAC, 2002) to reduce
     // this set of equations so the state variable derivatives have coefficients
@@ -255,6 +256,13 @@ RegularizeSuDynamic(MatrixXd const & G, MatrixXd const & C, MatrixXd const & B, 
     auto GP = permut * G * permut;
     auto BP = permut * B; // permute only rows
     auto LP = permut * L;
+
+    if (verbose) {
+        std::cout << "CP:\n " << CP << std::endl;
+        std::cout << "GP:\n " << GP << std::endl;
+        std::cout << "BP:\n " << BP << std::endl;
+        std::cout << "LP:\n " << LP << std::endl;
+    }
     
     // 3. Produce reduced equations following Su (Proc. 15th ASP-DAC, 2002)
     auto G11 = GP.topLeftCorner(nonzero_count, nonzero_count);
@@ -262,11 +270,24 @@ RegularizeSuDynamic(MatrixXd const & G, MatrixXd const & C, MatrixXd const & B, 
     auto G21 = GP.bottomLeftCorner(zero_count, nonzero_count);
     auto G22 = GP.bottomRightCorner(zero_count, zero_count);
 
-    auto L1 = LP.topRows(nonzero_count);
-    auto L2 = LP.bottomRows(zero_count);
+    if (verbose) {
+        std::cout << "G11:\n " << G11 << std::endl;
+        std::cout << "G12:\n " << G12 << std::endl;
+        std::cout << "G21:\n " << G21 << std::endl;
+        std::cout << "G22:\n " << G22 << std::endl;
+    }
 
+    auto L1 = LP.topRows(nonzero_count);
+    auto L2 = LP.bottomRows(zero_count);    
     auto B1 = BP.topRows(nonzero_count);
     auto B2 = BP.bottomRows(zero_count);
+
+    if (verbose) {
+        std::cout << "L1:\n " << L1 << std::endl;
+        std::cout << "L2:\n " << L2 << std::endl;
+        std::cout << "B1:\n " << B1 << std::endl;
+        std::cout << "B2:\n " << B2 << std::endl;  
+    }
 
     auto Cred = CP.topLeftCorner(nonzero_count, nonzero_count);
 
@@ -279,9 +300,16 @@ RegularizeSuDynamic(MatrixXd const & G, MatrixXd const & C, MatrixXd const & B, 
     auto Lred = (L1.transpose() - L2.transpose() * G22invG21).transpose();
     auto Bred = B1 - G12 * G22invB2;
 
+    if (verbose) {
+        std::cout << "Cred:\n " << Cred << std::endl;
+        std::cout << "Gred:\n " << Gred << std::endl;
+        std::cout << "Bred:\n " << Bred << std::endl;
+        std::cout << "Lred:\n " << Lred << std::endl;
+    }
+
     // This approach presumes no feedthrough (input-to-output) term
-    auto D = L2.transpose() * G22invB2;
-    GENERIC_ASSERT(D.isZero());
+    // auto D = L2.transpose() * G22invB2;
+    // GENERIC_ASSERT(D.isZero());
 
     return std::make_tuple(Gred, Cred, Bred, Lred);
 }

@@ -5,10 +5,12 @@
  * @version 0.1
  * @date 2023-07-16
  */
+#pragma once
 
 #include "MNA.hpp"
 
-#ifdef EIGEN_LIBRARY_SUPPORT
+#if EIGEN_LIBRARY_SUPPORT 
+#include <boost/numeric/odeint.hpp>
 #include <memory>
 #include <set>
 namespace generic::ckt {
@@ -27,14 +29,22 @@ public:
         m_B.reset(new MatrixXd); *m_B = MatrixXd::Zero(Nodes() + SNodes(), SNodes());
         m_L.reset(new MatrixXd); *m_L = MatrixXd::Zero(Nodes() + SNodes(), PNodes());
         
-        size_t i = 0;
+        size_t i = 0, j;
         for (auto n : m_sources) {
             B()(i + Nodes(), i) = -1;
             mna::StampI(G(), n, i + Nodes());  ++i;
         }
+        
         i = 0;
-        if (not Probs().empty()) { for (auto n : Probs()) L()(n, i++) = 1;}
-        else { for (; i < Nodes(); ++i) L()(i, i) = 1; }
+        if (not Probs().empty()) {
+            for (auto n : Probs()) L()(n, i++) = 1;
+        }
+        else {
+            for (j = 0; j < Nodes(); ++j) {
+                if (Sources().count(j)) continue;
+                L()(j, i++) = 1;
+            }
+        }
     }
 
     virtual ~Circuit() = default;
@@ -66,7 +76,7 @@ public:
 
     size_t Nodes() const { return m_nodes; }
     size_t SNodes() const { return Sources().size(); }
-    size_t PNodes() const { return Probs().empty() ? Nodes() : Probs().size(); }
+    size_t PNodes() const { return Probs().empty() ? Nodes() - SNodes() : Probs().size(); }
 
     const std::set<size_t> & Probs() const { return m_probs; }
     const std::set<size_t> & Sources() const { return m_sources; }
@@ -103,7 +113,7 @@ struct Simulator
             std::cout << "L:\n" << ckt.L() << std::endl;
         }
 
-        std::tie(Gred, Cred, Bred, Lred) = mna::RegularizeSuDynamic(ckt.G(), ckt.C(), ckt.B(), ckt.L());
+        std::tie(Gred, Cred, Bred, Lred) = mna::RegularizeSuDynamic(ckt.G(), ckt.C(), ckt.B(), ckt.L(), verbose);
         
         if (verbose) {
             std::cout << "Gred:\n" << Gred << std::endl;
@@ -113,8 +123,14 @@ struct Simulator
         }
 
         u.resize(ckt.Sources().size());
-        coeff = Cred.ldlt().solve(-1.0 * Gred);
-        input = Cred.ldlt().solve(Bred);
+        auto dcomp = Cred.ldlt();
+        // auto dcomp = Cred.llt();
+        coeff = dcomp.solve(-1.0 * Gred);
+        input = dcomp.solve(Bred);
+        if (verbose) {
+            std::cout << "coeff:\n" << coeff << std::endl;
+            std::cout << "input:\n" << input << std::endl;
+        }
     }
 
     void operator() (const StateType x, StateType & dxdt, double t)
@@ -126,15 +142,21 @@ struct Simulator
         result = coeff * xvec + input * u;  
     }
 
-    size_t StateSize() const { return coeff.cols(); }
+    size_t StateSize() const { return coeff.cols(); } const
 
-    std::vector<double> State2Output(const StateType & x)
+    void State2Output(const StateType & x, std::vector<double> & result) const
     {
-        std::vector<double> result(ckt.PNodes());
+        result.resize(Lred.cols());
         Map<const VectorXd> xvec(x.data(), x.size());
         Map<VectorXd> ovec(result.data(), result.size());
         ovec = Lred.transpose() * xvec;
-        return result;
+    }
+
+    std::vector<double> State2Output(const StateType & x) const
+    {
+        std::vector<double> res;
+        State2Output(x, res);
+        return res;
     }
 };
 

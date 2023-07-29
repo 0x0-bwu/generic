@@ -22,7 +22,7 @@
 #include <vector>
 #include <atomic>
 
-#ifdef BOOST_GIL_IO_PNG_SUPPORT
+#if BOOST_GIL_IO_PNG_SUPPORT
 #include "generic/tools/FileSystem.hpp"
 #include "generic/tools/Color.hpp"
 #include <boost/gil/extension/io/png.hpp>
@@ -136,7 +136,7 @@ public:
         return std::make_pair(xMax, yMax);
     }
 
-#ifdef BOOST_GIL_IO_PNG_SUPPORT
+#if BOOST_GIL_IO_PNG_SUPPORT
     /**
      * @brief converts grid map to png image with the color mapping functioner
      * 

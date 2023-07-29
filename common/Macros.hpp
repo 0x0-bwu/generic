@@ -8,12 +8,11 @@
 #pragma once
 #include "Version.hpp"
 
-#define BOOST_SERIALIZATION_SUPPORT
-#define BOOST_FILESYSTEM_SUPPORT
-#define BOOST_GIL_IO_PNG_SUPPORT
-// #define EIGEN_LIBRARY_SUPPORT
-// #define GENERIC_NO_EXCEPTION
-// #define GENERIC_NO_ASSERT
+#define BOOST_SERIALIZATION_SUPPORT 1
+#define BOOST_GIL_IO_PNG_SUPPORT    1
+#define EIGEN_LIBRARY_SUPPORT       1
+#define GENERIC_NO_EXCEPTION        0    
+#define GENERIC_NO_ASSERT           0
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
     #define GENERIC_OS_WINDOWS

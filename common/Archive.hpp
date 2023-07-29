@@ -8,7 +8,7 @@
 #pragma once
 #include "Macros.hpp"
 
-#ifdef BOOST_SERIALIZATION_SUPPORT
+#if BOOST_SERIALIZATION_SUPPORT
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>

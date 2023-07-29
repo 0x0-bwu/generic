@@ -12,7 +12,7 @@
 #include <array>
 #include <list>
 
-#ifdef BOOST_SERIALIZATION_SUPPORT
+#if BOOST_SERIALIZATION_SUPPORT
 #include "Serialization.hpp"
 #endif
 
@@ -100,7 +100,7 @@ struct IndexVertex
         return false;
     }
 
-#ifdef BOOST_SERIALIZATION_SUPPORT
+#if BOOST_SERIALIZATION_SUPPORT
 private:
     friend class boost::serialization::access;
     template <typename Archive>
@@ -124,7 +124,7 @@ struct IndexTetrahedron
         neighbors[0] = neighbors[1] = neighbors[2] = neighbors[3] = noNeighbor;
     }
 
-#ifdef BOOST_SERIALIZATION_SUPPORT
+#if BOOST_SERIALIZATION_SUPPORT
 private:
     friend class boost::serialization::access;
     template <typename Archive>
@@ -157,7 +157,7 @@ struct Tetrahedralization
         tetrahedrons.clear();
     }
 
-#ifdef BOOST_SERIALIZATION_SUPPORT
+#if BOOST_SERIALIZATION_SUPPORT
 private:
     friend class boost::serialization::access;
     template <typename Archive>
