@@ -16,6 +16,19 @@ main_env.Append(CXXFLAGS=[
     "-lpthread"
 ])
 
+debug_mode = False
+if debug_mode :
+    main_env.Append(CXXFLAGS=[
+        "-g",
+        "-O0"
+    ])
+else :
+    main_env.Append(CXXFLAGS=[
+        "-s",
+        "-O0",
+        "-DNDEBUG"
+    ])
+
 # Thirdpart
 ## boost
 boost_include_path = '/usr/local/include'
@@ -25,17 +38,19 @@ boost_library_path = '/usr/local/lib'
 eigen_include_path = '/home/bwu/code/thirdpart/eigen3'
 
 # Include dirs
-main_env.Append(CPPPATH=[
+include_path = [
     cwd,
     cwd + '/..',
     boost_include_path,
     eigen_include_path,
-])
+]
+main_env.Append(CPPPATH=include_path)
 
 # Library dirs
-main_env.Append(LIBPATH=[
+libs_path =[
     boost_library_path,
-])
+]
+main_env.Append(LIBPATH=libs_path)
 
 # Build dir
 build_path = os.path.abspath(cwd + '/build')
@@ -50,3 +65,10 @@ for script in build_scripts:
     env = main_env.Clone()
     env.Append(CURRENTDIR=os.path.dirname(cwd + '/' + script))
     SConscript(script, exports='env', variant_dir=build_path)
+
+test_cpp = cwd + '/test.cpp'
+if os.path.exists(test_cpp) :
+    rpath = libs_path
+    libs_name = ['pthread']
+    program_name = build_path + "/test.exe"
+    main_env.Program(program_name,test_cpp,LIBS=libs_name,LIBPATH=libs_path,RPATH=rpath, )

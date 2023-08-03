@@ -212,5 +212,17 @@ inline float_type<num_type> SafeInv(num_type scalar)
     return float_type<num_type>(1) / scalar;
 }
 
+/// @brief root finder implement with newton raphson method
+template <typename num_type, typename Func, typename DFunc, std::enable_if_t<std::is_floating_point<num_type>::value, bool> = true>
+inline num_type NewtonRaphson(Func && func, DFunc && dfunc, num_type x, num_type tolerance, size_t maxIte = std::numeric_limits<size_t>::max())
+{
+    size_t ite{0};
+    num_type h{std::numeric_limits<num_type>::max()};
+    do {
+        h = func(x) / dfunc(x); x -= h;
+    } while(GE<num_type>(std::abs(h), tolerance) && ++ite < maxIte);
+    return x;
+}
+
 }//namespace math
 }//namespace generic
