@@ -1,22 +1,27 @@
 import os
 import sys
 
+# Options
+debug_mode = False
+boost_gil_io_png_support = True
+
 cwd = os.getcwd()
 
-#Environment
+# Environment
 main_env = Environment()
 
 # Compile flags
 main_env.Append(CXXFLAGS=[
     "-g",
     "-Wall",
+    "-Wextra",
+    "-Werror",
     "-w",
     "-Wl,-rpath,\$$ORIGIN",
     "-std=c++17",
     "-lpthread"
 ])
 
-debug_mode = False
 if debug_mode :
     main_env.Append(CXXFLAGS=[
         "-g",
@@ -30,26 +35,41 @@ else :
     ])
 
 # Thirdpart
+home_path = os.path.expanduser( '~' )
+include_path = home_path + '/code/3rdparty/include'
+library_path = home_path + '/code/3rdparty/library'
+
 ## boost
-boost_include_path = '/usr/local/include'
-boost_library_path = '/usr/local/lib'
+boost_include_path = include_path + '/boost'
+boost_library_path = library_path + '/boost'
 
 ## eigen
-eigen_include_path = '/home/bwu/code/thirdpart/eigen3'
+eigen_include_path = include_path + '/eigen'
+
+## png
+png_include_path = include_path + '/png'
+png_library_path = library_path + '/png'
 
 # Include dirs
 include_path = [
     cwd,
     cwd + '/..',
+    include_path,
     boost_include_path,
     eigen_include_path,
+    png_include_path,
 ]
-main_env.Append(CPPPATH=include_path)
 
 # Library dirs
 libs_path =[
     boost_library_path,
 ]
+
+if boost_gil_io_png_support :
+    include_path.append(png_include_path)
+    libs_path.append(png_library_path)
+    
+main_env.Append(CPPPATH=include_path)
 main_env.Append(LIBPATH=libs_path)
 
 # Build dir
