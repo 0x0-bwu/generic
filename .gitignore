@@ -3,7 +3,6 @@
 *.a
 *.so
 *.exe
-*.txt
 .vscode
 build
 docs
