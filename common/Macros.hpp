@@ -8,9 +8,9 @@
 #pragma once
 #include "Version.hpp"
 
-#define BOOST_SERIALIZATION_SUPPORT 1
+#define BOOST_SERIALIZATION_SUPPORT 0
 #define BOOST_GIL_IO_PNG_SUPPORT    1
-#define EIGEN_LIBRARY_SUPPORT       1
+#define EIGEN_LIBRARY_SUPPORT       0
 #define GENERIC_NO_EXCEPTION        0    
 #define GENERIC_NO_ASSERT           0
 
