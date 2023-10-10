@@ -519,7 +519,6 @@ inline Box2D<num_type> Extent(const Polyline2D<num_type> & polyline);
 template <typename num_type>
 inline void Simplify(Polygon2D<num_type> & polygon, std::list<Polygon2D<num_type> > & holes);
 
-#if GENERIC_CURRENT_BOOST_LIBRARY_VER >= 165
 /**
  * @brief gets convex hull of a sequence of polygons
  * @tparam polygon_t polygon type, should be Polygon2D
@@ -528,7 +527,6 @@ inline void Simplify(Polygon2D<num_type> & polygon, std::list<Polygon2D<num_type
  */
 template <typename polygon_t, template <typename, typename> class container, template <typename> class allocator = std::allocator>
 inline polygon_t ConvexHull(const container<polygon_t, allocator<polygon_t> > & polygons);
-#endif
 
 }//namespace geometry
 }//namespace generic

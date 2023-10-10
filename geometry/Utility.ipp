@@ -800,7 +800,6 @@ inline void Simplify(Polygon2D<num_type> & polygon, std::list<Polygon2D<num_type
     std::swap(polygon, simplified);
 }
 
-#if GENERIC_CURRENT_BOOST_LIBRARY_VER >= 165
 template <typename polygon_t, template <typename, typename> class container, template <typename> class allocator>
 inline polygon_t ConvexHull(const container<polygon_t, allocator<polygon_t> > & polygons)
 {
@@ -815,7 +814,6 @@ inline polygon_t ConvexHull(const container<polygon_t, allocator<polygon_t> > & 
     boost::geometry::convex_hull<multi_point_t, polygon_t>(points, hull);
     return hull;
 }
-#endif
 
 }//namespace geometry
 }//namespace generic

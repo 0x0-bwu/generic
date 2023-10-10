@@ -6,9 +6,6 @@
  * @date 2022-02-22
  */
 #pragma once
-#if GENERIC_CURRENT_CXX_VERSION >= 17
-#include <filesystem>
-#endif
 
 #ifdef GENERIC_OS_WINDOWS
 #include <windows.h>
@@ -18,6 +15,7 @@
 #endif
 
 #include "Tools.hpp"
+#include <filesystem>
 #include <fstream>
 #include <cstdio>
 namespace generic{
@@ -56,7 +54,6 @@ inline std::string BaseName(const std::string & path);
 inline bool isDirWritable(const std::string & path);
 #endif//GENERIC_OS_WINDOWS
 
-#if GENERIC_CURRENT_CXX_VERSION >= 17
 ///@brief makes a directory of given path, if `recursively` is true, will make parent dir firstly if not exists
 inline bool MakeDir(const std::string & path, bool recursively = true);
 
@@ -65,7 +62,6 @@ inline bool RemoveDir(const std::string & path);
 
 ///@brief gets parent folder of given file path
 inline std::string ParentPath(const std::string & path);
-#endif
 
 ///@brief represents a helper class for file writing
 class FileHelper
@@ -244,7 +240,6 @@ inline bool isDirWritable(const std::string & path)
 }
 #endif//GENERIC_OS_WINDOWS
 
-#if GENERIC_CURRENT_CXX_VERSION >= 17
 inline bool MakeDir(const std::string & path, bool recursively)
 {
     if(recursively) {
@@ -265,7 +260,6 @@ inline std::string ParentPath(const std::string & path)
     std::filesystem::path p(path);
     return p.parent_path().string();
 }
-#endif
 
 }//namespace filesystem
 }//namespace generic

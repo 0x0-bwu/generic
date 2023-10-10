@@ -197,7 +197,6 @@ struct VectorSetter<num_type, N, N>
     static void Set(Vector<num_type, N> &) {}
 };
 
-#if GENERIC_CURRENT_BOOST_LIBRARY_VER >= 172
 template <typename num_type, size_t N>
 inline num_type Vector<num_type, N>::Norm1() const
 {
@@ -215,31 +214,6 @@ inline num_type Vector<num_type, N>::NormSquare() const
 {
     return norm_2_square(m_data);
 }
-#else
-template <typename num_type, size_t N>
-inline num_type Vector<num_type, N>::Norm1() const
-{
-    num_type norm1(0);
-    for(size_t i = 0; i < N; ++i)
-        norm1 += std::abs(m_data[i]);
-    return norm1;
-}
-
-template <typename num_type, size_t N>
-inline float_type<num_type> Vector<num_type, N>::Norm2() const
-{
-    return std::sqrt(float_type<num_type>(NormSquare()));
-}
-
-template <typename num_type, size_t N>
-inline num_type Vector<num_type, N>::NormSquare() const
-{
-    num_type normSquare(0);
-    for(size_t i = 0; i < N; ++i)
-        normSquare += m_data[i] * m_data[i];
-    return normSquare;
-}
-#endif
 
 template <typename num_type, size_t N>
 template <typename... Args>
