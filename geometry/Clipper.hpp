@@ -255,7 +255,7 @@ struct LocalMinimum {
 template <typename num_type>
 inline void InitEdge(TEdge<num_type> * e, TEdge<num_type> * eNext, TEdge<num_type> * ePrev, const Point<num_type> & p)
 {
-    std::memset(e, 0, sizeof(TEdge<num_type>));
+    std::memset(static_cast<void *>(e), 0, sizeof(TEdge<num_type>));
     e->next = eNext;
     e->prev = ePrev;
     e->curr = p;
@@ -1550,7 +1550,7 @@ inline bool Clipper<num_type>::ExecuteInternal()
         m_sortedEdges = nullptr;
 
         succeeded = true;
-        num_type botY, topY;
+        num_type botY{0}, topY{0};
         if(!ClipperBase<num_type>::PopScanbeam(botY)) return false;
         InsertLocalMinimaIntoAEL(botY);
         while(ClipperBase<num_type>::PopScanbeam(topY) || ClipperBase<num_type>::LocalMinimaPending()) {
@@ -1780,7 +1780,7 @@ inline void Clipper<num_type>::BuildResult2(PolyTree<num_type> & polytree)
         pn->m_index = 0;
         pn->contour.reserve(size);
         auto * op = outRec->pts->prev;
-        for (auto i = 0; i < size; ++i) {
+        for (size_t i = 0; i < size; ++i) {
             pn->contour.push_back(op->pt);
             op = op->prev;
         }

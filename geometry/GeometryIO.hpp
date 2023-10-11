@@ -217,7 +217,7 @@ public:
         }
 
         out << "CELL_TYPES" << sp << polygons.size() << GENERIC_DEFAULT_EOL;
-        for(const auto & polygon : polygons)
+        for([[maybe_unused]] const auto & polygon : polygons)
             out << '7' << GENERIC_DEFAULT_EOL;
 
         out.close();

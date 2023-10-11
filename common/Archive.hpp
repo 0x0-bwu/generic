@@ -6,7 +6,6 @@
  * @date 2022-02-22
  */
 #pragma once
-#ifdef BOOST_SERIALIZATION_SUPPORT
 #include <boost/archive/binary_iarchive.hpp>
 #include <boost/archive/binary_oarchive.hpp>
 #include <boost/archive/text_iarchive.hpp>
@@ -28,4 +27,3 @@
 #include <boost/serialization/list.hpp>
 #include <boost/serialization/map.hpp>
 #include <fstream>
-#endif //BOOST_SERIALIZATION_SUPPORT

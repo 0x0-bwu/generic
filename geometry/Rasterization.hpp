@@ -150,7 +150,7 @@ template <typename num_type>
 inline void Rasterization::Rasterize(const Polygon2D<num_type> & polygon, const Vector2D<num_type> & stride, std::vector<std::array<int, 2> > & grids, const Point2D<num_type> & ref)
 {
     size_t size = polygon.Size();
-    for(auto i = 0; i < size; ++i){
+    for (size_t i = 0; i < size; ++i) {
         const auto & s = polygon[i];
         const auto & e = polygon[(i + 1) % size];
         std::vector<std::array<int, 2> > tmp;
