@@ -38,8 +38,8 @@
  * @date 2022-02-22
  */
 #pragma once
+// #include <boost/math/ccmath/ccmath.hpp>
 #include "Point.hpp"
-#include <boost/math/ccmath/ccmath.hpp>
 #include <functional>
 #include <algorithm>
 #include <array>
@@ -179,21 +179,21 @@ public:
 
 //std::fma is faster than dekker's product when the processor instruction is available
 #ifdef FP_FAST_FMAF
-    static const bool fp_fast_fmaf = true;
+    inline static constexpr bool fp_fast_fmaf = true;
 #else
-    static const bool fp_fast_fmaf = false;
+    inline static constexpr bool fp_fast_fmaf = false;
 #endif
 
 #ifdef FP_FAST_FMA
-    static const bool fp_fast_fma = true;
+    inline static constexpr bool fp_fast_fma = true;
 #else
-    static const bool fp_fast_fma = false;
+    inline static constexpr bool fp_fast_fma = false;
 #endif
 
 #ifdef FP_FAST_FMAL
-    static const bool fp_fast_fmal = true;
+    inline static constexpr bool fp_fast_fmal = true;
 #else
-    static const bool fp_fast_fmal = false;
+    inline static constexpr bool fp_fast_fmal = false;
 #endif
 
 template <typename T> struct use_fma {static const bool value = (std::is_same<T, float>::value       && fp_fast_fmaf) ||
@@ -212,8 +212,8 @@ template<typename T>
 class ExpansionBase
 {
 private:
-    static constexpr T splitter = static_cast<T>(boost::math::ccmath::ldexp(1, (std::numeric_limits<T>::digits + std::numeric_limits<T>::digits%2)/2 + 1));
-    // static constexpr T splitter = static_cast<T>(std::exp2((std::numeric_limits<T>::digits + std::numeric_limits<T>::digits%2)/2 + 1)); //replace with boost ldexp since the exp2 not constexpr until c++26
+    // inline static constexpr T splitter = static_cast<T>(boost::math::ccmath::ldexp(1, (std::numeric_limits<T>::digits + std::numeric_limits<T>::digits%2)/2 + 1));
+    inline static constexpr T splitter = static_cast<T>(std::exp2((std::numeric_limits<T>::digits + std::numeric_limits<T>::digits%2)/2 + 1)); //replace with boost ldexp since the exp2 not constexpr until c++26
     static_assert(std::numeric_limits<T>::is_iec559,  "requires IEC 559 IEEE 754 floating point type");
     static_assert(2 == std::numeric_limits<T>::radix, "requires base 2 floating point type");
 
@@ -483,11 +483,11 @@ inline T inSphere(const Point3D<T> & pa, const Point3D<T> & pb, const Point3D<T>
 }
 }//namespace exact
 
-template <typename T>
-constexpr T Epsilon = boost::math::ccmath::ldexp(1, -std::numeric_limits<T>::digits);
-
 // template <typename T>
-// constexpr T Epsilon = std::exp2(-std::numeric_limits<T>::digits); //replace with boost ldexp since the exp2 not constexpr until c++26
+// inline static constexpr T Epsilon = boost::math::ccmath::ldexp(1, -std::numeric_limits<T>::digits);
+
+template <typename T>
+inline static constexpr T Epsilon = std::exp2(-std::numeric_limits<T>::digits); //replace with boost ldexp since the exp2 not constexpr until c++26
 
 template <typename T>
 class Constants {
