@@ -339,8 +339,6 @@ private:
                              const Point2D<typename geometry::coor_t> & ref, int rgb)
     {
         using namespace boost::gil;
-        using coor_t = typename geometry::coor_t;
-
         auto width = view.width();
         auto height = view.height();
 

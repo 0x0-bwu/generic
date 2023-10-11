@@ -85,7 +85,6 @@ template <typename num_type>
 inline void Rasterization::Rasterize(const Point2D<num_type> & s, const Point2D<num_type> & e, const Vector2D<num_type> & stride, std::vector<std::array<int, 2> > & grids, const Point2D<num_type> & ref)
 {
     GENERIC_ASSERT(stride[0] > 0 && stride[1] > 0)
-    using float_t = float_type<num_type>;
     auto sign = [](int x) { return x > 0 ? 1 : (x < 0 ? -1 : 0); };
     auto head = std::array<int, 2>{int((s[0] - ref[0]) / stride[0]), int((s[1] - ref[1]) / stride[1])};
     auto tail = std::array<int, 2>{int((e[0] - ref[0]) / stride[0]), int((e[1] - ref[1]) / stride[1])};

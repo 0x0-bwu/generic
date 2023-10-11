@@ -22,7 +22,7 @@
 #include <vector>
 #include <atomic>
 
-#if BOOST_GIL_IO_PNG_SUPPORT
+#ifdef BOOST_GIL_IO_PNG_SUPPORT
 #include "generic/tools/FileSystem.hpp"
 #include "generic/tools/Color.hpp"
 #include <boost/gil/extension/io/png.hpp>
@@ -136,7 +136,7 @@ public:
         return std::make_pair(xMax, yMax);
     }
 
-#if BOOST_GIL_IO_PNG_SUPPORT
+#ifdef BOOST_GIL_IO_PNG_SUPPORT
     /**
      * @brief converts grid map to png image with the color mapping functioner
      * 
@@ -155,8 +155,8 @@ public:
         using namespace boost::gil;
         rgb8_image_t img(m_width, m_height);
         rgb8_image_t::view_t v = view(img);
-        for(auto i = 0; i < m_width; ++i){
-            for(auto j = 0; j < m_height; ++j){
+        for(size_t i = 0; i < m_width; ++i){
+            for(size_t j = 0; j < m_height; ++j){
                 auto [r, g, b, a] = rgbaFunc(m_grids[i][j]);
                 v(i, m_height - j - 1) = rgba8_pixel_t(r, g, b, a);
             }
@@ -260,7 +260,6 @@ public:
         GENERIC_ASSERT(properties.size() == objects.size())
         
         using geom_t = typename std::result_of<GeomGetter(const Object&)>::type;
-        using coor_t = typename geom_t::coor_t;
         std::vector<geom_t> geometries;
         geometries.reserve(objects.size());
         for(const auto & object : objects){

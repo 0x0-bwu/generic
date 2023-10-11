@@ -13,10 +13,10 @@
 #include <sys/stat.h>
 #include <time.h>
 #endif
-
 #include <iostream>
 #include <thread>
 #include <chrono>
+#include <atomic>
 #include <ctime>
 namespace generic {
 ///@brief tools and basic utilities

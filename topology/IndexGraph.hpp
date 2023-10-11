@@ -59,7 +59,7 @@ struct UndirectedIndexEdge
 private:
     std::pair<index_t, index_t> m_vertices;
 
-#if BOOST_SERIALIZATION_SUPPORT
+#ifdef BOOST_SERIALIZATION_SUPPORT
 private:
     friend class boost::serialization::access;
     template <typename Archive>
@@ -131,7 +131,7 @@ inline std::unique_ptr<SparseIndexGraph> makeSparseIndexGraph(const std::vector<
     for(size_t v = 0; v < vertex; ++v) {
         const auto & adjecent = connection[v];
         for(int w : adjecent) {
-            if(w < 0 || w >= vertex) continue;
+            if(w < 0 || w >= static_cast<int>(vertex)) continue;
                 AddEdge(v, static_cast<index_t>(w), *graph);
         }
     }
