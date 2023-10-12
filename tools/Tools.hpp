@@ -14,6 +14,7 @@
 #include <time.h>
 #endif
 #include <iostream>
+#include <memory>
 #include <thread>
 #include <chrono>
 #include <atomic>
