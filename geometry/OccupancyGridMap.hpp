@@ -345,7 +345,7 @@ private:
               typename std::enable_if<traits::is_2d_geometry_t<geometry_type>::value && traits::is_polygon_t<geometry_type>::value, bool>::type = true>
     static void GriddingImp(const std::vector<property_type> & properties, const std::vector<const geometry_type * > & polygons, GridWorkItem<typename geometry_type::coor_t> workItem, ProductPipe<property_type> & pipeline)
     {
-        //TriangulationGriddingImp<property_type, geometry_type>(properties, polygons, workItem, pipeline);
+        // TriangulationGriddingImp<property_type, typename geometry_type::coor_t>(properties, polygons, workItem, pipeline);
         TrapezoidationGriddingImp<property_type, typename geometry_type::coor_t>(properties, polygons, workItem, pipeline);
     }
 
