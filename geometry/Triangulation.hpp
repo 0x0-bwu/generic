@@ -489,7 +489,7 @@ public:
     static bool isLocallyDelaunay(const Triangulation<point_t> & tri, const IndexEdge & e)
     {
         auto [it1, it2] = tri.GetTriangles(e);
-        if(noNeighbor = it2) return true;
+        if (noNeighbor == it2) return true;
         return isLocallyDelaunay(it1, it2);
     }
 
@@ -550,7 +550,7 @@ public:
             start = it;
             const auto & startT = tri.triangles.at(start);
             auto nextV = startT.NextVertex(iv);
-            if(noNeighbor == startT.Tn(iv, nextV)) break;
+            if (noNeighbor == startT.Tn(iv, nextV)) break;
         }
 
         auto currT = tri.triangles[start];

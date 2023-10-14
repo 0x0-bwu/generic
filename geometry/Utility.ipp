@@ -586,8 +586,8 @@ template <typename geometry_t1, typename geometry_t2,
                                   (traits::is_triangle_t<geometry_t1>::value && traits::is_point_t<geometry_t2>::value)   ||
                                   (traits::is_box_t<geometry_t1>::value      && traits::is_point_t<geometry_t2>::value)   ||
                                   (traits::is_box_t<geometry_t1>::value      && traits::is_box_t<geometry_t2>::value)     ||
-                                  (traits::is_polygon_t<geometry_t1>::value  && traits::is_point_t<geometry_t2>::value    ||
-                                  (traits::is_polygon_with_holes_t<geometry_t1>::value && traits::is_point_t<geometry_t2>::value)), bool>::type = true>
+                                  (traits::is_polygon_t<geometry_t1>::value  && traits::is_point_t<geometry_t2>::value)    ||
+                                  (traits::is_polygon_with_holes_t<geometry_t1>::value && traits::is_point_t<geometry_t2>::value), bool>::type = true>
 inline bool ContainsImp2D(const geometry_t1 & g1, const geometry_t2 & g2, bool considerTouch)
 {
     return boost::polygon::contains(g1, g2, considerTouch);

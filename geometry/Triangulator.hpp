@@ -584,7 +584,7 @@ public:
             vertices[i - 1].next = vertices[i].next;
         }
 
-        TriIdx it = AddTriangle(vertices[0].curr, vertices[1].curr, vertices[2].curr);
+        [[maybe_unused]] TriIdx it = AddTriangle(vertices[0].curr, vertices[1].curr, vertices[2].curr);
         for(size_t i = 3; i < size; ++i)
             ConvexInsertVertex(vertices[i].curr, Edge(vertices[i].prev, vertices[i].next));
         
