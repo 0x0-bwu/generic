@@ -103,7 +103,7 @@ public:
      * @return std::future of the FunctionType result 
      */
     template <typename FunctionType>
-    std::future<typename std::result_of<FunctionType() >::type>
+    std::future<std::invoke_result_t<FunctionType> >
     Submit(FunctionType && f);
 
     ///@brief pop one task from task queue
@@ -234,10 +234,10 @@ inline void ThreadPool::SetThread_(size_t thread)
 }
 
 template <typename FunctionType>
-inline std::future<typename std::result_of<FunctionType() >::type>
+inline std::future<std::invoke_result_t<FunctionType> >
 ThreadPool::Submit(FunctionType && f)
 {
-    using result_type = typename std::result_of<FunctionType()>::type;
+    using result_type = std::invoke_result_t<FunctionType>;
     auto pkg = std::make_shared<std::packaged_task<result_type()> >(std::forward<FunctionType>(f));
     auto task = new std::function<void()>([pkg]{(*pkg)();});
     while(not m_queue.push(task));
