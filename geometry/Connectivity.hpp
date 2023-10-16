@@ -36,11 +36,11 @@ using GeomConnGraph = SparseIndexGraph;
  */
 template <typename T, typename GeomGetter,
           typename std::enable_if<traits::is_2d_surf_geom_t<
-          typename std::remove_const<typename std::remove_reference<
-          typename std::result_of<GeomGetter(const T&)>::type>::type>::type>::value, bool>::type = true>
+                    std::remove_const_t<std::remove_reference_t<
+                    std::invoke_result_t<GeomGetter, const T&>>>>::value, bool>::type = true>
 inline void ConnectivityExtraction(const std::vector<T> & objects,  GeomGetter && geomGetter, std::vector<std::set<int> > & connection)
 {
-    using coor_t = typename std::decay<typename std::result_of<GeomGetter(const T&)>::type>::type::coor_t;
+    using coor_t = typename std::decay_t<std::invoke_result_t<GeomGetter, const T&> >::coor_t;
     
     connection.clear();
     index_t size = objects.size();
@@ -116,11 +116,10 @@ public:
      * @return index_t global index of obj in the extraction result graph
      */
     template <typename T, typename GeomGetter,
-              typename std::enable_if<traits::is_2d_surf_geom_t<
-              typename std::result_of<GeomGetter(const T&)>::type>::value, bool>::type = true>
+              typename std::enable_if<traits::is_2d_surf_geom_t<std::invoke_result_t<GeomGetter, const T&>>::value, bool>::type = true>
     index_t AddObject(index_t layer, const T & obj, GeomGetter && getter)
     {
-        using coor_t = typename std::result_of<GeomGetter(const T&)>::type::coor_t;
+        using coor_t = typename std::invoke_result_t<GeomGetter, const T&>::coor_t;
         static_assert(std::is_same<coor_t, num_type>::value, "different coordinate type of GeomGetter return type and ConnectivityExtractor!");
 
         index_t index = m_geometries.size();
