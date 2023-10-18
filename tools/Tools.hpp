@@ -25,15 +25,12 @@ namespace tools {
 
 struct SystemClock
 {
-    using Clock = typename std::chrono::system_clock;
-    using Duration = typename Clock::duration;
-    using Rep = typename Duration::rep;
-    using Period = typename Duration::period;
-    using TimePoint = std::chrono::time_point<Clock, Duration>;
-
+    using TimePoint = std::chrono::time_point<
+                        std::chrono::system_clock, 
+                            std::chrono::system_clock::duration>;
     static TimePoint Now() noexcept
     {
-        return Clock::now();
+        return std::chrono::system_clock::now();
     }
 };
 
