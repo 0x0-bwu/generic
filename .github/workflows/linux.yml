@@ -1,16 +1,11 @@
 name: linux
-
-on: [push, pull_request]
-
+run-name: test
+on: [push]
 jobs:
-    build:
-        runs-on: ubuntu-20.04
-        steps:
-        - uses: actions/checkout@v3
-        - name: Setup Dependencies
-        run: |
-            apt-get update
-            apt-get install -y \
-            build-essential \
-            cmake \
-            ninja-build
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: List files in the repository
+        uses: actions/checkout@v4
+      - run: |
+          ls ${{ github.workspace }}
