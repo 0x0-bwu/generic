@@ -6,7 +6,7 @@
  * @date 2022-02-25
  */
 #pragma once
-#define GENERIC_GEOMETRY_POLYGONMERGE_USE_RTREE
+//#define GENERIC_GEOMETRY_POLYGONMERGE_USE_RTREE
 #include "generic/thread/TaskFlow.hpp"
 #include "BooleanOperation.hpp"
 #include "Connectivity.hpp"
@@ -123,6 +123,7 @@ public:
     {
         enum class Kernal { Clipper, Boost };
         Kernal kernal = Kernal::Clipper;
+        bool mergeNodeOverlapCheck = false;
         bool cleanPolyonPoints = false;
         bool checkPropertyDiff = false;
         bool ignoreTinySolid = false;
@@ -310,7 +311,12 @@ inline void PolygonMerger<property_type, num_type>::MergeRegion(MergeTaskNode * 
     std::list<PolygonData * > mergedObjs;
 #ifdef GENERIC_GEOMETRY_POLYGONMERGE_USE_RTREE
     std::vector<std::list<MergeTaskNode * > > subNodeGroups;
-    GetOverlappedSubTaskNodes(node, subNodeGroups);
+    if (m_settings.mergeNodeOverlapCheck)
+        GetOverlappedSubTaskNodes(node, subNodeGroups);
+    else {
+        subNodeGroups.emplace_back(std::list<MergeTaskNode * >{});
+        for ()
+    }
     if(!subNodeGroups.empty()) {
         for(const auto & subNodeGroup : subNodeGroups) {
             std::list<PolygonData * > objs;
