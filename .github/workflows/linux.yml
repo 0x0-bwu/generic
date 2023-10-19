@@ -11,7 +11,7 @@ jobs:
              build-essential \
              cmake \
              ninja-build \
-             apt-get install libboost-all-dev
+             libboost-all-dev
       - name: build unit test
         uses: actions/checkout@v4
       - run: cmake -Btest/build -Stest -G Ninja
