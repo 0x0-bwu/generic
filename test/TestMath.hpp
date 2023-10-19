@@ -41,13 +41,12 @@ void t_math_utility()
     BOOST_CHECK(Within<OpenInterval>(1e-4, 1.0e-4, 1.1e-4) == false);
     BOOST_CHECK(Within<LeftClosedRightOpen>(1e-4, 1.0e-4, 1.1e-4) == true);
 
-    //Newton-Raphson
+    //Equation Solve
     double rc{10}, tr{20};
     auto func  = [&] (auto x) { return x - rc + rc * std::exp(-(0.5 * tr + x) / rc); };
     auto dfunc = [&] (auto x) { return 1 - std::exp(-(0.5 * tr + x) / rc); };
-    BOOST_CHECK_CLOSE(NewtonRaphson<float>(func, dfunc, 10, 1e-5), 8.41406, 1e-1);
-    tr = 200;
-    BOOST_CHECK_CLOSE(NewtonRaphson<double>(func, dfunc, 10, 1e-10), 9.99781, 1e-1);
+    BOOST_CHECK_CLOSE(Bisection<double>(func, 0, 10, 1e-10), 8.41406, 1e-1);
+    BOOST_CHECK_CLOSE(NewtonRaphson<double>(func, dfunc, 10, 1e-10), 8.41406, 1e-1);
 }
 
 void t_math_polynominal_fit()

@@ -30,8 +30,6 @@
 
 ///@brief generic library namespace
 namespace generic{
-///@brief common classes and functions
-namespace common {
 
 class Exception : public std::exception
 {
@@ -58,5 +56,4 @@ inline void ThrowException(const std::string & msg, int errCode)
     GENERIC_THROW(Exception(msg, errCode))
 }
 
-}//namespace common
 }//namespace generic

@@ -6,6 +6,7 @@
  * @date 2022-02-22
  */
 #pragma once
+#include "generic/common/Exception.hpp"
 #include "generic/common/Traits.hpp"
 #include "Numbers.hpp"
 #include <type_traits>
@@ -210,6 +211,28 @@ inline float_type<num_type> SafeInv(num_type scalar)
         return float_type<num_type>(1) / std::copysign(epsilon, scalar);
     }
     return float_type<num_type>(1) / scalar;
+}
+
+/// @brief root finder implement with bisection method
+template <typename num_type, typename Func, std::enable_if_t<std::is_floating_point<num_type>::value, bool> = true>
+inline num_type Bisection(Func && func, num_type min, num_type max, num_type tolerance, size_t maxIt = std::numeric_limits<size_t>::max())
+{
+    size_t ite{0};
+    num_type m{0}, fm{0}, fmin{func(min)}, fmax{func(max)};
+    if (not (max > min && fmin * fmax < 0)) 
+        generic::ThrowException("bad input interval!");
+    while (GT<num_type>(max, min, tolerance) && ++ite < maxIt) {
+        m = 0.5 * (max + min);
+        num_type fm = func(m);
+        if (EQ<num_type>(fm, 0, tolerance)) return m;
+        else if (fmin * fm < 0) {
+            fmax = fm; max = m;
+        }
+        else {
+            fmin = fm; min = m;
+        }
+    }
+    return m;
 }
 
 /// @brief root finder implement with newton raphson method
