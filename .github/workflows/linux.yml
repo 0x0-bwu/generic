@@ -1,5 +1,5 @@
 name: linux
-run-name: test
+run-name: unit test
 on: [push]
 jobs:
   build:
@@ -15,4 +15,6 @@ jobs:
 
       - name: build unit test
         run: cmake -Btest/build -Stest -G Ninja && cmake --build test/build
-      
+
+      - name: run unit test
+        run: test/build/unit_test.exe
