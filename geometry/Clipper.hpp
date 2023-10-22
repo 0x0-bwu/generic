@@ -30,7 +30,7 @@ inline Int128 Int128Mul (int64_t lhs, int64_t rhs)
 {
     Int128 res = lhs; res *= rhs;
     return res;
-};
+}
 
 enum class EndType  { ClosedPolygon, ClosedLine, OpenButt, OpenSquare, OpenRound };
 enum class ClipType { Intersection, Union, Difference, Xor };

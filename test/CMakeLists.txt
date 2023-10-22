@@ -9,6 +9,8 @@ if(NOT CMAKE_BUILD_TYPE)
 endif()
 message("-- Build Type: " ${CMAKE_BUILD_TYPE})
 
+add_compile_options(-Wall)
+
 # Boost library
 set(BOOST_INCLUDE_PATH $ENV{BOOST_PATH}/include)
 set(BOOST_LIBRARY_PATH $ENV{BOOST_PATH}/lib)
