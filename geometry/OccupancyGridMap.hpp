@@ -372,7 +372,8 @@ private:
             if(nullptr == polygon) continue;
 
             tri::Triangulation<Point2D<num_type> > triangulation;
-            GENERIC_ASSERT(TriangulationPolygon(polygon, triangulation))
+            [[maybe_unused]] auto res = TriangulationPolygon(polygon, triangulation);
+            GENERIC_ASSERT(res)
 
             GriddingTriangulation<property_type, num_type>(property, triangulation, workItem.ctrl, pipeline);
         }
