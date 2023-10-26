@@ -10,6 +10,9 @@ endif()
 message("-- Build Type: " ${CMAKE_BUILD_TYPE})
 
 add_compile_options(-Wall)
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+  add_compile_options(-fcompare-debug-second) #hide note message
+endif()
 
 # Boost library
 set(BOOST_INCLUDE_PATH $ENV{BOOST_PATH}/include)
