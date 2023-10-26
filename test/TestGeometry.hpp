@@ -664,9 +664,9 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_connectivity_t, num_type)
     ConnectivityExtractor<num_type> extractor;
 
     //Add Objects
-    auto iBox = extractor.AddObject(0, &box, boxGetter);//0
-    auto iNut = extractor.AddObject(1, doughnut, doughnutGeomGetter);//1
-    auto iTri = extractor.AddObject(2, std::ref(triangle), triGetter);//2
+    [[maybe_unused]] auto iBox = extractor.AddObject(0, &box, boxGetter);//0
+    [[maybe_unused]] auto iNut = extractor.AddObject(1, doughnut, doughnutGeomGetter);//1
+    [[maybe_unused]] auto iTri = extractor.AddObject(2, std::ref(triangle), triGetter);//2
     auto iShapes = extractor.AddObjects(2, shapes.begin(), shapes.end(), instShapeGeomGetter);//3-5
     BOOST_CHECK(iShapes.first  == 3);
     BOOST_CHECK(iShapes.second == 5);

@@ -48,9 +48,10 @@ inline void ConnectivityExtraction(const std::vector<T> & objects,  GeomGetter &
 
     connection.resize(size);
     boost::polygon::connectivity_extraction<coor_t> ce;
-    for(index_t i = 0; i < size; ++i)
-        GENERIC_ASSERT(i == ce.insert(geomGetter(objects[i])))
-
+    for(index_t i = 0; i < size; ++i) {
+        [[maybe_unused]] auto index = ce.insert(geomGetter(objects[i]));
+        GENERIC_ASSERT(i == index)
+    }
     ce.extract(connection);
 }
 

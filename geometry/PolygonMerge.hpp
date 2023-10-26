@@ -333,10 +333,10 @@ inline void PolygonMerger<property_type, num_type>::MergeRegion(MergeTaskNode * 
 #endif//GENERIC_GEOMETRY_POLYGONMERGE_USE_RTREE
     node->GetAllObjects(allObjs);
 
-    if(mergedObjs.size())
+    if (mergedObjs.size())
         allObjs.insert(allObjs.end(), mergedObjs.begin(), mergedObjs.end());
     
-    if(false == node->GetObjs().empty()) {
+    if (false == node->GetObjs().empty()) {
         ExtractAndMergeComponentsPolygons(allObjs, node->GetBBox());
         merged = true;
     }
@@ -437,7 +437,7 @@ inline void PolygonMerger<property_type, num_type>::ExtractAndMergeComponentsPol
     vecPolys.assign(polygons.begin(), polygons.end());
 
     std::vector<std::vector<size_t> > cc;
-    if(m_mergeSettings.checkPropertyDiff) {
+    if (m_mergeSettings.checkPropertyDiff) {
         ExtractComponentsByPhysicConnection(vecPolys, cc);
     }
     else {

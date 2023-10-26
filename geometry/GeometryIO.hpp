@@ -48,7 +48,7 @@ template <typename num_type>
 inline std::ostream & operator<< (std::ostream & os, const Point3D<num_type> & p)
 {
     char sp(32);
-    return os << "POINT(" << p[0] << sp << p[1] << sp << p[2] << ")";
+    return os << "POINT(" << p[0] << sp << p[1] << sp << p[2] << ')';
 }
 
 template <typename num_type>
@@ -56,8 +56,8 @@ inline std::ostream & operator<< (std::ostream & os, const Segment2D<num_type> &
 {
     char sp(32);
     os << "SEGMENT(";
-    os << s[0][0] << sp << s[0][1] << ",";
-    os << s[1][0] << sp << s[1][1] << ")";
+    os << s[0][0] << sp << s[0][1] << ',';
+    os << s[1][0] << sp << s[1][1] << ')';
     return os;
 }
 
@@ -66,8 +66,8 @@ inline std::ostream & operator<< (std::ostream & os, const Segment3D<num_type> &
 {   
     char sp(32);
     os << "SEGMENT(";
-    os << s[0][0] << sp << s[0][1] << sp << s[0][2] << ",";
-    os << s[1][0] << sp << s[1][1] << sp << s[1][2] << ")";
+    os << s[0][0] << sp << s[0][1] << sp << s[0][2] << ',';
+    os << s[1][0] << sp << s[1][1] << sp << s[1][2] << ')';
     return os;
 }
 
@@ -76,9 +76,9 @@ inline std::ostream & operator<< (std::ostream & os, const Triangle2D<num_type> 
 {
     char sp(32);
     os << "TRIANGLE(";
-    os << t[0][0] << sp << t[0][1] << ",";
-    os << t[1][0] << sp << t[1][1] << ",";
-    os << t[2][0] << sp << t[2][1] << ")";
+    os << t[0][0] << sp << t[0][1] << ',';
+    os << t[1][0] << sp << t[1][1] << ',';
+    os << t[2][0] << sp << t[2][1] << ')';
     return os;
 }
 
@@ -87,9 +87,9 @@ inline std::ostream & operator<< (std::ostream & os, const Triangle3D<num_type> 
 {
     char sp(32);
     os << "TRIANGLE(";
-    os << t[0][0] << sp << t[0][1] << sp << t[0][2] << ",";
-    os << t[1][0] << sp << t[1][1] << sp << t[1][2] << ",";
-    os << t[2][0] << sp << t[2][1] << sp << t[2][2] << ")";
+    os << t[0][0] << sp << t[0][1] << sp << t[0][2] << ',';
+    os << t[1][0] << sp << t[1][1] << sp << t[1][2] << ',';
+    os << t[2][0] << sp << t[2][1] << sp << t[2][2] << ')';
     return os;
 }
 
@@ -98,8 +98,8 @@ inline std::ostream & operator<< (std::ostream & os, const Box2D<num_type> & b)
 {
     char sp(32);
     os << "BOX(";
-    os << b[0][0] << sp << b[0][1] << ",";
-    os << b[1][0] << sp << b[1][1] << ")";
+    os << b[0][0] << sp << b[0][1] << ',';
+    os << b[1][0] << sp << b[1][1] << ')';
     return os;
 }
 
@@ -108,8 +108,20 @@ inline std::ostream & operator<< (std::ostream & os, const Box3D<num_type> & b)
 {
     char sp(32);
     os << "BOX(";
-    os << b[0][0] << sp << b[0][1] << sp << b[0][2] << ",";
-    os << b[1][0] << sp << b[1][1] << sp << b[1][2] << ")";
+    os << b[0][0] << sp << b[0][1] << sp << b[0][2] << ',';
+    os << b[1][0] << sp << b[1][1] << sp << b[1][2] << ')';
+    return os;
+}
+
+template <typename num_type>
+inline std::ostream & operator<< (std::ostream & os, const Polyline2D<num_type> & l)
+{
+    char sp(32);
+    os << "LINE(";
+    for (size_t i = 0; i < l.size() - 1; ++i) {
+        os << l[i][0] << sp << l[i][1] << ',';
+    }
+    os << l.back()[0] << sp << l.back()[1] << ')';
     return os;
 }
 
