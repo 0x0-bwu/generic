@@ -10,7 +10,7 @@
 #include <iomanip>
 namespace generic {
 ///@brief string format
-namespace format {
+namespace fmt {
 
 using Format = boost::format;
 
@@ -26,7 +26,7 @@ inline Format & FormatArgs(Format & format, Arg && arg, Args &&... args)
 
 ///@brief returns formated string by input args
 template <typename ... Args>
-inline std::string Format2String(const std::string & fmt, Args &&... args)
+inline std::string Fmt2Str(const std::string & fmt, Args &&... args)
 {
     Format format(fmt);
     format = FormatArgs(format, args...);
@@ -52,5 +52,5 @@ public:
     }
 };
 
-}//namespace format
+}//namespace fmt
 }//namespace generic
