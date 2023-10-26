@@ -910,7 +910,7 @@ protected:
         if(!logEnabled && !tracebackEnabled) return;
 
         GENERIC_TRY {
-            auto str = format::Format2String(format, std::forward<Args>(args)...);
+            auto str = fmt::Fmt2Str(format, std::forward<Args>(args)...);
             auto msg = details::LogMsg(loc, m_name, level, str);
             LogOne(msg, logEnabled, tracebackEnabled);
         }
