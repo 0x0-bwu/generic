@@ -16,10 +16,11 @@
 #include <boost/qvm/mat.hpp>
 #include <boost/qvm/vec.hpp>
 #include "generic/math/Numbers.hpp"
+#include "generic/math/MathIO.hpp"
 #include "Geometries.hpp"
 #include "Vector.hpp"
-namespace boost {
-namespace qvm {
+
+namespace boost::qvm {
 
 using namespace generic::geometry;
 template <typename num_type>
@@ -55,11 +56,9 @@ struct vec_traits<VectorN<num_type, N> >
 
     static inline scalar_type read_element_idx(int i, const VectorN<num_type, N> & vec) { return vec[i]; }
 };
-}//namespace qvm
-}//namespace boost
+}//namespace boost::qvm
 
-namespace generic {
-namespace geometry{
+namespace generic::geometry {
 
 template <typename num_type>
 using Matrix2x2 = boost::qvm::mat<num_type, 2, 2>;
@@ -827,5 +826,36 @@ inline void Transform(iterator begin, iterator end, const transform_t & trans)
         Transform(geom, trans);
     }
 }
-}//namespace geometry
-}//namespace generic
+} //namespace generic::geometry
+
+namespace {
+
+using namespace generic::geometry;
+
+template <typename float_t>
+inline std::ostream & operator<< (std::ostream & os, const Transform2D<float_t> & trans)
+{
+    os << '[';
+    for (size_t i = 0; i < 3; ++i) {
+        for (size_t j = 0; j < 3; ++j) {
+            os << trans(i, j) << ',';
+        }
+        os << ECAD_EOL;
+    }
+    return os;
+}
+
+template <typename float_t>
+inline std::ostream & operator<< (std::ostream & os, const Transform3D<float_t> & trans)
+{
+    os << '[';
+    for (size_t i = 0; i < 4; ++i) {
+        for (size_t j = 0; j < 4; ++j) {
+            os << trans(i, j) << ',';
+        }
+        os << ECAD_EOL;
+    }
+    return os;
+}
+
+} // namespace
