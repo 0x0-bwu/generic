@@ -31,9 +31,8 @@ inline std::ostream & operator<< (std::ostream & os, const Matrix<num_type, M, N
 }
 }
 
-namespace generic {
-namespace math {
-namespace la {
+namespace generic::math::la {
+
 using namespace boost::numeric::ublas;
 
 class MatrixIO
@@ -43,16 +42,14 @@ public:
     static bool ReadSparseMatrixComplex(const std::string & dia, const std::string & offDia, mapped_matrix<std::complex<num_type> > & m, std::string * err = nullptr)
     {
         std::ifstream in(dia);
-        if(!in.is_open()) {
+        if (not in.is_open()) {
             if(err) *err = "Error: fail to open: " + dia;
             return false;
         }
 
         size_t i, j;
         num_type real, imag;
-        size_t row = m.size1();
-        size_t col = m.size2();
-        while(!in.eof()){
+        while (not in.eof()) {
             in >> i >> real >> imag;
             if(zero_based) m(i, i) = std::complex<num_type>(real, imag);
             else m(i - 1, i - 1) = std::complex<num_type>(real, imag);
@@ -60,12 +57,12 @@ public:
 
         in.close();
         in.open(offDia);
-        if(!in.is_open()) {
+        if (not in.is_open()) {
             if(err) *err = "Error: fail to open: " + dia;
             return false;
         }
         
-        while(!in.eof()){
+        while (not in.eof()) {
             in >> i >> j >> real >> imag;
             if(zero_based) m(i, j) = std::complex<num_type>(real, imag);
             else m(i - 1, j - 1) = std::complex<num_type>(real, imag);
@@ -78,16 +75,14 @@ public:
     static bool ReadSparseMatrix(const std::string & dia, const std::string & offDia, coordinate_matrix<num_type> & m, std::string * err = nullptr)
     {
         std::ifstream in(dia);
-        if(!in.is_open()) {
+        if (not in.is_open()) {
             if(err) *err = "Error: fail to open: " + dia;
             return false;
         }
 
         size_t i, j;
         num_type real, imag;
-        size_t row = m.size1();
-        size_t col = m.size2();
-        while(!in.eof()){
+        while (not in.eof()) {
             in >> i >> real >> imag;
             if(zero_based) m(i, i) = real;
             else m(i - 1, i - 1) = real;
@@ -95,12 +90,12 @@ public:
 
         in.close();
         in.open(offDia);
-        if(!in.is_open()) {
+        if (not in.is_open()) {
             if(err) *err = "Error: fail to open: " + dia;
             return false;
         }
         
-        while(!in.eof()){
+        while (not in.eof()) {
             in >> i >> j >> real >> imag;
             if(zero_based) m(i, j) = real;
             else m(i - 1, j - 1) = real;
@@ -109,6 +104,4 @@ public:
         return true;
     }
 };
-}//namespace la
-}//namespace math
-}//namespace generic
+}//namespace generic::math::la
