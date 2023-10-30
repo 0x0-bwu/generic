@@ -840,7 +840,7 @@ inline std::ostream & operator<< (std::ostream & os, const Transform2D<float_t> 
         for (size_t j = 0; j < 3; ++j) {
             os << trans(i, j) << ',';
         }
-        os << ECAD_EOL;
+        os << GENERIC_DEFAULT_EOL;
     }
     return os;
 }
@@ -853,7 +853,7 @@ inline std::ostream & operator<< (std::ostream & os, const Transform3D<float_t> 
         for (size_t j = 0; j < 4; ++j) {
             os << trans(i, j) << ',';
         }
-        os << ECAD_EOL;
+        os << GENERIC_DEFAULT_EOL;
     }
     return os;
 }

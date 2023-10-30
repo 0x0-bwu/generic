@@ -16,7 +16,7 @@
 namespace generic{
 namespace math{
 using generic::common::float_type;
-static std::default_random_engine randGen;
+inline static std::default_random_engine randGen;
 
 ///@brief generates an integral number randomly in range [min, max]
 template <typename num_type>
@@ -223,7 +223,7 @@ inline num_type Bisection(Func && func, num_type min, num_type max, num_type tol
         generic::ThrowException("bad input interval!");
     while (GT<num_type>(max, min, tolerance) && ++ite < maxIt) {
         m = 0.5 * (max + min);
-        num_type fm = func(m);
+        fm = func(m);
         if (EQ<num_type>(fm, 0, tolerance)) return m;
         else if (fmin * fm < 0) {
             fmax = fm; max = m;
