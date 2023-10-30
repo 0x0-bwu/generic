@@ -67,7 +67,7 @@ std::vector<T> PolyFit(const std::vector<T> & xValues, const std::vector<T> & yV
     
     // lu decomposition
     permutation_matrix<int> pert(XtX.size1());
-    const std::size_t singular = lu_factorize(XtX, pert);
+    [[maybe_unused]] const std::size_t singular = lu_factorize(XtX, pert);
     
     // must be singular
     GENERIC_ASSERT(0 == singular);

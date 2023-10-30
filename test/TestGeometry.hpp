@@ -700,14 +700,14 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_connectivity_t, num_type)
     //Add Objects
     iBox = extractor.AddObject(0, &box, boxGetter);//0
     iNut = extractor.AddObject(1, doughnut, doughnutGeomGetter);//1
-    auto iJw1 = extractor.AddJumpwire(1, 2, Segment(Point(0, -20), Point(30, 10)));//2
+    [[maybe_unused]] auto iJw1 = extractor.AddJumpwire(1, 2, Segment(Point(0, -20), Point(30, 10)));//2
     iShapes = extractor.AddObjects(2, shapes.begin(), shapes.end(), instShapeGeomGetter);//3-5
     BOOST_CHECK(iShapes.first  == 3);
     BOOST_CHECK(iShapes.second == 5);
-    auto iJw2 = extractor.AddJumpwire(0, 1, Segment(Point(0, 0),  Point(0, 0)));//6
+    [[maybe_unused]]  auto iJw2 = extractor.AddJumpwire(0, 1, Segment(Point(0, 0),  Point(0, 0)));//6
 
     auto nullLayer = ConnectivityExtractor<num_type>::nullLayer;
-    auto iJw3 = extractor.AddJumpwire(0, nullLayer, Segment(Point(0, 0),  Point(0, 0)));//7
+    [[maybe_unused]]  auto iJw3 = extractor.AddJumpwire(0, nullLayer, Segment(Point(0, 0),  Point(0, 0)));//7
     auto iNull1 = extractor.AddObject(nullLayer, &box, boxGetter);//8
     auto iNull2 = extractor.AddObject(nullLayer, &box, boxGetter);//9
 
