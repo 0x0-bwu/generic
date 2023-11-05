@@ -10,6 +10,7 @@
 #include <boost/geometry/io/wkt/read.hpp>
 #include "BoostGeometryRegister.hpp"
 #include "GeometryTraits.hpp"
+#include <filesystem>
 #include <iostream>
 #include <fstream>
 #include <iomanip>
@@ -337,6 +338,10 @@ public:
         fill_pixels(v, rgb8_pixel_t(r, g, b));
 
         WriteImgView<geometry>(v, begin, end, Vector2D<coor_t>(stride, stride), bbox[0], color);
+
+        auto dirPath = std::filesystem::path(filename).parent_path();
+        std::filesystem::create_directories(dirPath);
+        if (not std::filesystem::exists(dirPath)) return false;
 
         write_view(filename, boost::gil::view(img), png_tag());
         return true;
