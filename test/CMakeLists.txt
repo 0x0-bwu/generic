@@ -25,6 +25,11 @@ add_definitions("-DBOOST_BIND_GLOBAL_PLACEHOLDERS")
 find_package(PNG REQUIRED)
 find_package(Threads REQUIRED)
 
+if(DEFINED ENV{EIGEN_PATH})
+	include_directories($ENV{EIGEN_PATH})
+    add_definitions("-DEIGEN_LIBRARY_SUPPORT=1")
+endif()
+
 get_filename_component(GENERIC_LIBRARY_DIR ../../ ABSOLUTE)
 include_directories(${GENERIC_LIBRARY_DIR} ${PNG_INCLUDE_DIR} ${BOOST_INCLUDE_PATH})
 
