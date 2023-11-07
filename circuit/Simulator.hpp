@@ -16,38 +16,30 @@
 namespace generic::ckt {
 
 using namespace Eigen;
-class Circuit
+class CircuitV
 {
 public:
-    Circuit(size_t nodes, std::set<size_t> sources, std::set<size_t> probs = {})
+    CircuitV(size_t nodes, std::set<size_t> sources, std::set<size_t> probs)
      : m_nodes(nodes)
      , m_probs(std::move(probs))
      , m_sources(std::move(sources))
     {
-        m_G.reset(new MatrixXd); *m_G = MatrixXd::Zero(Nodes() + SNodes(), Nodes() + SNodes());
-        m_C.reset(new MatrixXd); *m_C = MatrixXd::Zero(Nodes() + SNodes(), Nodes() + SNodes());
-        m_B.reset(new MatrixXd); *m_B = MatrixXd::Zero(Nodes() + SNodes(), SNodes());
-        m_L.reset(new MatrixXd); *m_L = MatrixXd::Zero(Nodes() + SNodes(), PNodes());
+        m_G = MatrixXd::Zero(Nodes() + SNodes(), Nodes() + SNodes());
+        m_C = MatrixXd::Zero(Nodes() + SNodes(), Nodes() + SNodes());
+        m_B = MatrixXd::Zero(Nodes() + SNodes(), SNodes());
+        m_L = MatrixXd::Zero(Nodes() + SNodes(), PNodes());
         
-        size_t i = 0, j;
+        size_t i = 0, j = 0;
         for (auto n : m_sources) {
             B()(i + Nodes(), i) = -1;
             mna::StampI(G(), n, i + Nodes());  ++i;
         }
-        
-        i = 0;
-        if (not Probs().empty()) {
-            for (auto n : Probs()) L()(n, i++) = 1;
-        }
-        else {
-            for (j = 0; j < Nodes(); ++j) {
-                if (Sources().count(j)) continue;
-                L()(j, i++) = 1;
-            }
+        for (auto p : m_probs) {
+            L()(p, j++) = 1;
         }
     }
 
-    virtual ~Circuit() = default;
+    virtual ~CircuitV() = default;
 
     void SetR(size_t i, size_t j, double r)
     {
@@ -64,20 +56,19 @@ public:
         mna::Stamp(C(), i, c);
     }
     
-    MatrixXd & G() { return *m_G; } 
-    MatrixXd & C() { return *m_C; } 
-    MatrixXd & B() { return *m_B; } 
-    MatrixXd & L() { return *m_L; } 
+    MatrixXd & G() { return m_G; } 
+    MatrixXd & C() { return m_C; } 
+    MatrixXd & B() { return m_B; } 
+    MatrixXd & L() { return m_L; } 
 
-    const MatrixXd & G() const { return *m_G; } 
-    const MatrixXd & C() const { return *m_C; } 
-    const MatrixXd & B() const { return *m_B; } 
-    const MatrixXd & L() const { return *m_L; } 
+    const MatrixXd & G() const { return m_G; } 
+    const MatrixXd & C() const { return m_C; } 
+    const MatrixXd & B() const { return m_B; } 
+    const MatrixXd & L() const { return m_L; } 
 
     size_t Nodes() const { return m_nodes; }
     size_t SNodes() const { return Sources().size(); }
-    size_t PNodes() const { return Probs().empty() ? Nodes() - SNodes() : Probs().size(); }
-
+    size_t PNodes() const { return Probs().size(); }
     const std::set<size_t> & Probs() const { return m_probs; }
     const std::set<size_t> & Sources() const { return m_sources; }
 
@@ -85,81 +76,83 @@ private:
     size_t m_nodes;
     std::set<size_t> m_probs;
     std::set<size_t> m_sources;
-    std::unique_ptr<MatrixXd> m_G{nullptr};
-    std::unique_ptr<MatrixXd> m_C{nullptr};
-    std::unique_ptr<MatrixXd> m_B{nullptr};
-    std::unique_ptr<MatrixXd> m_L{nullptr};
+    MatrixXd m_G, m_C, m_B, m_L;
 };
 
 using StateType = std::vector<double>;
-template <typename VoltageFunc>
-struct Simulator
+struct Intermidiate
 {
     VectorXd u;
     MatrixXd coeff;
     MatrixXd input;
-    MatrixXd Lred;
-    const Circuit & ckt;
-    VoltageFunc voltFun;
-    bool verbose{false};
-    Simulator(const Circuit & ckt, VoltageFunc && voltFun, bool verbose = false)
-     : ckt(ckt), voltFun(std::move(voltFun)), verbose(verbose)
+    const CircuitV & ckt;
+    MatrixXd iG, iC, iB, iL;
+    Eigen::PermutationMatrix<Dynamic, Dynamic, size_t> permut;
+    Intermidiate(const CircuitV & ckt, bool verbose = false)
+     : ckt(ckt)
     {
-        MatrixXd Gred, Cred, Bred;
+        u.resize(ckt.Sources().size());
+        std::tie(iG, iC, iB, iL, permut) = mna::RegularizeSuDynamic(ckt.G(), ckt.C(), ckt.B(), ckt.L(), verbose);
+
+        auto dcomp = iC.ldlt();
+        coeff = dcomp.solve(-1.0 * iG);
+        input = dcomp.solve(iB);
+        u.resize(input.cols());
+
         if (verbose) {
             std::cout << "G:\n" << ckt.G() << std::endl;
             std::cout << "C:\n" << ckt.C() << std::endl;
             std::cout << "B:\n" << ckt.B() << std::endl;
             std::cout << "L:\n" << ckt.L() << std::endl;
-        }
 
-        std::tie(Gred, Cred, Bred, Lred) = mna::RegularizeSuDynamic(ckt.G(), ckt.C(), ckt.B(), ckt.L(), verbose);
-        
-        if (verbose) {
-            std::cout << "Gred:\n" << Gred << std::endl;
-            std::cout << "Cred:\n" << Cred << std::endl;
-            std::cout << "Bred:\n" << Bred << std::endl;
-            std::cout << "Lred:\n" << Lred << std::endl;
-        }
+            std::cout << "iG:\n" << iG << std::endl;
+            std::cout << "iC:\n" << iC << std::endl;
+            std::cout << "iB:\n" << iB << std::endl;
+            std::cout << "iL:\n" << iL << std::endl;
 
-        u.resize(ckt.Sources().size());
-        auto dcomp = Cred.ldlt();
-        // auto dcomp = Cred.llt();
-        coeff = dcomp.solve(-1.0 * Gred);
-        input = dcomp.solve(Bred);
-        if (verbose) {
             std::cout << "coeff:\n" << coeff << std::endl;
             std::cout << "input:\n" << input << std::endl;
+
+            std::cout << "p:\n" << permut.indices() << std::endl;
         }
     }
-
-    void operator() (const StateType x, StateType & dxdt, double t)
+    void State2Output(const StateType & x, StateType & result) const
     {
-        for (size_t i = 0; i < ckt.SNodes(); ++i) u(i) = voltFun(i, t);
-
-        Map<const VectorXd> xvec(x.data(), x.size());
-        Map<VectorXd> result(dxdt.data(), dxdt.size());
-        result = coeff * xvec + input * u;  
-    }
-
-    size_t StateSize() const { return coeff.cols(); } const
-
-    void State2Output(const StateType & x, std::vector<double> & result) const
-    {
-        result.resize(Lred.cols());
+        result.resize(iL.cols());
         Map<const VectorXd> xvec(x.data(), x.size());
         Map<VectorXd> ovec(result.data(), result.size());
-        ovec = Lred.transpose() * xvec;
+        ovec = iL.transpose() * xvec;
     }
 
-    std::vector<double> State2Output(const StateType & x) const
+    StateType State2Output(const StateType & x) const
     {
-        std::vector<double> res;
-        State2Output(x, res);
-        return res;
+        StateType results;
+        State2Output(x, results);
+        return results;
+    }
+
+    size_t StateSize() const
+    {
+        return iG.cols();
+    }
+};
+
+template <typename VoltFunc>
+struct Simulator
+{
+    Intermidiate & im;
+    const VoltFunc & vf;
+    Simulator(Intermidiate & im, const VoltFunc & vf) : im(im), vf(vf) {}
+
+    void operator() (const StateType & x, StateType & dxdt, double t)
+    {   
+        for (size_t i = 0; i < im.ckt.SNodes(); ++i) im.u(i) = vf(i, t);
+        Map<const VectorXd> xvec(x.data(), x.size());
+        Map<VectorXd> result(dxdt.data(), dxdt.size());
+        result = im.coeff * xvec + im.input * im.u;  
     }
 };
 
 } // namespace generic::ckt
 
-#endif // EIGEN_LIBRARY_SUPPORT
+#endif // GENERIC_EIGEN_LIBRARY_SUPPORT
