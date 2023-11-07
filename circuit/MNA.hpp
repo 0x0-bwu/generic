@@ -218,7 +218,7 @@ RegularizeSu(Matrix<Float, scount, scount> const & G,
     return std::make_tuple(Gred, Cred, Bred, Lred);
 }
 
-inline std::tuple<MatrixXd, MatrixXd, MatrixXd, MatrixXd> //<G, C, B, L>
+inline std::tuple<MatrixXd, MatrixXd, MatrixXd, MatrixXd, Eigen::PermutationMatrix<Dynamic, Dynamic, size_t> > //<G, C, B, L, P>
 RegularizeSuDynamic(MatrixXd const & G, MatrixXd const & C, MatrixXd const & B, MatrixXd const & L, bool verbose = false) {
 
     // Use the techniques described in Su (Proc 15th ASP-DAC, 2002) to reduce
@@ -226,8 +226,8 @@ RegularizeSuDynamic(MatrixXd const & G, MatrixXd const & C, MatrixXd const & B, 
     // Otherwise we cannot integrate to get the time domain result...
 
     const size_t scount = G.rows();
-    const size_t icount = B.cols();
-    const size_t ocount = L.cols();
+    [[maybe_unused]] const size_t icount = B.cols();
+    [[maybe_unused]] const size_t ocount = L.cols();
 
     // Use Eigen reductions to find zero rows
     auto zero_rows = (C.array() == 0.0).rowwise().all();   // per row "all zeros"
@@ -311,7 +311,7 @@ RegularizeSuDynamic(MatrixXd const & G, MatrixXd const & C, MatrixXd const & B, 
     // auto D = L2.transpose() * G22invB2;
     // GENERIC_ASSERT(D.isZero());
 
-    return std::make_tuple(Gred, Cred, Bred, Lred);
+    return std::make_tuple(Gred, Cred, Bred, Lred, permut);
 }
 
 namespace detail {
