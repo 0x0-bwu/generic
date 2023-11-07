@@ -13,6 +13,11 @@
 #include <sys/stat.h>
 #include <time.h>
 #endif
+
+#ifndef BOOST_CHRONO_HEADER_ONLY
+#define BOOST_CHRONO_HEADER_ONLY
+#endif//BOOST_CHRONO_HEADER_ONLY
+#include <boost/chrono/thread_clock.hpp>
 #include <iostream>
 #include <memory>
 #include <thread>
@@ -127,7 +132,8 @@ public:
     public:
         explicit SubTimer(std::shared_ptr<AccumulatedTimer> master) : m_master(master)
         {
-            m_start = std::chrono::steady_clock::now(); 
+            m_wtStart = std::chrono::steady_clock::now();
+            m_ctStart = boost::chrono::thread_clock::now(); 
         }
         
         ~SubTimer() { try { Stop(); } catch (...) {} }
@@ -137,16 +143,17 @@ public:
         {
             if (not m_stop) {
                 m_stop = true;
-                auto end = std::chrono::steady_clock::now();
-                auto elapse = std::chrono::duration_cast<std::chrono::nanoseconds>(end - m_start);
-                m_master->AccumulateImp(elapse.count());
+                auto wtElapse = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - m_wtStart);
+                auto ctElapse = boost::chrono::duration_cast<boost::chrono::nanoseconds>(boost::chrono::thread_clock::now() - m_ctStart);
+                m_master->AccumulateImp(wtElapse.count(), ctElapse.count());
             }
         }
 
     private:
         bool m_stop = false;
         std::shared_ptr<AccumulatedTimer> m_master = nullptr;
-        std::chrono::time_point<std::chrono::steady_clock> m_start;
+        std::chrono::time_point<std::chrono::steady_clock> m_wtStart;
+        boost::chrono::thread_clock::time_point m_ctStart;
     };
 
     friend SubTimer;
@@ -172,10 +179,22 @@ public:
         return std::make_unique<SubTimer>(Instance());
     }
 
-    ///@brief returning current timing count
-    static double Count()
+    ///@brief returning current wall time count
+    static double WallTime()
     {
-        return Instance()->CountImp();
+        return Instance()->WallTimeImp();
+    }
+
+    ///@brief returning current cput time count
+    static double CpuTime()
+    {
+        return Instance()->CpuTimeImp();
+    }
+
+    ///@brief returning current timing count [wall time, cpu time]
+    static std::pair<double, double> Count()
+    {
+        return { WallTime(), CpuTime() };
     }
     
     ///@brief reset timing count to zero
@@ -205,24 +224,34 @@ private:
 
     void ResetImp()
     {
-        m_count.store(0);
+        m_wtCount.store(0);
+        m_ctCount.store(0);
     }
 
-    void AccumulateImp(int64_t time)
+    void AccumulateImp(int64_t wallTime, int64_t cpuTime)
     {
-        m_count.fetch_add(time);
+        m_wtCount.fetch_add(wallTime);
+        m_ctCount.fetch_add(cpuTime);
     }
 
-    double CountImp() const
+    double WallTimeImp() const
     {
-        double count = m_count.load() * unit::Scale2Second(unit::Time::Nanosecond);
+        double count = m_wtCount.load() * unit::Scale2Second(unit::Time::Nanosecond);
+        double scale = 1.0 / unit::Scale2Second(m_unit);
+        return scale * count;
+    }
+
+    double CpuTimeImp() const
+    {
+        double count = m_ctCount.load() * unit::Scale2Second(unit::Time::Nanosecond);
         double scale = 1.0 / unit::Scale2Second(m_unit);
         return scale * count;
     }
 
 private:
     unit::Time m_unit{unit::Time::Second};
-    std::atomic<int64_t> m_count{0};//nanoseconds;
+    std::atomic<int64_t> m_wtCount{0};//nanoseconds;
+    std::atomic<int64_t> m_ctCount{0};//nanoseconds;
 };
 
 }//namespace tools
