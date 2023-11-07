@@ -62,7 +62,7 @@ void t_timer()
     }
     pool.Wait();
     tools::AccumulatedTimer::SetUnit(unit::Time::Second);
-   	auto accumulated = tools::AccumulatedTimer::Count();
+   	auto accumulated = tools::AccumulatedTimer::WallTime();
 	BOOST_CHECK(accumulated > timer.Count());
 }
 

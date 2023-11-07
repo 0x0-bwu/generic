@@ -593,7 +593,6 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_connectivity_t, num_type)
     using Point = Point2D<num_type>;
     using PointF = Point2D<float_t>;
     using Triangle = Triangle2D<num_type>;
-    using Box = Box2D<num_type>;
     using BoxF = Box2D<float_t>;
     using Segment = Segment2D<num_type>;
     using Polygon = Polygon2D<num_type>;
