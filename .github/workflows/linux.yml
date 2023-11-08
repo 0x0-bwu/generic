@@ -3,7 +3,7 @@ run-name: unit test
 on: [push]
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-22.04
     steps:
       - name: checkout
         uses: actions/checkout@v4
@@ -18,6 +18,7 @@ jobs:
         id: install-boost
         with:
             boost_version: 1.83.0
+            platform_version: 22.04
             boost_install_dir: /home/runner/boost_1_83_0
 
       - name: build unit test
