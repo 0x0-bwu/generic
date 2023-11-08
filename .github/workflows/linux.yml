@@ -11,7 +11,7 @@ jobs:
       - name: update
         run: sudo apt-get update
       - name: install dependency
-        run: sudo apt-get install build-essential cmake ninja-build libboost-all-dev
+        run: sudo apt-get install build-essential cmake ninja-build libboost-all-dev libeigen3-dev
 
       - name: build unit test
         run: cmake -Btest/build -Stest -G Ninja && cmake --build test/build
