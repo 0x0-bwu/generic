@@ -6,5 +6,3 @@
 .vscode
 build
 docs
-test.cpp
-.sconsign.dblite

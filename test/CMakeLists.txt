@@ -43,8 +43,7 @@ include_directories(${GENERIC_LIBRARY_DIR} ${PNG_INCLUDE_DIR} ${BOOST_INCLUDE_PA
 
 if(EXISTS ${CMAKE_SOURCE_DIR}/test.cpp)
     add_executable(test.exe test.cpp)
-    target_link_libraries(test.exe PRIVATE Threads::Threads ${PNG_LIBRARY})
-else()
-    add_executable(${PROJECT_NAME} UnitTest.cpp)
-    target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads ${PNG_LIBRARY})
+    target_link_libraries(test.exe PRIVATE Threads::Threads)
 endif()
+add_executable(${PROJECT_NAME} UnitTest.cpp)
+target_link_libraries(${PROJECT_NAME} PRIVATE Threads::Threads ${PNG_LIBRARY})
