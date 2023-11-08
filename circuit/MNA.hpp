@@ -80,7 +80,7 @@ inline void StampI(typename std::vector<Eigen::Triplet<Float> >& tlist, size_t v
 
 
 template<typename Scalar, int Rows, int Cols, int Options, int MaxRows, int MaxCols>
-inline bool IsSingular(Eigen::Matrix<Scalar, Rows, Cols, Options, MaxRows, MaxCols> const& m) {
+inline bool IsSingular(const Eigen::Matrix<Scalar, Rows, Cols, Options, MaxRows, MaxCols> & m) {
    // A singular matrix has at least one zero eigenvalue -
    // in theory, at least... but due to machine precision we can have "nearly singular"
    // matrices that misbehave.  Comparing rank instead is safer because it uses thresholds
