@@ -108,7 +108,7 @@ public:
      */
     template <typename FunctionType>
     std::pair<TaskNode *,
-    std::shared_future<typename std::result_of<FunctionType()>::type> >
+    std::shared_future<std::invoke_result_t<FunctionType> > >
     Submit(FunctionType && f, std::optional<std::string> label = {});
 
     /**
@@ -136,10 +136,10 @@ private:
 
 template <typename FunctionType>
 std::pair<TaskNode *,
-std::shared_future<typename std::result_of<FunctionType()>::type> >
+std::shared_future<std::invoke_result_t<FunctionType> > >
 inline TaskFlow::Submit(FunctionType && f, std::optional<std::string> label)
 {
-    using ResultType = typename std::result_of<FunctionType()>::type;
+    using ResultType = std::invoke_result_t<FunctionType>;
     std::packaged_task<ResultType()> task(std::move(f));
     std::shared_future<ResultType> res(task.get_future());
 
