@@ -10,6 +10,7 @@ endif()
 message("-- Build Type: " ${CMAKE_BUILD_TYPE})
 
 add_compile_options(-Wall)
+add_compile_options(-Wno-deprecated-declarations)
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   add_compile_options(-fcompare-debug-second) #hide note message
 endif()
@@ -22,12 +23,19 @@ set(BOOST_LIBRARY_PATH $ENV{BOOST_PATH}/lib)
 add_definitions("-DBOOST_ALLOW_DEPRECATED_HEADERS")
 add_definitions("-DBOOST_BIND_GLOBAL_PLACEHOLDERS")
 
+## Link Eigen
+if(DEFINED ENV{EIGEN_PATH})
+	include_directories($ENV{EIGEN_PATH})
+else()
+	find_package(Eigen3 REQUIRED)
+	include_directories(${EIGEN3_INCLUDE_DIR})
+endif()
+
 find_package(PNG REQUIRED)
 find_package(Threads REQUIRED)
 
 if(DEFINED ENV{EIGEN_PATH})
 	include_directories($ENV{EIGEN_PATH})
-    add_definitions("-DEIGEN_LIBRARY_SUPPORT=1")
 endif()
 
 get_filename_component(GENERIC_LIBRARY_DIR ../../ ABSOLUTE)
