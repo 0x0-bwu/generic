@@ -14,7 +14,7 @@ using namespace generic;
 using namespace generic::ckt;
 using t_ckt_num_types = boost::mpl::list<double>;
 
-BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_simulator_t, float_t)
+BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_dense_ckt_simulator_t, float_t)
 {
     float_t vdd = 0.88;
     float_t ts  = 200e-12;
@@ -27,7 +27,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_simulator_t, float_t)
     ckt.SetC(1, 1e-12);
     ckt.SetC(2, 1e-12);
 
-    auto im = Intermidiate(ckt, true);
+    auto im = Intermidiate<float_t>(ckt.Build(), false);
     using namespace boost::numeric;
     using StateType = typename Intermidiate<float_t>::StateType;
 	using ErrorStepperType = odeint::runge_kutta_cash_karp54<StateType>;
@@ -38,8 +38,6 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_simulator_t, float_t)
         Simulator(im, vfun), initState, float_t{0}, float_t{ts * 2}, float_t{ts * 2 / steps});
 
     auto outs = im.State2Output(initState);
-    for (auto out : outs)
-        std::cout << out << ',';
     BOOST_CHECK(outs.size() == 2);
     BOOST_CHECK_CLOSE(outs.front(), 0.8800, 1e-2);
     BOOST_CHECK_CLOSE(outs.back(), 0.82852, 1e-2);
@@ -49,7 +47,7 @@ test_suite * create_circuit_test_suite()
 {
     test_suite * circuit_suite = BOOST_TEST_SUITE("s_circuit");
     //
-    circuit_suite->add(BOOST_TEST_CASE_TEMPLATE(t_simulator_t, t_ckt_num_types));
+    circuit_suite->add(BOOST_TEST_CASE_TEMPLATE(t_dense_ckt_simulator_t, t_ckt_num_types));
     //
     return circuit_suite;
 }

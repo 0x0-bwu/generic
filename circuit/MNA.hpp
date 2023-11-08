@@ -17,6 +17,8 @@
 #include <numeric>
 namespace generic {
 
+template <typename M> struct MNA { M G, C, B, L; };
+
 namespace ckt::mna {
 
 // Functions for implementing MNA with an Eigen matrix
@@ -216,8 +218,7 @@ inline std::tuple<
 Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic>,//G
 Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic>,//C
 Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic>,//B
-Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic>,//L
-Eigen::PermutationMatrix<Eigen::Dynamic, Eigen::Dynamic, size_t> >//P
+Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic> >//L
 RegularizeSuDynamic(const Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic> & G, 
                     const Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic> & C,
                     const Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic> & B,
@@ -313,7 +314,18 @@ RegularizeSuDynamic(const Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic> &
     // auto D = L2.transpose() * G22invB2;
     // GENERIC_ASSERT(D.isZero());
 
-    return std::make_tuple(Gred, Cred, Bred, Lred, permut);
+    return std::make_tuple(Gred, Cred, Bred, Lred);
+}
+
+template <typename Float>
+inline std::tuple<
+Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic>,//G
+Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic>,//C
+Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic>,//B
+Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic> >//L
+RegularizeSuDynamic(const MNA<Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic> > & m, bool verbose = false)
+{
+    return RegularizeSuDynamic(m.G, m.C, m.B, m.L, verbose);
 }
 
 namespace detail {
@@ -364,7 +376,7 @@ RegularizeNatarajan(
     MatrixD Gprime = L.solve(P * G * Q);                   // rows and columns
     MatrixVector<Float, scount, icount> Bprime;
     std::transform(B.begin(), B.end(), std::back_inserter(Bprime),
-                   [&L, &P](Matrix<Float, scount, icount> const& b) -> Matrix<Float, scount, icount> {
+                   [&L, &P](const Eigen::Matrix<Float, scount, icount> & b) ->Eigen::Matrix<Float, scount, icount> {
                        return L.solve(P * b);              // rows only
                    });
 
