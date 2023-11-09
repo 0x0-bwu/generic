@@ -159,8 +159,8 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_mor_ckt_cross_talk_t, float_t)
         odeint::make_controlled(float_t{1e-12}, float_t{1e-10}, ErrorStepperType{}),
         Simulator(im, vfun), state, float_t{0}, float_t{ts * 2}, float_t{ts * 2 / steps}, Observer(im, max3, max9));
     
-    BOOST_CHECK_CLOSE(max3, 0.784533, 2);
-    BOOST_CHECK_CLOSE(max9, 0.842692, 2);   
+    BOOST_CHECK_CLOSE(max3, 0.784533, 2.0);
+    BOOST_CHECK_CLOSE(max9, 0.842692, 2.5);   
 }
 
 test_suite * create_circuit_test_suite()

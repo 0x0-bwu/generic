@@ -38,8 +38,12 @@
  * @date 2022-02-22
  */
 #pragma once
-#include <boost/math/ccmath/ccmath.hpp>
+#include "generic/common/Macros.hpp"
 #include "Point.hpp"
+
+#ifdef GENERIC_OS_MAC
+#include <boost/math/ccmath/ccmath.hpp>
+#endif//GENERIC_OS_MAC
 #include <functional>
 #include <algorithm>
 #include <array>
@@ -212,8 +216,11 @@ template<typename T>
 class ExpansionBase
 {
 private:
+#ifdef GENERIC_OS_MAC
     inline static constexpr T splitter = static_cast<T>(boost::math::ccmath::ldexp(1, (std::numeric_limits<T>::digits + std::numeric_limits<T>::digits%2)/2 + 1));
-    // inline static constexpr T splitter = static_cast<T>(std::exp2((std::numeric_limits<T>::digits + std::numeric_limits<T>::digits%2)/2 + 1)); //replace with boost ldexp since the exp2 not constexpr until c++26
+#else
+    inline static constexpr T splitter = static_cast<T>(std::exp2((std::numeric_limits<T>::digits + std::numeric_limits<T>::digits%2)/2 + 1)); //replace with boost ldexp since the exp2 not constexpr until c++26
+#endif//GENERIC_OS_MAC
     static_assert(std::numeric_limits<T>::is_iec559,  "requires IEC 559 IEEE 754 floating point type");
     static_assert(2 == std::numeric_limits<T>::radix, "requires base 2 floating point type");
 
@@ -483,11 +490,13 @@ inline T inSphere(const Point3D<T> & pa, const Point3D<T> & pb, const Point3D<T>
 }
 }//namespace exact
 
+#ifdef GENERIC_OS_MAC
 template <typename T>
 inline static constexpr T Epsilon = boost::math::ccmath::ldexp(1, -std::numeric_limits<T>::digits);
-
-// template <typename T>
-// inline static constexpr T Epsilon = std::exp2(-std::numeric_limits<T>::digits); //replace with boost ldexp since the exp2 not constexpr until c++26
+#else
+template <typename T>
+inline static constexpr T Epsilon = std::exp2(-std::numeric_limits<T>::digits); //replace with boost ldexp since the exp2 not constexpr until c++26
+#endif//GENERIC_OS_MAC
 
 template <typename T>
 class Constants {
