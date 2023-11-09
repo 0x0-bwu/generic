@@ -41,7 +41,7 @@ Prima(const Eigen::SparseMatrix<Float> & C,   // derivative conductance terms
 
   // Step 2: Solve GR = B for R
   Eigen::SparseLU<Eigen::SparseMatrix<Float>, Eigen::COLAMDOrdering<int> > G_LU(G);
-  GENERIC_ASSERT(G_LU.info() == Success)
+  GENERIC_ASSERT(G_LU.info() == Eigen::Success)
   Eigen::SparseMatrix<Float> R = G_LU.solve(B);
 
   // Step 3: Set X[0] to the orthonormal basis of R as determined by QR factorization
@@ -52,7 +52,7 @@ Prima(const Eigen::SparseMatrix<Float> & C,   // derivative conductance terms
   using MatrixXXList = std::vector<MatrixXX, AllocatorXX>;
   
   Eigen::SparseQR<Eigen::SparseMatrix<Float>, Eigen::COLAMDOrdering<int> > R_QR(R);
-  GENERIC_ASSERT(R_QR.info() == Success)
+  GENERIC_ASSERT(R_QR.info() == Eigen::Success)
   // QR stores the Q "matrix" as a series of Householder reflection operations
   // that it will perform for you with the * operator.  If you store it in a matrix
   // it obligingly produces an NxN matrix but if you want the "thin" result only,

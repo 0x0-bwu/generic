@@ -1,6 +1,6 @@
 #include "generic/circuit/Simulator.hpp"
 #include "generic/circuit/MOR.hpp"
-
+#include <fstream>
 using namespace generic::ckt;
 int main()
 {
@@ -10,13 +10,12 @@ int main()
     auto steps = 1000;
     auto vfun = [vdd, ts](size_t i, auto t) -> float_t
     {
-        if (i == 0)
-            return t > ts ? vdd : t * vdd / ts;
-        else return t > ts ? 0 : vdd - t * vdd / ts;
+        if (i == 0) return t > ts ? vdd : t * vdd / ts;
+        else return t < ts ? vdd : vdd - (t - ts) * vdd / ts;
     };
 
-    // auto ckt = SparseCircuit<float_t>(11, {0, 6, 11}, {0, 6, 11});
-    auto ckt = DenseCircuit<float_t>(11, {0, 6}, {0, 6, 11});
+    // auto ckt = SparseCircuit<float_t>(12, {0, 6}, {1, 7, 11});
+    auto ckt = DenseCircuit<float_t>(12, {0, 6}, {1, 3, 7, 9});
     ckt.SetR(0, 1, 0.01);
     ckt.SetR(6, 7, 0.01);
 
@@ -41,6 +40,9 @@ int main()
     ckt.SetR(4, 5, 10);
     ckt.SetR(10, 11, 10);
 
+    ckt.SetC(5, 1e-12);
+    ckt.SetC(11, 1e-12);
+    
     const auto & m = ckt.Build();
     // const auto x = Prima(m, 5);
 
@@ -56,17 +58,36 @@ int main()
     // std::cout << "rB:\n" << rB << std::endl;
     // std::cout << "rL:\n" << rL << std::endl;
 
-    auto im = Intermidiate<float_t>(m, false);
+    auto im = Intermidiate<float_t>(m, true);
     using namespace boost::numeric;
     using StateType = typename Intermidiate<float_t>::StateType;
 	using ErrorStepperType = odeint::runge_kutta_cash_karp54<StateType>;
+
+    struct Observer
+    {
+        StateType & out;
+        std::ostream & os;
+        const Intermidiate<float_t> & im;
+        Observer(const Intermidiate<float_t> & im, StateType & out, std::ostream & os) : out(out), os(os), im(im) {}
+
+        void operator() (const StateType & x, float_t t) {
+            os << t;
+            im.State2Output(x, out);
+            for (auto & o : out)
+                os << char(32) << o;
+            os << std::endl;
+        }
+
+    };
     
-    StateType initState(im.StateSize(), 0);
+    StateType out;
+    StateType state(im.StateSize(), 0);
+    std::ofstream os("./out.txt");
 	odeint::integrate_adaptive(
         odeint::make_controlled(float_t{1e-12}, float_t{1e-10}, ErrorStepperType{}),
-        Simulator(im, vfun), initState, float_t{0}, float_t{ts * 2}, float_t{ts * 2 / steps});
+        Simulator(im, vfun), state, float_t{0}, float_t{ts * 2}, float_t{ts * 2 / steps}, Observer(im, out, os));
 
-    auto outs = im.State2Output(initState);
+    auto outs = im.State2Output(state);
     for (auto out : outs)
         std::cout << out << ',';
     std::cout << std::endl;

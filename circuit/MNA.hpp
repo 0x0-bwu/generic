@@ -18,6 +18,7 @@
 namespace generic {
 
 template <typename M> struct MNA { M G, C, B, L; };
+using PermutMatrix = Eigen::PermutationMatrix<Eigen::Dynamic, Eigen::Dynamic, size_t>;
 
 namespace ckt::mna {
 
@@ -81,8 +82,8 @@ inline void StampI(typename std::vector<Eigen::Triplet<Float> >& tlist, size_t v
 }
 
 
-template<typename Scalar, int Rows, int Cols, int Options, int MaxRows, int MaxCols>
-inline bool IsSingular(const Eigen::Matrix<Scalar, Rows, Cols, Options, MaxRows, MaxCols> & m) {
+template<typename Matrix>
+inline bool IsSingular(const Matrix & m) {
    // A singular matrix has at least one zero eigenvalue -
    // in theory, at least... but due to machine precision we can have "nearly singular"
    // matrices that misbehave.  Comparing rank instead is safer because it uses thresholds
@@ -119,7 +120,7 @@ Moments(Eigen::Matrix<Float, scount, scount> const & G,
         size_t count) {
     MatrixVector<Float, ocount, icount> result;
 
-    GENERIC_ASSERT(!IsSingular(G));
+    GENERIC_ASSERT(not IsSingular(G))
     auto G_QR = G.fullPivHouseholderQr();
     Eigen::Matrix<Float, scount, scount> A = -G_QR.solve(C);
     Eigen::Matrix<Float, scount, icount> R = G_QR.solve(B);
@@ -196,7 +197,7 @@ RegularizeSu(
 
     MatrixD Cred = CP.topLeftCorner(nonzero_count, nonzero_count);
 
-    GENERIC_ASSERT(!IsSingular(G22));
+    GENERIC_ASSERT(IsSingular(G22))
     auto G22QR = G22.fullPivLu();
 
     MatrixD G22invG21 = G22QR.solve(G21);
@@ -222,7 +223,7 @@ Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic> >//L
 RegularizeSuDynamic(const Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic> & G, 
                     const Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic> & C,
                     const Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic> & B,
-                    const Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic> & L, bool verbose = false)
+                    const Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic> & L, PermutMatrix & permut)
 {
     // Use the techniques described in Su (Proc 15th ASP-DAC, 2002) to reduce
     // this set of equations so the state variable derivatives have coefficients
@@ -239,7 +240,6 @@ RegularizeSuDynamic(const Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic> &
     size_t nonzero_count = state_count - zero_count;
 
     // 1. Generate permutation matrix to move zero rows to the bottom
-    Eigen::PermutationMatrix<Eigen::Dynamic, Eigen::Dynamic, size_t> permut;
     permut.resize(scount);
     permut.setIdentity(state_count);      // start with null permutation
     size_t i, j;
@@ -260,12 +260,10 @@ RegularizeSuDynamic(const Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic> &
     auto BP = permut * B; // permute only rows
     auto LP = permut * L;
 
-    if (verbose) {
-        std::cout << "CP:\n " << CP << std::endl;
-        std::cout << "GP:\n " << GP << std::endl;
-        std::cout << "BP:\n " << BP << std::endl;
-        std::cout << "LP:\n " << LP << std::endl;
-    }
+    std::cout << "CP:\n " << CP << std::endl;
+    std::cout << "GP:\n " << GP << std::endl;
+    std::cout << "BP:\n " << BP << std::endl;
+    std::cout << "LP:\n " << LP << std::endl;
     
     // 3. Produce reduced equations following Su (Proc. 15th ASP-DAC, 2002)
     auto G11 = GP.topLeftCorner(nonzero_count, nonzero_count);
@@ -273,28 +271,24 @@ RegularizeSuDynamic(const Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic> &
     auto G21 = GP.bottomLeftCorner(zero_count, nonzero_count);
     auto G22 = GP.bottomRightCorner(zero_count, zero_count);
 
-    if (verbose) {
-        std::cout << "G11:\n " << G11 << std::endl;
-        std::cout << "G12:\n " << G12 << std::endl;
-        std::cout << "G21:\n " << G21 << std::endl;
-        std::cout << "G22:\n " << G22 << std::endl;
-    }
+    std::cout << "G11:\n " << G11 << std::endl;
+    std::cout << "G12:\n " << G12 << std::endl;
+    std::cout << "G21:\n " << G21 << std::endl;
+    std::cout << "G22:\n " << G22 << std::endl;
 
     auto L1 = LP.topRows(nonzero_count);
     auto L2 = LP.bottomRows(zero_count);    
     auto B1 = BP.topRows(nonzero_count);
     auto B2 = BP.bottomRows(zero_count);
 
-    if (verbose) {
-        std::cout << "L1:\n " << L1 << std::endl;
-        std::cout << "L2:\n " << L2 << std::endl;
-        std::cout << "B1:\n " << B1 << std::endl;
-        std::cout << "B2:\n " << B2 << std::endl;  
-    }
+    std::cout << "L1:\n " << L1 << std::endl;
+    std::cout << "L2:\n " << L2 << std::endl;
+    std::cout << "B1:\n " << B1 << std::endl;
+    std::cout << "B2:\n " << B2 << std::endl;  
 
     auto Cred = CP.topLeftCorner(nonzero_count, nonzero_count);
 
-    GENERIC_ASSERT(not IsSingular(G22));
+    GENERIC_ASSERT(not IsSingular(G22))
     auto G22QR = G22.fullPivLu();
     auto G22invG21 = G22QR.solve(G21);
     auto G22invB2 = G22QR.solve(B2);
@@ -303,16 +297,13 @@ RegularizeSuDynamic(const Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic> &
     auto Lred = (L1.transpose() - L2.transpose() * G22invG21).transpose();
     auto Bred = B1 - G12 * G22invB2;
 
-    if (verbose) {
-        std::cout << "Cred:\n " << Cred << std::endl;
-        std::cout << "Gred:\n " << Gred << std::endl;
-        std::cout << "Bred:\n " << Bred << std::endl;
-        std::cout << "Lred:\n " << Lred << std::endl;
-    }
+    // std::cout << "Cred:\n " << Cred << std::endl;
+    // std::cout << "Gred:\n " << Gred << std::endl;
+    // std::cout << "Bred:\n " << Bred << std::endl;
+    // std::cout << "Lred:\n " << Lred << std::endl;
 
     // This approach presumes no feedthrough (input-to-output) term
-    // auto D = L2.transpose() * G22invB2;
-    // GENERIC_ASSERT(D.isZero());
+    GENERIC_ASSERT((L2.transpose() * G22invB2).isZero())
 
     return std::make_tuple(Gred, Cred, Bred, Lred);
 }
@@ -323,9 +314,9 @@ Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic>,//G
 Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic>,//C
 Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic>,//B
 Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic> >//L
-RegularizeSuDynamic(const MNA<Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic> > & m, bool verbose = false)
+RegularizeSuDynamic(const MNA<Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic> > & m, PermutMatrix & permut)
 {
-    return RegularizeSuDynamic(m.G, m.C, m.B, m.L, verbose);
+    return RegularizeSuDynamic(m.G, m.C, m.B, m.L, permut);
 }
 
 namespace detail {
@@ -423,7 +414,7 @@ RegularizeNatarajan(
  
     // extract and apply L operation from reversed G2
     auto G2_L = G2_LU.matrixLU().leftCols(C.rows() - k).template triangularView<Eigen::UnitLower>();
-    GENERIC_ASSERT(!IsSingular(G2_L));
+    GENERIC_ASSERT(not IsSingular(G2_L))
     MatrixVector<Float, scount, icount> Bnew;
     std::transform(Bprime.begin(), Bprime.end(), std::back_inserter(Bnew),
                    [k, &G2_L, &G2_LU]
@@ -451,7 +442,7 @@ RegularizeNatarajan(
 
     // Step 6: compute reduced matrices using equations given in paper
 
-    GENERIC_ASSERT(!IsSingular(G22));
+    GENERIC_ASSERT(not IsSingular(G22))
     // G22 is a "TriangularView" so has a simple solve method based on back-substitution
 
     MatrixD Gfinal  = G11 - G12 * G22.solve(G21);

@@ -98,7 +98,8 @@ struct Intermidiate
     using PermutationMatrixType = Eigen::PermutationMatrix<Eigen::Dynamic, Eigen::Dynamic, size_t>;
     
     VectorType u;
-    MatrixType iLT;
+    MatrixType rLT;
+    PermutMatrix p;
     size_t stateSize{0};
     MatrixType coeff, input;
     const MNA<MatrixType> & m;
@@ -106,43 +107,54 @@ struct Intermidiate
      : m(m)
     {
         u.resize(m.B.cols());
-        auto [iG, iC, iB, iL] = mna::RegularizeSuDynamic(m, verbose);
-        auto dcomp = iC.ldlt();
-        coeff = dcomp.solve(-1 * iG);
-        input = dcomp.solve(iB);
+        auto [rG, rC, rB, rL] = mna::RegularizeSuDynamic(m, p);
+        auto dcomp = rC.ldlt();
+        coeff = dcomp.solve(-1 * rG);
+        input = dcomp.solve(rB);
         u.resize(input.cols());
-        stateSize = iG.cols();
-        iLT = iL.transpose();
+        stateSize = rG.cols();
+        rLT = rL.transpose();
         if (verbose) {
             std::cout << "G:\n" << m.G << std::endl;
             std::cout << "C:\n" << m.C << std::endl;
             std::cout << "B:\n" << m.B << std::endl;
             std::cout << "L:\n" << m.L << std::endl;
-            std::cout << "iG:\n" << iG << std::endl;
-            std::cout << "iC:\n" << iC << std::endl;
-            std::cout << "iB:\n" << iB << std::endl;
-            std::cout << "iL:\n" << iL << std::endl;
+            std::cout << "rG:\n" << rG << std::endl;
+            std::cout << "rC:\n" << rC << std::endl;
+            std::cout << "rB:\n" << rB << std::endl;
+            std::cout << "rL:\n" << rL << std::endl;
             std::cout << "coeff:\n" << coeff << std::endl;
             std::cout << "input:\n" << input << std::endl;
         }
     }
 
-    void State2Output(const StateType & x, StateType & result) const
+    StateType InitState(const StateType & input) const
     {
-        result.resize(iLT.rows());
+        GENERIC_ASSERT(input.size() == static_cast<size_t>(m.G.cols()));
+        StateType state(m.G.cols());
+        Eigen::Map<const VectorType> in(input.data(), input.size());
+        Eigen::Map<VectorType> out(state.data(), state.size());
+        out = p * in;
+        state.resize(stateSize);
+        return state;
+    }
+
+    void State2Output(const StateType & x, StateType & out) const
+    {
+        out.resize(rLT.rows());
+        Eigen::Map<VectorType> ovec(out.data(), out.size());
         Eigen::Map<const VectorType> xvec(x.data(), x.size());
-        Eigen::Map<VectorType> ovec(result.data(), result.size());
-        ovec = iLT * xvec;
+        ovec = rLT * xvec;
     }
 
     StateType State2Output(const StateType & x) const
     {
-        StateType results;
-        State2Output(x, results);
-        return results;
+        StateType out;
+        State2Output(x, out);
+        return out;
     }
 
-    size_t StateSize() const { return stateSize; }
+    size_t StateSize() const { return stateSize; }    
 };
 
 template <typename Float, typename VoltFunc>
@@ -153,10 +165,10 @@ struct Simulator
     using StateType = typename Intermidiate<Float>::StateType;
     Simulator(Intermidiate<Float> & im, const VoltFunc & vf) : vf(vf), im(im) {}
 
-    void operator() (const StateType & x, StateType & dxdt, double t)
+    void operator() (const StateType & x, StateType & dxdt, Float t)
     {   
         using VectorType = typename  Intermidiate<Float>::VectorType;
-        for (size_t i = 0; i < im.m.B.cols(); ++i) im.u(i) = vf(i, t);
+        for (int i = 0; i < im.m.B.cols(); ++i) im.u(i) = vf(i, t);
         Eigen::Map<VectorType> result(dxdt.data(), dxdt.size());
         Eigen::Map<const VectorType> xvec(x.data(), x.size());
         result = im.coeff * xvec + im.input * im.u;  
