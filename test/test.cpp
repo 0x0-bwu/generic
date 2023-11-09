@@ -1,21 +1,24 @@
 #include "generic/circuit/Simulator.hpp"
 #include "generic/circuit/MOR.hpp"
+#include "generic/math/Numbers.hpp"
 #include <fstream>
+using namespace generic;
 using namespace generic::ckt;
 int main()
 {
     using float_t = double;
-    float_t vdd = 0.88;
+    float_t vdd = 88;
     float_t ts  = 200e-12;
     auto steps = 1000;
     auto vfun = [vdd, ts](size_t i, auto t) -> float_t
     {
-        if (i == 0) return t > ts ? vdd : t * vdd / ts;
-        else return t < ts ? vdd : vdd - (t - ts) * vdd / ts;
+        // if (i == 0) return t > ts ? vdd : t * vdd / ts;
+        // else return t < ts ? vdd : vdd - (t - ts) * vdd / ts;
+        if (i == 0) return 44 * std::sin(2 * math::pi / ts * t) + 44;
+        else return 44 * std::cos(2 * math::pi / ts * t) + 44;
     };
-
-    // auto ckt = SparseCircuit<float_t>(12, {0, 6}, {1, 7, 11});
     auto ckt = DenseCircuit<float_t>(12, {0, 6}, {1, 3, 7, 9});
+    // auto ckt = SparseCircuit<float_t>(12, {0, 6}, {1, 3, 7, 9});
     ckt.SetR(0, 1, 0.01);
     ckt.SetR(6, 7, 0.01);
 
@@ -44,19 +47,16 @@ int main()
     ckt.SetC(11, 1e-12);
     
     const auto & m = ckt.Build();
-    // const auto x = Prima(m, 5);
-
-    // auto xt = x.transpose();
-    // auto rC = xt * m.C * x;
-    // auto rG = xt * m.G * x;
-    // auto rB = xt * m.B;
-    // auto rL = xt * m.L;
-    
-    // std::cout <<  "x:\n" <<  x << std::endl;
-    // std::cout << "rC:\n" << rC << std::endl;
-    // std::cout << "rG:\n" << rG << std::endl;
-    // std::cout << "rB:\n" << rB << std::endl;
-    // std::cout << "rL:\n" << rL << std::endl;
+    // std::cout << "G:\n" << m.G << std::endl;
+    // std::cout << "C:\n" << m.C << std::endl;
+    // std::cout << "B:\n" << m.B << std::endl;
+    // std::cout << "L:\n" << m.L << std::endl;
+    // auto rm = Reduce(m, 6);    
+    // std::cout <<  "x:\n" << rm.x   << std::endl;
+    // std::cout << "rC:\n" << rm.m.C << std::endl;
+    // std::cout << "rG:\n" << rm.m.G << std::endl;
+    // std::cout << "rB:\n" << rm.m.B << std::endl;
+    // std::cout << "rL:\n" << rm.m.L << std::endl;
 
     auto im = Intermidiate<float_t>(m, true);
     using namespace boost::numeric;
@@ -85,7 +85,7 @@ int main()
     std::ofstream os("./out.txt");
 	odeint::integrate_adaptive(
         odeint::make_controlled(float_t{1e-12}, float_t{1e-10}, ErrorStepperType{}),
-        Simulator(im, vfun), state, float_t{0}, float_t{ts * 2}, float_t{ts * 2 / steps}, Observer(im, out, os));
+        Simulator(im, vfun), state, float_t{0}, float_t{ts * 100}, ts / 10, Observer(im, out, os));
 
     auto outs = im.State2Output(state);
     for (auto out : outs)
