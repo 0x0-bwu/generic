@@ -260,10 +260,10 @@ RegularizeSuDynamic(const Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic> &
     auto BP = permut * B; // permute only rows
     auto LP = permut * L;
 
-    std::cout << "CP:\n " << CP << std::endl;
-    std::cout << "GP:\n " << GP << std::endl;
-    std::cout << "BP:\n " << BP << std::endl;
-    std::cout << "LP:\n " << LP << std::endl;
+    // std::cout << "CP:\n " << CP << std::endl;
+    // std::cout << "GP:\n " << GP << std::endl;
+    // std::cout << "BP:\n " << BP << std::endl;
+    // std::cout << "LP:\n " << LP << std::endl;
     
     // 3. Produce reduced equations following Su (Proc. 15th ASP-DAC, 2002)
     auto G11 = GP.topLeftCorner(nonzero_count, nonzero_count);
@@ -271,20 +271,20 @@ RegularizeSuDynamic(const Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic> &
     auto G21 = GP.bottomLeftCorner(zero_count, nonzero_count);
     auto G22 = GP.bottomRightCorner(zero_count, zero_count);
 
-    std::cout << "G11:\n " << G11 << std::endl;
-    std::cout << "G12:\n " << G12 << std::endl;
-    std::cout << "G21:\n " << G21 << std::endl;
-    std::cout << "G22:\n " << G22 << std::endl;
+    // std::cout << "G11:\n " << G11 << std::endl;
+    // std::cout << "G12:\n " << G12 << std::endl;
+    // std::cout << "G21:\n " << G21 << std::endl;
+    // std::cout << "G22:\n " << G22 << std::endl;
 
     auto L1 = LP.topRows(nonzero_count);
     auto L2 = LP.bottomRows(zero_count);    
     auto B1 = BP.topRows(nonzero_count);
     auto B2 = BP.bottomRows(zero_count);
 
-    std::cout << "L1:\n " << L1 << std::endl;
-    std::cout << "L2:\n " << L2 << std::endl;
-    std::cout << "B1:\n " << B1 << std::endl;
-    std::cout << "B2:\n " << B2 << std::endl;  
+    // std::cout << "L1:\n " << L1 << std::endl;
+    // std::cout << "L2:\n " << L2 << std::endl;
+    // std::cout << "B1:\n " << B1 << std::endl;
+    // std::cout << "B2:\n " << B2 << std::endl;  
 
     auto Cred = CP.topLeftCorner(nonzero_count, nonzero_count);
 

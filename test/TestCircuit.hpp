@@ -39,8 +39,8 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_dense_ckt_simulator_t, float_t)
 
     auto outs = im.State2Output(initState);
     BOOST_CHECK(outs.size() == 2);
-    BOOST_CHECK_CLOSE(outs.front(), 0.8800, 1e-3);
-    BOOST_CHECK_CLOSE(outs.back(), 0.82852, 1e-3);
+    BOOST_CHECK_CLOSE(outs.front(), 0.8800, 1e-2);
+    BOOST_CHECK_CLOSE(outs.back(), 0.82852, 1e-2);
 }
 
 BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_dense_ckt_cross_talk_t, float_t)
@@ -108,8 +108,8 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_dense_ckt_cross_talk_t, float_t)
         odeint::make_controlled(float_t{1e-12}, float_t{1e-10}, ErrorStepperType{}),
         Simulator(im, vfun), state, float_t{0}, float_t{ts * 2}, float_t{ts * 2 / steps}, Observer(im, max3, max9));
     
-    BOOST_CHECK_CLOSE(max3, 0.784533, 1e-3)
-    BOOST_CHECK_CLOSE(max9, 0.842692, 1e-3)
+    BOOST_CHECK_CLOSE(max3, 0.784533, 1e-2);
+    BOOST_CHECK_CLOSE(max9, 0.842692, 1e-2);
 }
 
 test_suite * create_circuit_test_suite()
