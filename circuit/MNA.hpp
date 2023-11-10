@@ -15,12 +15,19 @@
 
 #include <iostream>
 #include <numeric>
-namespace generic {
+namespace generic::ckt {
 
 template <typename M> struct MNA { M G, C, B, L; };
+
+template <typename num_type>
+using DenseMatrix = Eigen::Matrix<num_type, Eigen::Dynamic, Eigen::Dynamic>;
+
+template <typename num_type>
+using SparseMatrix = Eigen::SparseMatrix<num_type>;
+
 using PermutMatrix = Eigen::PermutationMatrix<Eigen::Dynamic, Eigen::Dynamic, size_t>;
 
-namespace ckt::mna {
+namespace mna {
 
 // Functions for implementing MNA with an Eigen matrix
 template<typename M, typename Float>
@@ -546,5 +553,19 @@ RegularizeNatarajan(
     return detail::RegularizeNatarajan(G, C, MatrixVector<Float, scount, icount>(1, B), D);
 }
 
-} // namespace ckt::mna
-} // namespace generic
+} // namespace mna
+} // namespace generic::ckt
+
+namespace {
+
+template <typename M>
+inline std::ostream & operator<< (std::ostream & os, const generic::ckt::MNA<M> & m)
+{
+    os << "G:\n" << m.G << GENERIC_DEFAULT_EOL;
+    os << "C:\n" << m.C << GENERIC_DEFAULT_EOL;
+    os << "B:\n" << m.B << GENERIC_DEFAULT_EOL;
+    os << "L:\n" << m.L << GENERIC_DEFAULT_EOL;
+    return os;
+}
+
+}
