@@ -20,6 +20,9 @@ namespace generic::ckt {
 template <typename M> struct MNA { M G, C, B, L; };
 
 template <typename num_type>
+using DenseVector = Eigen::Matrix<num_type, Eigen::Dynamic, 1>;
+
+template <typename num_type>
 using DenseMatrix = Eigen::Matrix<num_type, Eigen::Dynamic, Eigen::Dynamic>;
 
 template <typename num_type>
