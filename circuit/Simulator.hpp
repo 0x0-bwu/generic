@@ -95,7 +95,6 @@ struct Intermidiate
     using StateType = std::vector<Float>;
     using VectorType = typename DenseCircuit<Float>::VectorType;
     using MatrixType = typename DenseCircuit<Float>::MatrixType;
-    using PermutationMatrixType = Eigen::PermutationMatrix<Eigen::Dynamic, Eigen::Dynamic, size_t>;
     
     VectorType u;
     MatrixType rLT;
