@@ -9,8 +9,7 @@ int main()
     using float_t = double;
     float_t vdd = 88;
     float_t ts  = 200e-12;
-    auto steps = 1000;
-    auto vfun = [vdd, ts](size_t i, auto t) -> float_t
+    auto vfun = [ts](size_t i, auto t) -> float_t
     {
         // if (i == 0) return t > ts ? vdd : t * vdd / ts;
         // else return t < ts ? vdd : vdd - (t - ts) * vdd / ts;
