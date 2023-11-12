@@ -42,7 +42,7 @@
 #include "Point.hpp"
 
 #ifdef GENERIC_USE_BOOST_CCMATH
-#include <boost/math/ccmath/ccmath.hpp>
+#include <boost/math/ccmath/ldexp.hpp>
 #endif//GENERIC_USE_BOOST_CCMATH
 #include <functional>
 #include <algorithm>
