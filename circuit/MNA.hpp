@@ -150,8 +150,8 @@ Moments(Eigen::Matrix<Float, scount, scount> const & G,
 // output array dimensions are "Dynamic"
 template<int icount, int ocount, int scount, typename Float>
 inline std::tuple<
-        Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic>,   // G result
-        Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic>,   // C result
+        DenseMatrix<Float>,   // G result
+        DenseMatrix<Float>,   // C result
         Eigen::Matrix<Float, Eigen::Dynamic, icount>,    // B result
         Eigen::Matrix<Float, Eigen::Dynamic, ocount> >   // L result
 RegularizeSu(
@@ -193,11 +193,10 @@ RegularizeSu(
     Eigen::Matrix<Float, Eigen::Dynamic, ocount> LP = permut * L;
     
     // 3. Produce reduced equations following Su (Proc. 15th ASP-DAC, 2002)s
-    using MatrixD = Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic>;
     auto G11 = GP.topLeftCorner(nonzero_count, nonzero_count);
     auto G12 = GP.topRightCorner(nonzero_count, zero_count);
-    MatrixD G21 = GP.bottomLeftCorner(zero_count, nonzero_count);
-    MatrixD G22 = GP.bottomRightCorner(zero_count, zero_count);
+    DenseMatrix<Float> G21 = GP.bottomLeftCorner(zero_count, nonzero_count);
+    DenseMatrix<Float> G22 = GP.bottomRightCorner(zero_count, zero_count);
 
     auto L1 = LP.topRows(nonzero_count);
     auto L2 = LP.bottomRows(zero_count);
@@ -205,35 +204,31 @@ RegularizeSu(
     auto B1 = BP.topRows(nonzero_count);
     auto B2 = BP.bottomRows(zero_count);
 
-    MatrixD Cred = CP.topLeftCorner(nonzero_count, nonzero_count);
+    DenseMatrix<Float> Cred = CP.topLeftCorner(nonzero_count, nonzero_count);
 
     GENERIC_ASSERT(IsSingular(G22))
     auto G22QR = G22.fullPivLu();
 
-    MatrixD G22invG21 = G22QR.solve(G21);
+    DenseMatrix<Float> G22invG21 = G22QR.solve(G21);
     auto G22invB2 = G22QR.solve(B2);
-    MatrixD Gred = G11 - G12 * G22invG21;
+    DenseMatrix<Float> Gred = G11 - G12 * G22invG21;
 
     Eigen::Matrix<Float, Eigen::Dynamic, ocount> Lred = (L1.transpose() - L2.transpose() * G22invG21).transpose();
     Eigen::Matrix<Float, Eigen::Dynamic, icount> Bred = B1 - G12 * G22invB2;
 
     // This approach presumes no feedthrough (input-to-output) term
-    // MatrixD D = L2.transpose() * G22invB2;
+    // DenseMatrix<Float> D = L2.transpose() * G22invB2;
     // GENERIC_ASSERT(D.isZero());
 
     return std::make_tuple(Gred, Cred, Bred, Lred);
 }
 
 template <typename Float>
-inline std::tuple<
-Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic>,//G
-Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic>,//C
-Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic>,//B
-Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic> >//L
-RegularizeSuDynamic(const Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic> & G, 
-                    const Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic> & C,
-                    const Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic> & B,
-                    const Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic> & L, PermutMatrix & permut)
+inline std::tuple<DenseMatrix<Float>, DenseMatrix<Float>, DenseMatrix<Float>, DenseMatrix<Float> > //[G, C, B, L]
+RegularizeSuDynamic(const DenseMatrix<Float> & G, 
+                    const DenseMatrix<Float> & C,
+                    const DenseMatrix<Float> & B,
+                    const DenseMatrix<Float> & L, PermutMatrix & permut)
 {
     // Use the techniques described in Su (Proc 15th ASP-DAC, 2002) to reduce
     // this set of equations so the state variable derivatives have coefficients
@@ -319,14 +314,19 @@ RegularizeSuDynamic(const Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic> &
 }
 
 template <typename Float>
-inline std::tuple<
-Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic>,//G
-Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic>,//C
-Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic>,//B
-Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic> >//L
-RegularizeSuDynamic(const MNA<Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic> > & m, PermutMatrix & permut)
+inline std::tuple<DenseMatrix<Float>, DenseMatrix<Float>, DenseMatrix<Float>, DenseMatrix<Float> > //[G, C, B, L]
+RegularizeSuDynamic(const MNA<DenseMatrix<Float> > & m, PermutMatrix & permut)
 {
     return RegularizeSuDynamic(m.G, m.C, m.B, m.L, permut);
+}
+
+template <typename Float>
+inline std::pair<MNA<DenseMatrix<Float> >, PermutMatrix> RegularizeSuDynamic(const MNA<DenseMatrix<Float> > & m)
+{
+    PermutMatrix p;
+    MNA<DenseMatrix<Float> > rm;
+    std::tie(rm.G, rm.C, rm.B, rm.L) = RegularizeSuDynamic(m, p);
+    return {rm, p};
 }
 
 namespace detail {
@@ -338,8 +338,8 @@ namespace detail {
 
 template<int icount, int ocount, int scount, typename Float = double>
 inline std::tuple<
-        Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic>,   // G result
-        Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic>,   // C result
+        DenseMatrix<Float>,   // G result
+        DenseMatrix<Float>,   // C result
         Eigen::Matrix<Float, Eigen::Dynamic, icount>,    // B result
         Eigen::Matrix<Float, Eigen::Dynamic, ocount>,    // D result
         Eigen::Matrix<Float, ocount, icount> >    // E result (feedthrough)
@@ -352,8 +352,6 @@ RegularizeNatarajan(
     // Implements the algorithm in [Natarajan]
     // Circuits, Devices and Systems, IEE Proceedings G, June 1991
 
-    using MatrixD = Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic>;
-
     // Step 1: put C into "Row Echelon" form by performing LU factorization
     auto lu = C.fullPivLu();
     auto k = lu.rank();
@@ -363,7 +361,7 @@ RegularizeNatarajan(
         return std::make_tuple(G, C, B.back(), D, E);
     }
 
-    MatrixD U = lu.matrixLU().template triangularView<Eigen::Upper>();
+    DenseMatrix<Float> U = lu.matrixLU().template triangularView<Eigen::Upper>();
     auto L    = lu.matrixLU().template triangularView<Eigen::UnitLower>();
 
     // Step 2: "perform the same elementary operations on G and B"
@@ -374,7 +372,7 @@ RegularizeNatarajan(
     auto P = lu.permutationP();
     auto Q = lu.permutationQ();
 
-    MatrixD Gprime = L.solve(P * G * Q);                   // rows and columns
+    DenseMatrix<Float> Gprime = L.solve(P * G * Q);                   // rows and columns
     MatrixVector<Float, scount, icount> Bprime;
     std::transform(B.begin(), B.end(), std::back_inserter(Bprime),
                    [&L, &P](const Eigen::Matrix<Float, scount, icount> & b) ->Eigen::Matrix<Float, scount, icount> {
@@ -404,7 +402,7 @@ RegularizeNatarajan(
 
     auto G2_LU = Gprime.bottomRows(C.rows() - k).fullPivLu();
     // former lower left gets reversed and becomes lower right
-    MatrixD G22R = G2_LU.matrixLU().leftCols(C.rows() - k).reverse();
+    DenseMatrix<Float> G22R = G2_LU.matrixLU().leftCols(C.rows() - k).reverse();
     auto G22   = G22R.template triangularView<Eigen::Lower>();
     // former lower right just gets row permutation to match G22
     auto G21   = G2_LU.matrixLU().rightCols(k).colwise().reverse();  // reverses rows
@@ -445,7 +443,7 @@ RegularizeNatarajan(
     auto C11 = C1.rightCols(k);
 
     // D columns also get permuted
-    MatrixD pq_view = G2_LU.permutationQ();
+    DenseMatrix<Float> pq_view = G2_LU.permutationQ();
     auto D1  = Dprime * G2_LU.permutationQ();
     auto D02 = D1.leftCols(C.rows() - k).rowwise().reverse();
     auto D01 = D1.rightCols(k);
@@ -455,8 +453,8 @@ RegularizeNatarajan(
     GENERIC_ASSERT(not IsSingular(G22))
     // G22 is a "TriangularView" so has a simple solve method based on back-substitution
 
-    MatrixD Gfinal  = G11 - G12 * G22.solve(G21);
-    MatrixD Cfinal  = C11 - C12 * G22.solve(G21);
+    DenseMatrix<Float> Gfinal  = G11 - G12 * G22.solve(G21);
+    DenseMatrix<Float> Cfinal  = C11 - C12 * G22.solve(G21);
     Eigen::Matrix<Float, ocount, Eigen::Dynamic> Dfinal
                     = D01 - D02 * G22.solve(G21);
 
@@ -543,8 +541,8 @@ RegularizeNatarajan(
 // user-facing function (only one "B" parameter)
 template<int icount, int ocount, int scount, typename Float>
 inline std::tuple<
-        Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic>,   // G result
-        Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic>,   // C result
+        DenseMatrix<Float>,   // G result
+        DenseMatrix<Float>,   // C result
         Eigen::Matrix<Float, Eigen::Dynamic, icount>,    // B result
         Eigen::Matrix<Float, Eigen::Dynamic, ocount>,    // D result
         Eigen::Matrix<Float, ocount, icount> >    // E result (feedthrough)
