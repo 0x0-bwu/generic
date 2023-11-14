@@ -122,7 +122,7 @@ struct ReducedModel
 {
 	using MatrixType = Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic>;
     MNA<MatrixType> m;
-	MatrixType x;
+	MatrixType x, xT;
 };
 
 template<typename Float>
@@ -136,11 +136,11 @@ inline ReducedModel<Float> Reduce(const MNA<Eigen::SparseMatrix<Float> > & m, si
 {
 	ReducedModel<Float> rm;
     rm.x = Prima(m.C, m.G, m.B, m.L, q);
-    auto xt = rm.x.transpose();
-    rm.m.C = xt * m.C * rm.x;
-    rm.m.G = xt * m.G * rm.x;
-    rm.m.B = xt * m.B;
-    rm.m.L = xt * m.L;
+    rm.xT = rm.x.transpose();
+    rm.m.C = rm.xT * m.C * rm.x;
+    rm.m.G = rm.xT * m.G * rm.x;
+    rm.m.B = rm.xT * m.B;
+    rm.m.L = rm.xT * m.L;
 	return rm;
 }
 } //namespace generic::ckt
