@@ -38,6 +38,8 @@ struct DenseCircuit
     }
 
     void SetR(size_t i, size_t j, Float r) { mna::Stamp(m.G, i, j, 1 / r); }
+    void SetR(size_t i, Float r) { mna::Stamp(m.G, i, 1 / r); }
+
     void SetC(size_t i, size_t j, Float c) { mna::Stamp(m.C, i, j, c); }
     void SetC(size_t i, Float c) { mna::Stamp(m.C, i, c); }
     const MNA<MatrixType> & Build() const { return m; }
@@ -106,7 +108,7 @@ struct Intermidiate
      : m(m)
     {
         u.resize(m.B.cols());
-        auto [rG, rC, rB, rL] = mna::RegularizeSuDynamic(m, p);
+        auto [rG, rC, rB, rL] = mna::RegularizeSu(m, p);
         auto dcomp = rC.ldlt();
         coeff = dcomp.solve(-1 * rG);
         input = dcomp.solve(rB);
@@ -122,6 +124,7 @@ struct Intermidiate
             std::cout << "rC:\n" << rC << std::endl;
             std::cout << "rB:\n" << rB << std::endl;
             std::cout << "rL:\n" << rL << std::endl;
+            std::cout << "P:\n"  << p.indices() << std::endl; 
             std::cout << "coeff:\n" << coeff << std::endl;
             std::cout << "input:\n" << input << std::endl;
         }

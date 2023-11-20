@@ -15,6 +15,8 @@
 #include <boost/numeric/ublas/symmetric.hpp>
 #include <boost/numeric/ublas/hermitian.hpp>
 #include <boost/numeric/ublas/lu.hpp>
+#include <Eigen/Sparse>
+#include <Eigen/Dense>
 #include <initializer_list>
 #include <cmath>
 namespace generic{
