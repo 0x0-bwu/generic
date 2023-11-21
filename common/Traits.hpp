@@ -79,6 +79,12 @@ void append_to_std_container(Container & container, T && t, ...)
     container.insert(std::forward<T>(t));
 }  
 
+template <typename, typename = void>
+constexpr bool iterable{};
+
+template <typename T>
+constexpr bool iterable<T, std::void_t<decltype(std::declval<T>().begin()), decltype(std::declval<T>().end())> > = true;
+
 template <typename type> inline std::string toString()      { return "unknown"; }
 template <> inline std::string toString<unsigned char>()    { return "unsigned char"; }
 template <> inline std::string toString<char>()             { return "char"; }

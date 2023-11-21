@@ -6,8 +6,10 @@
  * @date 2022-02-22
  */
 #pragma once
+#include "generic/common/Traits.hpp"
 #include <boost/format.hpp>
 #include <iomanip>
+
 namespace generic {
 ///@brief string format
 namespace fmt {
@@ -31,6 +33,15 @@ inline std::string Fmt2Str(const std::string & fmt, Args &&... args)
     Format format(fmt);
     format = FormatArgs(format, args...);
     return format.str();
+}
+
+///@brief returns formated container contents
+template <typename T, std::enable_if_t<common::iterable<T>, bool> = true>
+inline std::string Fmt2Str(const T & container, std::string_view splitter)
+{
+    std::stringstream ss;
+    std::copy(container.cbegin(), container.cend(), std::ostream_iterator<typename T::value_type>(ss, splitter.data()));
+    return ss.str();
 }
 
 class FormatHelper
