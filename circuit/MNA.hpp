@@ -220,7 +220,7 @@ RegularizeSu(const DenseMatrix<Float> & G, const DenseMatrix<Float> & C, const D
     auto G22invB2 = G22QR.solve(B2);
     auto Gred = G11 - G12 * G22invG21;
 
-    auto Lred = (L1.transpose() - L2.transpose() * G22invG21).transpose();
+    auto Lred = L1 - L2 * G22invG21;
     auto Bred = B1 - G12 * G22invB2;
 
     // std::cout << "Cred:\n " << Cred << std::endl;
