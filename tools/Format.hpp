@@ -8,6 +8,7 @@
 #pragma once
 #include "generic/common/Traits.hpp"
 #include <boost/format.hpp>
+#include <iterator>
 #include <iomanip>
 
 namespace generic {
