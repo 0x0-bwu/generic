@@ -7,28 +7,16 @@
  */
 #pragma once
 
+#include "generic/math/LinearAlgebra.hpp"
 #include "generic/common/Exception.hpp"
 #include "generic/common/Macros.hpp"
-
-#include <Eigen/Sparse>
-#include <Eigen/Dense>
 
 #include <iostream>
 #include <numeric>
 namespace generic::ckt {
 
+using namespace generic::math::la;
 template <typename M> struct MNA { M G, C, B, L; };
-
-template <typename num_type>
-using DenseVector = Eigen::Matrix<num_type, Eigen::Dynamic, 1>;
-
-template <typename num_type>
-using DenseMatrix = Eigen::Matrix<num_type, Eigen::Dynamic, Eigen::Dynamic>;
-
-template <typename num_type>
-using SparseMatrix = Eigen::SparseMatrix<num_type>;
-
-using PermutMatrix = Eigen::PermutationMatrix<Eigen::Dynamic, Eigen::Dynamic, size_t>;
 
 namespace mna {
 

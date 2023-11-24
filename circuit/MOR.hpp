@@ -6,22 +6,24 @@
  * @date 2023-11-08
  */
 #pragma once
+#include "generic/tools/Tools.hpp"//wbtest
 
+#include "generic/math/LinearAlgebra.hpp"
 #include "generic/common/Exception.hpp"
 #include "generic/common/Macros.hpp"
 #include <Eigen/SparseQR>
 #include <Eigen/SparseLU>
-#include <Eigen/Dense>
 #include <vector>
 
 namespace generic::ckt {
 
+using namespace math::la;
 template<typename Float>
-inline Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic> // fork MOR implementation from jefftrull
-Prima(const Eigen::SparseMatrix<Float> & C,   // derivative conductance terms
-      const Eigen::SparseMatrix<Float> & G,   // conductance
-      const Eigen::SparseMatrix<Float> & B,   // input
-      [[maybe_unused]] const Eigen::SparseMatrix<Float> & L,   // output
+inline DenseMatrix<Float> // fork MOR implementation from jefftrull
+Prima(const SparseMatrix<Float> & C,   // derivative conductance terms
+      const SparseMatrix<Float> & G,   // conductance
+      const SparseMatrix<Float> & B,   // input
+      [[maybe_unused]] const SparseMatrix<Float> & L,   // output
       size_t q)// desired state variables
 {                       
   	// assert preconditions
@@ -40,25 +42,27 @@ Prima(const Eigen::SparseMatrix<Float> & C,   // derivative conductance terms
 	// Step 1 of PRIMA creates the B and L matrices, and is performed by the caller.
 
 	// Step 2: Solve GR = B for R
-	Eigen::SparseLU<Eigen::SparseMatrix<Float>, Eigen::COLAMDOrdering<int> > G_LU(G);
+	// Eigen::SparseLU<Eigen::SparseMatrix<Float>, Eigen::COLAMDOrdering<int> > G_LU(G);
+	Eigen::SimplicialLDLT<SparseMatrix<Float> > G_LU;
+	G_LU.analyzePattern(G);
+	G_LU.factorize(G);
 	GENERIC_ASSERT(G_LU.info() == Eigen::Success)
-	Eigen::SparseMatrix<Float> R = G_LU.solve(B);
+	SparseMatrix<Float> R = G_LU.solve(B);
 
 	// Step 3: Set X[0] to the orthonormal basis of R as determined by QR factorization
-	using MatrixXX = Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic>;
 	// The various X matrices are stored in a std::vector.  Eigen requires us to use a special
 	// allocator to retain alignment:
-	using AllocatorXX = Eigen::aligned_allocator<MatrixXX>;
-	using MatrixXXList = std::vector<MatrixXX, AllocatorXX>;
+	using AllocatorXX = Eigen::aligned_allocator<DenseMatrix<Float>>;
+	using MatrixXXList = std::vector<DenseMatrix<Float>, AllocatorXX>;
 	
-	Eigen::SparseQR<Eigen::SparseMatrix<Float>, Eigen::COLAMDOrdering<int> > R_QR(R);
+	Eigen::SparseQR<SparseMatrix<Float>, Eigen::COLAMDOrdering<int> > R_QR(R);
 	GENERIC_ASSERT(R_QR.info() == Eigen::Success)
 	// QR stores the Q "matrix" as a series of Householder reflection operations
 	// that it will perform for you with the * operator.  If you store it in a matrix
 	// it obligingly produces an NxN matrix but if you want the "thin" result only,
 	// creating a thin identity matrix and then applying the reflections saves both
 	// memory and time:
-	MatrixXXList X(1, R_QR.matrixQ() * MatrixXX::Identity(B.rows(), R_QR.rank()));
+	MatrixXXList X(1, R_QR.matrixQ() * DenseMatrix<Float>::Identity(B.rows(), R_QR.rank()));
 
 	// Step 4: Set n = floor(q/N)+1 if q/N is not an integer, and q/N otherwise
 	size_t n = (q % N) ? (q/N + 1) : (q/N);
@@ -73,7 +77,7 @@ Prima(const Eigen::SparseMatrix<Float> & C,   // derivative conductance terms
 
 	for (size_t k = 1; k < n; ++k) {
     	// because X[] will vary in number of columns, so will Xk[]
-    	MatrixXX Xkj;             // X[k][j] - vector in PRIMA paper but values not reused
+    	DenseMatrix<Float> Xkj;             // X[k][j] - vector in PRIMA paper but values not reused
 
     	// Prima paper says:
     	// set V = C * X[k-1]
@@ -96,17 +100,17 @@ Prima(const Eigen::SparseMatrix<Float> & C,   // derivative conductance terms
     		} 
     	else {
       		auto xkkQR = Xkj.fullPivHouseholderQr();
-     		X.push_back(xkkQR.matrixQ() * MatrixXX::Identity(Xkj.rows(), xkkQR.rank()));
+     		X.push_back(xkkQR.matrixQ() * DenseMatrix<Float>::Identity(Xkj.rows(), xkkQR.rank()));
     	}
   	}
 
   	// Step 6: Set Xfinal to the concatenation of X[0] to X[n-1],
   	//         truncated to q columns
   	size_t cols = accumulate(X.begin(), X.end(), 0,
-                           [](size_t sum, MatrixXX const& m) { return sum + m.cols(); });
+                           [](size_t sum, const DenseMatrix<Float> & m) { return sum + m.cols(); });
   	cols = std::min(q, cols);  // truncate to q
 
-  	MatrixXX Xfinal(state_count, cols);
+  	DenseMatrix<Float> Xfinal(state_count, cols);
   	size_t col = 0;
 	for (size_t k = 0; (k <= n) && (col < cols); ++k) {
 		// copy columns from X[k] to Xfinal
@@ -120,19 +124,19 @@ Prima(const Eigen::SparseMatrix<Float> & C,   // derivative conductance terms
 template <typename Float>
 struct ReducedModel
 {
-	using MatrixType = Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic>;
+	using MatrixType = DenseMatrix<Float>;
     MNA<MatrixType> m;
 	MatrixType x, xT;
 };
 
 template<typename Float>
-inline Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic> Prima(const MNA<Eigen::SparseMatrix<Float> > & m, size_t q)
+inline DenseMatrix<Float> Prima(const MNA<SparseMatrix<Float> > & m, size_t q)
 {
     return Prima(m.C, m.G, m.B, m.L, q);
 }
 
 template<typename Float>
-inline ReducedModel<Float> Reduce(const MNA<Eigen::SparseMatrix<Float> > & m, size_t q)
+inline ReducedModel<Float> Reduce(const MNA<SparseMatrix<Float> > & m, size_t q)
 {
 	ReducedModel<Float> rm;
     rm.x = Prima(m.C, m.G, m.B, m.L, q);
