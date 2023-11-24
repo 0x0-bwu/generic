@@ -124,9 +124,9 @@ template<typename Float>
 inline MatrixVector<Float>
 Moments(const DenseMatrix<Float> & G, const DenseMatrix<Float> & C, const DenseMatrix<Float> & B, const DenseMatrix<Float> & L, const DenseMatrix<Float> & E, size_t count)
 {
-    const size_t scount = G.rows();
-    const size_t icount = B.cols();
-    const size_t ocount = L.cols();
+    [[maybe_unused]] const size_t scount = G.rows();
+    [[maybe_unused]] const size_t icount = B.cols();
+    [[maybe_unused]] const size_t ocount = L.cols();
     MatrixVector<Float> result;
 
     GENERIC_ASSERT(not IsSingular(G))
@@ -267,9 +267,9 @@ inline std::tuple<
 RegularizeNatarajan(const DenseMatrix<Float> & G, const DenseMatrix<Float> & C,  const MatrixVector<Float> & B, const DenseMatrix<Float> & D)
 {
 
-    const size_t icount = B.front().cols();
-    const size_t ocount = D.cols();
-    const size_t scount = G.rows();
+    [[maybe_unused ]] const size_t icount = B.front().cols();
+    [[maybe_unused ]] const size_t ocount = D.cols();
+    [[maybe_unused ]] const size_t scount = G.rows();
     // Implements the algorithm in [Natarajan]
     // Circuits, Devices and Systems, IEE Proceedings G, June 1991
 

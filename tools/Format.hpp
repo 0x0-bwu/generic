@@ -10,6 +10,7 @@
 #include <boost/format.hpp>
 #include <iterator>
 #include <iomanip>
+#include <sstream>
 
 namespace generic {
 ///@brief string format
