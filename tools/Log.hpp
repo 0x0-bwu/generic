@@ -200,7 +200,7 @@ private:
 
 class FullFormatter final : public FlagFormatter
 {
-    using FormatHelper = format::FormatHelper;
+    using FormatHelper = fmt::FormatHelper;
 public:
     explicit FullFormatter(PaddingInfo info) : FlagFormatter(info) {}
 
@@ -1093,6 +1093,7 @@ private:
         auto name = newLogger->Name();
         if(m_loggers.count(name)) return false;
         m_loggers[name] = std::move(newLogger);
+        return true;
     }
 
 private:

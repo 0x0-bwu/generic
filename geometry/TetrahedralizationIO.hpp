@@ -470,7 +470,7 @@ bool WriteVtkFile(const std::string & filename, const Tetrahedralization<point_t
     out << GENERIC_DEFAULT_EOL;
 
     out << "CELL_TYPES" << sp << t.tetrahedrons.size() << GENERIC_DEFAULT_EOL;
-    for(const auto & tetrahedron : t.tetrahedrons){
+    for([[maybe_unused]] const auto & tetrahedron : t.tetrahedrons){
         out << "10" << GENERIC_DEFAULT_EOL;
     }
 

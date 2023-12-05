@@ -466,10 +466,10 @@ public:
 
     void UpdateShortestEdge()//test, bwu
     {
-        for(auto it = 0; it < tri.triangles.size(); ++it){
-            if(op.isTriangleRemoved(it)) continue;
+        for (int it = 0; it < tri.triangles.size(); ++it){
+            if (op.isTriangleRemoved(it)) continue;
             const auto & t = tri.triangles[it];
-            for(auto ie = 0; ie < 3; ++ie){
+            for (auto ie = 0; ie < 3; ++ie){
                 auto e = t.Edge(ie);
                 auto distSq = Base::Utility::GetEdgeLenSq(tri, e);
                 if(distSq < paras.minEdgeLenSq)
