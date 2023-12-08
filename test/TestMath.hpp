@@ -7,6 +7,7 @@
  */
 #pragma once
 #include "generic/test/TestCommon.hpp"
+#include "generic/tools/FileSystem.hpp"
 #include "generic/math/MathUtility.hpp"
 #include "generic/math/LinearAlgebra.hpp"
 #include "generic/math/PolynomialFit.hpp"
@@ -26,6 +27,31 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_math_utility_t, num_type)
         BOOST_CHECK_LE(rand, max);
         BOOST_CHECK_GE(rand, min);
     }
+}
+
+void t_math_io()
+{
+    using namespace la;
+    using namespace io;
+#if BOOST_GIL_IO_PNG_SUPPORT
+    std::string outDir = filesystem::DirName(__FILE__) + "/data/out";
+    DenseMatrix<float> dense(5, 5);
+    for (Eigen::Index i = 0; i < dense.rows(); ++i) {
+        dense(i, i) = i;
+    }
+    dense(0, 4) = 4;
+    BOOST_CHECK(PatternView(dense, outDir + "/dense.png"));
+
+    Triplets<double> t;
+    SparseMatrix<double> sparse(1e6, 1e6);
+    for (Eigen::Index i = 0; i < 1e3; ++i) {
+        auto row = Random<int>(0, sparse.rows() - 1);
+        auto col = Random<int>(row, sparse.rows() - 1);
+        t.emplace_back(row, col, Random<double>(0, 1));
+    }
+    sparse.setFromTriplets(t.begin(), t.end());
+    BOOST_CHECK(PatternView(sparse, outDir + "/sparse.png"));
+#endif
 }
 
 void t_math_utility()
@@ -72,6 +98,7 @@ test_suite * create_math_test_suite()
     test_suite * math_suite = BOOST_TEST_SUITE("s_math");
     //
     math_suite->add(BOOST_TEST_CASE_TEMPLATE(t_math_utility_t, t_math_num_types));
+    math_suite->add(BOOST_TEST_CASE(&t_math_io));
     math_suite->add(BOOST_TEST_CASE(&t_math_utility));
     math_suite->add(BOOST_TEST_CASE(&t_math_polynominal_fit));
     math_suite->add(BOOST_TEST_CASE_TEMPLATE(t_math_linear_algebra_t, t_math_num_types));

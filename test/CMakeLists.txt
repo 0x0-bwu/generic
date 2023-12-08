@@ -34,7 +34,11 @@ else()
 	include_directories(${EIGEN3_INCLUDE_DIR})
 endif()
 
-find_package(PNG REQUIRED)
+find_package(PNG)
+if(PNG_FOUND)
+add_definitions("-DBOOST_GIL_IO_PNG_SUPPORT=1")
+endif()
+
 find_package(Threads REQUIRED)
 
 if(DEFINED ENV{EIGEN_PATH})

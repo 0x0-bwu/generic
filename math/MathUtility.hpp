@@ -131,10 +131,10 @@ inline bool LT(num_type num1, num_type num2, num_type tolerance = std::numeric_l
     return num2 - num1 > tolerance;
 }
 
-struct OpenInterval {};
-struct ClosedInterval {};
-struct LeftOpenRightClosed {};
-struct LeftClosedRightOpen {};
+struct OpenInterval {}; using Open = OpenInterval;
+struct ClosedInterval {}; using Close = ClosedInterval;
+struct LeftOpenRightClosed {}; using LORC = LeftOpenRightClosed;
+struct LeftClosedRightOpen {}; using LCRO = LeftClosedRightOpen;
 
 namespace detail {
 

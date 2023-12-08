@@ -26,6 +26,9 @@ template <typename num_type>
 using DenseMatrix = Eigen::Matrix<num_type, Eigen::Dynamic, Eigen::Dynamic>;
 
 template <typename num_type>
+using Triplets = std::vector<Eigen::Triplet<num_type> >;
+
+template <typename num_type>
 using SparseMatrix = Eigen::SparseMatrix<num_type>;
 
 using PermutMatrix = Eigen::PermutationMatrix<Eigen::Dynamic, Eigen::Dynamic, size_t>;

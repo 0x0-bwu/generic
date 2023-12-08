@@ -42,8 +42,7 @@ Prima(const SparseMatrix<Float> & C,   // derivative conductance terms
 	// Step 1 of PRIMA creates the B and L matrices, and is performed by the caller.
 
 	// Step 2: Solve GR = B for R
-	// Eigen::SparseLU<Eigen::SparseMatrix<Float>, Eigen::COLAMDOrdering<int> > G_LU(G);
-	Eigen::SimplicialLDLT<SparseMatrix<Float> > G_LU;
+	Eigen::SparseLU<Eigen::SparseMatrix<Float>, Eigen::COLAMDOrdering<int> > G_LU(G);
 	G_LU.analyzePattern(G);
 	G_LU.factorize(G);
 	GENERIC_ASSERT(G_LU.info() == Eigen::Success)

@@ -16,7 +16,7 @@ It has three concurrency patterns ThreadPool, TaskFlow and MapReduce to support 
 It also has lots of other header-only utilities like log and program option for convenient usage.<br>
 
 ## Dependency
-Some components depend on Boost library(header-only), need include boost library path when compiling.<br>
+Some components depend on Eigen3 and Boost library(header-only), need include boost library path when compiling.<br>
 
 Some function implementation depends on third part library binaries with the Macro control defined in common/Macros.hpp:<br>       
 
@@ -51,7 +51,13 @@ You can generate documents of this library by run `doxygen Doxyfile` in current 
 
 ## Test
 Generic library unit test is written with Boost Unit Test Framework, source code is in folder `test/`.<br>  
-The test binary can be built with SCons by run `scons` in current folder, the binary will be built in folder `build/`.<br>
+build:<br> 
+export EIGEN_PATH= ...  <br> 
+export BOOST_PATH= ...  <br> 
+cd generic/test         <br> 
+mkdir build && cd build <br> 
+cmake .. && make        <br> 
+<br>
 
 ## License
 See `LICENSE`.<br>
