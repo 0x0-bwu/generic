@@ -6,6 +6,7 @@
  * @date 2022-02-22 
  */
 #pragma once
+#include "generic/tools/FileSystem.hpp"
 #include "LinearAlgebra.hpp"
 #include <iostream>
 #include <fstream>
@@ -38,7 +39,7 @@ inline static bool PatternView(const la::DenseMatrix<num_type> & m, const std::s
     gray8_image_t::view_t v = view(img);
     for (Eigen::Index row = 0; row < m.rows(); ++row){
         for (Eigen::Index col = 0; col < m.cols(); ++col){
-            v(col, row) = 255 * (m(row, col) - min) / range;
+            v(col, row) = 255 - 255 * (m(row, col) - min) / range;
         }
     }
     size_t height = double(width) / m.cols() * m.rows();
@@ -59,7 +60,7 @@ inline static bool PatternView(const la::SparseMatrix<num_type> & m, const std::
     
     auto rows = m.rows();
     auto cols = m.cols();
-    double padding = rows / double(width);
+    double padding = cols / double(width);
     size_t height = double(width) / cols * rows;
     
     using namespace boost::gil;
@@ -67,9 +68,9 @@ inline static bool PatternView(const la::SparseMatrix<num_type> & m, const std::
     gray8_image_t::view_t v = view(img);
     for (Eigen::Index k = 0; k < m.outerSize(); ++k) {
         for (typename Eigen::SparseMatrix<num_type>::InnerIterator it(m,k); it; ++it) {
-            auto val = 255 * (it.value() - min) / range;
-            size_t x = it.col() / padding;
-            size_t y = it.row() / padding;
+            auto val = 255 - 255 * (it.value() - min) / range;
+            auto x = std::min<size_t>(it.col() / padding, width - 1);
+            auto y = std::min<size_t>(it.row() / padding, height - 1);
             v(x, y) = maxMode ? std::max<uint8_t>(v(x, y), val) : (v(x, y) > 0 ? 0.5 * (v(x, y) + val) : val);
         }
     }
