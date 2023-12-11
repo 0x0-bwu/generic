@@ -27,7 +27,7 @@ if enable BOOST_GIL_IO_PNG_SUPPORT, need link with libpng.<br>
 + `generic`                         : top namespace<br> 
     + `color`                       : color related definitions, classes and functions<br>  
     + `common`                      : common definitions, classes, and functions<br>  
-    + `filesystem`                  : filesystem related functions<br>  
+    + `fs`                          : filesystem related functions<br>  
     + `format`	                    : string format<br>  
     + `geometry`                    : models, boost polygon/geometry adaption, geometry algorithms<br>   
         + `boolean`     	        : geometry Boolean operation APIs<br>    

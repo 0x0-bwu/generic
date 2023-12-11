@@ -34,7 +34,7 @@ void t_math_io()
     using namespace la;
     using namespace io;
 #if BOOST_GIL_IO_PNG_SUPPORT
-    std::string outDir = filesystem::DirName(__FILE__) + "/data/out";
+    std::string outDir = fs::DirName(__FILE__).string() + "/data/out";
     DenseMatrix<float> dense(5, 5);
     for (Eigen::Index i = 0; i < dense.rows(); ++i) {
         dense(i, i) = i;

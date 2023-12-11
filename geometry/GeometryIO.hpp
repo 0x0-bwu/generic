@@ -190,10 +190,10 @@ public:
     template <typename geometry, typename iterator,
               typename std::enable_if<traits::is_polygon_t<geometry>::value && std::is_same<geometry,
               typename std::iterator_traits<iterator>::value_type>::value, bool>::type = true>
-    static bool WriteVTK(const std::string & file, iterator begin, iterator end, typename geometry::coor_t zRef = 0)
+    static bool WriteVTK(std::string_view filename, iterator begin, iterator end, typename geometry::coor_t zRef = 0)
     {
-        std::ofstream out(file);
-        if(!out.is_open()) return false;
+        std::ofstream out(filename.data());
+        if (not out.is_open()) return false;
 
         using Point = typename geometry::point_t;
         using IndexPolygon = std::vector<size_t>;
@@ -248,11 +248,11 @@ public:
     template <typename geometry, typename iterator,
               typename std::enable_if<std::is_same<geometry,
               typename std::iterator_traits<iterator>::value_type>::value, bool>::type = true>
-    static bool WriteWKT(const std::string & file, iterator begin, iterator end)
+    static bool WriteWKT(std::string_view filename, iterator begin, iterator end)
     {
-        std::ofstream out(file);
-        if(!out.is_open()) return false;
-        for(auto iter = begin; iter != end; ++iter){
+        std::ofstream out(filename);
+        if (not out.is_open()) return false;
+        for (auto iter = begin; iter != end; ++iter){
             typename std::iterator_traits<iterator>::reference r = *iter;
             if(iter != begin) out << GENERIC_DEFAULT_EOL;
             out << r;
@@ -269,11 +269,11 @@ public:
      * @return whether read file successfully 
      */
     template <typename geometry, typename iterator>
-    static bool ReadWKT(const std::string & file, iterator result, std::string * err = nullptr)
+    static bool ReadWKT(std::string_view filename, iterator result, std::string * err = nullptr)
     {
-        std::ifstream in(file);
+        std::ifstream in(filename);
         if(!in.is_open()) {
-            if(err) *err = "Error: fail to open: " + file;
+            if(err) *err = "Error: fail to open: " + std::string(filename);
             return false;
         }
 
@@ -308,10 +308,9 @@ public:
      * @param[in] bgColor back ground color
      * @return whether read file successfully  
      */
-    template <typename geometry, typename iterator,
-              typename std::enable_if<std::is_same<geometry,
-              typename std::iterator_traits<iterator>::value_type>::value, bool>::type = true>
-    static bool WritePNG(const std::string & filename, iterator begin, iterator end, size_t width = 512,
+    template <typename geometry, typename iterator, std::enable_if_t<std::is_same<geometry,
+              typename std::iterator_traits<iterator>::value_type>::value, bool> = true>
+    static bool WritePNG(std::string_view filename, iterator begin, iterator end, size_t width = 512,
                          int color = generic::color::black, int bgColor = generic::color::white)
     {
         using namespace boost::gil;
@@ -343,7 +342,7 @@ public:
         std::filesystem::create_directories(dirPath);
         if (not std::filesystem::exists(dirPath)) return false;
 
-        write_view(filename, boost::gil::view(img), png_tag());
+        write_view(filename.data(), boost::gil::view(img), png_tag());
         return true;
     }
 

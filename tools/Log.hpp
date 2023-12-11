@@ -666,7 +666,7 @@ class BasicFileSink final : public BaseSink<mutex_t>
 {
     using LogMsg = details::LogMsg;
 public:
-    explicit BasicFileSink(const std::string & filename, bool truncate = true)
+    explicit BasicFileSink(std::string_view filename, bool truncate = true)
     {
         m_fileHelper.Open(filename, truncate);
     }
@@ -1151,13 +1151,13 @@ inline std::shared_ptr<Logger> Create(std::string name, Args && ...args)
 }
 
 ///@brief creates and registers a basic file logger with multi-threading log support
-inline std::shared_ptr<Logger> BasicLoggerMT(std::string name, const std::string & filename, bool truncate = false)
+inline std::shared_ptr<Logger> BasicLoggerMT(std::string name, std::string_view filename, bool truncate = false)
 {
     return SynchronousFactory::Create<sinks::BasicFileSink<std::mutex> >(std::move(name), filename, truncate);
 }
 
 ///@brief creates and registers a basic file logger without multi-threading log support
-inline std::shared_ptr<Logger> BasicLogger(std::string name, const std::string & filename, bool truncate = false)
+inline std::shared_ptr<Logger> BasicLogger(std::string name, std::string_view filename, bool truncate = false)
 {
     return SynchronousFactory::Create<sinks::BasicFileSink<DummyMutex> >(std::move(name), filename, truncate);
 }

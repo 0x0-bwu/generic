@@ -29,8 +29,8 @@ namespace io {
 template <typename num_type>
 inline static bool PatternView(const la::DenseMatrix<num_type> & m, const std::string & filename, size_t width = 512)
 {
-    auto dir = generic::filesystem::DirName(filename);
-    if (not generic::filesystem::CreateDir(dir)) return false;
+    auto dir = generic::fs::DirName(filename);
+    if (not generic::fs::CreateDir(dir)) return false;
 
     num_type min = m.minCoeff();
     num_type range = m.maxCoeff() - min;
@@ -52,8 +52,8 @@ inline static bool PatternView(const la::DenseMatrix<num_type> & m, const std::s
 template <typename num_type>
 inline static bool PatternView(const la::SparseMatrix<num_type> & m, const std::string & filename, size_t width = 512, bool maxMode = false)
 {
-    auto dir = generic::filesystem::DirName(filename);
-    if (not generic::filesystem::CreateDir(dir)) return false;
+    auto dir = generic::fs::DirName(filename);
+    if (not generic::fs::CreateDir(dir)) return false;
 
     num_type min = m.coeffs().minCoeff();
     num_type range = m.coeffs().maxCoeff() - min;
