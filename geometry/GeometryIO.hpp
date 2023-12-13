@@ -10,6 +10,7 @@
 #include <boost/geometry/io/wkt/read.hpp>
 #include "BoostGeometryRegister.hpp"
 #include "GeometryTraits.hpp"
+#include "Triangulation.hpp"
 #include <filesystem>
 #include <iostream>
 #include <fstream>
@@ -271,7 +272,7 @@ public:
     template <typename geometry, typename iterator>
     static bool ReadWKT(std::string_view filename, iterator result, std::string * err = nullptr)
     {
-        std::ifstream in(filename);
+        std::ifstream in(filename.data());
         if(!in.is_open()) {
             if(err) *err = "Error: fail to open: " + std::string(filename);
             return false;
@@ -297,7 +298,6 @@ public:
     }
 
 #if BOOST_GIL_IO_PNG_SUPPORT
-
     /**
      * @brief draws a collection of geometry to an image file with png format
      * @param[in] filename the output *.png file name
@@ -308,13 +308,13 @@ public:
      * @param[in] bgColor back ground color
      * @return whether read file successfully  
      */
-    template <typename geometry, typename iterator, std::enable_if_t<std::is_same<geometry,
+    template <typename iterator, std::enable_if_t<traits::is_geometry_t<
               typename std::iterator_traits<iterator>::value_type>::value, bool> = true>
     static bool WritePNG(std::string_view filename, iterator begin, iterator end, size_t width = 512,
                          int color = generic::color::black, int bgColor = generic::color::white)
     {
         using namespace boost::gil;
-        using coor_t = typename geometry::coor_t;
+        using coor_t = typename std::iterator_traits<iterator>::value_type::coor_t;
 
         auto bbox = Extent(begin, end);
         if(!bbox.isValid()) return false;
@@ -336,7 +336,7 @@ public:
         generic::color::RGBFromInt(bgColor, r, g, b);
         fill_pixels(v, rgb8_pixel_t(r, g, b));
 
-        WriteImgView<geometry>(v, begin, end, Vector2D<coor_t>(stride, stride), bbox[0], color);
+        WriteImgView(v, begin, end, Vector2D<coor_t>(stride, stride), bbox[0], color);
 
         auto dirPath = std::filesystem::path(filename).parent_path();
         std::filesystem::create_directories(dirPath);
@@ -346,13 +346,24 @@ public:
         return true;
     }
 
+    template <typename point>
+    static bool WritePNG(std::string_view filename, const tri::Triangulation<point> & triangulation, size_t width = 512,
+                         int color = generic::color::black, int bgColor = generic::color::white)
+    {
+        tri::TriangulationUtility<point> utils;//todo performance
+        std::vector<Triangle2D<typename point::coor_t> > triangles;
+        triangles.reserve(triangulation.triangles.size());
+        for (size_t it = 0; it < triangulation.triangles.size(); ++it)
+            triangles.emplace_back(utils.GetTriangle(triangulation, it));
+        return WritePNG(filename, triangles.begin(), triangles.end(), width, color, bgColor);
+    }
+
 private:
-    template <typename geometry, typename iterator,
-              typename std::enable_if<std::is_same<geometry,
-              typename std::iterator_traits<iterator>::value_type>::value, bool>::type = true>
+    template <typename iterator, std::enable_if_t<traits::is_geometry_t<
+              typename std::iterator_traits<iterator>::value_type>::value, bool> = true>
     static void WriteImgView(boost::gil::rgb8_image_t::view_t & view, iterator begin, iterator end,
-                             const Vector2D<typename geometry::coor_t> & stride,
-                             const Point2D<typename geometry::coor_t> & ref, int rgb)
+                             const Vector2D<typename std::iterator_traits<iterator>::value_type::coor_t> & stride,
+                             const Point2D<typename std::iterator_traits<iterator>::value_type::coor_t> & ref, int rgb)
     {
         using namespace boost::gil;
         auto width = view.width();

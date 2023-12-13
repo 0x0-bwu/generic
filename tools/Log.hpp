@@ -259,7 +259,7 @@ public:
 
         if(!msg.source.Empty()){
             dest.push_back('[');
-            dest.append(filesystem::FileName(msg.source.file));
+            dest.append(fs::FileName(msg.source.file));
             dest.push_back(']');
             dest.push_back(' ');
         }
@@ -685,7 +685,7 @@ protected:
         m_fileHelper.Flush();
     }
 private:
-    filesystem::FileHelper m_fileHelper;
+    fs::FileHelper m_fileHelper;
 };
 
 template <typename mutex_t>

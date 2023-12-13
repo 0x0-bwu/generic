@@ -334,15 +334,16 @@ inline bool LoadSurfacesFromFile(std::ifstream & in, size_t & line,  std::vector
 template <typename point_t, size_t start_index = 1>
 inline bool WritePlcToNodeAndEdgeFiles(std::string_view filename, const PiecewiseLinearComplex<point_t> & plc, std::string * err = nullptr)
 {
-    std::ofstream nodeOut(filename + ".node");
-    std::ofstream edgeOut(filename + ".edge");
-    if(!nodeOut.is_open()){
-        if(err) *err = "Error: fail to open: " + filename + ".node";
+    auto basename = std::string(filename);
+    std::ofstream nodeOut(basename + ".node");
+    std::ofstream edgeOut(basename + ".edge");
+    if (not nodeOut.is_open()) {
+        if (err) *err = "Error: fail to open: " + basename + ".node";
         return false;
     }
 
-    if(!edgeOut.is_open()){
-        if(err) *err = "Error: fail to open: " + filename + ".edge";
+    if (not edgeOut.is_open()){
+        if (err) *err = "Error: fail to open: " + basename + ".edge";
         return false;
     }
 
@@ -371,7 +372,7 @@ inline bool WritePlcToPolyFile(std::string_view filename, const PiecewiseLinearC
 {
     std::ofstream out(filename);
     if(!out.is_open()){
-        if(err) *err = "Error: fail to open: " + filename;
+        if(err) *err = "Error: fail to open: " + std::string(filename);
         return false;
     }
 
@@ -387,7 +388,7 @@ inline bool LoadPlcFromPolyFile(std::string_view filename, PiecewiseLinearComple
 {
     std::ifstream in(filename);
     if(!in.is_open()) {
-        if(err) *err = "Error: fail to open: " + filename;
+        if(err) *err = "Error: fail to open: " + std::string(filename);
         return false;
     }
 
@@ -403,9 +404,9 @@ inline bool LoadPlcFromPolyFile(std::string_view filename, PiecewiseLinearComple
 template <typename point_t>
 bool LoadPointsFromNodeFile(std::string_view filename, std::vector<point_t> & points, std::string * err = nullptr)
 {
-    std::ifstream in(filename);
-    if(!in.is_open()){
-        if(err) *err = "Error: fail to open: " + filename;
+    std::ifstream in(filename.data());
+    if (not in.is_open()){
+        if(err) *err = "Error: fail to open: " + std::string(filename);
         return false;
     }
 
@@ -416,9 +417,9 @@ bool LoadPointsFromNodeFile(std::string_view filename, std::vector<point_t> & po
 template <size_t start_index = 1>
 bool LoadEdgesFromEdgeFile(std::string_view filename, std::vector<IndexEdge> & edges, std::string * err = nullptr)
 {
-    std::ifstream in(filename);
-    if(!in.is_open()){
-        if(err) *err = "Error: fail to open: " + filename;
+    std::ifstream in(filename.data());
+    if (not in.is_open()){
+        if(err) *err = "Error: fail to open: " + std::string(filename);
         return false;
     }
 
@@ -429,9 +430,9 @@ bool LoadEdgesFromEdgeFile(std::string_view filename, std::vector<IndexEdge> & e
 template <typename element_t, size_t start_index = 1>
 bool LoadElementsFromEleFile(std::string_view filename, std::vector<element_t> & elements, std::string * err = nullptr)
 {
-    std::ifstream in(filename);
-    if(!in.is_open()){
-        if(err) *err = "Error: fail to open: " + filename;
+    std::ifstream in(filename.data());
+    if (not in.is_open()){
+        if(err) *err = "Error: fail to open: " + std::string(filename);
         return false;
     }
 
@@ -442,9 +443,9 @@ bool LoadElementsFromEleFile(std::string_view filename, std::vector<element_t> &
 template <typename point_t>
 bool WriteVtkFile(std::string_view filename, const Tetrahedralization<point_t> & t, std::string * err = nullptr)
 {
-    std::ofstream out(filename);
-    if(!out.is_open()){
-        if(err) *err = "Error: fail to open: " + filename;
+    std::ofstream out(filename.data());
+    if (not out.is_open()){
+        if (err) *err = "Error: fail to open: " + std::string(filename);
         return false;
     }
 

@@ -466,7 +466,7 @@ public:
 
     void UpdateShortestEdge()//test, bwu
     {
-        for (int it = 0; it < tri.triangles.size(); ++it){
+        for (size_t it = 0; it < tri.triangles.size(); ++it){
             if (op.isTriangleRemoved(it)) continue;
             const auto & t = tri.triangles[it];
             for (auto ie = 0; ie < 3; ++ie){
