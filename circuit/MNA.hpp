@@ -10,7 +10,6 @@
 #include "generic/math/LinearAlgebra.hpp"
 #include "generic/common/Exception.hpp"
 #include "generic/common/Macros.hpp"
-
 #include <iostream>
 #include <numeric>
 namespace generic::ckt {
@@ -254,7 +253,6 @@ inline std::tuple<
         DenseMatrix<Float> >    // E result (feedthrough)
 RegularizeNatarajan(const DenseMatrix<Float> & G, const DenseMatrix<Float> & C,  const MatrixVector<Float> & B, const DenseMatrix<Float> & D)
 {
-
     [[maybe_unused ]] const size_t icount = B.front().cols();
     [[maybe_unused ]] const size_t ocount = D.cols();
     [[maybe_unused ]] const size_t scount = G.rows();

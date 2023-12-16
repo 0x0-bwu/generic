@@ -81,4 +81,3 @@ inline static bool PatternView(const la::SparseMatrix<num_type> & m, const std::
 
 } // namespace io
 } // namespace generic::math
-

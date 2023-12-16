@@ -11,6 +11,7 @@
 #include "BoostGeometryRegister.hpp"
 #include "GeometryTraits.hpp"
 #include "Triangulation.hpp"
+
 #include <filesystem>
 #include <iostream>
 #include <fstream>
@@ -343,6 +344,7 @@ public:
         if (not std::filesystem::exists(dirPath)) return false;
 
         write_view(filename.data(), boost::gil::view(img), png_tag());
+
         return true;
     }
 

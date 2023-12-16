@@ -170,6 +170,7 @@ test_suite * create_circuit_test_suite()
     circuit_suite->add(BOOST_TEST_CASE_TEMPLATE(t_dense_ckt_simulator_t, t_ckt_num_types));
     circuit_suite->add(BOOST_TEST_CASE_TEMPLATE(t_dense_ckt_cross_talk_t, t_ckt_num_types));
     circuit_suite->add(BOOST_TEST_CASE_TEMPLATE(t_mor_ckt_cross_talk_t, t_ckt_num_types));
+
     //
     return circuit_suite;
 }

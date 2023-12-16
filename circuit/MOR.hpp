@@ -8,7 +8,6 @@
 #pragma once
 #include "generic/math/LinearAlgebra.hpp"
 #include "generic/math/MathIO.hpp"
-
 #include "generic/common/Exception.hpp"
 #include "generic/common/Macros.hpp"
 #include <Eigen/SparseQR>
