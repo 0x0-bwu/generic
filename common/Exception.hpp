@@ -35,10 +35,10 @@ class Exception : public std::exception
 {
 public:
     explicit Exception(std::string msg) : m_msg(std::move(msg)) {}
-    Exception(const std::string & msg, int errCode)
+    Exception(std::string_view msg, int errCode)
     {
         auto ec = std::error_code(errCode, std::generic_category());
-        m_msg.append(std::system_error(ec, msg.c_str()).what());
+        m_msg.append(std::system_error(ec, msg.data()).what());
     }
     const char * what() const noexcept override { return m_msg.c_str(); }
 
@@ -51,7 +51,7 @@ inline void ThrowException(std::string msg)
     GENERIC_THROW(Exception(std::move(msg)))
 }
 
-inline void ThrowException(const std::string & msg, int errCode)
+inline void ThrowException(std::string_view msg, int errCode)
 {
     GENERIC_THROW(Exception(msg, errCode))
 }

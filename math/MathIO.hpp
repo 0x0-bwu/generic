@@ -6,102 +6,78 @@
  * @date 2022-02-22 
  */
 #pragma once
+#include "generic/tools/FileSystem.hpp"
 #include "LinearAlgebra.hpp"
-#include <boost/numeric/ublas/matrix_sparse.hpp>
-#include <boost/numeric/ublas/io.hpp>
 #include <iostream>
 #include <fstream>
 #include <complex>
-namespace {
-using namespace generic::math;
-using namespace generic::math::la;
 
-///@brief out stream a vector
-template <typename num_type, size_t N>
-inline std::ostream & operator<< (std::ostream & os, const Vector<num_type, N> & v)
+#if BOOST_GIL_IO_PNG_SUPPORT
+#include "generic/tools/Color.hpp"
+#include <boost/gil/extension/io/png.hpp>
+#include <boost/gil/extension/numeric/sampler.hpp>
+#include <boost/gil/extension/numeric/resample.hpp>
+#include <boost/gil.hpp>
+#include <png.h>
+#endif
+
+namespace generic::math {
+
+namespace io {
+
+#if BOOST_GIL_IO_PNG_SUPPORT
+template <typename num_type>
+inline static bool PatternView(const la::DenseMatrix<num_type> & m, const std::string & filename, size_t width = 512)
 {
-    return os << v.Data();
-}
+    auto dir = generic::fs::DirName(filename);
+    if (not generic::fs::CreateDir(dir)) return false;
 
-///@brief out stream a matrix
-template <typename num_type, size_t M, size_t N>
-inline std::ostream & operator<< (std::ostream & os, const Matrix<num_type, M, N> & m)
-{
-    return os << m.Data();
-}
-}
-
-namespace generic::math::la {
-
-using namespace boost::numeric::ublas;
-
-class MatrixIO
-{
-public:
-    template <typename num_type, bool zero_based = true>
-    static bool ReadSparseMatrixComplex(const std::string & dia, const std::string & offDia, mapped_matrix<std::complex<num_type> > & m, std::string * err = nullptr)
-    {
-        std::ifstream in(dia);
-        if (not in.is_open()) {
-            if(err) *err = "Error: fail to open: " + dia;
-            return false;
+    num_type min = m.minCoeff();
+    num_type range = m.maxCoeff() - min;
+    using namespace boost::gil;
+    gray8_image_t img(m.cols(), m.rows());
+    gray8_image_t::view_t v = view(img);
+    for (Eigen::Index row = 0; row < m.rows(); ++row){
+        for (Eigen::Index col = 0; col < m.cols(); ++col){
+            v(col, row) = 255 - 255 * (m(row, col) - min) / range;
         }
-
-        size_t i, j;
-        num_type real, imag;
-        while (not in.eof()) {
-            in >> i >> real >> imag;
-            if(zero_based) m(i, i) = std::complex<num_type>(real, imag);
-            else m(i - 1, i - 1) = std::complex<num_type>(real, imag);
-        }
-
-        in.close();
-        in.open(offDia);
-        if (not in.is_open()) {
-            if(err) *err = "Error: fail to open: " + dia;
-            return false;
-        }
-        
-        while (not in.eof()) {
-            in >> i >> j >> real >> imag;
-            if(zero_based) m(i, j) = std::complex<num_type>(real, imag);
-            else m(i - 1, j - 1) = std::complex<num_type>(real, imag);
-        }
-        in.close();
-        return true;
     }
+    size_t height = double(width) / m.cols() * m.rows();
+    gray8_image_t out(width, height);
+    resize_view(v, view(out), bilinear_sampler());
+    write_view(filename, v, png_tag());
+    return true;
+}
 
-    template <typename num_type, bool zero_based = true>
-    static bool ReadSparseMatrix(const std::string & dia, const std::string & offDia, coordinate_matrix<num_type> & m, std::string * err = nullptr)
-    {
-        std::ifstream in(dia);
-        if (not in.is_open()) {
-            if(err) *err = "Error: fail to open: " + dia;
-            return false;
-        }
+template <typename num_type>
+inline static bool PatternView(const la::SparseMatrix<num_type> & m, const std::string & filename, size_t width = 512, bool maxMode = false)
+{
+    auto dir = generic::fs::DirName(filename);
+    if (not generic::fs::CreateDir(dir)) return false;
 
-        size_t i, j;
-        num_type real, imag;
-        while (not in.eof()) {
-            in >> i >> real >> imag;
-            if(zero_based) m(i, i) = real;
-            else m(i - 1, i - 1) = real;
+    num_type min = m.coeffs().minCoeff();
+    num_type range = m.coeffs().maxCoeff() - min;
+    
+    auto rows = m.rows();
+    auto cols = m.cols();
+    double padding = cols / double(width);
+    size_t height = double(width) / cols * rows;
+    
+    using namespace boost::gil;
+    gray8_image_t img(width, height);
+    gray8_image_t::view_t v = view(img);
+    for (Eigen::Index k = 0; k < m.outerSize(); ++k) {
+        for (typename Eigen::SparseMatrix<num_type>::InnerIterator it(m,k); it; ++it) {
+            auto val = 255 - 255 * (it.value() - min) / range;
+            auto x = std::min<size_t>(it.col() / padding, width - 1);
+            auto y = std::min<size_t>(it.row() / padding, height - 1);
+            v(x, y) = maxMode ? std::max<uint8_t>(v(x, y), val) : (v(x, y) > 0 ? 0.5 * (v(x, y) + val) : val);
         }
-
-        in.close();
-        in.open(offDia);
-        if (not in.is_open()) {
-            if(err) *err = "Error: fail to open: " + dia;
-            return false;
-        }
-        
-        while (not in.eof()) {
-            in >> i >> j >> real >> imag;
-            if(zero_based) m(i, j) = real;
-            else m(i - 1, j - 1) = real;
-        }
-        in.close();
-        return true;
     }
-};
-}//namespace generic::math::la
+    write_view(filename, v, png_tag());
+    return true;
+}
+#endif
+
+} // namespace io
+} // namespace generic::math

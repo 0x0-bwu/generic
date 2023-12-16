@@ -7,20 +7,11 @@
  */
 #pragma once
 
-#ifdef GENERIC_OS_WINDOWS
-#include <windows.h>
-#else
-#include <limits.h>
-#include <unistd.h>
-#endif
-
 #include "Tools.hpp"
 #include <filesystem>
-#include <fstream>
-#include <cstdio>
 namespace generic{
 ///@brief filesystem related functions
-namespace filesystem {
+namespace fs {
 
 ///@brief returns absolute path of the current working directory
 inline std::string CurrentPath();
@@ -29,39 +20,32 @@ inline std::string CurrentPath();
 inline std::string ExecutablePath();
 
 ///@brief checks if file exist
-inline bool FileExists(const std::string & filename);
+inline bool FileExists(const std::filesystem::path & filename);
 
 ///@brief removes a file from disk
-inline bool RemoveFile(const std::string & filename);
+inline bool RemoveFile(const std::filesystem::path & filename);
 
 ///@brief checks if path exists (file or directory)
-inline bool PathExists(const std::string path);
+inline bool PathExists(const std::filesystem::path & path);
 
 ///@brief makes a directory of given path, return true on success or if the directory already exists
-inline bool CreateDir(const std::string & path);
+inline bool CreateDir(const std::filesystem::path & path);
 
 ///@brief gets folder name of given file path
-inline std::string DirName(const std::string & path);
+inline std::filesystem::path DirName(const std::filesystem::path & path);
 
 ///@brief gets file name of given file path
-inline std::string FileName(const std::string & path);
+inline std::filesystem::path FileName(const std::filesystem::path & path);
 
 ///@brief gets base file name of given file path
-inline std::string BaseName(const std::string & path);
+inline std::filesystem::path BaseName(const std::filesystem::path & path);
 
-#ifndef GENERIC_OS_WINDOWS
-///@brief checks if given folder is writable
-inline bool isDirWritable(const std::string & path);
-#endif//GENERIC_OS_WINDOWS
-
-///@brief makes a directory of given path, if `recursively` is true, will make parent dir firstly if not exists
-inline bool MakeDir(const std::string & path, bool recursively = true);
 
 ///@brief empties given folder
-inline bool RemoveDir(const std::string & path);
+inline bool RemoveDir(const std::filesystem::path & path);
 
 ///@brief gets parent folder of given file path
-inline std::string ParentPath(const std::string & path);
+inline std::filesystem::path ParentPath(const std::filesystem::path & path);
 
 ///@brief represents a helper class for file writing
 class FileHelper
@@ -80,7 +64,7 @@ public:
      * @param[out] err error message if filed to open file
      * @return whether the file opened
      */
-    bool Open(const std::string & filename, bool truncate = true, std::string * err = nullptr)
+    bool Open(std::string_view filename, bool truncate = true, std::string * err = nullptr)
     {
         Close();
         m_filename = filename;
@@ -90,25 +74,25 @@ public:
         for(auto t = 0; t < m_openTries; ++t){
             CreateDir(DirName(filename));
             if(truncate){
-                std::FILE * tmp = std::fopen(filename.c_str(), truncMode);
+                std::FILE * tmp = std::fopen(filename.data(), truncMode);
                 if(!tmp) continue;
                 std::fclose(tmp);
             }
 
-            m_file = std::fopen(filename.c_str(), mode);
+            m_file = std::fopen(filename.data(), mode);
             if(m_file) return true;
 
             tools::SleepMilliseconds(m_openInterval);
         }
-        if(err) *err = "Fail to open file " + filename + " for writing!";
+        if(err) *err = "Fail to open file " + std::string(filename) + " for writing!";
         return false;
     }
 
     ///@brief reopens the closed file
     bool Reopen(bool truncate, std::string * err = nullptr)
     {
-        if(m_filename.empty()){
-            if(err) *err = "Fail to reopen file!";
+        if (m_filename.empty()){
+            if (err) *err = "Fail to reopen file!";
             return false;
         }
         return Open(m_filename, truncate, err);
@@ -130,7 +114,7 @@ public:
     }
 
     ///@brief writes the buf to cache
-    void Write(const std::string & buf)
+    void Write(std::string_view buf)
     {
         auto size = buf.size();
         std::fwrite(buf.data(), sizeof(char), size, m_file);
@@ -181,85 +165,53 @@ inline std::string ExecutablePath()
 #endif
 }
 
-inline bool FileExists(const std::string & filename)
+inline bool FileExists(const std::filesystem::path & filename)
 {
-    std::ifstream f(filename);
-    return f.good();
+    return std::filesystem::exists(filename);
 }
 
-inline bool RemoveFile(const std::string & filename)
+inline bool RemoveFile(const std::filesystem::path & filename)
 {
-    return 0 == std::remove(filename.c_str());
+    return std::filesystem::remove(filename);
 }
 
-inline bool PathExists(const std::string path)
+inline bool PathExists(const std::filesystem::path & path)
 {
-    struct stat buffer;
-    return (0 == ::stat(path.c_str(), &buffer));
+    return std::filesystem::exists(path);
 }
 
-inline bool CreateDir(const std::string & path)
+inline bool CreateDir(const std::filesystem::path & path)
 {
-    if(PathExists(path)) return true;
-    if(path.empty()) return false;
-    size_t offset = 0;
-    do {
-        auto tokenPos = path.find_first_of(GENERIC_FOLDER_SEPS, offset);
-        if(tokenPos == std::string::npos) tokenPos = path.size();
-        auto subdir = path.substr(0, tokenPos);
-        if(!subdir.empty() && !PathExists(subdir) && !MakeDir(subdir)) return false;
-        offset = tokenPos + 1;
-    } while (offset < path.size());
-
-    return true;
+    if (PathExists(path)) return true;
+    return std::filesystem::create_directories(path);
 }
 
-inline std::string DirName(const std::string & path)
+inline std::filesystem::path DirName(const std::filesystem::path & path)
 {
-    auto pos = path.find_last_of(GENERIC_FOLDER_SEPS);
-    return pos != std::string::npos ? path.substr(0, pos) : std::string{};
+    return path.parent_path();
 }
 
-inline std::string FileName(const std::string & path)
+inline std::filesystem::path FileName(const std::filesystem::path & path)
 {
-    auto pos = path.find_last_of(GENERIC_FOLDER_SEPS);
-    return pos != std::string::npos ? path.substr(pos + 1) : path.substr(0);
+    return path.filename();
 }
 
-inline std::string BaseName(const std::string & path){
-    auto filename = FileName(path);
-    auto pos = filename.find_first_of('.');
-    return pos != std::string::npos ? filename.substr(0, pos) : filename.substr(0);
-}
-
-#ifndef GENERIC_OS_WINDOWS
-inline bool isDirWritable(const std::string & path)
+inline std::filesystem::path BaseName(const std::filesystem::path & path)
 {
-    if(access(path.c_str(), W_OK) == 0) return true;
-    return false;
-}
-#endif//GENERIC_OS_WINDOWS
-
-inline bool MakeDir(const std::string & path, bool recursively)
-{
-    if(recursively) {
-        auto parent = ParentPath(path);
-        if(!PathExists(parent))
-            if(!MakeDir(parent, recursively)) return false;
-    }
-    return 0 == ::mkdir(path.c_str(), mode_t(0755));
+    auto p = path;
+    while (not p.extension().empty()) p = p.stem();
+    return p;
 }
 
-inline bool RemoveDir(const std::string & path)
+inline bool RemoveDir(const std::filesystem::path & path)
 {
     return std::filesystem::remove_all(path) > 0;
 }
 
-inline std::string ParentPath(const std::string & path)
+inline std::filesystem::path ParentPath(const std::filesystem::path & path)
 {
-    std::filesystem::path p(path);
-    return p.parent_path().string();
+    return path.parent_path();
 }
 
-}//namespace filesystem
+}//namespace fs
 }//namespace generic

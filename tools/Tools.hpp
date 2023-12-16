@@ -30,6 +30,7 @@ namespace tools {
 
 struct SystemClock
 {
+    using Clock = std::chrono::system_clock;
     using TimePoint = std::chrono::time_point<
                         std::chrono::system_clock, 
                             std::chrono::system_clock::duration>;
@@ -103,15 +104,15 @@ class ProgressTimer
 {
 public:
     ///@brief constructs a prog\ess timer with specified out stream and display time unit
-    ProgressTimer(unit::Time displayUnit = unit::Time::Second, std::ostream & os = std::cout)
-     : m_os(os), m_timer(displayUnit)
+    ProgressTimer(std::string label = {}, unit::Time displayUnit = unit::Time::Second, std::ostream & os = std::cout)
+     : m_label(label.empty() ? "progress" : label), m_os(os), m_timer(displayUnit)
     {
     }
 
     ~ProgressTimer()
     {
         try {
-            m_os << "progress time: " << m_timer.Count();
+            m_os << m_label << " time: " << m_timer.Count();
             m_os << ::toString(m_timer.Unit());
             m_os << std::endl;
         }
@@ -119,6 +120,7 @@ public:
     }
 
 private:
+    std::string m_label;
     std::ostream & m_os;
     Timer m_timer;
 };

@@ -1,73 +1,59 @@
 #include "generic/circuit/Simulator.hpp"
 #include "generic/circuit/MOR.hpp"
+#include "generic/tools/Format.hpp"
+#include <boost/math/interpolators/pchip.hpp>
+#include <iostream>
 
+using namespace generic;
 using namespace generic::ckt;
-int main()
+
+void test()
 {
     using float_t = double;
-    float_t vdd = 0.88;
-    float_t ts  = 200e-12;
-    auto steps = 1000;
-    auto vfun = [vdd, ts](size_t i, auto t) -> float_t
-    {
-        if (i == 0)
-            return t > ts ? vdd : t * vdd / ts;
-        else return t > ts ? 0 : vdd - t * vdd / ts;
-    };
-
-    // auto ckt = SparseCircuit<float_t>(11, {0, 6, 11}, {0, 6, 11});
-    auto ckt = DenseCircuit<float_t>(11, {0, 6}, {0, 6, 11});
-    ckt.SetR(0, 1, 0.01);
-    ckt.SetR(6, 7, 0.01);
-
-    ckt.SetC(1, 1e-12);
-    ckt.SetC(7, 1e-12);
-    ckt.SetR(1, 2, 10);
-    ckt.SetR(7, 8, 10);
-
-    ckt.SetC(2, 1e-12);
-    ckt.SetC(8, 1e-12);
-    ckt.SetR(2, 3, 10);
-    ckt.SetR(8, 9, 10);
-
-    ckt.SetC(3, 1e-12);
-    ckt.SetC(9, 1e-12);
-    ckt.SetR(3, 4, 10);
-    ckt.SetR(9, 10, 10);
-    ckt.SetC(3, 9, 1e-12);
+    constexpr double minR = 0.01; 
+    auto ckt = DenseCircuit<float_t>(11, {10}, {1, 2});
+    ckt.SetR(0, 9, minR);
+    ckt.SetR(9, 8, 0.001);
+    ckt.SetR(9, 7, 108.647);
+    ckt.SetR(7, 6, 74.6107);
+    ckt.SetR(7, 4, 93.7641);
+    ckt.SetR(6, 5, 0.001);
+    ckt.SetR(6, 2, minR);
+    ckt.SetR(4, 3, 0.001);
+    ckt.SetR(4, 1, minR);
+    ckt.SetR(10, 0, minR);
     
-    ckt.SetC(4, 1e-12);
-    ckt.SetC(10, 1e-12);
-    ckt.SetR(4, 5, 10);
-    ckt.SetR(10, 11, 10);
+    // ckt.SetC(0, minC);
+    ckt.SetC(1, 0.001912);
+    ckt.SetC(2, 0.003199);
 
-    const auto & m = ckt.Build();
-    // const auto x = Prima(m, 5);
 
-    // auto xt = x.transpose();
-    // auto rC = xt * m.C * x;
-    // auto rG = xt * m.G * x;
-    // auto rB = xt * m.B;
-    // auto rL = xt * m.L;
-    
-    // std::cout <<  "x:\n" <<  x << std::endl;
-    // std::cout << "rC:\n" << rC << std::endl;
-    // std::cout << "rG:\n" << rG << std::endl;
-    // std::cout << "rB:\n" << rB << std::endl;
-    // std::cout << "rL:\n" << rL << std::endl;
-
-    auto im = Intermidiate<float_t>(m, false);
+    auto im = Intermidiate<float_t>(ckt.Build(), true);
     using namespace boost::numeric;
     using StateType = typename Intermidiate<float_t>::StateType;
 	using ErrorStepperType = odeint::runge_kutta_cash_karp54<StateType>;
-    
     StateType initState(im.StateSize(), 0);
-	odeint::integrate_adaptive(
-        odeint::make_controlled(float_t{1e-12}, float_t{1e-10}, ErrorStepperType{}),
-        Simulator(im, vfun), initState, float_t{0}, float_t{ts * 2}, float_t{ts * 2 / steps});
 
-    auto outs = im.State2Output(initState);
-    for (auto out : outs)
-        std::cout << out << ',';
-    std::cout << std::endl;
+    std::vector<float_t> ts{0.000000,  3.235554,  5.883425,  8.024378,  9.789495, 11.402321, 12.936249, 14.435669, 16.252773, 18.872063};
+    std::vector<float_t> vs{0,         0.1,       0.2,       0.3,       0.4,      0.5,       0.6,       0.7,       0.8,       0.9,     };
+    auto interp = boost::math::interpolators::pchip<std::vector<float_t>>(std::vector<float_t>(ts), std::vector<float_t>(vs));
+    for (size_t i = 1; i < 10; ++i) {
+        float_t t0 = ts[i - 1];
+        float_t t1 = ts[i];
+        float_t dt = t1 - t0;
+        auto vfun = [&](size_t, float_t t)-> double { 
+            return interp(t);
+        };
+        odeint::integrate_adaptive(
+            odeint::make_controlled(float_t{1e-6}, float_t{1e-4}, ErrorStepperType{}),
+            Simulator(im, std::move(vfun)), initState, t0, t1, dt / 10);
+        auto outs = im.State2Output(initState);
+        std::cout << "t1: " << t1 << " out: " << fmt::Fmt2Str(outs, ",") << std::endl;
+    }
+}
+
+int main()
+{
+    test();
+    return 0;
 }

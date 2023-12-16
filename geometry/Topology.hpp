@@ -33,9 +33,9 @@ public:
     void GetAllEdges(std::list<std::pair<size_t, size_t> > & edges) const;
 
     ///@brief imports vertex/edge topology network from file
-    bool Read(const std::string & file, std::string * err = nullptr);
+    bool Read(std::string_view filename, std::string * err = nullptr);
     ///@brief exports vertex/edge topology network to file
-    bool Write(const std::string & file, std::string * err = nullptr) const;
+    bool Write(std::string_view filename, std::string * err = nullptr) const;
 
     ///@brief clear all points and connection in this topology network
     void Clear();
@@ -78,11 +78,11 @@ inline void GeoTopology2D<num_type>::GetAllEdges(std::list<std::pair<size_t, siz
 }
 
 template <typename num_type>
-inline bool GeoTopology2D<num_type>::Read(const std::string & file, std::string * err)
+inline bool GeoTopology2D<num_type>::Read(std::string_view filename, std::string * err)
 {
-    std::ifstream in(file);
+    std::ifstream in(filename.data());
     if(!in.is_open()) {
-        if(err) *err = "Error: fail to open: " + file;
+        if(err) *err = "Error: fail to open: " + std::string(filename);
         return false;
     }
 
@@ -116,11 +116,11 @@ inline bool GeoTopology2D<num_type>::Read(const std::string & file, std::string 
 }
 
 template <typename num_type>
-inline bool GeoTopology2D<num_type>::Write(const std::string & file, std::string * err) const
+inline bool GeoTopology2D<num_type>::Write(std::string_view filename, std::string * err) const
 {
-    std::ofstream out(file);
-    if(!out.is_open()){
-        if(err) *err = "Error: fail to open: " + file;
+    std::ofstream out(filename.data());
+    if (not out.is_open()){
+        if (err) *err = "Error: fail to open: " + std::string(filename);
         return false;
     }
 

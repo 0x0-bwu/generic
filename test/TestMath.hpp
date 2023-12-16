@@ -7,6 +7,7 @@
  */
 #pragma once
 #include "generic/test/TestCommon.hpp"
+#include "generic/tools/FileSystem.hpp"
 #include "generic/math/MathUtility.hpp"
 #include "generic/math/LinearAlgebra.hpp"
 #include "generic/math/PolynomialFit.hpp"
@@ -26,6 +27,31 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_math_utility_t, num_type)
         BOOST_CHECK_LE(rand, max);
         BOOST_CHECK_GE(rand, min);
     }
+}
+
+void t_math_io()
+{
+    using namespace la;
+    using namespace io;
+#if BOOST_GIL_IO_PNG_SUPPORT
+    std::string outDir = fs::DirName(__FILE__).string() + "/data/out";
+    DenseMatrix<float> dense(5, 5);
+    for (Eigen::Index i = 0; i < dense.rows(); ++i) {
+        dense(i, i) = i;
+    }
+    dense(0, 4) = 4;
+    BOOST_CHECK(PatternView(dense, outDir + "/dense.png"));
+
+    Triplets<double> t;
+    SparseMatrix<double> sparse(1e6, 1e6);
+    for (Eigen::Index i = 0; i < 1e3; ++i) {
+        auto row = Random<int>(0, sparse.rows() - 1);
+        auto col = Random<int>(row, sparse.rows() - 1);
+        t.emplace_back(row, col, Random<double>(0, 1));
+    }
+    sparse.setFromTriplets(t.begin(), t.end());
+    BOOST_CHECK(PatternView(sparse, outDir + "/sparse.png"));
+#endif
 }
 
 void t_math_utility()
@@ -65,31 +91,6 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_math_linear_algebra_t, math_num_types)
 {
     using namespace la;
     using num = math_num_types;
-    //Vector
-    Vector<num, 3> v1(1), v2(1, 1, 1), v3{1, 2, 3};
-    BOOST_CHECK(v1 == v2);
-    v2.Swap(v3);
-    BOOST_CHECK(v1 == v3);
-    BOOST_CHECK((-v1 == Vector<num, 3>(-1)));
-    BOOST_CHECK(((v1 + v3) == Vector<num, 3>(2)));
-    BOOST_CHECK(((v1 - v3) == Vector<num, 3>()));
-    BOOST_CHECK(((v2 * 2 / 2) == v2));
-    BOOST_CHECK((v1.T() == Matrix<num, 3, 1>(1)));
-
-    //Matrix
-    Matrix<num, 2, 3> m1(1), m2(v2, v3), m3{ {8, 12, 16}, {8, 8, 8} };
-    BOOST_CHECK((m1 + m2) * 2 == m3 / 2);
-    BOOST_CHECK(((m3 - m3) == Matrix<num, 2, 3>(0)));
-    BOOST_CHECK((m2.Row(0) == v2));
-    BOOST_CHECK((m2.T().Col(1) == v3));
-    BOOST_CHECK(((m3 / 4 * v2.T()).T() * Vector<num, 2>(12, -20).T()) == 0);
-    Matrix<num, 3, 3> m4{ {5, -4, 2}, {-1, 2, 3}, {-2, 1, 0}};
-    BOOST_CHECK(m4.NormSquare() == 64);
-
-    Vector<num, 3> v4{0, 1, 2};
-    Matrix<num, 3, 3> m5{{0, 1, 2}, {3, 4, 5}, {6, 7, 8}};
-    BOOST_CHECK((m5 * v4 == Vector<num, 3>{5, 14, 23}));
-    BOOST_CHECK((v4 * m5 == Vector<num, 3>{15, 18, 21}));
 }
 
 test_suite * create_math_test_suite()
@@ -97,6 +98,7 @@ test_suite * create_math_test_suite()
     test_suite * math_suite = BOOST_TEST_SUITE("s_math");
     //
     math_suite->add(BOOST_TEST_CASE_TEMPLATE(t_math_utility_t, t_math_num_types));
+    math_suite->add(BOOST_TEST_CASE(&t_math_io));
     math_suite->add(BOOST_TEST_CASE(&t_math_utility));
     math_suite->add(BOOST_TEST_CASE(&t_math_polynominal_fit));
     math_suite->add(BOOST_TEST_CASE_TEMPLATE(t_math_linear_algebra_t, t_math_num_types));

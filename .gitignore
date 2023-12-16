@@ -6,3 +6,4 @@
 .vscode
 build
 docs
+test/data/out

@@ -200,7 +200,7 @@ private:
 
 class FullFormatter final : public FlagFormatter
 {
-    using FormatHelper = format::FormatHelper;
+    using FormatHelper = fmt::FormatHelper;
 public:
     explicit FullFormatter(PaddingInfo info) : FlagFormatter(info) {}
 
@@ -259,7 +259,7 @@ public:
 
         if(!msg.source.Empty()){
             dest.push_back('[');
-            dest.append(filesystem::FileName(msg.source.file));
+            dest.append(fs::FileName(msg.source.file));
             dest.push_back(']');
             dest.push_back(' ');
         }
@@ -666,7 +666,7 @@ class BasicFileSink final : public BaseSink<mutex_t>
 {
     using LogMsg = details::LogMsg;
 public:
-    explicit BasicFileSink(const std::string & filename, bool truncate = true)
+    explicit BasicFileSink(std::string_view filename, bool truncate = true)
     {
         m_fileHelper.Open(filename, truncate);
     }
@@ -685,7 +685,7 @@ protected:
         m_fileHelper.Flush();
     }
 private:
-    filesystem::FileHelper m_fileHelper;
+    fs::FileHelper m_fileHelper;
 };
 
 template <typename mutex_t>
@@ -1093,6 +1093,7 @@ private:
         auto name = newLogger->Name();
         if(m_loggers.count(name)) return false;
         m_loggers[name] = std::move(newLogger);
+        return true;
     }
 
 private:
@@ -1150,13 +1151,13 @@ inline std::shared_ptr<Logger> Create(std::string name, Args && ...args)
 }
 
 ///@brief creates and registers a basic file logger with multi-threading log support
-inline std::shared_ptr<Logger> BasicLoggerMT(std::string name, const std::string & filename, bool truncate = false)
+inline std::shared_ptr<Logger> BasicLoggerMT(std::string name, std::string_view filename, bool truncate = false)
 {
     return SynchronousFactory::Create<sinks::BasicFileSink<std::mutex> >(std::move(name), filename, truncate);
 }
 
 ///@brief creates and registers a basic file logger without multi-threading log support
-inline std::shared_ptr<Logger> BasicLogger(std::string name, const std::string & filename, bool truncate = false)
+inline std::shared_ptr<Logger> BasicLogger(std::string name, std::string_view filename, bool truncate = false)
 {
     return SynchronousFactory::Create<sinks::BasicFileSink<DummyMutex> >(std::move(name), filename, truncate);
 }

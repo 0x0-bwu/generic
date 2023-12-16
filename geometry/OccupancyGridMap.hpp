@@ -146,11 +146,11 @@ public:
      * @return whether write the image file successfully
      */
     template <typename RGBaFunc>
-    bool WriteImgProfile(const std::string & filename, RGBaFunc && rgbaFunc) const
+    bool WriteImgProfile(std::string_view filename, RGBaFunc && rgbaFunc) const
     {
-        auto dir = generic::filesystem::DirName(filename);
-        if(!generic::filesystem::PathExists(dir))
-            generic::filesystem::CreateDir(dir);
+        auto dir = generic::fs::DirName(filename);
+        if(!generic::fs::PathExists(dir))
+            generic::fs::CreateDir(dir);
 
         using namespace boost::gil;
         rgb8_image_t img(m_width, m_height);
@@ -161,7 +161,7 @@ public:
                 v(i, m_height - j - 1) = rgba8_pixel_t(r, g, b, a);
             }
         }
-        write_view(filename, view(img), png_tag());
+        write_view(std::string(filename), view(img), png_tag());
         return true;
     }
 #endif

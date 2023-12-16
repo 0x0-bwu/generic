@@ -228,7 +228,7 @@ public:
     RectTree() : m_proxy(nullptr) {}
     ~RectTree()
     {
-        if(m_proxy) delete m_proxy;
+        if (m_proxy) delete m_proxy;
         m_proxy = nullptr;
         RectNode<num_type, object>::Clear();
     }
@@ -243,6 +243,8 @@ public:
     ///@brief gets all top nodes that bbox area less the given `arae`
     void GetTopNodesAreaLessThan(num_type area, std::list<RectNode<num_type, object> * > & nodes);
 
+    /// @brief get rtree proxy
+    const RtreeProxy & GetProxy() const { return *m_proxy; }
 private:
     void BuildProxy_(const std::list<object* > & objs, size_t max_objs_to_build_sub);
     void BuildSelf_();

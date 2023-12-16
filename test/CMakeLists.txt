@@ -13,6 +13,9 @@ add_compile_options(-Wall)
 add_compile_options(-Wno-deprecated-declarations)
 if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   add_compile_options(-fcompare-debug-second) #hide note message
+elseif (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
+	add_definitions(-DGENERIC_USE_BOOST_CCMATH)
+  	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-return-std-move")
 endif()
 
 # Boost library
@@ -31,7 +34,11 @@ else()
 	include_directories(${EIGEN3_INCLUDE_DIR})
 endif()
 
-find_package(PNG REQUIRED)
+find_package(PNG)
+if(PNG_FOUND)
+add_definitions("-DBOOST_GIL_IO_PNG_SUPPORT=1")
+endif()
+
 find_package(Threads REQUIRED)
 
 if(DEFINED ENV{EIGEN_PATH})

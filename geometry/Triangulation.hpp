@@ -9,7 +9,6 @@
 #include "generic/topology/IndexGraph.hpp"
 #include "generic/math/MathUtility.hpp"
 #include "generic/common/Traits.hpp"
-#include "GeometryIO.hpp"
 #include "Utility.hpp"
 #include "Common.hpp"
 #include "Point.hpp"
