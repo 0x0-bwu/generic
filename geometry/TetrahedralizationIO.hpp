@@ -259,7 +259,7 @@ inline bool LoadSurfacesFromFile(std::ifstream & in, size_t & line,  std::vector
     //surface
     size_t sfCount(0);
     size_t dim = point_t::dim;
-    size_t currMark, currFaces, currHoles;
+    [[maybe_unused]] size_t currMark, currFaces, currHoles;
     surfaces.resize(sfSize);
     while(!in.eof() && sfCount != sfSize){
         line++;
