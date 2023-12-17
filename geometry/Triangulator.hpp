@@ -654,9 +654,9 @@ inline DuplicatesInfo FindDuplicates(const std::vector<Point2D<num_type> > & poi
     };
 
     using GridIdxMap = std::unordered_map<Grid, size_t, GridHash, GridCmp>;
-    const size_t shift = std::numeric_limits<size_t>::max() / 2;
-    auto toGrid = [tolerance, shift](const Point2D<num_type> & p)
+    auto toGrid = [tolerance](const Point2D<num_type> & p)
     {
+        constexpr size_t shift = std::numeric_limits<size_t>::max() / 2;
         size_t x = static_cast<size_t>(p[0] / tolerance + shift);
         size_t y = static_cast<size_t>(p[1] / tolerance + shift);
         return std::make_pair(x, y);

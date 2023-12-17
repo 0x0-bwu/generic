@@ -83,7 +83,7 @@ bool LoadEdgesFromFile(std::ifstream & in, size_t & line, std::vector<IndexEdge>
     
     char sp(32);
     std::string tmp;
-    size_t dim, egSize;
+    size_t egSize;
     //header
     while(!in.eof()){
         line++;
