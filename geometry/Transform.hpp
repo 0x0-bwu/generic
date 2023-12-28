@@ -842,6 +842,7 @@ inline std::ostream & operator<< (std::ostream & os, const Transform2D<float_t> 
         }
         os << GENERIC_DEFAULT_EOL;
     }
+    os << ']';
     return os;
 }
 
@@ -855,6 +856,7 @@ inline std::ostream & operator<< (std::ostream & os, const Transform3D<float_t> 
         }
         os << GENERIC_DEFAULT_EOL;
     }
+    os << ']';
     return os;
 }
 
