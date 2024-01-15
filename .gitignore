@@ -5,5 +5,7 @@
 *.exe
 .vscode
 build
+build.debug
+build.release
 docs
 test/data/out

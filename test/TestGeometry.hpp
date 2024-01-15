@@ -281,6 +281,19 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_geometry_utility_t, num_type)
     BOOST_CHECK_CLOSE(InteriorAngle<7>(tri3d), math::pi / 3, t);
     BOOST_CHECK_CLOSE(InteriorAngle<8>(tri3d), math::pi / 3, t);
 
+    //Inscribed Circle
+    {
+        Point2D<float_type<num_type> > fp1, fp2;
+        Point2D<num_type> p0(5, -5), p1(0, 0), p2(3, 3);
+        auto o = InscribedCircle<num_type>(p0, p1, p2, 1.0, fp1, fp2);
+        BOOST_CHECK_CLOSE(o[0], std::sqrt(2), t);
+        BOOST_CHECK(math::EQ<float_type<num_type>>(o[1], 0));
+        BOOST_CHECK_CLOSE(fp1[0],  std::sqrt(0.5), t);
+        BOOST_CHECK_CLOSE(fp1[1], -std::sqrt(0.5), t);
+        BOOST_CHECK_CLOSE(fp2[0],  std::sqrt(0.5), t);
+        BOOST_CHECK_CLOSE(fp2[1],  std::sqrt(0.5), t);
+    }
+
     //intersection
     Segment2D<num_type> s1(Point2D<num_type>(0, 0), Point2D<num_type>(2, 2));
     Line2D<num_type> line1 = makeLineByTwoPoints(Point2D<num_type>(2, 0), Point2D<num_type>(3, -1));

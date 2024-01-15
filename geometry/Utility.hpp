@@ -129,6 +129,18 @@ inline Polygon2D<num_type> toPolygon(const Box2D<num_type> & box);
 template <typename num_type>
 inline Polygon2D<num_type> toPolygon(const Polyline2D<num_type> & polyline, num_type width);
 
+/// @brief get inscribed circle origin of angle constructed by line `sp` and `pe` with given radius
+/// @tparam num_type 
+/// @param s start point
+/// @param p mid point
+/// @param e end point 
+/// @param r radius
+/// @param fps foot point on line `sp`
+/// @param fpe foot point on line `pe`
+/// @return 
+template <typename num_type>
+inline Point2D<float_type<num_type>> InscribedCircle(const Point2D<num_type> & s, const Point2D<num_type> & p, const Point2D<num_type> & e, num_type r, Point2D<float_type<num_type>> & fps, Point2D<float_type<num_type>> & fpe);
+
 /**
  * @brief gets inscribed polygon of circle
  * @param[in] c input circle

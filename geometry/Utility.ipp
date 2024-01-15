@@ -229,6 +229,24 @@ inline Polygon2D<num_type> toPolygon(const Polyline2D<num_type> & polyline, num_
 }
 
 template <typename num_type>
+inline Point2D<float_type<num_type>> InscribedCircle(const Point2D<num_type> & s, const Point2D<num_type> & p, const Point2D<num_type> & e, num_type r, Point2D<float_type<num_type>> & fps, Point2D<float_type<num_type>> & fpe)
+{
+    auto a = 0.5 * InnerAngle(s, p, e);
+    auto l = r / std::tan(a);
+    auto spLen = Distance(s, p);
+    auto epLen = Distance(e, p);
+    for (size_t i = 0; i < 2; ++i) {
+        fps[i] = (s[i] - p[i]) * l / spLen + p[i];
+        fpe[i] = (e[i] - p[i]) * l / epLen + p[i]; 
+    }
+    auto scale = 1 / (2 * std::cos(a) * std::cos(a));
+    Point2D<float_type<num_type>> o;
+    for (size_t i = 0; i < 2; ++i)
+        o[i] = scale * (fps[i] + fpe[i] - 2 * p[i]) + p[i];
+    return o;
+}
+
+template <typename num_type>
 inline Polygon2D<num_type> InscribedPolygon(const Circle<num_type> & c, size_t div)
 {
     assert(div >= 3);
