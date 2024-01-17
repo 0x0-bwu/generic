@@ -265,6 +265,14 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_geometry_utility_t, num_type)
     BOOST_CHECK_CLOSE(float_type<num_type>(bpDist2d), float_type<num_type>(2), t);
 
     //angle
+
+    {
+        BOOST_CHECK_CLOSE(Angle(Vector2D<num_type>( 1,  1)),  math::pi_quarter, t);
+        BOOST_CHECK_CLOSE(Angle(Vector2D<num_type>(-1,  1)),  math::pi - math::pi_quarter, t);
+        BOOST_CHECK_CLOSE(Angle(Vector2D<num_type>(-1, -1)),  math::pi_quarter + math::pi, t);
+        BOOST_CHECK_CLOSE(Angle(Vector2D<num_type>( 1, -1)),  math::pi_2 - math::pi_quarter, t);
+    }
+
     Triangle2D<num_type> tri2d(Point2D<num_type>(0, 0), Point2D<num_type>(1, 0), Point2D<num_type>(0, 1));
     BOOST_CHECK_CLOSE(InteriorAngle<0>(tri2d), InteriorAngle(tri2d, 3), t);
     BOOST_CHECK_CLOSE(InteriorAngle<1>(tri2d), InteriorAngle(tri2d, 4), t);
@@ -283,11 +291,13 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_geometry_utility_t, num_type)
 
     //Inscribed Circle
     {
+        float_type<num_type> theta;
         Point2D<float_type<num_type> > fp1, fp2;
         Point2D<num_type> p0(5, -5), p1(0, 0), p2(3, 3);
-        auto o = InscribedCircle<num_type>(p0, p1, p2, 1.0, fp1, fp2);
+        auto o = InscribedCircle<num_type>(p0, p1, p2, 1.0, theta, fp1, fp2);
         BOOST_CHECK_CLOSE(o[0], std::sqrt(2), t);
         BOOST_CHECK(math::EQ<float_type<num_type>>(o[1], 0));
+        BOOST_CHECK_CLOSE(theta, math::pi_half, t);
         BOOST_CHECK_CLOSE(fp1[0],  std::sqrt(0.5), t);
         BOOST_CHECK_CLOSE(fp1[1], -std::sqrt(0.5), t);
         BOOST_CHECK_CLOSE(fp2[0],  std::sqrt(0.5), t);
@@ -428,6 +438,13 @@ void t_geometry_utility()
     BOOST_CHECK(PointTriangleLocation::OnEdge2 == GetPointTriangleLocation(Point2D<int>( 1,  1), p1, p2, p3));
     BOOST_CHECK(PointTriangleLocation::OnEdge3 == GetPointTriangleLocation(Point2D<int>(-1,  1), p1, p2, p3));
     BOOST_CHECK(PointTriangleLocation::Inside  == GetPointTriangleLocation(Point2D<int>( 0,  1), p1, p2, p3));
+
+    //Round Corner
+    {
+        Polygon2D<double> rect;
+        rect << Point2D<double>(0, 0) << Point2D<double>(10, 0) << Point2D<double>(10, 10) << Point2D<double>(0, 10);
+        BOOST_CHECK_CLOSE(RoundCorners(rect, 2.0).Area(), 96.1285, 1e-3);
+    }
 }
 
 BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_triangulation_t, num_type)
