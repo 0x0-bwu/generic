@@ -291,13 +291,11 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_geometry_utility_t, num_type)
 
     //Inscribed Circle
     {
-        float_type<num_type> theta;
         Point2D<float_type<num_type> > fp1, fp2;
         Point2D<num_type> p0(5, -5), p1(0, 0), p2(3, 3);
-        auto o = InscribedCircle<num_type>(p0, p1, p2, 1.0, theta, fp1, fp2);
+        auto o = InscribedCircle<num_type>(p0, p1, p2, 1.0, fp1, fp2);
         BOOST_CHECK_CLOSE(o[0], std::sqrt(2), t);
         BOOST_CHECK(math::EQ<float_type<num_type>>(o[1], 0));
-        BOOST_CHECK_CLOSE(theta, math::pi_half, t);
         BOOST_CHECK_CLOSE(fp1[0],  std::sqrt(0.5), t);
         BOOST_CHECK_CLOSE(fp1[1], -std::sqrt(0.5), t);
         BOOST_CHECK_CLOSE(fp2[0],  std::sqrt(0.5), t);

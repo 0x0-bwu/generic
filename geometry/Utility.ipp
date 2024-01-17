@@ -229,11 +229,9 @@ inline Polygon2D<num_type> toPolygon(const Polyline2D<num_type> & polyline, num_
 }
 
 template <typename num_type>
-inline Point2D<float_type<num_type>> InscribedCircle(const Point2D<num_type> & s, const Point2D<num_type> & p, const Point2D<num_type> & e, 
-    num_type r, float_type<num_type> & theta, Point2D<float_type<num_type>> & fps, Point2D<float_type<num_type>> & fpe)
+inline Point2D<float_type<num_type>> InscribedCircle(const Point2D<num_type> & s, const Point2D<num_type> & p, const Point2D<num_type> & e, num_type r, Point2D<float_type<num_type>> & fps, Point2D<float_type<num_type>> & fpe)
 {
-    theta = InnerAngle(s, p, e);
-    auto a = 0.5 * theta;
+    auto a = 0.5 * InnerAngle(s, p, e);;
     auto l = r / std::tan(a);
     auto spLen = Distance(s, p);
     auto epLen = Distance(e, p);
@@ -836,7 +834,6 @@ inline Polygon2D<num_type> RoundCorners(const Polygon2D<num_type> & polygon, num
     if (not result.isCCW()) result.Reverse();
     auto & points = result.GetPoints();
     auto iter = points.begin();
-    float_type<num_type> theta;
     Point2D<float_type<num_type>> fp1, fp2;
     bool stop = false;
     while (not stop) {
@@ -848,16 +845,17 @@ inline Polygon2D<num_type> RoundCorners(const Polygon2D<num_type> & polygon, num
         }
         auto it3 = it2; it3++;
         if (it3 == points.end()) it3 = points.begin();
-        auto o = InscribedCircle(*it1, *it2, *it3, radius, theta, fp1, fp2);
+        auto o = InscribedCircle(*it1, *it2, *it3, radius, fp1, fp2);
         if (DistanceSq(*it1, *it2) < DistanceSq(fp1.template Cast<num_type>(), *it2) ||
             DistanceSq(*it3, *it2) < DistanceSq(fp2.template Cast<num_type>(), *it2)) {
             iter++; continue;
         }
         else {
             auto startAngle = Angle(fp1 - o);
+            auto theta = InnerAngle(fp1, o, fp2); 
             size_t divide = theta / deltaAngle;
             std::vector<Point2D<num_type>> corners(divide);
-            auto orient = DotProduct(o - fp1, fp2 - o) > 0 ? 1.0 : -1.0;
+            auto orient = CrossProduct(*it2 - fp1, fp2 - *it2) > 0 ? 1.0 : -1.0;
             for (size_t i = 0; i < divide; ++i) {
                 corners[i][0] = std::cos(startAngle + i * orient * deltaAngle) * radius + o[0];
                 corners[i][1] = std::sin(startAngle + i * orient * deltaAngle) * radius + o[1];

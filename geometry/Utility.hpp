@@ -135,13 +135,11 @@ inline Polygon2D<num_type> toPolygon(const Polyline2D<num_type> & polyline, num_
 /// @param p mid point
 /// @param e end point 
 /// @param r radius
-/// @param theta angle of s-p-e
 /// @param fps foot point on line `sp`
 /// @param fpe foot point on line `pe`
 /// @return 
 template <typename num_type>
-inline Point2D<float_type<num_type>> InscribedCircle(const Point2D<num_type> & s, const Point2D<num_type> & p, const Point2D<num_type> & e, 
-    num_type r, float_type<num_type> & theta, Point2D<float_type<num_type>> & fps, Point2D<float_type<num_type>> & fpe);
+inline Point2D<float_type<num_type>> InscribedCircle(const Point2D<num_type> & s, const Point2D<num_type> & p, const Point2D<num_type> & e, num_type r, Point2D<float_type<num_type>> & fps, Point2D<float_type<num_type>> & fpe);
 
 /**
  * @brief gets inscribed polygon of circle
