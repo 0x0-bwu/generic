@@ -30,6 +30,10 @@ public:
 
     ///@brief constructs a polygon with no point
     Polygon2D(){}
+
+    /// @brief constructs a polygon with given points
+    Polygon2D(std::vector<point_t> points) : m_points(std::move(points)) { if (not isCCW()) Reverse(); }
+
     ///@brief append point to this polygon by operator <<
     Polygon2D & operator<< (point_t point) { m_points.push_back(point); return  *this; }
 
@@ -101,7 +105,7 @@ inline float_type<num_type> Polygon2D<num_type>::Area() const
 template <typename num_type>
 inline bool Polygon2D<num_type>::isCCW() const
 {
-    return !math::isNegative(Area());
+    return not math::isNegative(Area());
 }
 
 template <typename num_type>
