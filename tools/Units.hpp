@@ -17,6 +17,8 @@ enum class Time { Picosecond = -4, Nanosecond = -3, Microsecond = -2, Millisecon
 
 enum class Length { Nanometer = -3, Micrometer = -2, Millimeter  = -1, Meter = 0 , Inch = 100 };
 
+enum class Temperature { Celsius, Kelvins };
+
 ///@brief gets scale from input `unit` to second
 inline double Scale2Second(Time unit)
 {
@@ -38,6 +40,18 @@ inline double Scale2Meter(Length unit)
         case Length::Inch : return 0.0254;
         default : return std::pow(10, int(unit) * 3);
     }
+}
+
+///@brief transfer celsius degree to kelvins
+inline double Celsius2Kelvins(double t)
+{
+    return t + 273.15;
+}
+
+///@brief transfer kelvins degree to celsius
+inline double Kelvins2Celsius(double t)
+{
+    return t - 273.15;
 }
 
 }//namespace unit

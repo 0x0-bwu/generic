@@ -75,7 +75,7 @@ void t_math_utility()
     BOOST_CHECK_CLOSE(NewtonRaphson<double>(func, dfunc, 10, 1e-10), 8.41406, 1e-1);
 }
 
-void t_math_polynominal_fit()
+void t_math_polynomial_fit()
 {
     // y = 2 - x;
     auto coeffs = PolyFit(std::vector<double>{0, 1, 2}, std::vector<double>{2, 1, 0}, 1);
@@ -100,7 +100,7 @@ test_suite * create_math_test_suite()
     math_suite->add(BOOST_TEST_CASE_TEMPLATE(t_math_utility_t, t_math_num_types));
     math_suite->add(BOOST_TEST_CASE(&t_math_io));
     math_suite->add(BOOST_TEST_CASE(&t_math_utility));
-    math_suite->add(BOOST_TEST_CASE(&t_math_polynominal_fit));
+    math_suite->add(BOOST_TEST_CASE(&t_math_polynomial_fit));
     math_suite->add(BOOST_TEST_CASE_TEMPLATE(t_math_linear_algebra_t, t_math_num_types));
     //
     return math_suite;
