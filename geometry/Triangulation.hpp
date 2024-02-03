@@ -512,6 +512,11 @@ public:
         return GetTriangle(tri, it).Center();
     }
 
+    static box_type<point_t> GetBondBox(const Triangulation<point_t> & tri, const TriIdx it)
+    {
+        return Extent(GetTriangle(tri, it));
+    }
+
     template <typename std::enable_if<point_t::dim == 2, bool>::type = true>
     static point_f<point_t> GetCircumCenter(const Triangulation<point_t> & tri, const TriIdx it)
     {
