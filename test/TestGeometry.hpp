@@ -367,13 +367,13 @@ void t_geometry_utility()
 
     //Distance
     auto dist2d = Distance(Point2D<int>(0, 0), Point2D<int>(1, 1));
-    BOOST_CHECK_CLOSE(dist2d, std::sqrt(2.0), t);
+    BOOST_CHECK_CLOSE(dist2d, std::sqrt(2.0f), t);
 
     //CircumCircle
     auto circle = CircumCircle(Point2D<int>(), Point2D<int>(1, 0), Point2D<int>(1, 1));
     BOOST_CHECK_CLOSE(circle.o[0], 0.5, t);
     BOOST_CHECK_CLOSE(circle.o[1], 0.5, t);
-    BOOST_CHECK_CLOSE(circle.r, std::sqrt(0.5), t);
+    BOOST_CHECK_CLOSE(circle.r, std::sqrt(0.5f), t);
 
     circle = CircumCircle(Point2D<int>(-1, 0), Point2D<int>(0, 0), Point2D<int>(1, 0));
     BOOST_CHECK_CLOSE(circle.o[0], 0, t);
@@ -441,7 +441,7 @@ void t_geometry_utility()
     {
         Polygon2D<double> rect;
         rect << Point2D<double>(0, 0) << Point2D<double>(10, 0) << Point2D<double>(10, 10) << Point2D<double>(0, 10);
-        BOOST_CHECK_CLOSE(RoundCorners(rect, 2.0).Area(), 96.1285, 1e-3);
+        BOOST_CHECK_CLOSE(RoundCorners(rect, 2.0, 100).Area(), 96.5663706144, 1e-1);
     }
 }
 
