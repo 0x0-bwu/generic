@@ -156,14 +156,15 @@ inline Point2D<num_type> Point2D<num_type>::operator- (const Point2D<num_type> &
 template <typename num_type>
 inline Point2D<num_type> Point2D<num_type>::operator* (float_t scale) const
 {
-    return Point2D<num_type>(scale * m_coor[0], scale * m_coor[1]);
+    if constexpr (std::is_integral_v<num_type>)
+        return Point2D<num_type>(std::round(scale * m_coor[0]), std::round(scale * m_coor[1]));
+    else return Point2D<num_type>(scale * m_coor[0], scale * m_coor[1]);
 }
 
 template <typename num_type>
 inline Point2D<num_type> Point2D<num_type>::operator/ (float_t scale) const
 {
-    scale = math::SafeInv(scale);
-    return Point2D<num_type>(scale * m_coor[0], scale * m_coor[1]);
+    return *this * math::SafeInv(scale);
 }
 
 template <typename num_type>
@@ -181,7 +182,7 @@ inline void Point2D<num_type>::operator-= (const Point2D<num_type> & coor)
 template <typename num_type>
 inline void Point2D<num_type>::operator*= (float_t scale)
 {
-    m_coor[0] *= scale; m_coor[1] *= scale;
+    *this = *this * scale;
 }
 
 template <typename num_type>
@@ -224,7 +225,9 @@ template <typename num_type>
 template <typename other_num_type>
 inline Point2D<other_num_type> Point2D<num_type>::Cast() const
 {
-    return Point2D<other_num_type>(other_num_type(m_coor[0]), other_num_type(m_coor[1]));
+    if constexpr (std::is_floating_point_v<num_type> && std::is_integral_v<other_num_type>)
+        return Point2D<other_num_type>(std::round(m_coor[0]), std::round(m_coor[1]));
+    else return Point2D<other_num_type>(other_num_type(m_coor[0]), other_num_type(m_coor[1]));
 }
 
 template <typename num_type>
@@ -275,14 +278,15 @@ inline Point3D<num_type> Point3D<num_type>::operator- (const Point3D<num_type> &
 template <typename num_type>
 inline Point3D<num_type> Point3D<num_type>::operator* (float_t scale) const
 {
-    return Point3D<num_type>(scale * m_coor[0], scale * m_coor[1], scale * m_coor[2]);
+    if constexpr (std::is_integral_v<num_type>)
+        return Point3D<num_type>(std::round(scale * m_coor[0]), std::round(scale * m_coor[1]), std::round(scale * m_coor[2]));
+    else return Point3D<num_type>(scale * m_coor[0], scale * m_coor[1], scale * m_coor[2]);
 }
 
 template <typename num_type>
 inline Point3D<num_type> Point3D<num_type>::operator/ (float_t scale) const
 {
-    scale = math::SafeInv(scale);
-    return Point3D<num_type>(scale * m_coor[0], scale * m_coor[1], scale * m_coor[2]);
+    return *this * math::SafeInv(scale);
 }
 
 template <typename num_type>
@@ -300,7 +304,7 @@ inline void Point3D<num_type>::operator-= (const Point3D<num_type> & coor)
 template <typename num_type>
 inline void Point3D<num_type>::operator*= (float_t scale)
 {
-    m_coor[0] *= scale; m_coor[1] *= scale; m_coor[2] *= scale;
+    *this = *this * scale;
 }
 
 template <typename num_type>
@@ -345,7 +349,9 @@ template <typename num_type>
 template <typename other_num_type>
 inline Point3D<other_num_type> Point3D<num_type>::Cast() const
 {
-    return Point3D<other_num_type>(other_num_type(m_coor[0]), other_num_type(m_coor[1]), other_num_type(m_coor[2]));
+    if constexpr (std::is_floating_point_v<num_type> && std::is_integral_v<other_num_type>)
+        return Point3D<other_num_type>(std::round(m_coor[0]), std::round(m_coor[1]), std::round(m_coor[2]));
+    else return Point3D<other_num_type>(other_num_type(m_coor[0]), other_num_type(m_coor[1]), other_num_type(m_coor[2]));
 }
 
 }//namespace geometry

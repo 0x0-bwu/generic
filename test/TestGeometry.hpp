@@ -295,7 +295,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_geometry_utility_t, num_type)
         Point2D<num_type> p0(5, -5), p1(0, 0), p2(3, 3);
         auto o = InscribedCircle<num_type>(p0, p1, p2, 1.0, fp1, fp2);
         BOOST_CHECK_CLOSE(o[0], std::sqrt(2), t);
-        BOOST_CHECK(math::EQ<float_type<num_type>>(o[1], 0));
+        BOOST_CHECK(math::EQ<float_type<num_type>>(o[1], 0, t));
         BOOST_CHECK_CLOSE(fp1[0],  std::sqrt(0.5), t);
         BOOST_CHECK_CLOSE(fp1[1], -std::sqrt(0.5), t);
         BOOST_CHECK_CLOSE(fp2[0],  std::sqrt(0.5), t);
@@ -362,18 +362,18 @@ void t_geometry_utility()
     //Cast
     Point2D<double> p2d_double(-0.999, 1.999);
     auto p2d_int = p2d_double.template Cast<int>();
-    BOOST_TEST(p2d_int[0] == 0);
-    BOOST_TEST(p2d_int[1] == 1);
+    BOOST_TEST(p2d_int[0] == -1);
+    BOOST_TEST(p2d_int[1] ==  2);
 
     //Distance
     auto dist2d = Distance(Point2D<int>(0, 0), Point2D<int>(1, 1));
-    BOOST_CHECK_CLOSE(dist2d, std::sqrt(2.0f), t);
+    BOOST_CHECK_CLOSE(dist2d, std::sqrt(2.0), t);
 
     //CircumCircle
     auto circle = CircumCircle(Point2D<int>(), Point2D<int>(1, 0), Point2D<int>(1, 1));
     BOOST_CHECK_CLOSE(circle.o[0], 0.5, t);
     BOOST_CHECK_CLOSE(circle.o[1], 0.5, t);
-    BOOST_CHECK_CLOSE(circle.r, std::sqrt(0.5f), t);
+    BOOST_CHECK_CLOSE(circle.r, std::sqrt(0.5), t);
 
     circle = CircumCircle(Point2D<int>(-1, 0), Point2D<int>(0, 0), Point2D<int>(1, 0));
     BOOST_CHECK_CLOSE(circle.o[0], 0, t);
@@ -398,9 +398,9 @@ void t_geometry_utility()
     //Cast
     Point3D<double> p3d_double(0.001, 1.999, -0.999);
     auto p3d_int = p3d_double.template Cast<int>();
-    BOOST_TEST(p3d_int[0] == 0);
-    BOOST_TEST(p3d_int[1] == 1);
-    BOOST_TEST(p3d_int[2] == 0);
+    BOOST_TEST(p3d_int[0] ==  0);
+    BOOST_TEST(p3d_int[1] ==  2);
+    BOOST_TEST(p3d_int[2] == -1);
 
     //Inverse
     auto inv_vec3d = Inverse(Vector3D<int>(2, -2, 0));

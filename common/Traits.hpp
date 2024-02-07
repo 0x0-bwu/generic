@@ -15,7 +15,7 @@ namespace common {
 template <typename num_type>
 using float_type = typename std::conditional<
                             std::is_floating_point<num_type>::value, num_type, typename
-                            std::conditional<std::is_same<int32_t, num_type>::value, float, double>::type
+                            std::conditional<std::is_same<long long , num_type>::value, long double, double>::type
                             >::type;
 
 struct num_floating_tag {};
