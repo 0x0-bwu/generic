@@ -532,6 +532,10 @@ inline box_type<typename std::iterator_traits<iterator>::value_type> Extent(iter
 template <typename num_type>
 inline Box2D<num_type> Extent(const Polyline2D<num_type> & polyline);
 
+///@brief scales a box by factor
+template <typename box_type>
+inline void Scale(box_type & box, coor_f<box_type> factor);
+
 /**
  * @brief simplifies a complex polygon to outline and holes
  * @param polygon[in/out] input polygon, will get only outline after simplify

@@ -771,6 +771,18 @@ inline Box2D<num_type> Extent(const Polyline2D<num_type> & polyline)
     return boost::geometry::return_envelope<Box2D<num_type> >(polyline);
 }
 
+///@brief scales a box by factor
+template <typename box_type>
+inline void Scale(box_type & box, coor_f<box_type> factor)
+{
+    auto center = box.Center();
+    auto fbox = box.template Cast<coor_f<box_type>>();
+    fbox -= center;
+    fbox *= factor;
+    fbox += center;
+    box = fbox.template Cast<typename box_type::coor_t>();
+}
+
 template <typename num_type>
 inline void Simplify(Polygon2D<num_type> & polygon, std::list<Polygon2D<num_type> > & holes)
 {

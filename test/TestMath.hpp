@@ -73,6 +73,14 @@ void t_math_utility()
     auto dfunc = [&] (auto x) { return 1 - std::exp(-(0.5 * tr + x) / rc); };
     BOOST_CHECK_CLOSE(Bisection<double>(func, 0, 10, 1e-10), 8.41406, 1e-1);
     BOOST_CHECK_CLOSE(NewtonRaphson<double>(func, dfunc, 10, 1e-10), 8.41406, 1e-1);
+    
+    //Mean and Variance
+    {
+        std::list<double> input{83.1192,85.2815,83.3486,84.1985,85.8013,83.8569,85.4694,86.4357,82.5886,86.266,87.5939,83.908};
+        auto [mean, variance] = MeanAndVariance(input.begin(), input.end());
+        BOOST_CHECK_CLOSE(mean, 84.8230, 0.1);
+        BOOST_CHECK_CLOSE(variance, 2.37963, 0.1);
+    }
 }
 
 void t_math_polynomial_fit()
