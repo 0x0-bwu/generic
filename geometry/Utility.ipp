@@ -255,7 +255,7 @@ inline Polygon2D<num_type> InscribedPolygon(const Circle<num_type> & c, size_t d
     
     float_t ang = math::pi_2 / div;
     for(size_t i = 0; i < div; ++i)
-        polygon << (c.o + Point2D<num_type>(std::sin(ang * i) * c.r, std::cos(ang * i) * c.r));
+        polygon << (c.o + Point2D<num_type>(std::cos(ang * i) * c.r, std::sin(ang * i) * c.r));
     
     return polygon;
 }
