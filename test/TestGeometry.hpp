@@ -224,6 +224,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_geometry_vector_t, num_type)
 BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_geometry_utility_t, num_type)
 {
     auto t = 1e-5;
+    using float_t = float_type<num_type>;
     //point-plane
     Point3D<num_type> p1(0, 0, 1);
     Plane<num_type> plane(Point3D<num_type>(0, 0, 0), Point3D<num_type>(1, 0, 1), Point3D<num_type>(0, 1, 1));
@@ -295,11 +296,19 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_geometry_utility_t, num_type)
         Point2D<num_type> p0(5, -5), p1(0, 0), p2(3, 3);
         auto o = InscribedCircle<num_type>(p0, p1, p2, 1.0, fp1, fp2);
         BOOST_CHECK_CLOSE(o[0], std::sqrt(2), t);
-        BOOST_CHECK(math::EQ<float_type<num_type>>(o[1], 0, t));
+        BOOST_CHECK(math::EQ<float_t>(o[1], 0, t));
         BOOST_CHECK_CLOSE(fp1[0],  std::sqrt(0.5), t);
         BOOST_CHECK_CLOSE(fp1[1], -std::sqrt(0.5), t);
         BOOST_CHECK_CLOSE(fp2[0],  std::sqrt(0.5), t);
         BOOST_CHECK_CLOSE(fp2[1],  std::sqrt(0.5), t);
+    }
+
+    //InscribedPolygon
+    {   
+        Circle<num_type> c(Point2D<num_type>(0, 0), 1e3);
+        auto polygon = InscribedPolygon(c, 1e6);
+        BOOST_CHECK(polygon.isCCW());
+        BOOST_CHECK(math::EQ<float_t>(polygon.Area() / 1e6, 3.14, 0.1));
     }
 
     //intersection

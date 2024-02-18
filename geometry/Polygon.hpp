@@ -96,7 +96,7 @@ inline float_type<num_type> Polygon2D<num_type>::Area() const
     size_t size = Size();
     if(size < 3) return area;
     for(size_t i = 0, j = size - 1; i < size; ++i){
-        area += (m_points[j][0] + m_points[i][0]) * (m_points[j][1] - m_points[i][1]);
+        area += float_t(m_points[j][0] + m_points[i][0]) * float_t(m_points[j][1] - m_points[i][1]);
         j = i;
     }
     return -area * 0.5;
