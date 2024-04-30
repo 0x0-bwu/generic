@@ -65,7 +65,7 @@ private:
     template <typename Archive>
     void serialize(Archive & ar, const unsigned int)
     {
-        ar & m_vertices;
+        ar & boost::serialization::make_nvp("vertices", m_vertices);
     }
 #endif
 };

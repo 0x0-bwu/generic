@@ -19,7 +19,7 @@
 #include <array>
 
 #ifdef BOOST_SERIALIZATION_SUPPORT
-#include "Serialization.hpp"
+#include "generic/geometry/Serialization.hpp"
 #endif
 
 namespace generic  {
@@ -83,8 +83,8 @@ private:
     template <typename Archive>
     void serialize(Archive & ar, const unsigned int)
     {
-        ar & index;
-        ar & triangles;
+        ar & boost::serialization::make_nvp("index", index);
+        ar & boost::serialization::make_nvp("triangles", triangles);
     }
 #endif
 };
@@ -191,8 +191,8 @@ private:
     template <typename Archive>
     void serialize(Archive & ar, const unsigned int)
     {
-        ar & vertices;
-        ar & neighbors;
+        ar & boost::serialization::make_nvp("vertices", vertices);
+        ar & boost::serialization::make_nvp("neighbors", neighbors);
     }
 #endif
 };
@@ -310,10 +310,10 @@ private:
     template <typename Archive>
     void serialize(Archive & ar, const unsigned int)
     {
-        ar & fixedEdges;
-        ar & vertices;
-        ar & triangles;
-        ar & points;
+        ar & boost::serialization::make_nvp("fixed_edges", fixedEdges);
+        ar & boost::serialization::make_nvp("vertices", vertices);
+        ar & boost::serialization::make_nvp("triangles", triangles);
+        ar & boost::serialization::make_nvp("points", points);
     }
 #endif
 };
