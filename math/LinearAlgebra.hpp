@@ -19,11 +19,15 @@ namespace la {
 using namespace generic::common;
 using namespace generic::math;
 
-template <typename num_type>
-using DenseVector = Eigen::Matrix<num_type, Eigen::Dynamic, 1>;
+template <typename num_type, int rows = Eigen::Dynamic>
+using DenseVector = Eigen::Matrix<num_type, rows, 1>;
 
-template <typename num_type>
-using DenseMatrix = Eigen::Matrix<num_type, Eigen::Dynamic, Eigen::Dynamic>;
+template <typename num_type, int rows = Eigen::Dynamic, int cols = Eigen::Dynamic>
+using DenseMatrix = Eigen::Matrix<num_type, rows, cols>;
+
+// Convenience template for using Eigen's special allocator with vectors
+template<typename num_type, int rows = Eigen::Dynamic, int cols = Eigen::Dynamic>
+using MatrixVector = std::vector<DenseMatrix<num_type, rows, cols>, Eigen::aligned_allocator<DenseMatrix<num_type, rows, cols> > >;
 
 template <typename num_type>
 using Triplets = std::vector<Eigen::Triplet<num_type> >;

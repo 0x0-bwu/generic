@@ -102,32 +102,35 @@ inline bool IsSingular(const Eigen::TriangularView<Derived, Mode> & m) {
    return false;
 }
 
-// Convenience template for using Eigen's special allocator with vectors
-template<typename Float>
-using MatrixVector = std::vector<DenseMatrix<Float>, Eigen::aligned_allocator<DenseMatrix<Float> > >;
-
 // Calculate moments of given system in MNA form
 template<typename Float>
 inline MatrixVector<Float>
-Moments(const DenseMatrix<Float> & G, const DenseMatrix<Float> & C, const DenseMatrix<Float> & B, const DenseMatrix<Float> & L, const DenseMatrix<Float> & E, size_t count)
+Moments(const DenseMatrix<Float> & C, const DenseMatrix<Float> & G, const DenseMatrix<Float> & B, const DenseMatrix<Float> & L, size_t count)
 {
     [[maybe_unused]] const size_t scount = G.rows();
     [[maybe_unused]] const size_t icount = B.cols();
     [[maybe_unused]] const size_t ocount = L.cols();
-    MatrixVector<Float> result;
-
+    GENERIC_ASSERT(scount == G.cols())
+    GENERIC_ASSERT(scount == C.rows())
+    GENERIC_ASSERT(scount == C.cols())
+    GENERIC_ASSERT(scount == B.rows())
+    GENERIC_ASSERT(scount == L.rows())
+    GENERIC_ASSERT(ocount == E.rows())
+    GENERIC_ASSERT(icount == E.cols())
     GENERIC_ASSERT(not IsSingular(G))
+
+    MatrixVector<Float> result;
     auto G_QR = G.fullPivHouseholderQr();
     DenseMatrix<Float> A = -G_QR.solve(C);
     DenseMatrix<Float> R = G_QR.solve(B);
 
-    result.push_back(L.transpose() * R + E);   // incorporate feedthrough into first moment
+    auto lt = L.transpose();
+    result.push_back(lt * R);   // incorporate feedthrough into first moment
     DenseMatrix<Float> AtotheI = A;
     for (size_t i = 1; i < count; ++i) {
-        result.push_back(L.transpose() * AtotheI * R);
+        result.push_back(lt * AtotheI * R);
         AtotheI = A * AtotheI;
     }
-
     return result;
 }
 

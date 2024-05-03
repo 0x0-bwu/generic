@@ -6,10 +6,8 @@
  * @date 2023-11-08
  */
 #pragma once
-#include "generic/math/LinearAlgebra.hpp"
 #include "generic/math/MathIO.hpp"
-#include "generic/common/Exception.hpp"
-#include "generic/common/Macros.hpp"
+#include "generic/circuit/MNA.hpp"
 #include <Eigen/SparseQR>
 #include <Eigen/SparseLU>
 #include <vector>
@@ -120,12 +118,66 @@ Prima(const SparseMatrix<Float> & C,   // derivative conductance terms
 }
 
 template <typename Float>
+struct PiModel { Float c1{0}, r{0}, c2{0}; };
+
+template <typename Float>
 struct ReducedModel
 {
 	using MatrixType = DenseMatrix<Float>;
     MNA<MatrixType> m;
 	MatrixType x, xT;
 };
+
+template <typename Float>
+inline MatrixVector<Float> Moments(const ReducedModel<Float> & rm, size_t count)
+{
+	return mna::Moments<Float>(rm.m.C, rm.m.G, rm.m.B, rm.m.L, count);
+}
+
+template <typename Float>
+inline PiModel<Float> RetrievePiModel(const ReducedModel<Float> & rm, size_t port, Float rd)
+{
+	GENERIC_ASSERT(port < rm.m.L.cols())
+    auto G_QR = rm.m.G.fullPivHouseholderQr();
+    DenseMatrix<Float> A = - G_QR.solve(rm.m.C);
+    DenseMatrix<Float> R = G_QR.solve(rm.m.B.col(port));
+
+	auto m1 = A * R;
+	auto m2 = A * m1;
+	auto m3 = A * m2;
+
+	auto l = rm.m.L.col(port).transpose();
+	auto h1 = l * m1;
+	auto h2 = l * m2;
+	auto h3 = l * m3;
+
+	// std::cout << "m1:\n " << m1 << std::endl;
+	// std::cout << "m2:\n " << m2 << std::endl;
+	// std::cout << "m3:\n " << m3 << std::endl;
+
+	// std::cout << "h1:\n " << h1 << std::endl;
+	// std::cout << "h2:\n " << h2 << std::endl;
+	// std::cout << "h3:\n " << h3 << std::endl;
+
+	Float h1{(l * m1)(0, 0)}, h2{(l * m2)(0, 0)}, h3{(l * m3)(0, 0)};
+	Float y1{-1 * h1 / rd}, y2{-1 * (h2 - h1 * h1) / rd}, y3{-1 * (h3 - 2 * h2 * h1 + h1 * h1 * h1) / rd};
+	// std::cout << "h1:\n " << h1 << std::endl;
+	// std::cout << "h2:\n " << h2 << std::endl;
+	// std::cout << "h3:\n " << h3 << std::endl;
+	// std::cout << "y1:\n " << y1 << std::endl;
+	// std::cout << "y2:\n " << y2 << std::endl;
+	// std::cout << "y3:\n " << y3 << std::endl;
+	PiModel<Float> pi;
+	pi.c2 = y2 * y2 / y3;
+	pi.c1 = y1 - pi.c2;
+	pi.r  = -1 * y3 * y3 / (y2 * y2 * y2); 
+	if (pi.r < 0 || pi.c2 < 0) {
+		pi.c2 = 0;
+		pi.r = 0;
+		pi.c1 = y1;
+	}
+	return pi;
+}
 
 template<typename Float>
 inline DenseMatrix<Float> Prima(const MNA<SparseMatrix<Float> > & m, size_t q)
@@ -145,4 +197,24 @@ inline ReducedModel<Float> Reduce(const MNA<SparseMatrix<Float> > & m, size_t q)
     rm.m.L = rm.xT * m.L;
 	return rm;
 }
+
 } //namespace generic::ckt
+
+namespace {
+
+template <typename Float>
+inline std::ostream & operator<< (std::ostream & os, const generic::ckt::ReducedModel<Float> & rm)
+{
+	os << rm.m << GENERIC_DEFAULT_EOL;
+	os << "X:\n" << rm.x << GENERIC_DEFAULT_EOL;
+    return os;
+}
+
+template <typename Float>
+inline std::ostream & operator<< (std::ostream & os, const generic::ckt::PiModel<Float> & pi)
+{
+    os << "c1: " << pi.c1 << ", r: " << pi.r << ", c2: " << pi.c2;
+    return os;
+}
+
+}
