@@ -147,9 +147,9 @@ inline PiModel<Float> RetrievePiModel(const ReducedModel<Float> & rm, size_t por
 	auto m3 = A * m2;
 
 	auto l = rm.m.L.col(port).transpose();
-	auto h1 = l * m1;
-	auto h2 = l * m2;
-	auto h3 = l * m3;
+	// auto h1 = l * m1;
+	// auto h2 = l * m2;
+	// auto h3 = l * m3;
 
 	// std::cout << "m1:\n " << m1 << std::endl;
 	// std::cout << "m2:\n " << m2 << std::endl;

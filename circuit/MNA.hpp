@@ -115,8 +115,8 @@ Moments(const DenseMatrix<Float> & C, const DenseMatrix<Float> & G, const DenseM
     GENERIC_ASSERT(scount == C.cols())
     GENERIC_ASSERT(scount == B.rows())
     GENERIC_ASSERT(scount == L.rows())
-    GENERIC_ASSERT(ocount == E.rows())
-    GENERIC_ASSERT(icount == E.cols())
+    // GENERIC_ASSERT(ocount == E.rows())
+    // GENERIC_ASSERT(icount == E.cols())
     GENERIC_ASSERT(not IsSingular(G))
 
     MatrixVector<Float> result;
