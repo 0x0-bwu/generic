@@ -1,14 +1,12 @@
 /**
- * @file LinearAlgebra.hpp
+ * @file Common.hpp
  * @author bwu
- * @brief Model of vector and matrix concept in static dimension size, implement based on boost ublas
+ * @brief common define
  * @version 0.1
- * @date 2022-02-22
+ * @date 2024-05-10
  */
 #pragma once
-#include "generic/common/Version.hpp"
-#include "generic/common/Traits.hpp"
-#include "MathUtility.hpp"
+#include "generic/math/MathUtility.hpp"
 #include <Eigen/Sparse>
 #include <Eigen/Dense>
 #include <cmath>

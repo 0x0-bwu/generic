@@ -30,9 +30,8 @@ Prima(const SparseMatrix<Float> & C,   // derivative conductance terms
 	GENERIC_ASSERT(B.rows() == G.rows())
 	GENERIC_ASSERT(L.rows() == G.rows())
 	size_t N = B.cols();
-	size_t state_count = static_cast<size_t>(C.rows());
-	GENERIC_ASSERT(N < state_count)          // must have more state variables than ports
-	GENERIC_ASSERT(q < state_count)          // desired state count must be less than current number
+	size_t stateCount = static_cast<size_t>(C.rows());
+	GENERIC_ASSERT(N < stateCount)          // must have more state variables than ports
 
 	// unchecked precondition: the state variables associated with the ports must be the last N
 
@@ -106,7 +105,7 @@ Prima(const SparseMatrix<Float> & C,   // derivative conductance terms
                            [](size_t sum, const DenseMatrix<Float> & m) { return sum + m.cols(); });
   	cols = std::min(q, cols);  // truncate to q
 
-  	DenseMatrix<Float> Xfinal(state_count, cols);
+  	DenseMatrix<Float> Xfinal(stateCount, cols);
   	size_t col = 0;
 	for (size_t k = 0; (k <= n) && (col < cols); ++k) {
 		// copy columns from X[k] to Xfinal
@@ -118,7 +117,12 @@ Prima(const SparseMatrix<Float> & C,   // derivative conductance terms
 }
 
 template <typename Float>
-struct PiModel { Float c1{0}, r{0}, c2{0}; };
+struct PiModel
+{
+	Float c1{0}, r{0}, c2{0};
+	PiModel() = default;
+	PiModel(Float c1, Float r, Float c2) : c1(c1), r(r), c2(c2) {}
+};
 
 template <typename Float>
 struct ReducedModel
@@ -135,47 +139,30 @@ inline MatrixVector<Float> Moments(const ReducedModel<Float> & rm, size_t count)
 }
 
 template <typename Float>
-inline PiModel<Float> RetrievePiModel(const ReducedModel<Float> & rm, size_t port, Float rd)
+inline PiModel<Float> RetrievePiModel(const MNA<DenseMatrix<Float>> & m, size_t port, Float rd)
 {
-	GENERIC_ASSERT(port < rm.m.L.cols())
-    auto G_QR = rm.m.G.fullPivHouseholderQr();
-    DenseMatrix<Float> A = - G_QR.solve(rm.m.C);
-    DenseMatrix<Float> R = G_QR.solve(rm.m.B.col(port));
+	GENERIC_ASSERT(port < size_t(m.L.cols()))
+    auto G_QR = m.G.fullPivHouseholderQr();
+    DenseMatrix<Float> A = - G_QR.solve(m.C);
+    DenseMatrix<Float> R = G_QR.solve(m.B.col(port));
 
 	auto m1 = A * R;
 	auto m2 = A * m1;
 	auto m3 = A * m2;
 
-	auto l = rm.m.L.col(port).transpose();
-	// auto h1 = l * m1;
-	// auto h2 = l * m2;
-	// auto h3 = l * m3;
-
-	// std::cout << "m1:\n " << m1 << std::endl;
-	// std::cout << "m2:\n " << m2 << std::endl;
-	// std::cout << "m3:\n " << m3 << std::endl;
-
-	// std::cout << "h1:\n " << h1 << std::endl;
-	// std::cout << "h2:\n " << h2 << std::endl;
-	// std::cout << "h3:\n " << h3 << std::endl;
-
-	Float h1{(l * m1)(0, 0)}, h2{(l * m2)(0, 0)}, h3{(l * m3)(0, 0)};
-	Float y1{-1 * h1 / rd}, y2{-1 * (h2 - h1 * h1) / rd}, y3{-1 * (h3 - 2 * h2 * h1 + h1 * h1 * h1) / rd};
-	// std::cout << "h1:\n " << h1 << std::endl;
-	// std::cout << "h2:\n " << h2 << std::endl;
-	// std::cout << "h3:\n " << h3 << std::endl;
-	// std::cout << "y1:\n " << y1 << std::endl;
-	// std::cout << "y2:\n " << y2 << std::endl;
-	// std::cout << "y3:\n " << y3 << std::endl;
+	auto l = m.L.col(port).transpose();
+	auto h1 = (l * m1)(0, 0);
+	auto h2 = (l * m2)(0, 0);
+	auto h3 = (l * m3)(0, 0);
+	auto y1 = -1 * h1 / rd;
+	auto y2 = -1 * (h2 - h1 * h1) / rd;
+	auto y3 = -1 * (h3 - 2 * h2 * h1 + h1 * h1 * h1) / rd;
 	PiModel<Float> pi;
 	pi.c2 = y2 * y2 / y3;
 	pi.c1 = y1 - pi.c2;
 	pi.r  = -1 * y3 * y3 / (y2 * y2 * y2); 
-	if (pi.r < 0 || pi.c2 < 0) {
-		pi.c2 = 0;
-		pi.r = 0;
-		pi.c1 = y1;
-	}
+	if (pi.r < 0 || pi.c2 < 0) return PiModel<Float>(y1, 0, 0);
+	else if (pi.c1 < 0) return PiModel<Float>(0, pi.r, y1);
 	return pi;
 }
 

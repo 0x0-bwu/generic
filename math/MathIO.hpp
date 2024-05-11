@@ -7,7 +7,7 @@
  */
 #pragma once
 #include "generic/tools/FileSystem.hpp"
-#include "LinearAlgebra.hpp"
+#include "generic/math/la/Common.hpp"
 #include <iostream>
 #include <fstream>
 #include <complex>

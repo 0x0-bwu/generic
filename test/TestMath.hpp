@@ -9,7 +9,7 @@
 #include "generic/test/TestCommon.hpp"
 #include "generic/tools/FileSystem.hpp"
 #include "generic/math/MathUtility.hpp"
-#include "generic/math/LinearAlgebra.hpp"
+#include "generic/math/la/Common.hpp"
 #include "generic/math/PolynomialFit.hpp"
 #include "generic/math/MathIO.hpp"
 using namespace boost::unit_test;

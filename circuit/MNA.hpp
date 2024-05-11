@@ -7,7 +7,7 @@
  */
 #pragma once
 
-#include "generic/math/LinearAlgebra.hpp"
+#include "generic/math/la/Common.hpp"
 #include "generic/common/Exception.hpp"
 #include "generic/common/Macros.hpp"
 #include <iostream>
@@ -107,9 +107,9 @@ template<typename Float>
 inline MatrixVector<Float>
 Moments(const DenseMatrix<Float> & C, const DenseMatrix<Float> & G, const DenseMatrix<Float> & B, const DenseMatrix<Float> & L, size_t count)
 {
-    [[maybe_unused]] const size_t scount = G.rows();
-    [[maybe_unused]] const size_t icount = B.cols();
-    [[maybe_unused]] const size_t ocount = L.cols();
+    [[maybe_unused]] const auto scount = G.rows();
+    [[maybe_unused]] const auto icount = B.cols();
+    [[maybe_unused]] const auto ocount = L.cols();
     GENERIC_ASSERT(scount == G.cols())
     GENERIC_ASSERT(scount == C.rows())
     GENERIC_ASSERT(scount == C.cols())
@@ -150,19 +150,22 @@ RegularizeSu(const DenseMatrix<Float> & G, const DenseMatrix<Float> & C, const D
     [[maybe_unused]] const size_t ocount = L.cols();
 
     // Use Eigen reductions to find zero rows
-    auto zero_rows = (C.array() == 0.0).rowwise().all();   // per row "all zeros"
-    size_t zero_count = zero_rows.count();
-    size_t state_count = static_cast<size_t>(C.rows());
-    size_t nonzero_count = state_count - zero_count;
+    auto zeroRows = (C.array() == 0.0).rowwise().all();   // per row "all zeros"
+    size_t zeroCount = zeroRows.count();
+    if (0 == zeroCount) return std::make_tuple(G, C, B, L);
+
+
+    size_t stateCount = static_cast<size_t>(C.rows());
+    size_t nonzeroCount = stateCount - zeroCount;
 
     // 1. Generate permutation matrix to move zero rows to the bottom
     permut.resize(scount);
-    permut.setIdentity(state_count);      // start with null permutation
+    permut.setIdentity(stateCount);      // start with null permutation
     size_t i, j;
-    for (i = 0, j=(state_count-1); i < j;) {
+    for (i = 0, j=(stateCount-1); i < j;) {
         // loop invariant: rows > j are all zero; rows < i are not
-        while ((i < state_count) && !zero_rows(i)) ++i;
-        while ((j > 0) && zero_rows(j)) --j;
+        while ((i < stateCount) && not zeroRows(i)) ++i;
+        while ((j > 0) && zeroRows(j)) --j;
         if (i < j) {
             // exchange rows i and j via the permutation vector
             permut.applyTranspositionOnTheRight(i, j);
@@ -171,38 +174,22 @@ RegularizeSu(const DenseMatrix<Float> & G, const DenseMatrix<Float> & C, const D
     }
 
     // 2. Apply permutation to MNA matrices
-    auto CP = permut * C * permut;          // permute rows and columns
+    auto CP = permut * C * permut; // permute rows and columns
     auto GP = permut * G * permut;
     auto BP = permut * B; // permute only rows
     auto LP = permut * L;
 
-    // std::cout << "CP:\n " << CP << std::endl;
-    // std::cout << "GP:\n " << GP << std::endl;
-    // std::cout << "BP:\n " << BP << std::endl;
-    // std::cout << "LP:\n " << LP << std::endl;
-    
     // 3. Produce reduced equations following Su (Proc. 15th ASP-DAC, 2002)
-    auto G11 = GP.topLeftCorner(nonzero_count, nonzero_count);
-    auto G12 = GP.topRightCorner(nonzero_count, zero_count);
-    auto G21 = GP.bottomLeftCorner(zero_count, nonzero_count);
-    auto G22 = GP.bottomRightCorner(zero_count, zero_count);
+    auto G11 = GP.topLeftCorner(nonzeroCount, nonzeroCount);
+    auto G12 = GP.topRightCorner(nonzeroCount, zeroCount);
+    auto G21 = GP.bottomLeftCorner(zeroCount, nonzeroCount);
+    auto G22 = GP.bottomRightCorner(zeroCount, zeroCount);
 
-    // std::cout << "G11:\n " << G11 << std::endl;
-    // std::cout << "G12:\n " << G12 << std::endl;
-    // std::cout << "G21:\n " << G21 << std::endl;
-    // std::cout << "G22:\n " << G22 << std::endl;
-
-    auto L1 = LP.topRows(nonzero_count);
-    auto L2 = LP.bottomRows(zero_count);    
-    auto B1 = BP.topRows(nonzero_count);
-    auto B2 = BP.bottomRows(zero_count);
-
-    // std::cout << "L1:\n " << L1 << std::endl;
-    // std::cout << "L2:\n " << L2 << std::endl;
-    // std::cout << "B1:\n " << B1 << std::endl;
-    // std::cout << "B2:\n " << B2 << std::endl;  
-
-    auto Cred = CP.topLeftCorner(nonzero_count, nonzero_count);
+    auto L1 = LP.topRows(nonzeroCount);
+    auto L2 = LP.bottomRows(zeroCount);    
+    auto B1 = BP.topRows(nonzeroCount);
+    auto B2 = BP.bottomRows(zeroCount);
+    auto Cred = CP.topLeftCorner(nonzeroCount, nonzeroCount);
 
     GENERIC_ASSERT(not IsSingular(G22))
     auto G22QR = G22.fullPivLu();
@@ -210,13 +197,8 @@ RegularizeSu(const DenseMatrix<Float> & G, const DenseMatrix<Float> & C, const D
     auto G22invB2 = G22QR.solve(B2);
     auto Gred = G11 - G12 * G22invG21;
 
-    auto Lred = L1 - L2 * G22invG21;
+    auto Lred = (L1.transpose() - L2.transpose() * G22invG21).transpose();
     auto Bred = B1 - G12 * G22invB2;
-
-    // std::cout << "Cred:\n " << Cred << std::endl;
-    // std::cout << "Gred:\n " << Gred << std::endl;
-    // std::cout << "Bred:\n " << Bred << std::endl;
-    // std::cout << "Lred:\n " << Lred << std::endl;
 
     // This approach presumes no feedthrough (input-to-output) term
     GENERIC_ASSERT((L2.transpose() * G22invB2).isZero())
