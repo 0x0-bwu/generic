@@ -12,6 +12,7 @@
 #include "generic/math/la/Common.hpp"
 #include "generic/math/PolynomialFit.hpp"
 #include "generic/math/MathIO.hpp"
+#include "generic/math/Filter.hpp"
 using namespace boost::unit_test;
 using namespace generic;
 using namespace generic::math;
@@ -95,6 +96,18 @@ void t_math_polynomial_fit()
     BOOST_CHECK(yValues[1] == -2);
 }
 
+void t_math_filter()
+{
+    // simple moving average
+    {
+        auto before = std::vector<double>{0.004713,  0.005984,  0.007222,  0.008698,  0.010947,  0.013219,  0.014986,  0.016344,  0.017281,  0.017872,  0.018200,  0.018428,  0.018614,  0.018798,  0.018978,  0.019107,  0.019163,  0.019146,  0.019153,  0.019239,  0.019361,  0.019523,  0.019816,  0.020364,  0.020660,  0.021032,  0.021221,  0.023790,  0.025440,  0.026777,  0.027209,  0.026668,  0.026257,  0.026438,  0.027470,  0.027989,  0.027361,  0.028195,  0.028478,  0.029014,  0.029014,  0.029014,  0.029014,  0.029014};
+        auto after = SimpleMovingAverage(before.data(), before.size(), 2);
+        BOOST_CHECK_CLOSE(after[ 0], 0.0054690, 1e-3);
+        BOOST_CHECK_CLOSE(after[43], 0.0289874, 1e-3);
+        BOOST_CHECK_CLOSE(after[10], 0.0178824, 1e-3);
+    }
+}
+
 BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_math_linear_algebra_t, math_num_types)
 {
     using namespace la;
@@ -107,6 +120,7 @@ test_suite * create_math_test_suite()
     //
     math_suite->add(BOOST_TEST_CASE_TEMPLATE(t_math_utility_t, t_math_num_types));
     math_suite->add(BOOST_TEST_CASE(&t_math_io));
+    math_suite->add(BOOST_TEST_CASE(&t_math_filter));
     math_suite->add(BOOST_TEST_CASE(&t_math_utility));
     math_suite->add(BOOST_TEST_CASE(&t_math_polynomial_fit));
     math_suite->add(BOOST_TEST_CASE_TEMPLATE(t_math_linear_algebra_t, t_math_num_types));
