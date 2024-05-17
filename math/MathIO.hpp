@@ -12,7 +12,7 @@
 #include <fstream>
 #include <complex>
 
-#if BOOST_GIL_IO_PNG_SUPPORT
+#ifdef GENERIC_BOOST_GIL_IO_PNG_SUPPORT
 #include "generic/tools/Color.hpp"
 #include <boost/gil/extension/io/png.hpp>
 #include <boost/gil/extension/numeric/sampler.hpp>
@@ -25,7 +25,7 @@ namespace generic::math {
 
 namespace io {
 
-#if BOOST_GIL_IO_PNG_SUPPORT
+#ifdef GENERIC_BOOST_GIL_IO_PNG_SUPPORT
 template <typename num_type>
 inline static bool PatternView(const la::DenseMatrix<num_type> & m, const std::string & filename, size_t width = 512)
 {

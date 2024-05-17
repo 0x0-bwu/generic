@@ -18,7 +18,7 @@
 #include <vector>
 #include <array>
 
-#ifdef BOOST_SERIALIZATION_SUPPORT
+#ifdef GENERIC_BOOST_SERIALIZATION_SUPPORT
 #include "generic/geometry/Serialization.hpp"
 #endif
 
@@ -77,7 +77,7 @@ struct IndexVertex
         return false;
     }
 
-#ifdef BOOST_SERIALIZATION_SUPPORT
+#ifdef GENERIC_BOOST_SERIALIZATION_SUPPORT
 private:
     friend class boost::serialization::access;
     template <typename Archive>
@@ -185,7 +185,7 @@ struct IndexTriangle
         neighbors[0] = neighbors[1] = neighbors[2] = noNeighbor;
     }
 
-#ifdef BOOST_SERIALIZATION_SUPPORT
+#ifdef GENERIC_BOOST_SERIALIZATION_SUPPORT
 private:
     friend class boost::serialization::access;
     template <typename Archive>
@@ -304,7 +304,7 @@ struct Triangulation
         fixedEdges.clear();
     }
 
-#ifdef BOOST_SERIALIZATION_SUPPORT
+#ifdef GENERIC_BOOST_SERIALIZATION_SUPPORT
 private:
     friend class boost::serialization::access;
     template <typename Archive>
@@ -567,7 +567,7 @@ public:
         }
     }
 
-#ifdef BOOST_SERIALIZATION_SUPPORT
+#ifdef GENERIC_BOOST_SERIALIZATION_SUPPORT
     static bool Write(const Triangulation<point_t> & tri, const std::string & archive)
     {
         std::ofstream ofs(archive);
