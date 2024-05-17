@@ -459,3 +459,16 @@ inline std::ostream & operator<< (std::ostream & os, const generic::ckt::MNA<M> 
 }
 
 }
+
+#ifdef GENERIC_BOOST_SERIALIZATION_SUPPORT
+namespace boost::serialization {
+template <typename Archive, typename M>
+inline void serialize(Archive & ar, generic::ckt::MNA<M> & m, const unsigned int)
+{
+    ar & boost::serialization::make_nvp("G", m.G);
+    ar & boost::serialization::make_nvp("C", m.C);
+    ar & boost::serialization::make_nvp("B", m.B);
+    ar & boost::serialization::make_nvp("L", m.L);
+}
+} // namespace boost::serialization 
+#endif//GENERIC_BOOST_SERIALIZATION_SUPPORT

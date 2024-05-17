@@ -205,3 +205,24 @@ inline std::ostream & operator<< (std::ostream & os, const generic::ckt::PiModel
 }
 
 }
+
+#ifdef GENERIC_BOOST_SERIALIZATION_SUPPORT
+namespace boost::serialization {
+template <typename Archive, typename Float>
+inline void serialize(Archive & ar, generic::ckt::ReducedModel<Float> & rm, const unsigned int)
+{
+    ar & make_nvp("m", rm.m);
+	ar & make_nvp("x", rm.x);
+	ar & make_nvp("xT", rm.xT);
+}
+
+template <typename Archive, typename Float>
+inline void serialize(Archive & ar, generic::ckt::PiModel<Float> & pi, const unsigned int)
+{
+	ar & make_nvp("r", pi.r);
+    ar & make_nvp("c1", pi.c1);
+	ar & make_nvp("c2", pi.c2);
+}
+
+} // namespace boost::serialization
+#endif//GENERIC_BOOST_SERIALIZATION_SUPPORT
