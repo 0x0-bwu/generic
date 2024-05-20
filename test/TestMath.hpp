@@ -110,8 +110,8 @@ void t_math_filter()
 
 BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_math_linear_algebra_t, math_num_types)
 {
-    using namespace la;
-    using num = math_num_types;
+    // using namespace la;
+    // using num = math_num_types;
 }
 
 test_suite * create_math_test_suite()
