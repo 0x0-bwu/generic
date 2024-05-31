@@ -82,6 +82,14 @@ void t_math_utility()
         BOOST_CHECK_CLOSE(mean, 84.8230, 0.1);
         BOOST_CHECK_CLOSE(variance, 2.37963, 0.1);
     }
+    
+    //Random Series
+    {
+        auto series = generic::math::RandomSeries<double>(1e5, 30, 3);
+        auto result = generic::math::MeanAndVariance(series.begin(), series.end());
+        BOOST_CHECK_CLOSE(result.first, 30, 1);
+        BOOST_CHECK_CLOSE(result.second, 9, 1);
+    }
 }
 
 void t_math_polynomial_fit()
