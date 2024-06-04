@@ -16,6 +16,10 @@ namespace generic::tree {
 class RandomTree
 {
 public:
+    struct TagSilkworm{};
+    struct TagRandom{};
+    struct TagChain{};
+    struct TagTall{};
     std::vector<size_t> p, nid;
     std::unordered_set<size_t> leaves;
     inline static constexpr size_t invalid = std::numeric_limits<size_t>::max();
@@ -24,10 +28,28 @@ public:
         Init(1);
     }
 
-    explicit RandomTree(size_t n)
+    explicit RandomTree(size_t n, [[maybe_unused]] TagRandom t = TagRandom{})
     {
         Init(n); 
         Random(n - 1, 0);     
+    }
+
+    explicit RandomTree(size_t n, size_t k, TagTall)
+    {
+        Init(n);
+        Tall(n - 1, k, 0);
+    }
+
+    explicit RandomTree(size_t n, TagChain)
+    {
+        Init(n); 
+        Chain(n - 1, 0);
+    }
+
+    explicit RandomTree(size_t n, TagSilkworm)
+    {
+        Init(n);
+        Silkworm(n - 1, 0);
     }
 
     void Init(size_t n)
@@ -102,6 +124,28 @@ public:
             }
             ++id;
         }
+    }
+
+    void Tall(size_t n, size_t k, size_t pa)
+    {
+        auto sz = Size();
+        AddNode(pa);
+        for (size_t i = sz + 1; i < sz + n; ++i)
+            AddNode(math::Random(std::max(sz, i - k), i - 1));
+    }
+
+    void Chain(size_t n, size_t pa)
+    {
+        Tall(n, 1, pa);
+    }
+
+    void Silkworm(size_t n, size_t pa)
+    {
+        auto sz = Size();
+        auto len = (n + 1) / 2;
+        Chain(len, pa);
+        for (size_t i = sz; i + len < sz + n; ++i)
+            AddNode(i);
     }
 };
 
