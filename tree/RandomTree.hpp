@@ -131,7 +131,7 @@ public:
         auto sz = Size();
         AddNode(pa);
         for (size_t i = sz + 1; i < sz + n; ++i)
-            AddNode(math::Random(std::max(sz, i - k), i - 1));
+            AddNode(math::Random(std::max(sz, i > k ? i - k : 0), i - 1));
     }
 
     void Chain(size_t n, size_t pa)
