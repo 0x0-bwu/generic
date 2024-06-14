@@ -12,27 +12,35 @@
 #include <set>
 namespace generic::ckt {
 
-template <typename Float>
+template <typename Float, bool Augmented = true>
 struct DenseCircuit
 {
     using VectorType = Eigen::Matrix<Float, Eigen::Dynamic, 1>;
     using MatrixType = Eigen::Matrix<Float, Eigen::Dynamic, Eigen::Dynamic>;
+    Float rd{1}; 
     size_t nodes;
     MNA<MatrixType> m;
-    std::set<size_t> prob;
-    std::set<size_t> source;
-    DenseCircuit(size_t nodes, std::set<size_t> source, std::set<size_t> prob)
-     : nodes(nodes), prob(prob), source(source)
+    std::vector<size_t> prob;
+    std::vector<size_t> source;
+    DenseCircuit(size_t nodes, std::vector<size_t> source, std::vector<size_t> prob, Float rd = 1)
+     : rd(rd), nodes(nodes), prob(prob), source(source)
     {
-        m.G = MatrixType::Zero(nodes + source.size(), nodes + source.size());
-        m.C = MatrixType::Zero(nodes + source.size(), nodes + source.size());
-        m.B = MatrixType::Zero(nodes + source.size(), source.size());
-        m.L = MatrixType::Zero(nodes + source.size(), prob.size());
+        size_t augment = Augmented ? source.size() : 0;
+        m.G = MatrixType::Zero(nodes + augment, nodes + augment);
+        m.C = MatrixType::Zero(nodes + augment, nodes + augment);
+        m.B = MatrixType::Zero(nodes + augment, source.size());
+        m.L = MatrixType::Zero(nodes + augment, prob.size());
     
         size_t i = 0, j = 0;
         for (auto n : source) {
-            m.B(i + nodes, i) = -1;
-            mna::StampI(m.G, n, i + nodes);  ++i;
+            if (Augmented) {
+                m.B(i + nodes, i) = -1;
+                mna::StampI(m.G, n, i + nodes);  ++i;
+            }
+            else {
+                m.B(n, i) = Float(1 / rd);
+                mna::Stamp(m.G, n, Float(1 / rd));
+            }
         }
         for (auto p : prob) m.L(p, j++) = 1;
     }
@@ -45,18 +53,19 @@ struct DenseCircuit
     const MNA<MatrixType> & Build() const { return m; }
 };
 
-template <typename Float>
+template <typename Float, bool Augmented = true>
 struct SparseCircuit
 {
     using MatrixType = Eigen::SparseMatrix<Float>;
     using Triplets = std::vector<Eigen::Triplet<Float> >;
+    Float rd{1}; 
     size_t nodes;
-    std::set<size_t> prob;
-    std::set<size_t> source;
+    std::vector<size_t> prob;
+    std::vector<size_t> source;
     mutable MNA<MatrixType> m;
     mutable Triplets tC, tG, tB, tL;
-    SparseCircuit(size_t nodes, std::set<size_t> source, std::set<size_t> prob)
-     : nodes(nodes), prob(prob), source(source)
+    SparseCircuit(size_t nodes, std::vector<size_t> source, std::vector<size_t> prob, Float rd = 1)
+     : rd(rd), nodes(nodes), prob(prob), source(source)
     {
     }
 
@@ -66,15 +75,22 @@ struct SparseCircuit
 
     const MNA<MatrixType> & Build() const
     {
-        m.G = MatrixType(nodes + source.size(), nodes + source.size());
-        m.C = MatrixType(nodes + source.size(), nodes + source.size());
-        m.B = MatrixType(nodes + source.size(), source.size());
-        m.L = MatrixType(nodes + source.size(), prob.size());
+        size_t augment = Augmented ? source.size() : 0;
+        m.G = MatrixType(nodes + augment, nodes + augment);
+        m.C = MatrixType(nodes + augment, nodes + augment);
+        m.B = MatrixType(nodes + augment, source.size());
+        m.L = MatrixType(nodes + augment, prob.size());
     
         size_t i = 0, j = 0;
         for (auto n : source) {
-            tB.emplace_back(i + nodes, i, -1);
-            mna::StampI(tG, n, i + nodes);  ++i;
+            if (Augmented) {
+                tB.emplace_back(i + nodes, i, -1);
+                mna::StampI(tG, n, i + nodes);  ++i;
+            }
+            else {
+                tB.emplace_back(n, i, Float(1 / rd));
+                mna::Stamp(tG, n, Float(1 / rd));
+            }
         }
         for (auto p : prob)
             tL.emplace_back(p, j++, 1);

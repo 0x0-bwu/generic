@@ -20,8 +20,8 @@ Some components depend on Eigen3 and Boost library(header-only), need include bo
 
 Some function implementation depends on third part library binaries with the Macro control defined in common/Macros.hpp:<br>       
 
-if enable BOOST_SERIALIZATION_SUPPORT, need link with libboost_serialization.<br>
-if enable BOOST_GIL_IO_PNG_SUPPORT, need link with libpng.<br>
+if defined GENERIC_BOOST_SERIALIZATION_SUPPORT, need link with libboost_serialization.<br>
+if defined GENERIC_BOOST_GIL_IO_PNG_SUPPORT, need link with libpng.<br>
 
 ## Namespace Description
 + `generic`                         : top namespace<br> 

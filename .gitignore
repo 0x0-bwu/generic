@@ -3,7 +3,9 @@
 *.a
 *.so
 *.exe
-.vscode
+.vscode/settings.json
 build
+build.debug
+build.release
 docs
 test/data/out

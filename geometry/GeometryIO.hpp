@@ -18,7 +18,7 @@
 #include <iomanip>
 #include <string>
 
-#if BOOST_GIL_IO_PNG_SUPPORT
+#ifdef GENERIC_BOOST_GIL_IO_PNG_SUPPORT
 #include "Rasterization.hpp"
 #include "Utility.hpp"
 #include "generic/tools/Color.hpp"
@@ -298,7 +298,7 @@ public:
         return true;
     }
 
-#if BOOST_GIL_IO_PNG_SUPPORT
+#ifdef GENERIC_BOOST_GIL_IO_PNG_SUPPORT
     /**
      * @brief draws a collection of geometry to an image file with png format
      * @param[in] filename the output *.png file name
@@ -386,7 +386,7 @@ private:
         }
     }
 
-#endif//BOOST_GIL_IO_PNG_SUPPORT
+#endif//GENERIC_BOOST_GIL_IO_PNG_SUPPORT
 };
 
 }//namespace geometry

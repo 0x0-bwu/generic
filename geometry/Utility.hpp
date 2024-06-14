@@ -129,6 +129,18 @@ inline Polygon2D<num_type> toPolygon(const Box2D<num_type> & box);
 template <typename num_type>
 inline Polygon2D<num_type> toPolygon(const Polyline2D<num_type> & polyline, num_type width);
 
+/// @brief get inscribed circle origin of angle constructed by line `sp` and `pe` with given radius
+/// @tparam num_type 
+/// @param s start point
+/// @param p mid point
+/// @param e end point 
+/// @param r radius
+/// @param fps foot point on line `sp`
+/// @param fpe foot point on line `pe`
+/// @return 
+template <typename num_type>
+inline Point2D<float_type<num_type>> InscribedCircle(const Point2D<num_type> & s, const Point2D<num_type> & p, const Point2D<num_type> & e, num_type r, Point2D<float_type<num_type>> & fps, Point2D<float_type<num_type>> & fpe);
+
 /**
  * @brief gets inscribed polygon of circle
  * @param[in] c input circle
@@ -208,6 +220,15 @@ inline coor_f<point_t> CircumRadius2ShortestEdgeRatioSq(const point_t & p1, cons
  */
 template <typename point_t, typename std::enable_if<traits::is_2d_point_t<point_t>::value, bool>::type = true>//todo point3d
 inline coor_f<point_t> CircumRadius2ShortestEdgeRatio(const point_t & p1, const point_t & p2, const point_t & p3);
+
+/**
+ * @brief gets angle of a vector with positive axis x
+ * @tparam vector_t vector type, could be Vector2D
+ * @param[in] v input vector
+ * @return angle formed by vector v and positive axis x, unit: rad, range[0, 2pi)
+*/
+template <typename vector_t, typename std::enable_if<traits::is_2d_point_t<vector_t>::value, bool>::type = true>
+inline coor_f<vector_t> Angle(const vector_t & v);
 
 /**
  * @brief gets angle formed by two vectors
@@ -511,13 +532,26 @@ inline box_type<typename std::iterator_traits<iterator>::value_type> Extent(iter
 template <typename num_type>
 inline Box2D<num_type> Extent(const Polyline2D<num_type> & polyline);
 
+///@brief scales a box by factor
+template <typename box_type>
+inline void Scale(box_type & box, coor_f<box_type> factor);
+
 /**
- * @brief @brief simplifies a complex polygon to outline and holes
- * @param[in/out] polygon input polygon, will get only outline after simplify
+ * @brief simplifies a complex polygon to outline and holes
+ * @param polygon[in/out] input polygon, will get only outline after simplify
  * @param holes[out] inner holes in polygon after simplify
  */
 template <typename num_type>
 inline void Simplify(Polygon2D<num_type> & polygon, std::list<Polygon2D<num_type> > & holes);
+
+/**
+ * @brief rounding polygon corners with given `radius`
+ * @param polygon, input polygon
+ * @param radius corner radius
+ * @param circleDiv circle divide number of the corner
+*/
+template <typename num_type>
+inline Polygon2D<num_type> RoundCorners(const Polygon2D<num_type> & polygon, num_type radius, size_t circleDiv = 32);
 
 /**
  * @brief gets convex hull of a sequence of polygons

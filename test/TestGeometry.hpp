@@ -224,6 +224,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_geometry_vector_t, num_type)
 BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_geometry_utility_t, num_type)
 {
     auto t = 1e-5;
+    using float_t = float_type<num_type>;
     //point-plane
     Point3D<num_type> p1(0, 0, 1);
     Plane<num_type> plane(Point3D<num_type>(0, 0, 0), Point3D<num_type>(1, 0, 1), Point3D<num_type>(0, 1, 1));
@@ -265,6 +266,14 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_geometry_utility_t, num_type)
     BOOST_CHECK_CLOSE(float_type<num_type>(bpDist2d), float_type<num_type>(2), t);
 
     //angle
+
+    {
+        BOOST_CHECK_CLOSE(Angle(Vector2D<num_type>( 1,  1)),  math::pi_quarter, t);
+        BOOST_CHECK_CLOSE(Angle(Vector2D<num_type>(-1,  1)),  math::pi - math::pi_quarter, t);
+        BOOST_CHECK_CLOSE(Angle(Vector2D<num_type>(-1, -1)),  math::pi_quarter + math::pi, t);
+        BOOST_CHECK_CLOSE(Angle(Vector2D<num_type>( 1, -1)),  math::pi_2 - math::pi_quarter, t);
+    }
+
     Triangle2D<num_type> tri2d(Point2D<num_type>(0, 0), Point2D<num_type>(1, 0), Point2D<num_type>(0, 1));
     BOOST_CHECK_CLOSE(InteriorAngle<0>(tri2d), InteriorAngle(tri2d, 3), t);
     BOOST_CHECK_CLOSE(InteriorAngle<1>(tri2d), InteriorAngle(tri2d, 4), t);
@@ -280,6 +289,27 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_geometry_utility_t, num_type)
     BOOST_CHECK_CLOSE(InteriorAngle<6>(tri3d), math::pi / 3, t);
     BOOST_CHECK_CLOSE(InteriorAngle<7>(tri3d), math::pi / 3, t);
     BOOST_CHECK_CLOSE(InteriorAngle<8>(tri3d), math::pi / 3, t);
+
+    //Inscribed Circle
+    {
+        Point2D<float_type<num_type> > fp1, fp2;
+        Point2D<num_type> p0(5, -5), p1(0, 0), p2(3, 3);
+        auto o = InscribedCircle<num_type>(p0, p1, p2, 1.0, fp1, fp2);
+        BOOST_CHECK_CLOSE(o[0], std::sqrt(2), t);
+        BOOST_CHECK(math::EQ<float_t>(o[1], 0, t));
+        BOOST_CHECK_CLOSE(fp1[0],  std::sqrt(0.5), t);
+        BOOST_CHECK_CLOSE(fp1[1], -std::sqrt(0.5), t);
+        BOOST_CHECK_CLOSE(fp2[0],  std::sqrt(0.5), t);
+        BOOST_CHECK_CLOSE(fp2[1],  std::sqrt(0.5), t);
+    }
+
+    //InscribedPolygon
+    {   
+        Circle<num_type> c(Point2D<num_type>(0, 0), 1e3);
+        auto polygon = InscribedPolygon(c, 1e6);
+        BOOST_CHECK(polygon.isCCW());
+        BOOST_CHECK(math::EQ<float_t>(polygon.Area() / 1e6, 3.14, 0.1));
+    }
 
     //intersection
     Segment2D<num_type> s1(Point2D<num_type>(0, 0), Point2D<num_type>(2, 2));
@@ -341,8 +371,8 @@ void t_geometry_utility()
     //Cast
     Point2D<double> p2d_double(-0.999, 1.999);
     auto p2d_int = p2d_double.template Cast<int>();
-    BOOST_TEST(p2d_int[0] == 0);
-    BOOST_TEST(p2d_int[1] == 1);
+    BOOST_TEST(p2d_int[0] == -1);
+    BOOST_TEST(p2d_int[1] ==  2);
 
     //Distance
     auto dist2d = Distance(Point2D<int>(0, 0), Point2D<int>(1, 1));
@@ -377,9 +407,9 @@ void t_geometry_utility()
     //Cast
     Point3D<double> p3d_double(0.001, 1.999, -0.999);
     auto p3d_int = p3d_double.template Cast<int>();
-    BOOST_TEST(p3d_int[0] == 0);
-    BOOST_TEST(p3d_int[1] == 1);
-    BOOST_TEST(p3d_int[2] == 0);
+    BOOST_TEST(p3d_int[0] ==  0);
+    BOOST_TEST(p3d_int[1] ==  2);
+    BOOST_TEST(p3d_int[2] == -1);
 
     //Inverse
     auto inv_vec3d = Inverse(Vector3D<int>(2, -2, 0));
@@ -415,6 +445,13 @@ void t_geometry_utility()
     BOOST_CHECK(PointTriangleLocation::OnEdge2 == GetPointTriangleLocation(Point2D<int>( 1,  1), p1, p2, p3));
     BOOST_CHECK(PointTriangleLocation::OnEdge3 == GetPointTriangleLocation(Point2D<int>(-1,  1), p1, p2, p3));
     BOOST_CHECK(PointTriangleLocation::Inside  == GetPointTriangleLocation(Point2D<int>( 0,  1), p1, p2, p3));
+
+    //Round Corner
+    {
+        Polygon2D<double> rect;
+        rect << Point2D<double>(0, 0) << Point2D<double>(10, 0) << Point2D<double>(10, 10) << Point2D<double>(0, 10);
+        BOOST_CHECK_CLOSE(RoundCorners(rect, 2.0, 100).Area(), 96.5663706144, 1e-1);
+    }
 }
 
 BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_triangulation_t, num_type)

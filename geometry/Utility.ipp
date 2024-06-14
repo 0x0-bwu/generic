@@ -229,6 +229,24 @@ inline Polygon2D<num_type> toPolygon(const Polyline2D<num_type> & polyline, num_
 }
 
 template <typename num_type>
+inline Point2D<float_type<num_type>> InscribedCircle(const Point2D<num_type> & s, const Point2D<num_type> & p, const Point2D<num_type> & e, num_type r, Point2D<float_type<num_type>> & fps, Point2D<float_type<num_type>> & fpe)
+{
+    auto a = 0.5 * InnerAngle(s, p, e);;
+    auto l = r / std::tan(a);
+    auto spLen = Distance(s, p);
+    auto epLen = Distance(e, p);
+    for (size_t i = 0; i < 2; ++i) {
+        fps[i] = (s[i] - p[i]) * l / spLen + p[i];
+        fpe[i] = (e[i] - p[i]) * l / epLen + p[i]; 
+    }
+    auto scale = 1 / (2 * std::cos(a) * std::cos(a));
+    Point2D<float_type<num_type>> o;
+    for (size_t i = 0; i < 2; ++i)
+        o[i] = scale * (fps[i] + fpe[i] - 2 * p[i]) + p[i];
+    return o;
+}
+
+template <typename num_type>
 inline Polygon2D<num_type> InscribedPolygon(const Circle<num_type> & c, size_t div)
 {
     assert(div >= 3);
@@ -237,7 +255,7 @@ inline Polygon2D<num_type> InscribedPolygon(const Circle<num_type> & c, size_t d
     
     float_t ang = math::pi_2 / div;
     for(size_t i = 0; i < div; ++i)
-        polygon << (c.o + Point2D<num_type>(std::sin(ang * i) * c.r, std::cos(ang * i) * c.r));
+        polygon << (c.o + Point2D<num_type>(std::cos(ang * i) * c.r, std::sin(ang * i) * c.r));
     
     return polygon;
 }
@@ -319,6 +337,14 @@ template <typename point_t, typename std::enable_if<traits::is_2d_point_t<point_
 inline coor_f<point_t> CircumRadius2ShortestEdgeRatio(const point_t & p1, const point_t & p2, const point_t & p3)
 {
     return std::sqrt(CircumRadius2ShortestEdgeRatioSq(p1, p2, p3));
+}
+
+template <typename vector_t, typename std::enable_if<traits::is_2d_point_t<vector_t>::value, bool>::type>
+inline coor_f<vector_t> Angle(const vector_t & v)
+{
+    auto result = std::atan2(v[1], v[0]);
+    if(math::isNegative(result)) result += math::pi_2;
+    return result; 
 }
 
 template <typename vector_t, typename std::enable_if<traits::is_2d_point_t<vector_t>::value, bool>::type>
@@ -745,6 +771,18 @@ inline Box2D<num_type> Extent(const Polyline2D<num_type> & polyline)
     return boost::geometry::return_envelope<Box2D<num_type> >(polyline);
 }
 
+///@brief scales a box by factor
+template <typename box_type>
+inline void Scale(box_type & box, coor_f<box_type> factor)
+{
+    auto center = box.Center();
+    auto fbox = box.template Cast<coor_f<box_type>>();
+    fbox -= center;
+    fbox *= factor;
+    fbox += center;
+    box = fbox.template Cast<typename box_type::coor_t>();
+}
+
 template <typename num_type>
 inline void Simplify(Polygon2D<num_type> & polygon, std::list<Polygon2D<num_type> > & holes)
 {
@@ -798,6 +836,50 @@ inline void Simplify(Polygon2D<num_type> & polygon, std::list<Polygon2D<num_type
     }
     simplified << polygon[index];
     std::swap(polygon, simplified);
+}
+
+template <typename num_type>
+inline Polygon2D<num_type> RoundCorners(const Polygon2D<num_type> & polygon, num_type radius, size_t circleDiv)
+{
+    auto result = polygon;
+    auto deltaAngle = math::pi_2 / circleDiv;
+    if (not result.isCCW()) result.Reverse();
+    auto & points = result.GetPoints();
+    auto iter = points.begin();
+    Point2D<float_type<num_type>> fp1, fp2;
+    bool stop = false;
+    while (not stop) {
+        auto it1 = iter;
+        auto it2 = it1; it2++;
+        if (it2 == points.end()) {
+            it2 = points.begin();
+            stop = true;
+        }
+        auto it3 = it2; it3++;
+        if (it3 == points.end()) it3 = points.begin();
+        auto o = InscribedCircle(*it1, *it2, *it3, radius, fp1, fp2);
+        if (DistanceSq(*it1, *it2) < DistanceSq(fp1.template Cast<num_type>(), *it2) ||
+            DistanceSq(*it3, *it2) < DistanceSq(fp2.template Cast<num_type>(), *it2)) {
+            iter++; continue;
+        }
+        else {
+            auto startAngle = Angle(fp1 - o);
+            auto theta = InnerAngle(fp1, o, fp2); 
+            size_t divide = theta / deltaAngle;
+            std::vector<Point2D<num_type>> corners(divide);
+            auto orient = CrossProduct(*it2 - fp1, fp2 - *it2) > 0 ? 1.0 : -1.0;
+            for (size_t i = 0; i < divide; ++i) {
+                corners[i][0] = std::cos(startAngle + i * orient * deltaAngle) * radius + o[0];
+                corners[i][1] = std::sin(startAngle + i * orient * deltaAngle) * radius + o[1];
+            }
+            if (not math::EQ(divide * deltaAngle, theta))
+                corners.emplace_back(fp2.template Cast<num_type>());
+            auto it = points.erase(it2);
+            iter = points.insert(it, corners.begin(), corners.end());
+            std::advance(iter, corners.size() - 1);
+        }
+    }
+    return result;
 }
 
 template <typename polygon_t, template <typename, typename> class container, template <typename> class allocator>

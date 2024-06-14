@@ -6,10 +6,8 @@
  * @date 2023-11-08
  */
 #pragma once
-#include "generic/math/LinearAlgebra.hpp"
 #include "generic/math/MathIO.hpp"
-#include "generic/common/Exception.hpp"
-#include "generic/common/Macros.hpp"
+#include "generic/circuit/MNA.hpp"
 #include <Eigen/SparseQR>
 #include <Eigen/SparseLU>
 #include <vector>
@@ -32,9 +30,8 @@ Prima(const SparseMatrix<Float> & C,   // derivative conductance terms
 	GENERIC_ASSERT(B.rows() == G.rows())
 	GENERIC_ASSERT(L.rows() == G.rows())
 	size_t N = B.cols();
-	size_t state_count = static_cast<size_t>(C.rows());
-	GENERIC_ASSERT(N < state_count)          // must have more state variables than ports
-	GENERIC_ASSERT(q < state_count)          // desired state count must be less than current number
+	size_t stateCount = static_cast<size_t>(C.rows());
+	GENERIC_ASSERT(N < stateCount)          // must have more state variables than ports
 
 	// unchecked precondition: the state variables associated with the ports must be the last N
 
@@ -108,7 +105,7 @@ Prima(const SparseMatrix<Float> & C,   // derivative conductance terms
                            [](size_t sum, const DenseMatrix<Float> & m) { return sum + m.cols(); });
   	cols = std::min(q, cols);  // truncate to q
 
-  	DenseMatrix<Float> Xfinal(state_count, cols);
+  	DenseMatrix<Float> Xfinal(stateCount, cols);
   	size_t col = 0;
 	for (size_t k = 0; (k <= n) && (col < cols); ++k) {
 		// copy columns from X[k] to Xfinal
@@ -120,12 +117,54 @@ Prima(const SparseMatrix<Float> & C,   // derivative conductance terms
 }
 
 template <typename Float>
+struct PiModel
+{
+	Float c1{0}, r{0}, c2{0};
+	PiModel() = default;
+	PiModel(Float c1, Float r, Float c2) : c1(c1), r(r), c2(c2) {}
+};
+
+template <typename Float>
 struct ReducedModel
 {
 	using MatrixType = DenseMatrix<Float>;
     MNA<MatrixType> m;
 	MatrixType x, xT;
 };
+
+template <typename Float>
+inline MatrixVector<Float> Moments(const ReducedModel<Float> & rm, size_t count)
+{
+	return mna::Moments<Float>(rm.m.C, rm.m.G, rm.m.B, rm.m.L, count);
+}
+
+template <typename Float>
+inline PiModel<Float> RetrievePiModel(const MNA<DenseMatrix<Float>> & m, size_t port, Float rd)
+{
+	GENERIC_ASSERT(port < size_t(m.L.cols()))
+    auto G_QR = m.G.fullPivHouseholderQr();
+    DenseMatrix<Float> A = - G_QR.solve(m.C);
+    DenseMatrix<Float> R = G_QR.solve(m.B.col(port));
+
+	auto m1 = A * R;
+	auto m2 = A * m1;
+	auto m3 = A * m2;
+
+	auto l = m.L.col(port).transpose();
+	auto h1 = (l * m1)(0, 0);
+	auto h2 = (l * m2)(0, 0);
+	auto h3 = (l * m3)(0, 0);
+	auto y1 = -1 * h1 / rd;
+	auto y2 = -1 * (h2 - h1 * h1) / rd;
+	auto y3 = -1 * (h3 - 2 * h2 * h1 + h1 * h1 * h1) / rd;
+	PiModel<Float> pi;
+	pi.c2 = y2 * y2 / y3;
+	pi.c1 = y1 - pi.c2;
+	pi.r  = -1 * y3 * y3 / (y2 * y2 * y2); 
+	if (pi.r < 0 || pi.c2 < 0) return PiModel<Float>(y1, 0, 0);
+	else if (pi.c1 < 0) return PiModel<Float>(0, pi.r, y1);
+	return pi;
+}
 
 template<typename Float>
 inline DenseMatrix<Float> Prima(const MNA<SparseMatrix<Float> > & m, size_t q)
@@ -145,4 +184,45 @@ inline ReducedModel<Float> Reduce(const MNA<SparseMatrix<Float> > & m, size_t q)
     rm.m.L = rm.xT * m.L;
 	return rm;
 }
+
 } //namespace generic::ckt
+
+namespace {
+
+template <typename Float>
+inline std::ostream & operator<< (std::ostream & os, const generic::ckt::ReducedModel<Float> & rm)
+{
+	os << rm.m << GENERIC_DEFAULT_EOL;
+	os << "X:\n" << rm.x << GENERIC_DEFAULT_EOL;
+    return os;
+}
+
+template <typename Float>
+inline std::ostream & operator<< (std::ostream & os, const generic::ckt::PiModel<Float> & pi)
+{
+    os << "c1: " << pi.c1 << ", r: " << pi.r << ", c2: " << pi.c2;
+    return os;
+}
+
+}
+
+#ifdef GENERIC_BOOST_SERIALIZATION_SUPPORT
+namespace boost::serialization {
+template <typename Archive, typename Float>
+inline void serialize(Archive & ar, generic::ckt::ReducedModel<Float> & rm, const unsigned int)
+{
+    ar & make_nvp("m", rm.m);
+	ar & make_nvp("x", rm.x);
+	ar & make_nvp("xT", rm.xT);
+}
+
+template <typename Archive, typename Float>
+inline void serialize(Archive & ar, generic::ckt::PiModel<Float> & pi, const unsigned int)
+{
+	ar & make_nvp("r", pi.r);
+    ar & make_nvp("c1", pi.c1);
+	ar & make_nvp("c2", pi.c2);
+}
+
+} // namespace boost::serialization
+#endif//GENERIC_BOOST_SERIALIZATION_SUPPORT

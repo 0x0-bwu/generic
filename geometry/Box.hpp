@@ -6,7 +6,7 @@
  * @date 2022-02-22
  */
 #pragma once
-#include "Point.hpp"
+#include "Vector.hpp"
 namespace generic  {
 namespace geometry {
 using generic::common::float_type;
@@ -62,7 +62,7 @@ public:
     Box2D<num_type> operator+ (const Box2D<num_type> & b) const;
     ///@brief self union with box b
     void operator+= (const Box2D<num_type> & b);
-    ///@brief same as operator+
+    ///@brief same as operator+ box b
     void operator|= (const Box2D<num_type> & b);
     ///@brief gets union box of this box with point p
     Box2D<num_type> operator| (const Point2D<num_type> & p) const;
@@ -72,6 +72,15 @@ public:
     Box2D<num_type> operator& (const Box2D<num_type> & b) const;
     ///@brief self intersection with box b
     void operator&= (const Box2D<num_type> & b);
+
+    ///@brief shift self by vector v
+    void operator+= (const Vector2D<num_type> & v);
+    ///#brief shift self by vector -v
+    void operator-= (const Vector2D<num_type> & v);
+    ///@brief shift box by vector v
+    Box2D<num_type> operator+ (const Vector2D<num_type> & v) const;
+    ///@brief shift box by vector -v
+    Box2D<num_type> operator- (const Vector2D<num_type> & v) const;
 
     ///@brief gets box center
     Point2D<float_t> Center() const;
@@ -162,6 +171,15 @@ public:
     Box3D<num_type> operator& (const Box3D<num_type> & b) const;
     ///@brief self intersection with box b
     void operator&= (const Box3D<num_type> & b);
+
+    ///@brief shift self by vector v
+    void operator+= (const Vector3D<num_type> & v);
+    ///#brief shift self by vector -v
+    void operator-= (const Vector3D<num_type> & v);
+    ///@brief shift box by vector v
+    Box3D<num_type> operator+ (const Vector3D<num_type> & v) const;
+    ///@brief shift box by vector -v
+    Box3D<num_type> operator- (const Vector3D<num_type> & v) const;
 
     ///@brief gets box center
     Point3D<float_t> Center() const;
@@ -375,6 +393,36 @@ template <typename num_type>
 inline void Box2D<num_type>::operator&= (const Box2D<num_type> & b)
 {
     (*this) = (*this) & b;
+}
+
+template <typename num_type>
+inline void Box2D<num_type>::operator+= (const Vector2D<num_type> & v)
+{
+    m_corner[0] += v;
+    m_corner[1] += v;
+}
+
+template <typename num_type>
+inline void Box2D<num_type>::operator-= (const Vector2D<num_type> & v)
+{
+    m_corner[0] -= v;
+    m_corner[1] -= v;
+}
+
+template <typename num_type>
+inline Box2D<num_type> Box2D<num_type>::operator+ (const Vector2D<num_type> & v) const
+{
+    auto box = *this;
+    box += v;
+    return box;
+}
+
+template <typename num_type>
+inline Box2D<num_type> Box2D<num_type>::operator- (const Vector2D<num_type> & v) const
+{
+    auto box = *this;
+    box -= v;
+    return box;
 }
 
 template <typename num_type>
@@ -622,6 +670,36 @@ template <typename num_type>
 inline void Box3D<num_type>::operator&= (const Box3D<num_type> & b)
 {
     (*this) = (*this) & b;
+}
+
+template <typename num_type>
+inline void Box3D<num_type>::operator+= (const Vector3D<num_type> & v)
+{
+    m_corner[0] += v;
+    m_corner[1] += v;
+}
+
+template <typename num_type>
+inline void Box3D<num_type>::operator-= (const Vector3D<num_type> & v)
+{
+    m_corner[0] -= v;
+    m_corner[1] -= v;
+}
+
+template <typename num_type>
+inline Box3D<num_type> Box3D<num_type>::operator+ (const Vector3D<num_type> & v) const
+{
+    auto box = *this;
+    box += v;
+    return box;
+}
+
+template <typename num_type>
+inline Box3D<num_type> Box3D<num_type>::operator- (const Vector3D<num_type> & v) const
+{
+    auto box = *this;
+    box -= v;
+    return box;
 }
 
 template <typename num_type>

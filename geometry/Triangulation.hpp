@@ -18,8 +18,8 @@
 #include <vector>
 #include <array>
 
-#ifdef BOOST_SERIALIZATION_SUPPORT
-#include "Serialization.hpp"
+#ifdef GENERIC_BOOST_SERIALIZATION_SUPPORT
+#include "generic/geometry/Serialization.hpp"
 #endif
 
 namespace generic  {
@@ -77,14 +77,14 @@ struct IndexVertex
         return false;
     }
 
-#ifdef BOOST_SERIALIZATION_SUPPORT
+#ifdef GENERIC_BOOST_SERIALIZATION_SUPPORT
 private:
     friend class boost::serialization::access;
     template <typename Archive>
     void serialize(Archive & ar, const unsigned int)
     {
-        ar & index;
-        ar & triangles;
+        ar & boost::serialization::make_nvp("index", index);
+        ar & boost::serialization::make_nvp("triangles", triangles);
     }
 #endif
 };
@@ -185,14 +185,14 @@ struct IndexTriangle
         neighbors[0] = neighbors[1] = neighbors[2] = noNeighbor;
     }
 
-#ifdef BOOST_SERIALIZATION_SUPPORT
+#ifdef GENERIC_BOOST_SERIALIZATION_SUPPORT
 private:
     friend class boost::serialization::access;
     template <typename Archive>
     void serialize(Archive & ar, const unsigned int)
     {
-        ar & vertices;
-        ar & neighbors;
+        ar & boost::serialization::make_nvp("vertices", vertices);
+        ar & boost::serialization::make_nvp("neighbors", neighbors);
     }
 #endif
 };
@@ -304,16 +304,16 @@ struct Triangulation
         fixedEdges.clear();
     }
 
-#ifdef BOOST_SERIALIZATION_SUPPORT
+#ifdef GENERIC_BOOST_SERIALIZATION_SUPPORT
 private:
     friend class boost::serialization::access;
     template <typename Archive>
     void serialize(Archive & ar, const unsigned int)
     {
-        ar & fixedEdges;
-        ar & vertices;
-        ar & triangles;
-        ar & points;
+        ar & boost::serialization::make_nvp("fixed_edges", fixedEdges);
+        ar & boost::serialization::make_nvp("vertices", vertices);
+        ar & boost::serialization::make_nvp("triangles", triangles);
+        ar & boost::serialization::make_nvp("points", points);
     }
 #endif
 };
@@ -512,6 +512,11 @@ public:
         return GetTriangle(tri, it).Center();
     }
 
+    static box_type<point_t> GetBondBox(const Triangulation<point_t> & tri, const TriIdx it)
+    {
+        return Extent(GetTriangle(tri, it));
+    }
+
     template <typename std::enable_if<point_t::dim == 2, bool>::type = true>
     static point_f<point_t> GetCircumCenter(const Triangulation<point_t> & tri, const TriIdx it)
     {
@@ -562,7 +567,7 @@ public:
         }
     }
 
-#ifdef BOOST_SERIALIZATION_SUPPORT
+#ifdef GENERIC_BOOST_SERIALIZATION_SUPPORT
     static bool Write(const Triangulation<point_t> & tri, const std::string & archive)
     {
         std::ofstream ofs(archive);

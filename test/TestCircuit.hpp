@@ -163,6 +163,31 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_mor_ckt_cross_talk_t, float_t)
     BOOST_CHECK_CLOSE(max9, 0.842692, 2.5);   
 }
 
+BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_mor_retrieve_pi_model, float_t)
+{
+    auto ckt = SparseCircuit<float_t, false>(2, {0}, {0, 1}, 0.984375);
+    ckt.SetR(0, 1, 364.250);
+    ckt.SetC(0, 0.00345);
+    ckt.SetC(1, 0.00345 + 0.000433);
+    const auto & m = ckt.Build();
+    auto rm = Reduce(m, 2); 
+    size_t mm = 4;
+    auto momentsOrigin = mna::Moments(DenseMatrix<float_t>(m.C),
+                                      DenseMatrix<float_t>(m.G),
+                                      DenseMatrix<float_t>(m.B), 
+                                      DenseMatrix<float_t>(m.L), mm);
+    auto momentsReduce = Moments(rm, mm);
+                                    
+    for (size_t i = 0; i < mm; ++i) {
+        BOOST_CHECK_CLOSE(momentsOrigin.at(i)(0, 0), momentsReduce.at(i)(0, 0), 1e-2);
+        BOOST_CHECK_CLOSE(momentsOrigin.at(i)(1, 0), momentsReduce.at(i)(1, 0), 1e-2);
+    }
+    auto pi = RetrievePiModel(rm.m, 0, ckt.rd);
+    BOOST_CHECK_CLOSE(pi.c1, 0.00345 , 1e-2);
+    BOOST_CHECK_CLOSE(pi.c2, 0.003883, 1e-2);
+    BOOST_CHECK_CLOSE(pi.r , 364.25  , 1e-2);
+}
+
 test_suite * create_circuit_test_suite()
 {
     test_suite * circuit_suite = BOOST_TEST_SUITE("s_circuit");
@@ -170,7 +195,7 @@ test_suite * create_circuit_test_suite()
     circuit_suite->add(BOOST_TEST_CASE_TEMPLATE(t_dense_ckt_simulator_t, t_ckt_num_types));
     circuit_suite->add(BOOST_TEST_CASE_TEMPLATE(t_dense_ckt_cross_talk_t, t_ckt_num_types));
     circuit_suite->add(BOOST_TEST_CASE_TEMPLATE(t_mor_ckt_cross_talk_t, t_ckt_num_types));
-
+    circuit_suite->add(BOOST_TEST_CASE_TEMPLATE(t_mor_retrieve_pi_model, t_ckt_num_types));
     //
     return circuit_suite;
 }

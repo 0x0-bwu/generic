@@ -111,6 +111,7 @@ inline Transform2D<float_t> makeMirroredTransform2D(Axis axis)
     Transform2D<float_t> trans;
     if(axis == Axis::X) trans(1, 1) *= -1;
     else if(axis == Axis::Y) trans(0, 0) *= -1;
+    else if(axis == Axis::Z) { trans(0, 0) *= -1; trans(1, 1) *= -1; }
     return trans;
 }
 
@@ -842,6 +843,7 @@ inline std::ostream & operator<< (std::ostream & os, const Transform2D<float_t> 
         }
         os << GENERIC_DEFAULT_EOL;
     }
+    os << ']';
     return os;
 }
 
@@ -855,6 +857,7 @@ inline std::ostream & operator<< (std::ostream & os, const Transform3D<float_t> 
         }
         os << GENERIC_DEFAULT_EOL;
     }
+    os << ']';
     return os;
 }
 

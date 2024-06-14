@@ -62,6 +62,7 @@ struct KdTree
     std::vector<size_t> primIndices;
     std::atomic<size_t> nodeCount = { 0 };
     std::vector<VectorN<num_type, K> > vectors;
+    virtual ~KdTree() = default;
 };
 
 ///@brief kd tree utility

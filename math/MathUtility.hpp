@@ -36,6 +36,16 @@ Random(num_type min, num_type max)//random in [min, max]
     return u(randGen);
 }
 
+///@brief generates a series of numbers with a given mean and standard deviation
+template <typename num_type, typename std::enable_if<std::is_floating_point<num_type>::value, bool>::type = true>
+std::vector<num_type> RandomSeries(size_t size, num_type mean, num_type stddev)//random in [min, max]
+{
+    std::vector<num_type> res(size);
+    std::normal_distribution<num_type> n(mean, stddev);
+    std::for_each(res.begin(), res.end(), [&n](auto & v){ v = n(randGen); });
+    return res;
+}
+
 ///@brief converts angle in degree to radians
 template <typename num_type>
 inline float_type<num_type> Rad(num_type deg) { return deg * pi / 180; }
@@ -247,5 +257,28 @@ inline num_type NewtonRaphson(Func && func, DFunc && dfunc, num_type x, num_type
     return x;
 }
 
+/// @breif calculate the mean value of given range
+template <typename Iterator>
+inline float_type<typename std::iterator_traits<Iterator>::value_type> Mean(Iterator begin, Iterator end)
+{   
+    using float_t = float_type<typename std::iterator_traits<Iterator>::value_type>;
+    return float_t(std::accumulate(begin, end, 0.0)) / std::distance(begin, end);
+}
+
+///@brief calculate the mean value and unbiased sample variance of given range
+template <typename Iterator>
+inline auto MeanAndVariance(Iterator begin, Iterator end)
+{
+    using float_t = float_type<typename std::iterator_traits<Iterator>::value_type>;
+    const auto size = std::distance(begin, end);
+    if (size <= 1) return std::pair<float_t, float_t>(*begin, 0);
+
+    float_t mean = Mean(begin, end);
+    auto var = [&mean, &size](float_t accum, float_t value) {
+        return accum + ((value - mean) * (value - mean) / (size - 1));
+    };
+    float_t variance = std::accumulate(begin, end, 0.0, var);
+    return std::pair<float_t, float_t>(mean, variance);
+}
 }//namespace math
 }//namespace generic
