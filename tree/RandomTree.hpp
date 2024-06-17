@@ -20,6 +20,7 @@ public:
     struct TagRandom{};
     struct TagChain{};
     struct TagTall{};
+    struct TagStar{};
     std::vector<size_t> p, nid;
     std::unordered_set<size_t> leaves;
     inline static constexpr size_t invalid = std::numeric_limits<size_t>::max();
@@ -38,6 +39,12 @@ public:
     {
         Init(n);
         Tall(n - 1, k, 0);
+    }
+
+    explicit RandomTree(size_t n, TagStar)
+    {
+        Init(n);
+        Star(n -1, 0);
     }
 
     explicit RandomTree(size_t n, TagChain)
@@ -132,6 +139,12 @@ public:
         AddNode(pa);
         for (size_t i = sz + 1; i < sz + n; ++i)
             AddNode(math::Random(std::max(sz, i > k ? i - k : 0), i - 1));
+    }
+
+    void Star(size_t n, size_t pa)
+    {
+        for (size_t i = 0; i < n; ++i)
+            AddNode(pa);
     }
 
     void Chain(size_t n, size_t pa)
