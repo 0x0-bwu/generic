@@ -67,6 +67,11 @@ void t_math_utility()
     BOOST_CHECK(GE(1e-4, 1.1e-4, 1e-5) == true);
     BOOST_CHECK(Within<OpenInterval>(1e-4, 1.0e-4, 1.1e-4) == false);
     BOOST_CHECK(Within<LeftClosedRightOpen>(1e-4, 1.0e-4, 1.1e-4) == true);
+    
+    //toBits
+    {
+        BOOST_CHECK(toBits(0.0003153f).to_string() == "00111001101001010100111011011010");
+    }
 
     //Equation Solve
     double rc{10}, tr{20};

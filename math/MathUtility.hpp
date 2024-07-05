@@ -9,8 +9,11 @@
 #include "generic/common/Exception.hpp"
 #include "generic/common/Traits.hpp"
 #include "Numbers.hpp"
+#include <boost/endian/arithmetic.hpp>
 #include <type_traits>
 #include <algorithm>
+#include <climits>
+#include <bitset>
 #include <random>
 #include <cmath>
 namespace generic{
@@ -210,6 +213,29 @@ template <typename interval_type, typename num_type,
 inline bool Within(num_type num, num_type min, num_type max, num_type tolerance = std::numeric_limits<num_type>::epsilon())
 {
     return detail::Within<num_type>(num, min, max, tolerance, interval_type{});
+}
+
+template <typename num_type, std::enable_if_t<std::is_floating_point<num_type>::value, bool> = true>
+inline num_type RoundDigits(num_type value, size_t digits)
+{
+    if (value == .0) return 0;
+    if (digits == 0) return value;
+    num_type factor = std::pow(num_type(10), digits - std::ceil(std::log10(std::abs(value))));
+    return std::round(value * factor) / factor;   
+}
+
+template <typename num_type, std::enable_if_t<std::is_floating_point<num_type>::value, bool> = true>
+inline std::bitset<sizeof(num_type) * CHAR_BIT> toBits(num_type num)
+{
+    std::bitset<sizeof(num_type) * CHAR_BIT> result;
+    const char * bits = reinterpret_cast<const char*>(&num);
+    for (size_t i = 0; i < sizeof(num_type); ++i) {
+        result <<= 8;
+        if constexpr (boost::endian::order::native == boost::endian::order::little)
+            result |= std::bitset<CHAR_BIT>(bits[sizeof(num_type) - i - 1]).to_ullong();
+        else result |= std::bitset<CHAR_BIT>(bits[i]).to_ullong();
+    }
+    return result;
 }
 
 ///@brief returns inverse of a scalar, a huge number but not INF if input is closed or equal to zero
