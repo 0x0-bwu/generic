@@ -1060,7 +1060,7 @@ public:
         std::lock_guard<std::mutex> lock(m_loggerMapMutex);
         m_formatter = std::move(formatter);
         for(auto & logger : m_loggers){
-            logger.second->SetFormatter(formatter->Clone());
+            logger.second->SetFormatter(m_formatter->Clone());
         }
     }
 
