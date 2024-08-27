@@ -6,6 +6,7 @@
  * @date 2024-08-26
  */
 #pragma once
+#include <unordered_map>
 #include <shared_mutex>
 #include <thread>
 #include <memory>
