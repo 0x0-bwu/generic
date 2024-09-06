@@ -7,9 +7,9 @@
  */
 #pragma once
 #include "generic/common/Exception.hpp"
+#include "generic/common/System.hpp"
 #include "generic/common/Traits.hpp"
 #include "Numbers.hpp"
-#include <boost/endian/arithmetic.hpp>
 #include <type_traits>
 #include <algorithm>
 #include <climits>
@@ -231,7 +231,7 @@ inline std::bitset<sizeof(num_type) * CHAR_BIT> toBits(num_type num)
     const char * bits = reinterpret_cast<const char*>(&num);
     for (size_t i = 0; i < sizeof(num_type); ++i) {
         result <<= 8;
-        if constexpr (boost::endian::order::native == boost::endian::order::little)
+        if constexpr (common::isLittleEndian)
             result |= std::bitset<CHAR_BIT>(bits[sizeof(num_type) - i - 1]).to_ullong();
         else result |= std::bitset<CHAR_BIT>(bits[i]).to_ullong();
     }
