@@ -568,7 +568,7 @@ struct Polynomial {
     {
         length = other.length;
         terms = new UnsignedByte [length];
-        for (size_t index = 0; index < length; index += 1) {
+        for (size_t index = 0; index < length; index++) {
             terms[index] = other.terms[index];
         }
     }
@@ -578,7 +578,7 @@ struct Polynomial {
         delete[] terms;
         length = other.length;
         terms = new UnsignedByte [length];
-        for (size_t index = 0; index < length; index += 1) {
+        for (size_t index = 0; index < length; index++) {
             terms[index] = other.terms[index];
         }
     }
@@ -600,8 +600,8 @@ struct Polynomial {
     static Polynomial PolyMultiple(Polynomial self, Polynomial other)
     {
         Polynomial result(self.length + other.length - 1);
-        for (size_t jndex = 0; jndex < other.length; jndex += 1) {
-            for (size_t index = 0; index < self.length; index += 1) {
+        for (size_t jndex = 0; jndex < other.length; jndex++) {
+            for (size_t index = 0; index < self.length; index++) {
                 result.terms[index + jndex] ^= Multiple(self.terms[index], other.terms[jndex]);
             }
         }
@@ -612,7 +612,7 @@ struct Polynomial {
     {
         Polynomial result(1);
         result.terms[0] = 1;
-        for (size_t index = 0; index < count; index += 1) {
+        for (size_t index = 0; index < count; index++) {
             Polynomial arg(2);
             arg.terms[0] = 1;
             arg.terms[1] = Power(2, index);
@@ -628,10 +628,10 @@ struct Polynomial {
 
         Polynomial gen = GetGeneratorPoly(count);
         Polynomial buffer(length + gen.length - 1);
-        for (size_t index = 0; index < length; index += 1) {
+        for (size_t index = 0; index < length; index++) {
             buffer.terms[index] = terms[index];
         }
-        for (size_t index = 0; index < length; index += 1) {
+        for (size_t index = 0; index < length; index++) {
             UnsignedByte coef = buffer.terms[index];
             if (coef != 0) {
                 for (size_t jndex = 1; jndex < gen.length; jndex += 1) {
@@ -640,7 +640,7 @@ struct Polynomial {
             }
         }
         Polynomial result(buffer.length - length);
-        for (size_t index = length; index < buffer.length; index += 1) {
+        for (size_t index = length; index < buffer.length; index++) {
             result.terms[index - length] = buffer.terms[index];
         }
         return result;
@@ -928,7 +928,7 @@ public:
     ~QRMatrixBoard()
     {
         if (m_dimension != 0) {
-            for (UnsignedByte index = 0; index < m_dimension; index += 1) {
+            for (UnsignedByte index = 0; index < m_dimension; index++) {
                 delete[] m_buffer[index];
             }
             delete[] m_buffer;
@@ -939,9 +939,9 @@ public:
     {
         m_dimension = other.m_dimension;
         m_buffer = new UnsignedByte* [m_dimension];
-        for (size_t index = 0; index < m_dimension; index ++) {
+        for (size_t index = 0; index < m_dimension; index++) {
             m_buffer[index] = new UnsignedByte [m_dimension];
-            for (size_t jndex = 0; jndex < m_dimension; jndex ++) {
+            for (size_t jndex = 0; jndex < m_dimension; jndex++) {
                 m_buffer[index][jndex] = other.m_buffer[index][jndex];
             }
         }
@@ -949,7 +949,7 @@ public:
     void operator=(QRMatrixBoard other)
     {
         if (m_dimension > 0) {
-            for (size_t index = 0; index < m_dimension; index ++) {
+            for (size_t index = 0; index < m_dimension; index++) {
                 delete[] m_buffer[index];
             }
             delete[] m_buffer;
@@ -958,9 +958,9 @@ public:
         m_dimension = other.m_dimension;
         if (m_dimension > 0) {
             m_buffer = new UnsignedByte* [m_dimension];
-            for (size_t index = 0; index < m_dimension; index ++) {
+            for (size_t index = 0; index < m_dimension; index++) {
                 m_buffer[index] = new UnsignedByte [m_dimension];
-                for (size_t jndex = 0; jndex < m_dimension; jndex ++) {
+                for (size_t jndex = 0; jndex < m_dimension; jndex++) {
                     m_buffer[index][jndex] = other.m_buffer[index][jndex];
                 }
             }
@@ -974,7 +974,7 @@ public:
     {
         m_dimension = isMicro ? GetMicroDimensionByVersion(ecInfo.version) : GetDimensionByVersion(ecInfo.version);
         m_buffer = new UnsignedByte* [m_dimension];
-        for (UnsignedByte index = 0; index < m_dimension; index += 1) {
+        for (UnsignedByte index = 0; index < m_dimension; index++) {
             m_buffer[index] = new UnsignedByte [m_dimension];
             for (UnsignedByte jndex = 0; jndex < m_dimension; jndex += 1) {
                 m_buffer[index][jndex] = BoardCell::NEUTRAL;
@@ -1014,7 +1014,7 @@ public:
         if (m_dimension == 0) return std::string{};
 
         std::string result = "  ";
-        for (UnsignedByte index = 0; index < m_dimension; index += 1) {
+        for (UnsignedByte index = 0; index < m_dimension; index++) {
             if (index % 2 > 0) {
                 result.append("..");
                 continue;
@@ -1025,7 +1025,7 @@ public:
             result.append(std::to_string(index));
         }
         result.append("\n");
-        for (UnsignedByte index = 0; index < m_dimension; index += 1) {
+        for (UnsignedByte index = 0; index < m_dimension; index++) {
             if (index < 10) {
                 result.append("0");
             }
@@ -1099,13 +1099,13 @@ private:
     {
         UnsignedByte value = (isSet ? BoardCell::SET : BoardCell::UNSET) | prefix;
         if (isFill) {
-            for (UnsignedByte rIndex = row; rIndex < row + size; rIndex += 1) {
-                for (UnsignedByte cIndex = column; cIndex < column + size; cIndex += 1) {
+            for (UnsignedByte rIndex = row; rIndex < row + size; rIndex++) {
+                for (UnsignedByte cIndex = column; cIndex < column + size; cIndex++) {
                     m_buffer[rIndex][cIndex] = value;
                 }
             }
         } else {
-            for (UnsignedByte index = 0; index < size; index += 1) {
+            for (UnsignedByte index = 0; index < size; index++) {
                 m_buffer[row + index][column] = value;
                 m_buffer[row][column + index] = value;
                 m_buffer[row + index][column + size - 1] = value;
@@ -1118,12 +1118,12 @@ private:
     {
         UnsignedByte value = BoardCell::UNSET | BoardCell::SEPARATOR;
         if (isMicro) {
-            for (UnsignedByte index = 0; index < 8; index += 1) {
+            for (UnsignedByte index = 0; index < 8; index++) {
                 m_buffer[7][index] = value;
                 m_buffer[index][7] = value;
             }
         } else {
-            for (UnsignedByte index = 0; index < 8; index += 1) {
+            for (UnsignedByte index = 0; index < 8; index++) {
                 m_buffer[7][index] = value;
                 m_buffer[index][7] = value;
 
@@ -1141,7 +1141,7 @@ private:
         if (ecInfo.version < 2) return;
         const UnsignedByte* array = AlignmentLocations(ecInfo.version);
         AddAlignmentPattern(6, 6);
-        for (UnsignedByte index = 0; index < 6; index += 1) {
+        for (UnsignedByte index = 0; index < 6; index++) {
             UnsignedByte value = array[index];
             if (value > 0) {
                 AddAlignmentPattern(6, value);
@@ -1162,8 +1162,8 @@ private:
     {
         UnsignedByte tlRow = row - 2;
         UnsignedByte tlCol = column - 2;
-        for (UnsignedByte rIndex = tlRow; rIndex < tlRow + 5; rIndex += 1) {
-            for (UnsignedByte cIndex = tlCol; cIndex < tlCol + 5; cIndex += 1) {
+        for (UnsignedByte rIndex = tlRow; rIndex < tlRow + 5; rIndex++) {
+            for (UnsignedByte cIndex = tlCol; cIndex < tlCol + 5; cIndex++) {
                 if (m_buffer[rIndex][cIndex] != BoardCell::NEUTRAL) return;
             }
         }
@@ -1177,7 +1177,7 @@ private:
         UnsignedByte valueSet = BoardCell::TIMING | BoardCell::SET;
         UnsignedByte valueUnset = BoardCell::TIMING | BoardCell::UNSET;
         UnsignedByte offset = isMicro ? 0 : 6;
-        for (UnsignedByte index = 6; index < m_dimension - offset; index += 1) {
+        for (UnsignedByte index = 6; index < m_dimension - offset; index++) {
             if ((index % 2) == 0) {
                 m_buffer[offset][index] = valueSet;
                 m_buffer[index][offset] = valueSet;
@@ -1190,7 +1190,7 @@ private:
 
     void AddMicroReservedAreas(ErrorCorrectionInfo ecInfo)
     {
-        for (UnsignedByte index = 0; index < 8; index += 1) {
+        for (UnsignedByte index = 0; index < 8; index++) {
             if (m_buffer[8][index] == BoardCell::NEUTRAL) {
                 m_buffer[8][index] = BoardCell::FORMAT | BoardCell::UNSET;
             }
@@ -1206,7 +1206,7 @@ private:
         // Dark cell
         m_buffer[m_dimension - 8][8] = BoardCell::DARK | BoardCell::SET;
         // Reseved cells for format
-        for (UnsignedByte index = 0; index < 8; index += 1) {
+        for (UnsignedByte index = 0; index < 8; index++) {
             if (m_buffer[8][index] == BoardCell::NEUTRAL) {
                 m_buffer[8][index] = BoardCell::FORMAT | BoardCell::UNSET;
             }
@@ -1220,7 +1220,7 @@ private:
         }
         m_buffer[8][8] = BoardCell::FORMAT | BoardCell::UNSET;
         if (ecInfo.version < 7) return;
-        for (UnsignedByte index = 0; index < 3; index += 1) {
+        for (UnsignedByte index = 0; index < 3; index++) {
             for (UnsignedByte jndex = 0; jndex < 6; jndex += 1) {
                 m_buffer[jndex][m_dimension - 9 - index] = BoardCell::VERSION | BoardCell::UNSET;
                 m_buffer[m_dimension - 9 - index][jndex] = BoardCell::VERSION | BoardCell::UNSET;
@@ -1534,7 +1534,7 @@ private:
             for (UnsignedByte column = 0; column < m_dimension - 11; column += 1) {
                 bool isMatched1 = true;
                 bool isMatched2 = true;
-                for (UnsignedByte index = 0; index < 11; index += 1) {
+                for (UnsignedByte index = 0; index < 11; index++) {
                     UnsignedByte cell = maskedBoard[row][column + index] & BoardCell::LOWMASK;
                     if (cell != pattern1[index]) {
                         isMatched1 = false;
@@ -1555,7 +1555,7 @@ private:
             for (UnsignedByte row = 0; row < m_dimension - 11; row += 1) {
                 bool isMatched1 = true;
                 bool isMatched2 = true;
-                for (UnsignedByte index = 0; index < 11; index += 1) {
+                for (UnsignedByte index = 0; index < 11; index++) {
                     UnsignedByte cell = maskedBoard[row + index][column] & BoardCell::LOWMASK;
                     if (cell != pattern1[index]) {
                         isMatched1 = false;
@@ -1603,7 +1603,7 @@ private:
     {
         UnsignedByte sum1 = 0;
         UnsignedByte sum2 = 0;
-        for (size_t index = 0; index < m_dimension; index += 1) {
+        for (size_t index = 0; index < m_dimension; index++) {
             UnsignedByte cell = maskedBoard[index][m_dimension - 1] & BoardCell::LOWMASK;
             if (cell == BoardCell::SET) {
                 sum1 += 1;
@@ -1644,7 +1644,7 @@ private:
         UnsignedByte minId = 0;
         size_t maxScore = 0;
         UnsignedByte maxId = 0;
-        for (UnsignedByte index = 0; index < numMasks; index += 1) {
+        for (UnsignedByte index = 0; index < numMasks; index++) {
             UnsignedByte mId = isMicro ? microMaskIdMap[index] : index;
             maskedBoard[index] = Mask(mId);
             size_t score = isMicro ?
@@ -1670,7 +1670,7 @@ private:
             }
         }
 
-        for (UnsignedByte index = 0; index < numMasks; index += 1) {
+        for (UnsignedByte index = 0; index < numMasks; index++) {
             for (UnsignedByte row = 0; row < m_dimension; row += 1) {
                 delete[] maskedBoard[index][row];
             }
@@ -1792,7 +1792,7 @@ private:
         UnsignedByte formatBits[2]; // Use first 15bits only
         GetMicroFormatBits(ecInfo.level, ecInfo.version, maskId, formatBits);
 
-        for (UnsignedByte index = 0; index < 15; index += 1) {
+        for (UnsignedByte index = 0; index < 15; index++) {
             UnsignedByte byteIndex = index < 8 ? 0 : 1;
             UnsignedByte bitIndex = byteIndex == 0 ? index : index - 8;
             UnsignedByte mask = 0b10000000 >> bitIndex;
@@ -1810,7 +1810,7 @@ private:
     {
         UnsignedByte formatBits[2]; // Use first 15bits only
         GetFormatBits(ecInfo.level, maskId, formatBits);
-        for (UnsignedByte index = 0; index < 15; index += 1) {
+        for (UnsignedByte index = 0; index < 15; index++) {
             UnsignedByte byteIndex = index < 8 ? 0 : 1;
             UnsignedByte bitIndex = byteIndex == 0 ? index : index - 8;
             UnsignedByte mask = 0b10000000 >> bitIndex;
@@ -1851,7 +1851,7 @@ private:
         UnsignedByte row2 = 5;
         UnsignedByte col2 = m_dimension - 9;
 
-        for (UnsignedByte index = 0; index < 18; index += 1) {
+        for (UnsignedByte index = 0; index < 18; index++) {
             UnsignedByte byteIndex = index / 8;
             UnsignedByte bitIndex = index % 8;
             UnsignedByte mask = 0b10000000 >> bitIndex;
@@ -2147,7 +2147,7 @@ public:
     )
     {
         size_t segCount = 0;
-        for (size_t index = 0; index < count; index += 1) {
+        for (size_t index = 0; index < count; index++) {
             if (segments[index].Length() > 0) {
                 segCount += 1;
             }
@@ -2208,9 +2208,9 @@ public:
             // But no rule prevents to make a Structured Append QR symbol single part
     //    }
         UnsignedByte parity = 0;
-        for (UnsignedByte index = 0; index < count; index += 1) {
+        for (UnsignedByte index = 0; index < count; index++) {
             QRMatrixStructuredAppend part = parts[index];
-            for (size_t segIndex = 0; segIndex < part.count; segIndex += 1) {
+            for (size_t segIndex = 0; segIndex < part.count; segIndex++) {
                 QRMatrixSegment segment = part.segments[segIndex];
                 for (size_t idx = 0; idx < segment.Length(); idx += 1) {
                     if (index == 0 && segIndex == 0 && idx == 0) {
@@ -2222,7 +2222,7 @@ public:
             }
         }
         QRMatrixBoard* result = new QRMatrixBoard[count];
-        for (UnsignedByte index = 0; index < count; index += 1) {
+        for (UnsignedByte index = 0; index < count; index++) {
             QRMatrixStructuredAppend part = parts[index];
             try {
                 result[index] = EncodeSingle(
@@ -2247,7 +2247,7 @@ public:
     static size_t CalculateEncodedDataBitsCount(QRMatrixSegment* segments, size_t count)
     {
         size_t totalDataBitsCount = 0;
-        for (size_t index = 0; index < count; index += 1) {
+        for (size_t index = 0; index < count; index++) {
             QRMatrixSegment segment = segments[index];
             if (segment.Length() == 0) {
                 continue;
@@ -2342,7 +2342,7 @@ public:
             bool hasAlpha = false;
             bool hasKanji = false;
             bool hasByte = false;
-            for (size_t index = 0; index < count; index += 1) {
+            for (size_t index = 0; index < count; index++) {
                 QRMatrixSegment segment = segments[index];
                 if (segment.Length() == 0) {
                     continue;
@@ -2442,7 +2442,7 @@ public:
     ) 
     {
         size_t segCount = 0;
-        for (size_t index = 0; index < count; index += 1) {
+        for (size_t index = 0; index < count; index++) {
             if (segments[index].Length() > 0) {
                 segCount += 1;
             }
@@ -2497,7 +2497,7 @@ public:
             bitIndex += 8;
         }
         // Encode data
-        for (size_t index = 0; index < count; index += 1) {
+        for (size_t index = 0; index < count; index++) {
             EncodeSegment(buffer, segments[index], index, level, ecInfo, &bitIndex, extraMode);
         }
         // Finish
@@ -2521,7 +2521,7 @@ public:
         }
         /// Terminator
         size_t terminatorLength = isMicro ? GetMicroTerminatorLength(ecInfo.version) : 4;
-        for (size_t index = 0; *bitIndex < bufferBitsLen && index < terminatorLength; index += 1) {
+        for (size_t index = 0; *bitIndex < bufferBitsLen && index < terminatorLength; index++) {
             *bitIndex += 1;
         }
 
@@ -2619,12 +2619,12 @@ public:
         }
 
         Polynomial mesg(blockSize);
-        for (size_t index = 0; index < blockSize; index += 1) {
+        for (size_t index = 0; index < blockSize; index++) {
             mesg.terms[index] = encodedData[offset + index];
         }
         Polynomial ecc = mesg.GetErrorCorrections(ecInfo.ecCodewordsPerBlock);
         UnsignedByte* result = Allocate(ecc.length);
-        for (size_t index = 0; index < ecc.length; index += 1) {
+        for (size_t index = 0; index < ecc.length; index++) {
             result[index] = ecc.terms[index];
         }
         return result;
@@ -2655,7 +2655,7 @@ public:
             }
             for (UnsignedByte block = 0; block < maxBlock; block += 1) {
                 result[blockIndex] = GenerateErrorCorrections(encodedData, ecInfo, group, block);
-                blockIndex += 1;
+                blockIndex++;
             }
         }
         return result;
@@ -2697,7 +2697,7 @@ public:
                 offset += block * blockSize;
                 blockPtr[blockIndex] = &encodedData[offset];
                 blockEndPtr[blockIndex] = &encodedData[offset + blockSize - 1];
-                blockIndex += 1;
+                blockIndex++;
             }
         }
 
@@ -2706,13 +2706,13 @@ public:
         bool found = true;
         while (found) {
             result[resIndex] = *blockPtr[blockIndex];
-            resIndex += 1;
+            resIndex++;
             blockPtr[blockIndex] += 1;
 
             size_t loopCount = 0;
             found = false;
             while (loopCount < blockCount) {
-                blockIndex += 1;
+                blockIndex++;
                 if (blockIndex >= blockCount) {
                     blockIndex = 0;
                 }
@@ -2742,10 +2742,10 @@ public:
         size_t blockCount = ecInfo.EcBlockTotalCount();
         UnsignedByte* result = new UnsignedByte[ecInfo.EcCodewordsTotalCount()];
         size_t resIndex = 0;
-        for (size_t index = 0; index < ecInfo.ecCodewordsPerBlock; index += 1) {
+        for (size_t index = 0; index < ecInfo.ecCodewordsPerBlock; index++) {
             for (size_t jndex = 0; jndex < blockCount; jndex += 1) {
                 result[resIndex] = data[jndex][index];
-                resIndex += 1;
+                resIndex++;
             }
         }
         return result;
@@ -2753,7 +2753,7 @@ public:
 
     static void Clean(UnsignedByte* buffer, UnsignedByte** ecBuffer, ErrorCorrectionInfo ecInfo)
     {
-        for (size_t index = 0; index < (ecInfo.group1Blocks + ecInfo.group2Blocks); index += 1) {
+        for (size_t index = 0; index < (ecInfo.group1Blocks + ecInfo.group2Blocks); index++) {
             delete[] ecBuffer[index];
         }
         delete[] ecBuffer;
@@ -2878,17 +2878,22 @@ public:
     }
 };
 
-inline void FillCell(boost::gil::gray8_image_t::view_t & view, size_t dimension, size_t row, size_t column, UnsignedByte scale, UnsignedByte quiteZone)
+inline void FillCell(boost::gil::gray8_image_t::view_t & view, size_t dimension, size_t row, size_t col, UnsignedByte scale, UnsignedByte quiteZone)
 {
-    size_t rowOffset = (row + quiteZone) * scale * dimension;
-    size_t colOffset = (column + quiteZone) * scale;
-    for (size_t index = 0; index < scale; index += 1) {
-        size_t pic = rowOffset + index * dimension + colOffset;
-        for (unsigned jndex = 0; jndex < scale; jndex += 1) {
-            // image[pic] = 0;
-            pic += 1;
-        }
-    }
+    size_t rowOffset = (row + quiteZone) * scale;
+    size_t colOffset = (col + quiteZone) * scale;
+    for (row = 0; row < scale; row++)
+        for(col = 0; col < scale; col++)
+            view(colOffset + col, rowOffset + row) = 0;
+    // size_t rowOffset = (row + quiteZone) * scale * dimension;
+    // size_t colOffset = (column + quiteZone) * scale;
+    // for (size_t index = 0; index < scale; index++) {
+    //     size_t pic = rowOffset + index * dimension + colOffset;
+    //     for (unsigned jndex = 0; jndex < scale; jndex += 1) {
+    //         // image[pic] = 0;
+    //         pic += 1;
+    //     }
+    // }
 
     //todo
 }
