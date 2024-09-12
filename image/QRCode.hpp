@@ -18,6 +18,7 @@ namespace generic::img::qr
 {
 
 using UnsignedByte = unsigned char;
+using UnsignedBytes = std::vector<UnsignedByte>;
 using Unsigned2Bytes = unsigned short;
 using Unsigned4Bytes = size_t;
 
@@ -312,7 +313,7 @@ inline void CopyBits(UnsignedByte sourceByte, size_t sourceStartIndex, UnsignedB
 }
 
 /// Copy `count` bits of source (from bit 0th) into `destination` stating from bit at `startIndex`.
-inline void CopyBits(UnsignedByte* source, size_t sourceLength, size_t sourceStartIndex, bool isSourceOrderReversed, 
+inline void CopyBits(const UnsignedByte* source, size_t sourceLength, size_t sourceStartIndex, bool isSourceOrderReversed, 
                             UnsignedByte* destination, size_t destStartIndex, size_t count)
 {
     if (count == 0 || count > sourceLength * 8 - sourceStartIndex)
@@ -321,7 +322,7 @@ inline void CopyBits(UnsignedByte* source, size_t sourceLength, size_t sourceSta
     // Pointer to current destination byte
     UnsignedByte* curDestPtr = destination;
     // Pointer to current source byte
-    UnsignedByte* sourcePtr = source;
+    const UnsignedByte* sourcePtr = source;
     // Total bits to write
     size_t totalCount = count;
 
@@ -433,10 +434,10 @@ inline const UnsignedByte * AlignmentLocations(UnsignedByte version)
     return data[version - 2];
 }
 
-inline void ValidateNumeric(const UnsignedByte * data, size_t length)
+inline void ValidateNumeric(const UnsignedBytes & data)
 {
     static const char * pattern = "0123456789";
-    for (size_t index = 0; index < length; index++) {
+    for (size_t index = 0; index < data.size(); index++) {
         UnsignedByte byte = data[index];
         if (strchr(pattern, (char)byte) == NULL) {
             std::string msg = "Invalid data for Numeric mode [";
@@ -448,10 +449,10 @@ inline void ValidateNumeric(const UnsignedByte * data, size_t length)
     }
 }
 
-inline void ValidateAlphaNumeric(const UnsignedByte * data, size_t length)
+inline void ValidateAlphaNumeric(const UnsignedBytes & data)
 {
     static const char * pattern = "0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:";
-    for (size_t index = 0; index < length; index++) {
+    for (size_t index = 0; index < data.size(); index++) {
         UnsignedByte byte = data[index];
         if (strchr(pattern, (char)byte) == NULL) {
             std::string msg = "Invalid data for AlphaNumeric mode [";
@@ -463,12 +464,12 @@ inline void ValidateAlphaNumeric(const UnsignedByte * data, size_t length)
     }
 }
 
-inline void ValidateKanji(const UnsignedByte * data, size_t length) {
+inline void ValidateKanji(const UnsignedBytes & data) {
     // Only accept 2 bytes ShiftJIS characters
-    if ((length % 2) > 0) {
+    if ((data.size() % 2) > 0) {
         ThrowException("Invalid data for Kanji mode");
     }
-    for (size_t index = 0; index < length; index += 2) {
+    for (size_t index = 0; index < data.size(); index += 2) {
         Unsigned2Bytes curChar = 0;
         UnsignedByte * curCharPtr = (UnsignedByte*)&curChar;
         if constexpr (common::isLittleEndian) {
@@ -495,16 +496,16 @@ inline void ValidateKanji(const UnsignedByte * data, size_t length) {
 }
 
 //todo, replace with regex
-inline void ValidateInputBytes(EncodingMode mode, const UnsignedByte* data, size_t length) {
+inline void ValidateInputBytes(EncodingMode mode, const UnsignedBytes & data) {
     switch (mode) {
     case EncodingMode::NUMERIC:
-        ValidateNumeric(data, length);
+        ValidateNumeric(data);
         break;
     case EncodingMode::ALPHA_NUMERIC:
-        ValidateAlphaNumeric(data, length);
+        ValidateAlphaNumeric(data);
         break;
     case EncodingMode::KANJI:
-        ValidateKanji(data, length);
+        ValidateKanji(data);
         break;
     default:
         break;
@@ -524,16 +525,12 @@ enum class EncodingExtraMode
 };
 
 struct Polynomial {
-    size_t length{0};
-    UnsignedByte* terms{nullptr};
     inline static constexpr std::array<UnsignedByte, 256> EXP = []() constexpr {
         size_t xVal = 1;
         std::array<UnsignedByte, 256> res{};
         for (size_t index = 0; index < 255; index++) {
             res[index] = static_cast<UnsignedByte>(xVal);
-            if (xVal <<= 1; xVal >= 256) {
-                xVal ^= 0x11D;
-            }
+            if (xVal <<= 1; xVal >= 256) xVal ^= 0x11D;
         }
         return res;
     }();
@@ -543,45 +540,19 @@ struct Polynomial {
         std::array<UnsignedByte, 256> res{};
         for (size_t index = 0; index < 255; index++) {
             res[xVal] = static_cast<UnsignedByte>(index);
-            if (xVal <<= 1; xVal >= 256) {
-                xVal ^= 0x11D;
-            }
+            if (xVal <<= 1; xVal >= 256) xVal ^= 0x11D;
         }
         return res;
     }();
 
-    ~Polynomial()
+    UnsignedBytes terms;
+    Polynomial() = default;
+    explicit Polynomial(size_t count)
     {
-        if (terms) {
-            delete[] terms;
-            terms = nullptr;
-        }
+        terms.resize(count);
     }
 
-    Polynomial (size_t count)
-    {
-        length = count;
-        terms = Allocate(count);
-    }
-
-    Polynomial (Polynomial &other)
-    {
-        length = other.length;
-        terms = new UnsignedByte [length];
-        for (size_t index = 0; index < length; index++) {
-            terms[index] = other.terms[index];
-        }
-    }
-    
-    void operator=(Polynomial other)
-    {
-        delete[] terms;
-        length = other.length;
-        terms = new UnsignedByte [length];
-        for (size_t index = 0; index < length; index++) {
-            terms[index] = other.terms[index];
-        }
-    }
+    size_t Length() const { return terms.size(); }
 
     static UnsignedByte Multiple(UnsignedByte left, UnsignedByte right)
     {
@@ -597,18 +568,16 @@ struct Polynomial {
     }
 
 
-    static Polynomial PolyMultiple(Polynomial self, Polynomial other)
+    static Polynomial PolyMultiple(const Polynomial & self, const Polynomial & other)
     {
-        Polynomial result(self.length + other.length - 1);
-        for (size_t jndex = 0; jndex < other.length; jndex++) {
-            for (size_t index = 0; index < self.length; index++) {
+        Polynomial result(self.Length() + other.Length() - 1);
+        for (size_t jndex = 0; jndex < other.Length(); jndex++)
+            for (size_t index = 0; index < self.Length(); index++)
                 result.terms[index + jndex] ^= Multiple(self.terms[index], other.terms[jndex]);
-            }
-        }
         return result;
     }
 
-    Polynomial GetGeneratorPoly(size_t count)
+    static Polynomial GetGeneratorPoly(size_t count)
     {
         Polynomial result(1);
         result.terms[0] = 1;
@@ -621,33 +590,31 @@ struct Polynomial {
         return result;
     }
 
-    Polynomial GetErrorCorrections(size_t count)
+    Polynomial GetErrorCorrections(size_t count) const
     {
+        const auto length = Length();
         if (length + count > 255)
             ThrowException("Internal error: invalid message length to calculate Error Corrections");
 
         Polynomial gen = GetGeneratorPoly(count);
-        Polynomial buffer(length + gen.length - 1);
-        for (size_t index = 0; index < length; index++) {
+        Polynomial buffer(length + gen.Length() - 1);
+        for (size_t index = 0; index < gen.Length(); index++)
             buffer.terms[index] = terms[index];
-        }
+    
         for (size_t index = 0; index < length; index++) {
-            UnsignedByte coef = buffer.terms[index];
-            if (coef != 0) {
-                for (size_t jndex = 1; jndex < gen.length; jndex += 1) {
+            if (UnsignedByte coef = buffer.terms[index]; coef != 0) {
+                for (size_t jndex = 1; jndex < gen.Length(); jndex += 1)
                     buffer.terms[index + jndex] ^= Multiple(gen.terms[jndex], coef);
-                }
             }
         }
-        Polynomial result(buffer.length - length);
-        for (size_t index = length; index < buffer.length; index++) {
+        Polynomial result(buffer.Length() - length);
+        for (size_t index = length; index < buffer.Length(); index++)
             result.terms[index - length] = buffer.terms[index];
-        }
         return result;
     }
 };
 
-struct QRMatrixExtraMode//todo, remove raw pointer
+struct QRMatrixExtraMode
 {
     /// Extra mode
     EncodingExtraMode mode{EncodingExtraMode::NONE};
@@ -655,55 +622,21 @@ struct QRMatrixExtraMode//todo, remove raw pointer
     /// 2 valid forms:
     ///  - Single ASCII character [a-z][A-Z] eg. `a`.
     ///  - Two ditis number eg. `01`
-    UnsignedByte * appIndicator{nullptr};
-    UnsignedByte appIndicatorLength{0};
+    UnsignedBytes appIndicator;
 
-    ~QRMatrixExtraMode()
-    {
-        if (appIndicator != nullptr) {
-            delete[] appIndicator;
-            appIndicator = nullptr;
-        }
-    }
-
-    QRMatrixExtraMode(QRMatrixExtraMode & other)
-    {
-        mode = other.mode;
-        appIndicatorLength = other.appIndicatorLength;
-        appIndicator = new UnsignedByte[appIndicatorLength];
-        for (size_t index = 0; index < appIndicatorLength; index++) {
-            appIndicator[index] = other.appIndicator[index];
-        }
-    }
-    void operator=(QRMatrixExtraMode other)
-    {
-        if (appIndicator != nullptr) {
-            delete[] appIndicator;
-            appIndicator = nullptr;
-        }
-        mode = other.mode;
-        appIndicatorLength = other.appIndicatorLength;
-        appIndicator = new UnsignedByte[appIndicatorLength];
-        for (size_t index = 0; index < appIndicatorLength; index++) {
-            appIndicator[index] = other.appIndicator[index];
-        }
-    }
-
-    /// Default init, none
     QRMatrixExtraMode() = default;
     /// Init for MicroQR or FCN1 First Position mode
-    QRMatrixExtraMode(EncodingExtraMode mode) :mode(mode)
-    {
-    }
+    QRMatrixExtraMode(EncodingExtraMode mode) : mode(mode) {}
     /// Init for FCN2 Second Positon mode
-    QRMatrixExtraMode(UnsignedByte* appId, UnsignedByte appIdLen)
+    QRMatrixExtraMode(UnsignedBytes appId)
+     : appIndicator(std::move(appId))
     {
         mode = EncodingExtraMode::FNC1_SECOND;
-        appIndicatorLength = appIdLen;
-        appIndicator = new UnsignedByte[appIdLen];
-        for (size_t index = 0; index < appIdLen; index++) {
-            appIndicator[index] = appId[index];
-        }
+    }
+
+    size_t AppIndicatorLength() const
+    {
+        return appIndicator.size();
     }
 };
 
@@ -829,144 +762,37 @@ public:
         /// (or other text encoding if compatiple eg. UTF -8).
         /// If mode is `Kanji`, `data` must contain only 2-bytes ShiftJIS characters
         /// (each 2-bytes must be in range [0x8140...0x9FFC] & [0xE040...0xEBBF]).
-        const UnsignedByte* data,
-        /// Number of `data` bytes
-        size_t length,
+        UnsignedBytes data,
         /// Enable ECI mode with given ECI Indicator (ECI Assigment value)
         size_t eciIndicator = DEFAULT_ECI_ASSIGMENT_VALUE
-    ) : m_mode(mode), m_length(length), m_eci(eciIndicator)
+    ) : m_data(std::move(data)), m_mode(mode), m_eci(eciIndicator)
     {
-        ValidateInputBytes(mode, data, m_length);
-        if (m_length > 0) {
-            m_data = Allocate(m_length);
-            for (size_t index = 0; index < m_length; index++) {
-                m_data[index] = data[index];
-            }
-        }
+        ValidateInputBytes(m_mode, m_data);
     }
-    /// Create empty and set later
     QRMatrixSegment() = default;
-    QRMatrixSegment(QRMatrixSegment &other)
-    {
-        m_length = other.m_length;
-        m_mode = other.m_mode;
-        m_eci = other.m_eci;
-        if (m_length > 0) {
-            m_data = Allocate(m_length);
-            for (size_t index = 0; index < m_length; index++)
-                m_data[index] = other.m_data[index];
-        }
-    }
 
-    ~QRMatrixSegment()
-    {
-        if (m_data) {
-            delete[] m_data;
-            m_data = nullptr;
-        }
-    }
-    /// Fill segment with given data
-    void Fill(EncodingMode mode, const UnsignedByte* data, size_t length, size_t eciIndicator = DEFAULT_ECI_ASSIGMENT_VALUE)
-    {
-        ValidateInputBytes(mode, data, length);
-        if (m_data) {
-            delete[] m_data;
-            m_data = nullptr;
-        }
-        m_mode = mode;
-        m_length = length;
-        m_eci = eciIndicator;
-         if (m_length > 0) {
-            m_data = Allocate(m_length);
-            for (size_t index = 0; index < m_length; index++)
-                m_data[index] = data[index];
-        }
-        else {
-            m_data = nullptr;
-        }
-    }
-
-    void operator=(QRMatrixSegment other) //todo, remove
-    {
-        if (m_data) {
-            delete[] m_data;
-            m_data = nullptr;
-        }
-        m_length = other.m_length;
-        m_mode = other.m_mode;
-        m_eci = other.m_eci;
-         if (m_length > 0) {
-            m_data = Allocate(m_length);
-            for (size_t index = 0; index < m_length; index++)
-                m_data[index] = other.m_data[index];
-        }
-        else {
-            m_data = nullptr;
-        }
-    }
-
-    EncodingMode Mode() { return m_mode; }
-    size_t Length() { return m_length; }
-    size_t ECI() { return m_eci; }
-    UnsignedByte * Data() { return m_data; }
+    size_t ECI() const { return m_eci; }
+    EncodingMode Mode() const { return m_mode; }
+    size_t Length() const { return m_data.size(); }
+    UnsignedBytes & Data() { return m_data; }
+    const UnsignedBytes & Data() const { return m_data; }
     /// 0 to ignore ECI Indicator.
     /// Default QR ECI indicator is 3, so we ignore too.
     /// MicroQR does not have ECI mode, so we ignore this in MicroQR.
-    bool isEciHeaderRequired() { return m_eci != DEFAULT_ECI_ASSIGMENT_VALUE; }
+    bool isEciHeaderRequired() const { return m_eci != DEFAULT_ECI_ASSIGMENT_VALUE; }
 
 private:
-    UnsignedByte* m_data{nullptr};
+    UnsignedBytes m_data;
     EncodingMode m_mode{EncodingMode::BYTE};
-    size_t m_length{0};
     size_t m_eci{DEFAULT_ECI_ASSIGMENT_VALUE};
 };
+
+using QRMatrixSegments = std::vector<QRMatrixSegment>;
 
 class QRMatrixBoard 
 {
 public:
     QRMatrixBoard() = default;
-    ~QRMatrixBoard()
-    {
-        if (m_dimension != 0) {
-            for (UnsignedByte index = 0; index < m_dimension; index++) {
-                delete[] m_buffer[index];
-            }
-            delete[] m_buffer;
-        }
-    }
-
-    QRMatrixBoard(QRMatrixBoard & other)
-    {
-        m_dimension = other.m_dimension;
-        m_buffer = new UnsignedByte* [m_dimension];
-        for (size_t index = 0; index < m_dimension; index++) {
-            m_buffer[index] = new UnsignedByte [m_dimension];
-            for (size_t jndex = 0; jndex < m_dimension; jndex++) {
-                m_buffer[index][jndex] = other.m_buffer[index][jndex];
-            }
-        }
-    }
-    void operator=(QRMatrixBoard other)
-    {
-        if (m_dimension > 0) {
-            for (size_t index = 0; index < m_dimension; index++) {
-                delete[] m_buffer[index];
-            }
-            delete[] m_buffer;
-            m_buffer = nullptr;
-        }
-        m_dimension = other.m_dimension;
-        if (m_dimension > 0) {
-            m_buffer = new UnsignedByte* [m_dimension];
-            for (size_t index = 0; index < m_dimension; index++) {
-                m_buffer[index] = new UnsignedByte [m_dimension];
-                for (size_t jndex = 0; jndex < m_dimension; jndex++) {
-                    m_buffer[index][jndex] = other.m_buffer[index][jndex];
-                }
-            }
-        }
-    }
-
     /// Place holder. Internal purpose. Do not use.
     /// To create QR board, refer `QRMatrixEncoder`.
     /// This constructor is for internal purpose.
@@ -1881,76 +1707,30 @@ private:
     UnsignedByte ** m_buffer{nullptr};
 };
 
+using QRMatrixBoards = std::vector<QRMatrixBoard>;
+
 struct QRMatrixStructuredAppend //todo, refactor
 {
     /// Data segments
-    QRMatrixSegment * segments{nullptr};
-    /// Count of segments
-    size_t count;
+    const QRMatrixSegments & segments;
     /// Error correction info
     ErrorCorrectionLevel level;
     /// Optional. Limit minimum version
     /// (result version = max(minimum version, required version to fit data).
-    UnsignedByte minVersion;
+    UnsignedByte minVersion = 0;
     /// Optional. Force to use given mask (0-7).
     /// Almost for test, you can ignore this.
-    UnsignedByte maskId;
+    UnsignedByte maskId = 0xFF;
     /// Extra mode (MicroQR will be ignored. Not sure about FNC1.)
     QRMatrixExtraMode extraMode;
 
-    QRMatrixStructuredAppend(QRMatrixSegment* segs, size_t segCount, ErrorCorrectionLevel ecLevel)
+    QRMatrixStructuredAppend(const QRMatrixSegments &  segments, ErrorCorrectionLevel level)
+     : segments(segments), level(level)
     {
-        count = segCount;
-        segments = new QRMatrixSegment[count];
-        for (size_t index = 0; index < count; index++)
-            segments[index] = segs[index];
-        level = ecLevel;
-        minVersion = 0;
-        maskId = 0xFF;
-        extraMode = QRMatrixExtraMode();
-    }
-
-    QRMatrixStructuredAppend()
-    {
-        count = 0;
-        segments = new QRMatrixSegment[count];
-        level = ErrorCorrectionLevel::LOW;
-        minVersion = 0;
-        maskId = 0xFF;
-        extraMode = QRMatrixExtraMode();
-    }
-
-    QRMatrixStructuredAppend(QRMatrixStructuredAppend & other)
-    {
-        count = other.count;
-        segments = new QRMatrixSegment [count];
-        for (size_t index = 0; index < count; index++)
-            segments[index] = other.segments[index];
-        level = other.level;
-        minVersion = other.minVersion;
-        maskId = other.maskId;
-        extraMode = other.extraMode;
-    }
-
-    ~QRMatrixStructuredAppend()
-    {
-        if (nullptr != segments) {
-            delete[] segments;
-            segments = nullptr;
-        }
-    }
-    void operator=(QRMatrixStructuredAppend other)
-    {
-        count = other.count;
-        segments = new QRMatrixSegment [count];
-        for (size_t index = 0; index < count; index++)
-            segments[index] = other.segments[index];
-        level = other.level;
-        minVersion = other.minVersion;
-        maskId = other.maskId;
-        extraMode = other.extraMode;
     }
 };
+
+using QRMatrixStructuredAppends = std::vector<QRMatrixStructuredAppend>;
 
 namespace encoder {
 
@@ -1989,7 +1769,7 @@ public:
 
     /// Encode text.
     /// @return Number of written bits.
-    static size_t Encode(const UnsignedByte* text, size_t length, UnsignedByte* buffer, size_t startIndex)
+    static size_t Encode(const UnsignedBytes & text, size_t length, UnsignedByte* buffer, size_t startIndex)
     {
         size_t index = 0;
         size_t bitIndex = startIndex;
@@ -2031,7 +1811,7 @@ class NumericEncoder
 public:
     /// Encode text.
     /// @return Number of written bits.
-    static size_t Encode(const UnsignedByte* text, size_t length, UnsignedByte* buffer, size_t startIndex)
+    static size_t Encode(const UnsignedBytes & text, size_t length, UnsignedByte* buffer, size_t startIndex)
     {
         int index = 0;
         size_t bitIndex = startIndex;
@@ -2045,7 +1825,7 @@ public:
             } else {
                 groupLen = 1;
             }
-            std::string group = std::string((char*)text, index, groupLen);
+            std::string group = std::string((const char*)text.data(), index, groupLen);
             index += groupLen;
             size_t value = std::stoi(group);
             size_t bitLen;
@@ -2085,11 +1865,11 @@ class KanjiEncoder
 public:
     /// Encode text.
     /// @return Number of written bits.
-    static size_t Encode(const UnsignedByte* text, size_t length, UnsignedByte* buffer, size_t startIndex)
+    static size_t Encode(const UnsignedBytes & text, size_t length, UnsignedByte* buffer, size_t startIndex)
     {
         size_t bitIndex = startIndex;
         for (size_t index = 0; index < length; index += 2) {
-            UnsignedByte* ptr = (UnsignedByte*)text + index;
+            const UnsignedByte* ptr = (const UnsignedByte*)text.data() + index;
             Unsigned2Bytes charWord = 0;
             UnsignedByte* charWordPtr = (UnsignedByte*)&charWord;
             if constexpr (common::isLittleEndian) {
@@ -2133,46 +1913,28 @@ public:
 
     /// Get QR Version (dimension) to encode given data.
     /// @return 0 if no suiversion
-    static UnsignedByte GetVersion(
-        /// Array of segments to be encoded
-        QRMatrixSegment* segments,
-        /// Number of segments
-        size_t count,
-        /// Error correction info
-        ErrorCorrectionLevel level,
-        /// Extra mode
-        QRMatrixExtraMode extraMode = QRMatrixExtraMode(),
-        /// Is this symbol a part of Structured Append
-        bool isStructuredAppend = false
-    )
+    static UnsignedByte GetVersion(const QRMatrixSegments & segments, ErrorCorrectionLevel level, QRMatrixExtraMode extraMode = QRMatrixExtraMode(), bool isStructuredAppend = false)
     {
-        size_t segCount = 0;
-        for (size_t index = 0; index < count; index++) {
-            if (segments[index].Length() > 0) {
-                segCount += 1;
-            }
-        }
-        if (segCount == 0) {
-            return 0;
-        }
+        size_t count{0};
+        for (const auto & segment : segments)
+            if (segment.Length() > 0) count++;
+        if (0 == count) return 0;
+
         try {
-            ErrorCorrectionInfo ecInfo = FindVersion(segments, count, level, 0, extraMode, isStructuredAppend);
+            ErrorCorrectionInfo ecInfo = FindVersion(segments, level, 0, extraMode, isStructuredAppend);
             if (ecInfo.version == 0) {
                 return 0;
             }
             return ecInfo.version;
         }
-        catch (const Exception & exception){
+        catch (const Exception & exception) {
             return 0;
         }
     }
 
     /// Encode single QR symbol
     static QRMatrixBoard Encode(
-        /// Array of segments to be encoded
-        QRMatrixSegment* segments,
-        /// Number of segments
-        size_t count,
+        const QRMatrixSegments & segments,
         /// Error correction info
         ErrorCorrectionLevel level,
         /// Extra mode
@@ -2185,73 +1947,51 @@ public:
         UnsignedByte maskId = 0xFF
     )
     {
-        return EncodeSingle(segments, count, level, extraMode, minVersion, maskId, UnsignedByte{0}, UnsignedByte{0}, UnsignedByte{0});
+        return EncodeSingle(segments, level, extraMode, minVersion, maskId, UnsignedByte{0}, UnsignedByte{0}, UnsignedByte{0});
     }
 
     /// Encode Structured Append QR symbols
-    /// @return Array of QRMatrixBoard (should be deleted when done).
-    static QRMatrixBoard* Encode(
-        /// Array of data parts to be encoded
-        QRMatrixStructuredAppend* parts,
-        /// Number of parts
-        size_t count
-    )
+    static QRMatrixBoards Encode(const QRMatrixStructuredAppends & parts)
     {
-        if (count > 16) {
-            ThrowException("Structured Append only accepts 16 parts maximum");
-        }
-        if (count == 0) {
+        if (parts.size() == 0)
             ThrowException("No input.");
-        }
-    //    if (count == 1) {
-            // Should change to encode single QR symbol or throw error?
-            // But no rule prevents to make a Structured Append QR symbol single part
-    //    }
+    
+        if (parts.size() > 16)
+            ThrowException("Structured Append only accepts 16 parts maximum");
+
         UnsignedByte parity = 0;
-        for (UnsignedByte index = 0; index < count; index++) {
-            QRMatrixStructuredAppend part = parts[index];
-            for (size_t segIndex = 0; segIndex < part.count; segIndex++) {
-                QRMatrixSegment segment = part.segments[segIndex];
-                for (size_t idx = 0; idx < segment.Length(); idx += 1) {
-                    if (index == 0 && segIndex == 0 && idx == 0) {
+        for (size_t pIdx = 0; pIdx < parts.size(); pIdx++) {
+            const auto & part = parts.at(pIdx);
+            for (size_t sIdx = 0; sIdx < part.segments.size(); sIdx++) {
+                const auto & segment = part.segments.at(sIdx);
+                for (size_t idx = 0; idx < segment.Length(); idx++) {
+                    if (pIdx == 0 && sIdx == 0 && idx == 0)
                         parity = segment.Data()[idx];
-                    } else {
+                    else
                         parity = parity ^ segment.Data()[idx];
-                    }
                 }
             }
         }
-        QRMatrixBoard* result = new QRMatrixBoard[count];
-        for (UnsignedByte index = 0; index < count; index++) {
-            QRMatrixStructuredAppend part = parts[index];
-            try {
-                result[index] = EncodeSingle(
-                    part.segments, part.count,
-                    part.level, part.extraMode,
-                    part.minVersion, part.maskId,
-                    index, count, parity
-                );
-            } catch (const Exception & exception) {
-                delete[] result;
-                throw exception;
-                return nullptr;
-            }
-        }
-        return result;
-    }
 
+        QRMatrixBoards results; results.reserve(parts.size());
+        
+        for (size_t index = 0; index < parts.size(); index++) {
+            const auto & part = parts.at(index);
+            results.emplace_back(EncodeSingle(part.segments, part.level, part.extraMode, 
+                                              part.minVersion, part.maskId, index, parts.size(), parity));
+        }
+        return results;
+    }
 
     // Calculate encoded data bits count,
     /// include Mode Indicator and ECI header bits,
     /// exclude Characters Count bits
-    static size_t CalculateEncodedDataBitsCount(QRMatrixSegment* segments, size_t count)
+    static size_t CalculateEncodedDataBitsCount(const QRMatrixSegments & segments)
     {
         size_t totalDataBitsCount = 0;
-        for (size_t index = 0; index < count; index++) {
-            QRMatrixSegment segment = segments[index];
-            if (segment.Length() == 0) {
-                continue;
-            }
+        for (const auto & segment : segments) {
+            if (0 == segment.Length()) continue;
+
             // Mode indicator
             totalDataBitsCount += 4;
             // ECI
@@ -2306,11 +2046,11 @@ public:
     }
 
     /// Find QR Version & its properties
-    static ErrorCorrectionInfo  FindVersion(QRMatrixSegment* segments, size_t count, ErrorCorrectionLevel level, UnsignedByte minVersion, QRMatrixExtraMode extraMode, bool isStructuredAppend)
+    static ErrorCorrectionInfo  FindVersion(const QRMatrixSegments & segments, ErrorCorrectionLevel level, UnsignedByte minVersion, QRMatrixExtraMode extraMode, bool isStructuredAppend)
     {
         // This is total estimated bits of data, excluding bits for Characters Count,
         // because each version requires difference number of Characters Count bits.
-        size_t totalDataBitsCount = CalculateEncodedDataBitsCount(segments, count);
+        size_t totalDataBitsCount = CalculateEncodedDataBitsCount(segments);
         if (isStructuredAppend) {
             totalDataBitsCount += 20; // 4 bits header, 4 bits position, 4 bits total number, 1 byte parity
         }
@@ -2323,30 +2063,26 @@ public:
         bool isMicro = (extraMode.mode == EncodingExtraMode::MICRO_QR && !isStructuredAppend);
         UnsignedByte maxVer = isMicro ? MICROQR_MAX_VERSION : QR_MAX_VERSION;
         for (UnsignedByte version = (minVersion > 0 && minVersion <= maxVer) ? minVersion : 1; version <= maxVer; version += 1) {
-            if (version > 1 && isMicro && level == ErrorCorrectionLevel::HIGH) {
+            if (version > 1 && isMicro && level == ErrorCorrectionLevel::HIGH)
                 ThrowException("Error Correction Level High not available in MicroQR.");
-            }
+
             ErrorCorrectionInfo info = isMicro ?
                 ErrorCorrectionInfo::GetMicroErrorCorrectionInfo(version, level) :
                 ErrorCorrectionInfo::GetErrorCorrectionInfo(version, level);
             size_t capacity = info.codewords * 8;
-            if (capacity == 0) {
-                break;
-            }
-            if (totalDataBitsCount >= capacity) {
-                // Not need to count total bits, just go to next version
-                continue;
-            }
+            if (capacity == 0) break;
+            
+            // Not need to count total bits, just go to next version
+            if (totalDataBitsCount >= capacity) continue;
+
             // Calculate total number of bits for Characters Count for this version
             size_t totalBits = totalDataBitsCount;
             bool hasAlpha = false;
             bool hasKanji = false;
             bool hasByte = false;
-            for (size_t index = 0; index < count; index++) {
-                QRMatrixSegment segment = segments[index];
-                if (segment.Length() == 0) {
-                    continue;
-                }
+            for (const auto & segment : segments) {
+                if (0 == segment.Length()) continue;
+
                 switch (segment.Mode()) {
                 case EncodingMode::ALPHA_NUMERIC:
                     hasAlpha = true;
@@ -2429,57 +2165,38 @@ public:
         return result;
     }
 
-    static QRMatrixBoard EncodeSingle(
-        QRMatrixSegment* segments,
-        size_t count,
-        ErrorCorrectionLevel level,
-        QRMatrixExtraMode extraMode,
-        UnsignedByte minVersion,
-        UnsignedByte maskId,
-        UnsignedByte sequenceIndex,
-        UnsignedByte sequenceTotal,
-        UnsignedByte parity
-    ) 
+    static QRMatrixBoard EncodeSingle(const QRMatrixSegments & segments, ErrorCorrectionLevel level, QRMatrixExtraMode extraMode,
+        UnsignedByte minVersion, UnsignedByte maskId, UnsignedByte sequenceIndex, UnsignedByte sequenceTotal, UnsignedByte parity) 
     {
-        size_t segCount = 0;
-        for (size_t index = 0; index < count; index++) {
-            if (segments[index].Length() > 0) {
-                segCount += 1;
-            }
-        }
-        if (segCount == 0) {
-            ThrowException("No input.");
-        }
+        size_t count{0};
+        for (const auto & segment : segments)
+            if (segment.Length() > 0) count++;
+        if (0 == count) ThrowException("No input.");
+
         if (extraMode.mode == EncodingExtraMode::FNC1_SECOND) {
             bool isValid = false;
-            switch (extraMode.appIndicatorLength) {
-            case 1: {
+            switch (extraMode.AppIndicatorLength()) {
+            case 1 : {
                 UnsignedByte value = extraMode.appIndicator[0];
                 isValid = (value >= 'a' && value <= 'z') || (value >= 'A' && value <= 'Z');
-            }
                 break;
-            case 2:
-            {
+            }
+            case 2 : {
                 UnsignedByte value1 = extraMode.appIndicator[0];
                 UnsignedByte value2 = extraMode.appIndicator[1];
                 isValid = (value1 >= '0' && value1 <= '9') && (value2 >= '0' && value2 <= '9');
-            }
-                break;
-            default:
                 break;
             }
-            if (not isValid) {
-                ThrowException("Invalid Application Indicator for FNC1 Second Position mode");
+            default: break;
             }
+            if (not isValid) ThrowException("Invalid Application Indicator for FNC1 Second Position mode");
         }
         bool isStructuredAppend = sequenceTotal > 0 && sequenceTotal <= 16;
-        ErrorCorrectionInfo ecInfo = FindVersion(segments, count, level, minVersion, extraMode, isStructuredAppend);
-        if (ecInfo.version == 0) {
-            ThrowException("Unable to find suitable QR version.");
-        }
-        if (isStructuredAppend && extraMode.mode == EncodingExtraMode::MICRO_QR) {
-            extraMode = QRMatrixExtraMode();
-        }
+        ErrorCorrectionInfo ecInfo = FindVersion(segments, level, minVersion, extraMode, isStructuredAppend);
+        if (ecInfo.version == 0) ThrowException("Unable to find suitable QR version.");
+    
+        if (isStructuredAppend && extraMode.mode == EncodingExtraMode::MICRO_QR) extraMode = QRMatrixExtraMode();
+    
         // Allocate
         UnsignedByte* buffer = Allocate(ecInfo.codewords);
         size_t bitIndex = 0;
@@ -2497,9 +2214,8 @@ public:
             bitIndex += 8;
         }
         // Encode data
-        for (size_t index = 0; index < count; index++) {
-            EncodeSegment(buffer, segments[index], index, level, ecInfo, &bitIndex, extraMode);
-        }
+        for (size_t sIdx = 0; sIdx < segments.size(); ++sIdx)
+            EncodeSegment(buffer, segments.at(sIdx), sIdx, level, ecInfo, &bitIndex, extraMode);
         // Finish
         return FinishEncodingData(buffer, ecInfo, &bitIndex, maskId, extraMode);
     }
@@ -2623,8 +2339,8 @@ public:
             mesg.terms[index] = encodedData[offset + index];
         }
         Polynomial ecc = mesg.GetErrorCorrections(ecInfo.ecCodewordsPerBlock);
-        UnsignedByte* result = Allocate(ecc.length);
-        for (size_t index = 0; index < ecc.length; index++) {
+        UnsignedByte* result = Allocate(ecc.Length());
+        for (size_t index = 0; index < ecc.Length(); index++) {
             result[index] = ecc.terms[index];
         }
         return result;
@@ -2761,18 +2477,9 @@ public:
     }
 
     /// Encode segments into buffer
-    static void EncodeSegment(
-        UnsignedByte* buffer,
-        QRMatrixSegment segment,
-        size_t segmentIndex,
-        ErrorCorrectionLevel level,
-        ErrorCorrectionInfo ecInfo,
-        size_t* bitIndex,
-        QRMatrixExtraMode extraMode)
+    static void EncodeSegment(UnsignedByte* buffer, const QRMatrixSegment & segment, size_t sIdx, ErrorCorrectionLevel level, ErrorCorrectionInfo ecInfo, size_t* bitIndex, QRMatrixExtraMode extraMode)
     {
-        if (segment.Length() == 0) {
-            return;
-        }
+        if (0 == segment.Length()) return;
         bool isMicro = extraMode.mode == EncodingExtraMode::MICRO_QR;
         size_t uintSize = sizeof(size_t);
         // ECI Header if enable
@@ -2796,7 +2503,7 @@ public:
             *bitIndex += 8 * eciLen;
             delete[] eciHeader;
         }
-        if (segmentIndex == 0) {
+        if (sIdx == 0) {
             if (extraMode.mode == EncodingExtraMode::FNC1_FIRST) {
                 UnsignedByte fnc1Header = 0b0101;
                 CopyBits(&fnc1Header, 1, 4, false, buffer, *bitIndex, 4);
@@ -2806,12 +2513,12 @@ public:
                 CopyBits(&fnc1Header, 1, 4, false, buffer, *bitIndex, 4);
                 *bitIndex += 4;
                 fnc1Header = 0;
-                switch (extraMode.appIndicatorLength) {
+                switch (extraMode.AppIndicatorLength()) {
                 case 1:
                     fnc1Header = extraMode.appIndicator[0] + 100;
                     break;
                 case 2: {
-                    std::string numStr = std::string((char*)extraMode.appIndicator, 2);
+                    std::string numStr = std::string((const char *)extraMode.appIndicator.data(), 2);
                     fnc1Header = std::stoi(numStr);
                 }
                     break;
@@ -2863,7 +2570,7 @@ public:
             *bitIndex += encoder::AlphaNumericEncoder::Encode(segment.Data(), segment.Length(), buffer, *bitIndex);
             break;
         case EncodingMode::BYTE: {
-            UnsignedByte* bytes = segment.Data();
+            const auto * bytes = segment.Data().data();
             for (size_t idx = 0; idx < segment.Length(); idx += 1) {
                 CopyBits(bytes, 1, 0, false, buffer, *bitIndex, 8);
                 *bitIndex += 8;
@@ -2878,6 +2585,7 @@ public:
     }
 };
 
+
 inline void FillCell(boost::gil::gray8_image_t::view_t & view, size_t dimension, size_t row, size_t col, UnsignedByte scale, UnsignedByte quiteZone)
 {
     size_t rowOffset = (row + quiteZone) * scale;
@@ -2885,17 +2593,6 @@ inline void FillCell(boost::gil::gray8_image_t::view_t & view, size_t dimension,
     for (row = 0; row < scale; row++)
         for(col = 0; col < scale; col++)
             view(colOffset + col, rowOffset + row) = 0;
-    // size_t rowOffset = (row + quiteZone) * scale * dimension;
-    // size_t colOffset = (column + quiteZone) * scale;
-    // for (size_t index = 0; index < scale; index++) {
-    //     size_t pic = rowOffset + index * dimension + colOffset;
-    //     for (unsigned jndex = 0; jndex < scale; jndex += 1) {
-    //         // image[pic] = 0;
-    //         pic += 1;
-    //     }
-    // }
-
-    //todo
 }
 
 inline void makeQR(const QRMatrixBoard & board, std::string_view path, bool isMicro)
@@ -2926,15 +2623,15 @@ inline void makeQR(const QRMatrixBoard & board, std::string_view path, bool isMi
 
 } // namespace detail
 
-bool EncodeQR(std::string_view path, const UnsignedByte * raw, EncodingMode mode, size_t eci, bool isMicro, std::string * errMsg = nullptr)
+bool EncodeQR(std::string_view path, const UnsignedBytes & raw, EncodingMode mode, size_t eci, bool isMicro, std::string * errMsg = nullptr)
 {
     using namespace detail;
     try {
         ErrorCorrectionLevel level = isMicro ? ErrorCorrectionLevel::LOW : ErrorCorrectionLevel::HIGH;
-        QRMatrixSegment segment(mode, raw, std::strlen((const char*)raw), eci != 0 ? eci : DEFAULT_ECI_ASSIGMENT_VALUE);
-        QRMatrixSegment segments[] = {segment};
+        QRMatrixSegment segment(mode, raw, eci != 0 ? eci : DEFAULT_ECI_ASSIGMENT_VALUE);
+        QRMatrixSegments segments = {segment};
         QRMatrixExtraMode extra = isMicro ? QRMatrixExtraMode(EncodingExtraMode::MICRO_QR) : QRMatrixExtraMode();
-        QRMatrixBoard board = QRMatrixEncoder::Encode(segments, 1, level, extra);
+        QRMatrixBoard board = QRMatrixEncoder::Encode(segments, level, extra);
         std::cout << board.Description() << std::endl;
         makeQR(board, path, isMicro);
     } catch (const Exception & e) {
