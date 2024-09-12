@@ -6,6 +6,6 @@ int main()
 {
     using namespace qr;
     std::string s{"hello world"};
-    const UnsignedByte* raw = (const UnsignedByte*)s.c_str();
+    UnsignedBytes raw(s.begin(), s.end());
     EncodeQR("./test.png", raw, EncodingMode::BYTE, 0, false);
 }
