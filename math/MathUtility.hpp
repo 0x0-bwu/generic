@@ -216,6 +216,13 @@ inline bool Within(num_type num, num_type min, num_type max, num_type tolerance 
 }
 
 template <typename num_type, std::enable_if_t<std::is_floating_point<num_type>::value, bool> = true>
+inline num_type Round(num_type value, size_t digits)
+{
+    num_type factor = std::pow(num_type(10), digits);
+    return std::round(value * factor) / factor;   
+}
+
+template <typename num_type, std::enable_if_t<std::is_floating_point<num_type>::value, bool> = true>
 inline num_type RoundDigits(num_type value, size_t digits)
 {
     if (value == .0) return 0;
