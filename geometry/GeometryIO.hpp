@@ -29,16 +29,14 @@
 
 namespace {
 
-using namespace generic::geometry;
-
 template <typename num_type>
-inline std::ostream & operator<< (std::ostream & os, const Point2D<num_type> & p)
+inline std::ostream & operator<< (std::ostream & os, const generic::geometry::Point2D<num_type> & p)
 {
     return os << boost::geometry::wkt(p);
 }
 
 template <typename num_type>
-inline std::istream & operator >> (std::istream & is, Point2D<num_type> & p)
+inline std::istream & operator >> (std::istream & is, generic::geometry::Point2D<num_type> & p)
 {
     std::string s;
     std::getline(is, s);
@@ -48,14 +46,14 @@ inline std::istream & operator >> (std::istream & is, Point2D<num_type> & p)
 }
 
 template <typename num_type>
-inline std::ostream & operator<< (std::ostream & os, const Point3D<num_type> & p)
+inline std::ostream & operator<< (std::ostream & os, const generic::geometry::Point3D<num_type> & p)
 {
     char sp(32);
     return os << "POINT(" << p[0] << sp << p[1] << sp << p[2] << ')';
 }
 
 template <typename num_type>
-inline std::ostream & operator<< (std::ostream & os, const Segment2D<num_type> & s)
+inline std::ostream & operator<< (std::ostream & os, const generic::geometry::Segment2D<num_type> & s)
 {
     char sp(32);
     os << "SEGMENT(";
@@ -65,7 +63,7 @@ inline std::ostream & operator<< (std::ostream & os, const Segment2D<num_type> &
 }
 
 template <typename num_type>
-inline std::ostream & operator<< (std::ostream & os, const Segment3D<num_type> & s)
+inline std::ostream & operator<< (std::ostream & os, const generic::geometry::Segment3D<num_type> & s)
 {   
     char sp(32);
     os << "SEGMENT(";
@@ -75,7 +73,7 @@ inline std::ostream & operator<< (std::ostream & os, const Segment3D<num_type> &
 }
 
 template <typename num_type>
-inline std::ostream & operator<< (std::ostream & os, const Triangle2D<num_type> & t)
+inline std::ostream & operator<< (std::ostream & os, const generic::geometry::Triangle2D<num_type> & t)
 {
     char sp(32);
     os << "TRIANGLE(";
@@ -86,7 +84,7 @@ inline std::ostream & operator<< (std::ostream & os, const Triangle2D<num_type> 
 }
 
 template <typename num_type>
-inline std::ostream & operator<< (std::ostream & os, const Triangle3D<num_type> & t)
+inline std::ostream & operator<< (std::ostream & os, const generic::geometry::Triangle3D<num_type> & t)
 {
     char sp(32);
     os << "TRIANGLE(";
@@ -97,7 +95,7 @@ inline std::ostream & operator<< (std::ostream & os, const Triangle3D<num_type> 
 }
 
 template <typename num_type>
-inline std::ostream & operator<< (std::ostream & os, const Box2D<num_type> & b)
+inline std::ostream & operator<< (std::ostream & os, const generic::geometry::Box2D<num_type> & b)
 {
     char sp(32);
     os << "BOX(";
@@ -107,7 +105,7 @@ inline std::ostream & operator<< (std::ostream & os, const Box2D<num_type> & b)
 }
 
 template <typename num_type>
-inline std::ostream & operator<< (std::ostream & os, const Box3D<num_type> & b)
+inline std::ostream & operator<< (std::ostream & os, const generic::geometry::Box3D<num_type> & b)
 {
     char sp(32);
     os << "BOX(";
@@ -117,7 +115,7 @@ inline std::ostream & operator<< (std::ostream & os, const Box3D<num_type> & b)
 }
 
 template <typename num_type>
-inline std::ostream & operator<< (std::ostream & os, const Polyline2D<num_type> & l)
+inline std::ostream & operator<< (std::ostream & os, const generic::geometry::Polyline2D<num_type> & l)
 {
     char sp(32);
     os << "LINE(";
@@ -129,13 +127,13 @@ inline std::ostream & operator<< (std::ostream & os, const Polyline2D<num_type> 
 }
 
 template <typename num_type>
-inline std::ostream & operator << (std::ostream & os, const Polygon2D<num_type> & p)
+inline std::ostream & operator << (std::ostream & os, const generic::geometry::Polygon2D<num_type> & p)
 {
     return os << boost::geometry::wkt(p);
 }
 
 template <typename num_type>
-inline std::istream & operator >> (std::istream & is, Polygon2D<num_type> & p)
+inline std::istream & operator >> (std::istream & is, generic::geometry::Polygon2D<num_type> & p)
 {
     std::string s;
     std::getline(is, s);
@@ -146,13 +144,13 @@ inline std::istream & operator >> (std::istream & is, Polygon2D<num_type> & p)
 }
 
 template <typename num_type>
-inline std::ostream & operator << (std::ostream & os, const PolygonWithHoles2D<num_type> & pwh)
+inline std::ostream & operator << (std::ostream & os, const generic::geometry::PolygonWithHoles2D<num_type> & pwh)
 {
     return os << boost::geometry::wkt(pwh);
 }
 
 template <typename num_type>
-inline std::istream & operator >> (std::istream & is, PolygonWithHoles2D<num_type> & pwh)
+inline std::istream & operator >> (std::istream & is, generic::geometry::PolygonWithHoles2D<num_type> & pwh)
 {   
     using point_t = boost::geometry::model::point<num_type, 2, boost::geometry::cs::cartesian>;
     using polygon_t = boost::geometry::model::polygon<point_t>;
@@ -161,11 +159,11 @@ inline std::istream & operator >> (std::istream & is, PolygonWithHoles2D<num_typ
     std::getline(is, s);
     try { boost::geometry::read_wkt(s, p); }
     catch (...) { is.setstate(std::ios::failbit); }
-    pwh = toPolygonWithHoles2D(p);
+    pwh = generic::geometry::toPolygonWithHoles2D(p);
     return is;
 }
 
-template <typename geometry_t, typename std::enable_if<traits::is_geometry_t<geometry_t>::value, bool>::type = true>
+template <typename geometry_t, typename std::enable_if<generic::geometry::traits::is_geometry_t<geometry_t>::value, bool>::type = true>
 inline std::string toString(const geometry_t & geometry)
 {
     std::stringstream ss;
