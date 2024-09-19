@@ -10,6 +10,7 @@
 #include <shared_mutex>
 #include <thread>
 #include <memory>
+#include <mutex>
 namespace generic::thread {
 
 class FunctionWrapper
