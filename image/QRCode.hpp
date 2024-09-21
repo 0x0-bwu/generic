@@ -643,10 +643,10 @@ struct ErrorCorrectionInfo
     Unsigned2Bytes group2BlockCodewords{0};
 
     ErrorCorrectionInfo() = default;
-    ErrorCorrectionInfo(UnsignedByte ver, ErrorCorrectionLevel level, const Unsigned2Bytes data[6])
+    ErrorCorrectionInfo(UnsignedByte ver, ErrorCorrectionLevel lvl, const Unsigned2Bytes data[6])
     {
+        level = lvl;
         version = ver;
-        level = level;
         codewords = data[0];
         ecCodewordsPerBlock = data[1];
         group1Blocks = data[2];
