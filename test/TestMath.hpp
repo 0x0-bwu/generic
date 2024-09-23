@@ -95,6 +95,12 @@ void t_math_utility()
         BOOST_CHECK_CLOSE(result.first, 30, 1);
         BOOST_CHECK_CLOSE(result.second, 9, 1);
     }
+
+    //
+    {
+        BOOST_CHECK(2 == PrevPowTwo(math::pi));
+        BOOST_CHECK(4 == NextPowTwo(math::pi));
+    }
 }
 
 void t_math_polynomial_fit()

@@ -318,16 +318,16 @@ inline auto MeanAndVariance(Iterator begin, Iterator end)
 template <typename T>
 inline constexpr size_t NextPowTwo(const T v)
 {
-  static_assert(std::is_unsigned<T>::value, "signed type");
-  return v ? (1 << size_t(1 + std::floor(std::log2(v - 1)))) : 1;
+    if constexpr (std::is_unsigned<T>::value) { GENERIC_ASSERT(not (v < 0)); }
+    return v ? (1 << size_t(1 + std::floor(std::log2(v - 1)))) : 1;
 }
 
 /// @brief first value equals to 2^x that less than v
 template <class T>
 inline constexpr size_t PrevPowTwo(const T v)
 {
-  static_assert(std::is_unsigned<T>::value, "signed type");
-  return v ? (1 << size_t(std::floor(std::log2(v)))) : 0;
+    if constexpr (std::is_unsigned<T>::value) { GENERIC_ASSERT(not (v < 0)); }
+    return v ? (1 << size_t(std::floor(std::log2(v)))) : 0;
 }
 
 }//namespace math
