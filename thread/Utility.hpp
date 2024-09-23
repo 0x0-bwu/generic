@@ -13,6 +13,13 @@
 #include <mutex>
 namespace generic::thread {
 
+template <typename Condition>
+void SpinWait(Condition && condition)
+{
+    while (condition()) {
+        std::this_thread::yield();
+    }
+}
 class FunctionWrapper
 {
     struct ImplBase{

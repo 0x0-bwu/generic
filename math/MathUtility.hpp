@@ -313,5 +313,22 @@ inline auto MeanAndVariance(Iterator begin, Iterator end)
     float_t variance = std::accumulate(begin, end, 0.0, var);
     return std::pair<float_t, float_t>(mean, variance);
 }
+
+/// @brief first value equals to 2^x that greater than v
+template <typename T>
+inline constexpr size_t NextPowTwo(const T v)
+{
+  static_assert(std::is_unsigned<T>::value, "signed type");
+  return v ? (1 << size_t(1 + std::floor(std::log2(v - 1)))) : 1;
+}
+
+/// @brief first value equals to 2^x that less than v
+template <class T>
+inline constexpr size_t PrevPowTwo(const T v)
+{
+  static_assert(std::is_unsigned<T>::value, "signed type");
+  return v ? (1 << size_t(std::floor(std::log2(v)))) : 0;
+}
+
 }//namespace math
 }//namespace generic

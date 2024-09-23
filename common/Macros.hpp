@@ -30,7 +30,11 @@
 #ifdef GENERIC_OS_WINDOWS
     #define GENERIC_FOLDER_SEPS "\\/"
     #define GENERIC_DEFAULT_EOL "\r\n"
+    #define GENERIC_LIKELY(EXP)   (EXP)
+    #define GENERIC_UNLIKELY(EXP) (EXP)
 #else
     #define GENERIC_FOLDER_SEPS "/"
     #define GENERIC_DEFAULT_EOL "\n"
+    #define GENERIC_LIKELY(EXP)   __builtin_expect(!!(EXP), 1)
+    #define GENERIC_UNLIKELY(EXP) __builtin_expect(!!(EXP), 0)
 #endif
