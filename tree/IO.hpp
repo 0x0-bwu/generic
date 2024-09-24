@@ -24,26 +24,26 @@ inline Stream & operator<< (Stream & os, const generic::tree::RandomTree & tree)
 }
 
 namespace generic{
-namespace tree {
-inline std::string toString(const kdtree::PlaneSplitMethod & method)
+
+inline std::string toString(const tree::kdtree::PlaneSplitMethod & method)
 {
     std::string str;
-    using namespace kdtree;
+    using namespace tree::kdtree;
     if(PlaneSplitMethod::Sequential == method) str = "Sequential";
     else if(PlaneSplitMethod::MaxRange == method) str = "MaxRange";
     else if(PlaneSplitMethod::MaxVariance == method) str = "MaxVariance";
     return str;
 }
 
-inline std::string toString(const kdtree::ValueSplitMethod & method)
+inline std::string toString(const tree::kdtree::ValueSplitMethod & method)
 {
     std::string str;
-    using namespace kdtree;
+    using namespace tree::kdtree;
     if(ValueSplitMethod::Random == method) str = "Random";
     else if(ValueSplitMethod::Median == method) str = "Median";
     return str;
 }
-
+namespace tree {
 namespace io {
 inline bool WriteDot(const RandomTree & tree, std::string_view filename)
 {

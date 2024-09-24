@@ -55,10 +55,7 @@ inline double Kelvins2Celsius(double t)
 }
 
 }//namespace unit
-}//namespace generic
 
-namespace {
-using namespace generic;
 inline std::string toString(unit::Time unit)
 {
     using namespace unit;
@@ -73,4 +70,5 @@ inline std::string toString(unit::Time unit)
         default : return "";
     }       
 }
-}
+
+}//namespace generic

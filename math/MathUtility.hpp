@@ -7,10 +7,13 @@
  */
 #pragma once
 #include "generic/common/Exception.hpp"
+#include "generic/common/System.hpp"
 #include "generic/common/Traits.hpp"
 #include "Numbers.hpp"
 #include <type_traits>
 #include <algorithm>
+#include <climits>
+#include <bitset>
 #include <random>
 #include <cmath>
 namespace generic{
@@ -212,6 +215,36 @@ inline bool Within(num_type num, num_type min, num_type max, num_type tolerance 
     return detail::Within<num_type>(num, min, max, tolerance, interval_type{});
 }
 
+template <typename num_type, std::enable_if_t<std::is_floating_point<num_type>::value, bool> = true>
+inline num_type Round(num_type value, size_t digits)
+{
+    num_type factor = std::pow(num_type(10), digits);
+    return std::round(value * factor) / factor;   
+}
+
+template <typename num_type, std::enable_if_t<std::is_floating_point<num_type>::value, bool> = true>
+inline num_type RoundDigits(num_type value, size_t digits)
+{
+    if (value == .0) return 0;
+    if (digits == 0) return value;
+    num_type factor = std::pow(num_type(10), digits - std::ceil(std::log10(std::abs(value))));
+    return std::round(value * factor) / factor;   
+}
+
+template <typename num_type, std::enable_if_t<std::is_floating_point<num_type>::value, bool> = true>
+inline std::bitset<sizeof(num_type) * CHAR_BIT> toBits(num_type num)
+{
+    std::bitset<sizeof(num_type) * CHAR_BIT> result;
+    const char * bits = reinterpret_cast<const char*>(&num);
+    for (size_t i = 0; i < sizeof(num_type); ++i) {
+        result <<= 8;
+        if constexpr (common::isLittleEndian)
+            result |= std::bitset<CHAR_BIT>(bits[sizeof(num_type) - i - 1]).to_ullong();
+        else result |= std::bitset<CHAR_BIT>(bits[i]).to_ullong();
+    }
+    return result;
+}
+
 ///@brief returns inverse of a scalar, a huge number but not INF if input is closed or equal to zero
 template <typename num_type>
 inline float_type<num_type> SafeInv(num_type scalar)
@@ -280,5 +313,22 @@ inline auto MeanAndVariance(Iterator begin, Iterator end)
     float_t variance = std::accumulate(begin, end, 0.0, var);
     return std::pair<float_t, float_t>(mean, variance);
 }
+
+/// @brief first value equals to 2^x that greater than v
+template <typename T>
+inline constexpr size_t NextPowTwo(const T v)
+{
+    if constexpr (std::is_unsigned<T>::value) { GENERIC_ASSERT(not (v < 0)); }
+    return v ? (1 << size_t(1 + std::floor(std::log2(v - 1)))) : 1;
+}
+
+/// @brief first value equals to 2^x that less than v
+template <class T>
+inline constexpr size_t PrevPowTwo(const T v)
+{
+    if constexpr (std::is_unsigned<T>::value) { GENERIC_ASSERT(not (v < 0)); }
+    return v ? (1 << size_t(std::floor(std::log2(v)))) : 0;
+}
+
 }//namespace math
 }//namespace generic

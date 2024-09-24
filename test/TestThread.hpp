@@ -151,12 +151,18 @@ void t_taskflow()
     BOOST_CHECK(res == false);
 }
 
+void t_utility()
+{
+    BOOST_CHECK(ThreadIdMgr::GetId() == 0);
+}
+
 test_suite * create_thread_test_suite()
 {
     test_suite * thread_suite = BOOST_TEST_SUITE("s_thread");
     //
     thread_suite->add(BOOST_TEST_CASE(&t_mapreduce));
     thread_suite->add(BOOST_TEST_CASE(&t_taskflow));
+    thread_suite->add(BOOST_TEST_CASE(&t_utility));
     //
     return thread_suite;
 }

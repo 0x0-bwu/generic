@@ -113,7 +113,7 @@ public:
     {
         try {
             m_os << m_label << " time: " << m_timer.Count();
-            m_os << ::toString(m_timer.Unit());
+            m_os << generic::toString(m_timer.Unit());
             m_os << std::endl;
         }
         catch (...) {}

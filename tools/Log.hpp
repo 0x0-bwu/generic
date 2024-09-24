@@ -35,6 +35,7 @@
 
 namespace generic {
 ///@brief namespace of log library
+
 namespace log {
 
 enum class Level
@@ -49,8 +50,11 @@ enum class Level
     nLevels
 };
 
-inline std::string toString(Level level)
+} // namespace log
+
+inline std::string toString(log::Level level)
 {
+    using namespace log;
     switch (level)
     {
         case Level::Trace : return "Trace";
@@ -63,6 +67,7 @@ inline std::string toString(Level level)
         default: return "";
     }
 }
+namespace log {
 
 using LogClock = tools::SystemClock;
 using LogTimePoint = typename LogClock::TimePoint;
@@ -1060,7 +1065,7 @@ public:
         std::lock_guard<std::mutex> lock(m_loggerMapMutex);
         m_formatter = std::move(formatter);
         for(auto & logger : m_loggers){
-            logger.second->SetFormatter(formatter->Clone());
+            logger.second->SetFormatter(m_formatter->Clone());
         }
     }
 

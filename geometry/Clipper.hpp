@@ -16,6 +16,7 @@ namespace geometry {
 namespace clipper  {
 
 using namespace common;
+using float_t = double;
 using Int128 = boost::multiprecision::int128_t;
 
 namespace constant {
@@ -214,7 +215,6 @@ struct Join {
 template <typename num_type>
 struct TEdge
 {
-    using float_t = float_type<num_type>;
     Point<num_type> bot;
     Point<num_type> curr; //current (updated for every new scanbeam)
     Point<num_type> top;
@@ -265,7 +265,6 @@ inline void InitEdge(TEdge<num_type> * e, TEdge<num_type> * eNext, TEdge<num_typ
 template <typename num_type>
 inline void SetDx(TEdge<num_type> & e)
 {
-    using float_t = float_type<num_type>;
     num_type dy = (e.top[1] - e.bot[1]);
     if(dy == 0) e.dx = constant::horizontal;
     else e.dx = static_cast<float_t>(e.top[0] - e.bot[0]) / dy;
@@ -298,7 +297,6 @@ inline void ReverseHorizontal(TEdge<num_type> & e)
 template <typename num_type>
 inline bool isHorizontal(TEdge<num_type> & e)
 {
-    using float_t = float_type<num_type>;
     return math::EQ<float_t>(e.dx, constant::horizontal);
 }
 
@@ -347,7 +345,6 @@ inline num_type TopX(TEdge<num_type> & edge, const num_type currentY)
 template <typename num_type>
 inline void IntersectPoint(TEdge<num_type> & edge1, TEdge<num_type> & edge2, Point<num_type> & ip)
 {
-    using float_t = float_type<num_type>;
     float_t b1, b2;
     if(math::EQ(edge1.dx, edge2.dx)) {
         ip[1] = edge1.curr[1];
@@ -516,16 +513,14 @@ inline TEdge<num_type> * GetNextInAEL(TEdge<num_type> * e, Direction dir)
 }
 
 template <typename num_type>
-inline float_type<num_type> GetDx(const Point<num_type> p1, const Point<num_type> p2)
+inline float_t GetDx(const Point<num_type> p1, const Point<num_type> p2)
 {
-  return math::EQ(p1[1], p2[1]) ? constant::horizontal : float_type<num_type>(p2[0] - p1[0]) / (p2[1] - p1[1]);
+  return math::EQ(p1[1], p2[1]) ? constant::horizontal : float_t(p2[0] - p1[0]) / (p2[1] - p1[1]);
 }
 
 template <typename num_type>
 inline bool FirstIsBottomPt(const OutPt<num_type> * btmPt1, const OutPt<num_type> * btmPt2)
 {
-    using float_t = float_type<num_type>;
-
     auto * p = btmPt1->prev;
     while(p->pt == btmPt1->pt && p != btmPt1) p = p->prev;
     float_t dx1p = std::fabs(GetDx(btmPt1->pt, p->pt));
@@ -662,9 +657,8 @@ inline size_t PointCount(OutPt<num_type> * pts)
 }
 
 template <typename num_type>
-inline float_type<num_type> Area(const OutPt<num_type> * op)
+inline float_t Area(const OutPt<num_type> * op)
 {
-    using float_t = float_type<num_type>;
     float_t area = 0;
     const auto * startOp = op;
     if(nullptr == op) return area;
@@ -676,7 +670,7 @@ inline float_type<num_type> Area(const OutPt<num_type> * op)
 }
 
 template <typename num_type>
-inline float_type<num_type> Area(const OutRec<num_type> & outRec)
+inline float_t Area(const OutRec<num_type> & outRec)
 {
     return Area(outRec.pts);
 }
@@ -715,7 +709,6 @@ inline void UpdateOutPtIdxs(OutRec<num_type> & outrec)
 template <typename num_type>
 inline int PointInPolygon (const Point<num_type> & pt, OutPt<num_type> * op)
 {
-    using float_t = float_type<num_type>;
     //returns 0 if false, +1 if true, -1 if pt ON polygon boundary
     int result = 0;
     auto * startOp = op;

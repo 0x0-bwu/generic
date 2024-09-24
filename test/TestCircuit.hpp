@@ -13,10 +13,11 @@
 using namespace boost::unit_test;
 using namespace generic;
 using namespace generic::ckt;
-using t_ckt_num_types = boost::mpl::list<double>;
+using t_ckt_num_types = boost::mpl::list<float, double>;
 
-BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_dense_ckt_simulator_t, float_t)
+void t_dense_ckt_simulator()
 {
+    using float_t = double; 
     float_t vdd = 0.88;
     float_t ts  = 200e-12;
     auto steps = 1000;
@@ -44,10 +45,19 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_dense_ckt_simulator_t, float_t)
     BOOST_CHECK_CLOSE(outs.back(), 0.82852, 1e-2);
 }
 
-template <typename float_t, template <typename> class circuit_t>
-inline circuit_t<float_t> makeCircuit()
+void t_dense_ckt_cross_talk()
 {
-    auto ckt = circuit_t<float_t>(12, {0, 6}, {3, 9});
+    using float_t = double;
+    float_t vdd = 0.88;
+    float_t ts  = 200e-12;
+    auto steps = 1000;
+    auto vfun = [vdd, ts](size_t i, auto t) -> float_t
+    {
+        if (i == 0) return t > ts ? vdd : t * vdd / ts;
+        else return t < ts ? vdd : vdd - (t - ts) * vdd / ts;
+    };
+
+    auto ckt = DenseCircuit<float_t>(12, {0, 6}, {3, 9});
     ckt.SetR(0, 1, 0.01);
     ckt.SetR(6, 7, 0.01);
 
@@ -74,21 +84,6 @@ inline circuit_t<float_t> makeCircuit()
 
     ckt.SetC(5, 1e-12);
     ckt.SetC(11, 1e-12);
-
-    return ckt;
-}
-
-BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_dense_ckt_cross_talk_t, float_t)
-{
-    float_t vdd = 0.88;
-    float_t ts  = 200e-12;
-    auto steps = 1000;
-    auto vfun = [vdd, ts](size_t i, auto t) -> float_t
-    {
-        if (i == 0) return t > ts ? vdd : t * vdd / ts;
-        else return t < ts ? vdd : vdd - (t - ts) * vdd / ts;
-    };
-    auto ckt = makeCircuit<float_t, DenseCircuit>();    
     const auto & m = ckt.Build();
     auto im = Intermidiate<float_t>(m, false);
     using namespace boost::numeric;
@@ -120,8 +115,9 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_dense_ckt_cross_talk_t, float_t)
     BOOST_CHECK_CLOSE(max9, 0.842692, 1e-2);
 }
 
-BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_mor_ckt_cross_talk_t, float_t)
+void t_mor_ckt_cross_talk()
 {
+    using float_t = double;
     float_t vdd = 0.88;
     float_t ts  = 200e-12;
     auto steps = 1000;
@@ -130,7 +126,33 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_mor_ckt_cross_talk_t, float_t)
         if (i == 0) return t > ts ? vdd : t * vdd / ts;
         else return t < ts ? vdd : vdd - (t - ts) * vdd / ts;
     };
-    auto ckt = makeCircuit<float_t, SparseCircuit>();    
+    auto ckt = SparseCircuit<float_t>(12, {0, 6}, {3, 9});
+    ckt.SetR(0, 1, 0.01);
+    ckt.SetR(6, 7, 0.01);
+
+    ckt.SetC(1, 1e-12);
+    ckt.SetC(7, 1e-12);
+    ckt.SetR(1, 2, 10);
+    ckt.SetR(7, 8, 10);
+
+    ckt.SetC(2, 1e-12);
+    ckt.SetC(8, 1e-12);
+    ckt.SetR(2, 3, 10);
+    ckt.SetR(8, 9, 10);
+
+    ckt.SetC(3, 1e-12);
+    ckt.SetC(9, 1e-12);
+    ckt.SetR(3, 4, 10);
+    ckt.SetR(9, 10, 10);
+    ckt.SetC(3, 9, 1e-12);
+    
+    ckt.SetC(4, 1e-12);
+    ckt.SetC(10, 1e-12);
+    ckt.SetR(4, 5, 10);
+    ckt.SetR(10, 11, 10);
+
+    ckt.SetC(5, 1e-12);
+    ckt.SetC(11, 1e-12);   
     const auto & m = ckt.Build();
     auto rm = Reduce(m, 5);    
     auto im = Intermidiate<float_t>(rm.m, false);
@@ -192,9 +214,9 @@ test_suite * create_circuit_test_suite()
 {
     test_suite * circuit_suite = BOOST_TEST_SUITE("s_circuit");
     //
-    circuit_suite->add(BOOST_TEST_CASE_TEMPLATE(t_dense_ckt_simulator_t, t_ckt_num_types));
-    circuit_suite->add(BOOST_TEST_CASE_TEMPLATE(t_dense_ckt_cross_talk_t, t_ckt_num_types));
-    circuit_suite->add(BOOST_TEST_CASE_TEMPLATE(t_mor_ckt_cross_talk_t, t_ckt_num_types));
+    circuit_suite->add(BOOST_TEST_CASE(&t_dense_ckt_simulator));
+    circuit_suite->add(BOOST_TEST_CASE(&t_dense_ckt_cross_talk));
+    circuit_suite->add(BOOST_TEST_CASE(&t_mor_ckt_cross_talk));
     circuit_suite->add(BOOST_TEST_CASE_TEMPLATE(t_mor_retrieve_pi_model, t_ckt_num_types));
     //
     return circuit_suite;

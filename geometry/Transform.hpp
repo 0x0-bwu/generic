@@ -831,10 +831,8 @@ inline void Transform(iterator begin, iterator end, const transform_t & trans)
 
 namespace {
 
-using namespace generic::geometry;
-
 template <typename float_t>
-inline std::ostream & operator<< (std::ostream & os, const Transform2D<float_t> & trans)
+inline std::ostream & operator<< (std::ostream & os, const generic::geometry::Transform2D<float_t> & trans)
 {
     os << '[';
     for (size_t i = 0; i < 3; ++i) {
@@ -848,7 +846,7 @@ inline std::ostream & operator<< (std::ostream & os, const Transform2D<float_t> 
 }
 
 template <typename float_t>
-inline std::ostream & operator<< (std::ostream & os, const Transform3D<float_t> & trans)
+inline std::ostream & operator<< (std::ostream & os, const generic::geometry::Transform3D<float_t> & trans)
 {
     os << '[';
     for (size_t i = 0; i < 4; ++i) {

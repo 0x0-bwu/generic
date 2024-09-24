@@ -370,61 +370,61 @@ void t_geometry_utility()
     ///2d
     //Cast
     Point2D<double> p2d_double(-0.999, 1.999);
-    auto p2d_int = p2d_double.template Cast<int>();
+    auto p2d_int = p2d_double.template Cast<int64_t>();
     BOOST_TEST(p2d_int[0] == -1);
     BOOST_TEST(p2d_int[1] ==  2);
 
     //Distance
-    auto dist2d = Distance(Point2D<int>(0, 0), Point2D<int>(1, 1));
+    auto dist2d = Distance(Point2D<int64_t>(0, 0), Point2D<int64_t>(1, 1));
     BOOST_CHECK_CLOSE(dist2d, std::sqrt(2.0), t);
 
     //CircumCircle
-    auto circle = CircumCircle(Point2D<int>(), Point2D<int>(1, 0), Point2D<int>(1, 1));
+    auto circle = CircumCircle(Point2D<int64_t>(), Point2D<int64_t>(1, 0), Point2D<int64_t>(1, 1));
     BOOST_CHECK_CLOSE(circle.o[0], 0.5, t);
     BOOST_CHECK_CLOSE(circle.o[1], 0.5, t);
     BOOST_CHECK_CLOSE(circle.r, std::sqrt(0.5), t);
 
-    circle = CircumCircle(Point2D<int>(-1, 0), Point2D<int>(0, 0), Point2D<int>(1, 0));
+    circle = CircumCircle(Point2D<int64_t>(-1, 0), Point2D<int64_t>(0, 0), Point2D<int64_t>(1, 0));
     BOOST_CHECK_CLOSE(circle.o[0], 0, t);
     BOOST_TEST(circle.o[1] < std::numeric_limits<double>::infinity());
     BOOST_TEST(circle.r < std::numeric_limits<double>::infinity());
 
     //Inverse
-    auto inv_vec2d = Inverse(Vector2D<int>(2, -2));
+    auto inv_vec2d = Inverse(Vector2D<int64_t>(2, -2));
     BOOST_CHECK_CLOSE(inv_vec2d[0],  0.5, t);
     BOOST_CHECK_CLOSE(inv_vec2d[1], -0.5, t);
 
     //SafeInverse
-    auto safeinv_vec2d = SafeInverse(Vector2D<int>(0, -0));
+    auto safeinv_vec2d = SafeInverse(Vector2D<int64_t>(0, -0));
     BOOST_TEST(safeinv_vec2d[0] <=  std::numeric_limits<double>::infinity());
     BOOST_TEST(safeinv_vec2d[1] >= -std::numeric_limits<double>::infinity());
 
     //CrossProduct
-    auto cp2d = CrossProduct(Vector2D<int>(1, 0), Vector2D<int>(0, 1));
+    auto cp2d = CrossProduct(Vector2D<int64_t>(1, 0), Vector2D<int64_t>(0, 1));
     BOOST_TEST(cp2d == 1);
 
     ///3d
     //Cast
     Point3D<double> p3d_double(0.001, 1.999, -0.999);
-    auto p3d_int = p3d_double.template Cast<int>();
+    auto p3d_int = p3d_double.template Cast<int64_t>();
     BOOST_TEST(p3d_int[0] ==  0);
     BOOST_TEST(p3d_int[1] ==  2);
     BOOST_TEST(p3d_int[2] == -1);
 
     //Inverse
-    auto inv_vec3d = Inverse(Vector3D<int>(2, -2, 0));
+    auto inv_vec3d = Inverse(Vector3D<int64_t>(2, -2, 0));
     BOOST_CHECK_CLOSE(inv_vec3d[0],  0.5, t);
     BOOST_CHECK_CLOSE(inv_vec3d[1], -0.5, t);
     BOOST_TEST(inv_vec3d[2] == std::numeric_limits<double>::infinity());
 
     //SafeInverse
-    auto safeinv_vec3d = SafeInverse(Vector3D<int>(0, -0, 2));
+    auto safeinv_vec3d = SafeInverse(Vector3D<int64_t>(0, -0, 2));
     BOOST_TEST(safeinv_vec3d[0] <=  std::numeric_limits<double>::infinity());
     BOOST_TEST(safeinv_vec3d[1] >= -std::numeric_limits<double>::infinity());
     BOOST_CHECK_CLOSE(safeinv_vec3d[2], 0.5, t);
 
     //CrossProduct, DotProduct, Normalize
-    Vector3D<int> v3d1(-5, 30, -97), v3d2(62, -42, 0);
+    Vector3D<int64_t> v3d1(-5, 30, -97), v3d2(62, -42, 0);
     auto cp3d = CrossProduct(v3d1, v3d2);
     BOOST_TEST(DotProduct(v3d1, cp3d) == 0);
     BOOST_TEST(DotProduct(v3d2, cp3d) == 0);
@@ -439,12 +439,12 @@ void t_geometry_utility()
     BOOST_CHECK(PointLineLocation::Left   == GetPointSegmentLocation(Point2D<double>(1.0, 2.0), seg));
 
     //PointTriangleLocation
-    Point2D<int> p1(-2, 0), p2(2, 0), p3(0, 2);
-    BOOST_CHECK(PointTriangleLocation::Outside == GetPointTriangleLocation(Point2D<int>( 0, -1), p1, p2, p3));
-    BOOST_CHECK(PointTriangleLocation::OnEdge1 == GetPointTriangleLocation(Point2D<int>( 0,  0), p1, p2, p3));
-    BOOST_CHECK(PointTriangleLocation::OnEdge2 == GetPointTriangleLocation(Point2D<int>( 1,  1), p1, p2, p3));
-    BOOST_CHECK(PointTriangleLocation::OnEdge3 == GetPointTriangleLocation(Point2D<int>(-1,  1), p1, p2, p3));
-    BOOST_CHECK(PointTriangleLocation::Inside  == GetPointTriangleLocation(Point2D<int>( 0,  1), p1, p2, p3));
+    Point2D<int64_t> p1(-2, 0), p2(2, 0), p3(0, 2);
+    BOOST_CHECK(PointTriangleLocation::Outside == GetPointTriangleLocation(Point2D<int64_t>( 0, -1), p1, p2, p3));
+    BOOST_CHECK(PointTriangleLocation::OnEdge1 == GetPointTriangleLocation(Point2D<int64_t>( 0,  0), p1, p2, p3));
+    BOOST_CHECK(PointTriangleLocation::OnEdge2 == GetPointTriangleLocation(Point2D<int64_t>( 1,  1), p1, p2, p3));
+    BOOST_CHECK(PointTriangleLocation::OnEdge3 == GetPointTriangleLocation(Point2D<int64_t>(-1,  1), p1, p2, p3));
+    BOOST_CHECK(PointTriangleLocation::Inside  == GetPointTriangleLocation(Point2D<int64_t>( 0,  1), p1, p2, p3));
 
     //Round Corner
     {

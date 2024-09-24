@@ -6,6 +6,7 @@
  * @date 2022-02-22
  */
 #pragma once
+#include "Utility.hpp"
 #include <boost/lockfree/queue.hpp>
 #include <functional>
 #include <future>
@@ -15,38 +16,6 @@
 namespace generic{
 ///@brief thread related classes and functions
 namespace thread {
-class FunctionWrapper
-{
-    struct ImplBase{
-        virtual void Call() = 0;
-        virtual ~ImplBase(){}
-    };
-
-    template <typename Func>
-    struct ImplType : ImplBase
-    {
-        Func fun;
-        ImplType(Func && _fun) : fun(std::move(_fun)) {}
-        void Call() { fun(); }
-    };
-
-public:
-    FunctionWrapper() = default;
-    FunctionWrapper(FunctionWrapper & other) = delete;
-    FunctionWrapper(const FunctionWrapper & other) = delete;
-    FunctionWrapper & operator= (const FunctionWrapper & other) = delete;
-
-    FunctionWrapper(FunctionWrapper && other) : m_impl(std::move(other.m_impl)) {}
-    FunctionWrapper & operator= (FunctionWrapper && other) { m_impl = std::move(other.m_impl); return *this; }
-    
-    template <typename F>
-    FunctionWrapper(F && f) : m_impl(new ImplType<F>(std::move(f))) {}
-
-    void operator()() { m_impl->Call(); }
-
-private:
-    std::unique_ptr<ImplBase> m_impl;
-};
 
 class ThreadJoiner
 {
