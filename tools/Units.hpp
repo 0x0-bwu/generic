@@ -55,12 +55,10 @@ inline double Kelvins2Celsius(double t)
 }
 
 }//namespace unit
-}//namespace generic
 
-namespace {
-inline std::string toString(generic::unit::Time unit)
+inline std::string toString(unit::Time unit)
 {
-    using namespace generic::unit;
+    using namespace unit;
     switch(unit){
         case Time::Picosecond  : return "ps";
         case Time::Nanosecond  : return "ns";
@@ -72,4 +70,5 @@ inline std::string toString(generic::unit::Time unit)
         default : return "";
     }       
 }
-}
+
+}//namespace generic

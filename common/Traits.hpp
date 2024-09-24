@@ -85,6 +85,8 @@ constexpr bool iterable{};
 template <typename T>
 constexpr bool iterable<T, std::void_t<decltype(std::declval<T>().begin()), decltype(std::declval<T>().end())> > = true;
 
+}//namespace common
+
 template <typename type> inline std::string toString()      { return "unknown"; }
 template <> inline std::string toString<unsigned char>()    { return "unsigned char"; }
 template <> inline std::string toString<char>()             { return "char"; }
@@ -92,5 +94,4 @@ template <> inline std::string toString<int>()              { return "int"; }
 template <> inline std::string toString<long>()             { return "long"; }
 template <> inline std::string toString<double>()           { return "double"; }
 
-}//namespace common
 }//namespace generic

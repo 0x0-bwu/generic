@@ -163,17 +163,17 @@ inline std::istream & operator >> (std::istream & is, generic::geometry::Polygon
     return is;
 }
 
-template <typename geometry_t, typename std::enable_if<generic::geometry::traits::is_geometry_t<geometry_t>::value, bool>::type = true>
+}
+
+namespace generic  {
+
+template <typename geometry_t, typename std::enable_if<geometry::traits::is_geometry_t<geometry_t>::value, bool>::type = true>
 inline std::string toString(const geometry_t & geometry)
 {
     std::stringstream ss;
     ss << geometry;
     return ss.str();
 }
-
-}
-
-namespace generic  {
 namespace geometry {
 
 ///@brief class with geometrie I/O functions
