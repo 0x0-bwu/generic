@@ -454,7 +454,7 @@ bool WriteVtkFile(std::string_view filename, const Tetrahedralization<point_t> &
     out << "Unstructured Grid" << GENERIC_DEFAULT_EOL;
     out << "ASCII" << GENERIC_DEFAULT_EOL;
     out << "DATASET UNSTRUCTURED_GRID" << GENERIC_DEFAULT_EOL;
-    out << "POINTS" << sp << t.points.size() << sp << common::toString<typename point_t::coor_t>() << GENERIC_DEFAULT_EOL;
+    out << "POINTS" << sp << t.points.size() << sp << toString<typename point_t::coor_t>() << GENERIC_DEFAULT_EOL;
     for(const auto & point : t.points){
         out << point[0] << sp << point[1] << sp << point[2] << GENERIC_DEFAULT_EOL;
     }

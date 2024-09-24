@@ -216,7 +216,7 @@ public:
         out << "Unstructured Grid" << GENERIC_DEFAULT_EOL;
         out << "ASCII" << GENERIC_DEFAULT_EOL;
         out << "DATASET UNSTRUCTURED_GRID" << GENERIC_DEFAULT_EOL;
-        out << "POINTS" << sp << points.size() << sp << common::toString<typename geometry::coor_t>() << GENERIC_DEFAULT_EOL;
+        out << "POINTS" << sp << points.size() << sp << toString<typename geometry::coor_t>() << GENERIC_DEFAULT_EOL;
         for(const auto & point : points) {
             out << point[0] << sp << point[1] << sp << zRef << GENERIC_DEFAULT_EOL;
         }
