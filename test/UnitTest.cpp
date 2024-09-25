@@ -13,6 +13,7 @@
 #include "TestTools.hpp"
 #include "TestCircuit.hpp"
 #include "TestImage.hpp"
+#include "TestBoolean.hpp"
 using namespace boost::unit_test;
 
 extern test_suite * create_math_test_suite();
@@ -22,6 +23,7 @@ extern test_suite * create_thread_test_suite();
 extern test_suite * create_tools_test_suite();
 extern test_suite * create_circuit_test_suite();
 extern test_suite * create_image_test_suite();
+extern test_suite * create_boolean_test_suite();
 
 void t_additional()
 {
@@ -39,6 +41,7 @@ init_unit_test_suite(int argc, char* argv[])
     framework::master_test_suite().add(create_tools_test_suite());
     framework::master_test_suite().add(create_circuit_test_suite());
     framework::master_test_suite().add(create_image_test_suite());
+    framework::master_test_suite().add(create_boolean_test_suite());
     framework::master_test_suite().add(BOOST_TEST_CASE(&t_additional));
     return 0;
 }
