@@ -9,6 +9,7 @@
 #include "generic/test/TestCommon.hpp"
 #include "generic/thread/MapReduce.hpp"
 #include "generic/thread/TaskFlow.hpp"
+#include "generic/thread/LockFreeHashMap.hpp"
 #include <sstream>
 using namespace boost::unit_test;
 using namespace generic;
@@ -156,6 +157,14 @@ void t_utility()
     BOOST_CHECK(ThreadIdMgr::GetId() == 0);
 }
 
+void t_lockfree()
+{
+    auto lfha = LockFreeHashArray<int, double>::Create(100);
+    BOOST_CHECK(lfha->emplace(3, 3.14).second);
+    BOOST_CHECK(lfha->erase(2) == 0);
+    BOOST_CHECK(lfha->erase(3) == 1);
+}
+
 test_suite * create_thread_test_suite()
 {
     test_suite * thread_suite = BOOST_TEST_SUITE("s_thread");
@@ -163,6 +172,7 @@ test_suite * create_thread_test_suite()
     thread_suite->add(BOOST_TEST_CASE(&t_mapreduce));
     thread_suite->add(BOOST_TEST_CASE(&t_taskflow));
     thread_suite->add(BOOST_TEST_CASE(&t_utility));
+    thread_suite->add(BOOST_TEST_CASE(&t_lockfree));
     //
     return thread_suite;
 }
