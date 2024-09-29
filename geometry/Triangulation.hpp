@@ -495,7 +495,7 @@ public:
     template <typename std::enable_if<point_t::dim == 2, bool>::type = true>
     static bool isLocallyDelaunay(const Triangulation<point_t> & tri, const TriIdx it, const TriIdx itOp)
     {
-        GENERIC_ASSERT(tri.hasNeighbor(it, itOp))
+        GENERIC_ASSERT(tri.hasNeighbor(it, itOp));
 
         const auto & t = tri.triangles[it];
         const auto & tOp = tri.triangles[itOp];

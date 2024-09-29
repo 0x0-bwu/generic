@@ -99,7 +99,7 @@ inline Point2D<num_type> Trapezoid<num_type>::operator[] (size_t index) const
     else if(1 == index) return corner[0] + (h ? Point2D<num_type>(length[0], 0) : Point2D<num_type>(0, length[0]));
     else if(2 == index) return corner[1] + (h ? Point2D<num_type>(length[1], 0) : Point2D<num_type>(0, length[1]));
     else if(3 == index) return corner[1];
-    else GENERIC_THROW(std::out_of_range("index out out range"))
+    else GENERIC_THROW(std::out_of_range("index out out range"));
 }
 
 /**

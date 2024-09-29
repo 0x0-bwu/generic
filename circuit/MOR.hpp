@@ -24,14 +24,14 @@ Prima(const SparseMatrix<Float> & C,   // derivative conductance terms
       size_t q)// desired state variables
 {                       
   	// assert preconditions
-	GENERIC_ASSERT(C.rows() == C.cols())     // input matrices are square
-	GENERIC_ASSERT(G.rows() == G.cols())
-	GENERIC_ASSERT(C.rows() == G.rows())     // input matrices are of the same size
-	GENERIC_ASSERT(B.rows() == G.rows())
-	GENERIC_ASSERT(L.rows() == G.rows())
+	GENERIC_ASSERT(C.rows() == C.cols());     // input matrices are square
+	GENERIC_ASSERT(G.rows() == G.cols());
+	GENERIC_ASSERT(C.rows() == G.rows());     // input matrices are of the same size
+	GENERIC_ASSERT(B.rows() == G.rows());
+	GENERIC_ASSERT(L.rows() == G.rows());
 	size_t N = B.cols();
 	size_t stateCount = static_cast<size_t>(C.rows());
-	GENERIC_ASSERT(N < stateCount)          // must have more state variables than ports
+	GENERIC_ASSERT(N < stateCount);          // must have more state variables than ports
 
 	// unchecked precondition: the state variables associated with the ports must be the last N
 
@@ -41,7 +41,7 @@ Prima(const SparseMatrix<Float> & C,   // derivative conductance terms
 	Eigen::SparseLU<Eigen::SparseMatrix<Float>, Eigen::COLAMDOrdering<int> > G_LU(G);
 	G_LU.analyzePattern(G);
 	G_LU.factorize(G);
-	GENERIC_ASSERT(G_LU.info() == Eigen::Success)
+	GENERIC_ASSERT(G_LU.info() == Eigen::Success);
 	SparseMatrix<Float> R = G_LU.solve(B);
 
 	// Step 3: Set X[0] to the orthonormal basis of R as determined by QR factorization
@@ -51,7 +51,7 @@ Prima(const SparseMatrix<Float> & C,   // derivative conductance terms
 	using MatrixXXList = std::vector<DenseMatrix<Float>, AllocatorXX>;
 	
 	Eigen::SparseQR<SparseMatrix<Float>, Eigen::COLAMDOrdering<int> > R_QR(R);
-	GENERIC_ASSERT(R_QR.info() == Eigen::Success)
+	GENERIC_ASSERT(R_QR.info() == Eigen::Success);
 	// QR stores the Q "matrix" as a series of Householder reflection operations
 	// that it will perform for you with the * operator.  If you store it in a matrix
 	// it obligingly produces an NxN matrix but if you want the "thin" result only,
@@ -141,7 +141,7 @@ inline MatrixVector<Float> Moments(const ReducedModel<Float> & rm, size_t count)
 template <typename Float>
 inline PiModel<Float> RetrievePiModel(const MNA<DenseMatrix<Float>> & m, size_t port, Float rd)
 {
-	GENERIC_ASSERT(port < size_t(m.L.cols()))
+	GENERIC_ASSERT(port < size_t(m.L.cols()));
     auto G_QR = m.G.fullPivHouseholderQr();
     DenseMatrix<Float> A = - G_QR.solve(m.C);
     DenseMatrix<Float> R = G_QR.solve(m.B.col(port));

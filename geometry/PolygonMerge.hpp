@@ -541,7 +541,7 @@ inline void PolygonMerger<property_type, num_type>::MergePolygonsBoost(std::list
             result.second.get(outs);
 
         auto & properties = result.first;
-        GENERIC_ASSERT(!properties.empty())
+        GENERIC_ASSERT(!properties.empty());
         if(properties.size() > 1) {
             if(m_mergeSettings.checkPropertyDiff) {
                 m_propDiffAreas.emplace_back(std::make_pair(std::move(properties), std::move(outs)));

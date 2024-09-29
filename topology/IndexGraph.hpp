@@ -153,7 +153,7 @@ inline void ConnectedComponent(const SparseIndexGraph & g, const index_t v, cont
 {
     using namespace boost;
     using namespace common;
-    GENERIC_ASSERT(v < num_vertices(g))
+    GENERIC_ASSERT(v < num_vertices(g));
 
     using Component = container<index_t, allocator<index_t> >;
     class BFSVisitor : public default_bfs_visitor

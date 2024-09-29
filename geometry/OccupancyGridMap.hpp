@@ -257,7 +257,7 @@ public:
                          const GridCtrl<typename std::result_of<GeomGetter(const Object&)>::type::coor_t> & ctrl, GridMap<Occupancy> & gridMap, BlendFunc && blend)
     {
         static_assert(std::is_trivial<Product<property_type> >::value, "only trivial property supported!");
-        GENERIC_ASSERT(properties.size() == objects.size())
+        GENERIC_ASSERT(properties.size() == objects.size());
         
         using geom_t = typename std::result_of<GeomGetter(const Object&)>::type;
         std::vector<geom_t> geometries;
@@ -278,7 +278,7 @@ public:
     static void Map2Grid(const std::vector<property_type> & properties, const std::vector<const geometry_type * > & geometries, const GridCtrl<typename geometry_type::coor_t> & ctrl, GridMap<Occupancy> & gridMap, BlendFunc && blend)
     {
         static_assert(std::is_trivial<Product<property_type> >::value, "only trivial property supported!");
-        GENERIC_ASSERT(properties.size() == geometries.size())
+        GENERIC_ASSERT(properties.size() == geometries.size());
 
         std::atomic_bool done{false};
         auto pipeline = std::make_unique<ProductPipe<property_type> >(32767);
@@ -373,7 +373,7 @@ private:
 
             tri::Triangulation<Point2D<num_type> > triangulation;
             [[maybe_unused]] auto res = TriangulationPolygon(polygon, triangulation);
-            GENERIC_ASSERT(res)
+            GENERIC_ASSERT(res);
 
             GriddingTriangulation<property_type, num_type>(property, triangulation, workItem.ctrl, pipeline);
         }
@@ -494,7 +494,7 @@ private:
         else {
             auto polygon = trapezoid;
             Polygon2D<num_type>::Clean(polygon);
-            GENERIC_ASSERT(polygon.Size() != trapezoid.Size())
+            GENERIC_ASSERT(polygon.Size() != trapezoid.Size());
             DecomposeTrapezoid(polygon, o, rects, triangles);
         }
     }
@@ -502,7 +502,7 @@ private:
     template <typename num_type>
     static void DecomposeTrapezoid(const Trapezoid<num_type> & trapezoid, std::list<Box2D<num_type> > & rects, std::list<Triangle2D<num_type> > & triangles)
     {
-        GENERIC_ASSERT(trapezoid.isValid())
+        GENERIC_ASSERT(trapezoid.isValid());
         Point2D<num_type> p[4] = { trapezoid[0], trapezoid[1], trapezoid[2], trapezoid[3] };
         if(math::EQ<num_type>(trapezoid.length[0], 0)){
             triangles.push_back({p[0], p[2], p[3]});
@@ -571,10 +571,10 @@ private:
         using Result = Product<property_type>;
         for(auto i = sx; i <= ex; ++i){
             auto len1 = gridLength(i, sx, ex, swapped ? 1 : 0);
-            GENERIC_ASSERT(len1 >= 0)
+            GENERIC_ASSERT(len1 >= 0);
             for(auto j = sy; j <= ey; ++j){
                 auto len2 = gridLength(j, sy, ey, swapped ? 0 : 1);
-                GENERIC_ASSERT(len2 >= 0)
+                GENERIC_ASSERT(len2 >= 0);
                 auto ratio = double(len1 * len2) / area;
                 auto res = swapped ? Result{j, i, property, ratio} : Result{i, j, property, ratio};
                 while(!pipeline.push(res));

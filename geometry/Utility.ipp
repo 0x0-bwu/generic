@@ -145,7 +145,7 @@ template <typename num_type>
 inline Polygon2D<num_type> toPolygon(const Polyline2D<num_type> & polyline, num_type width)
 {
     using float_t = float_type<num_type>;
-    GENERIC_ASSERT(polyline.size() > 0)
+    GENERIC_ASSERT(polyline.size() > 0);
     
     auto roundOrForward = [] (float_t value) {
         if constexpr (std::is_integral<num_type>::value)

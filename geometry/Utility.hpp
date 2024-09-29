@@ -21,7 +21,6 @@
 #include "Line.hpp"
 #include <unordered_map>
 #include <algorithm>
-#include <cassert>
 #include <deque>
 #include <cmath>
 namespace generic {

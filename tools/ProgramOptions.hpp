@@ -189,7 +189,7 @@ public:
             else err << "--" << LongName();
 
             err << "\"";
-            GENERIC_THROW(std::out_of_range(err.str()))
+            GENERIC_THROW(std::out_of_range(err.str()));
         }
 
         return m_values[index];
@@ -220,7 +220,7 @@ public:
     T GetDefault() const
     {
         if(!hasDefault())
-            GENERIC_THROW(std::runtime_error("no default value set"))
+            GENERIC_THROW(std::runtime_error("no default value set"));
         return m_default;
     }
 
@@ -255,17 +255,17 @@ protected:
 
         if(is.fail()){
             std::string err = "invalid argument for " + Name(whatName, true) + ": '" + strVal + "'";
-            GENERIC_THROW(InvalidOption(this, InvalidOption::Error::InvalidArgument, whatName, value, err))
+            GENERIC_THROW(InvalidOption(this, InvalidOption::Error::InvalidArgument, whatName, value, err));
         }
 
         if(valRead > 1){
             std::string err = "too many arguments for " + Name(whatName, true) + ": '" + strVal + "'";
-            GENERIC_THROW(InvalidOption(this, InvalidOption::Error::TooManyArgument, whatName, value, err))
+            GENERIC_THROW(InvalidOption(this, InvalidOption::Error::TooManyArgument, whatName, value, err));
         }
 
         if(strVal.empty()){
             std::string err = "missing argument for " + Name(whatName, true);
-            GENERIC_THROW(InvalidOption(this, InvalidOption::Error::MissingArgument, whatName, "", err))
+            GENERIC_THROW(InvalidOption(this, InvalidOption::Error::MissingArgument, whatName, "", err));
         }
 
         this->AddValue(parsedVal);
@@ -411,11 +411,11 @@ public:
         for(const auto & op : m_options){
             if((option->ShortName() != 0) && (option->ShortName() == op->ShortName())){
                 std::string err = "duplicate short option name '-" + std::string(1, option->ShortName()) + "'";
-                GENERIC_THROW(std::invalid_argument(err))
+                GENERIC_THROW(std::invalid_argument(err));
             }
             if(!option->LongName().empty() && (option->LongName() == op->LongName())){
                 std::string err = "duplicate long option name '--" + option->LongName() + "'";
-                GENERIC_THROW(std::invalid_argument(err))
+                GENERIC_THROW(std::invalid_argument(err));
             }
         }
         option->SetAttribute(attribute);
@@ -531,7 +531,7 @@ public:
             if(opt->GetAttribute() == Attribute::Required && !opt->isSet()){
                 std::string option = opt->LongName().empty() ? std::string(1, opt->ShortName()) : opt->LongName();
                 std::string error = "Error: option \"" + option + "\" is required";
-                GENERIC_THROW(InvalidOption(opt.get(), InvalidOption::Error::MissingOption, error))
+                GENERIC_THROW(InvalidOption(opt.get(), InvalidOption::Error::MissingOption, error));
             }
         }
     }
@@ -614,12 +614,12 @@ protected:
     {
         if(!option){
             std::string err = "option not found: " + name;
-            GENERIC_THROW(std::invalid_argument(err))
+            GENERIC_THROW(std::invalid_argument(err));
         }
         auto result = std::dynamic_pointer_cast<T>(option);
         if(!result){
             std::string err = "cannot cast option to T: " + name;
-            GENERIC_THROW(std::invalid_argument(err))
+            GENERIC_THROW(std::invalid_argument(err));
         }
         return result;
     }

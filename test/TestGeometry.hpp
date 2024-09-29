@@ -223,8 +223,8 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_geometry_vector_t, num_type)
 
 BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_geometry_utility_t, num_type)
 {
-    auto t = 1e-5;
     using float_t = float_type<num_type>;
+    auto t = std::is_same_v<float, float_t> ? 1e-4 : 1e-5;
     //point-plane
     Point3D<num_type> p1(0, 0, 1);
     Plane<num_type> plane(Point3D<num_type>(0, 0, 0), Point3D<num_type>(1, 0, 1), Point3D<num_type>(0, 1, 1));

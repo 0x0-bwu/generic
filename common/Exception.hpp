@@ -9,10 +9,9 @@
 #include "Macros.hpp"
 #include <system_error>
 #include <exception>
-#include <cassert>
 #include <string>
 
-#if GENERIC_NO_EXCEPTION
+#ifdef GENERIC_NO_EXCEPTION
 #   define GENERIC_TRY
 #   define GENERIC_CATCH
 #   define GENERIC_THROW(ex) do{} while(0);
@@ -22,10 +21,12 @@
 #   define GENERIC_THROW(ex) throw(ex);
 #endif
 
-#if GENERIC_NO_ASSERT
-#   define GENERIC_ASSERT(ex) do{} while(0);
+#ifdef GENERIC_NO_ASSERTION
+#   define GENERIC_ASSERT(ex) do{} while(0)
 #else
-#   define GENERIC_ASSERT(ex) assert(ex);
+#   undef NDEBUG
+#   include <cassert>
+#   define GENERIC_ASSERT(ex) assert(ex)
 #endif
 
 ///@brief generic library namespace
@@ -48,12 +49,12 @@ private:
 
 inline void ThrowException(std::string msg)
 {
-    GENERIC_THROW(Exception(std::move(msg)))
+    GENERIC_THROW(Exception(std::move(msg)));
 }
 
 inline void ThrowException(std::string_view msg, int errCode)
 {
-    GENERIC_THROW(Exception(msg, errCode))
+    GENERIC_THROW(Exception(msg, errCode));
 }
 
 }//namespace generic

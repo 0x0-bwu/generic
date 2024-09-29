@@ -72,7 +72,7 @@ public:
 
     void AddNode(size_t pa)
     {
-        GENERIC_ASSERT(pa < Size())
+        GENERIC_ASSERT(pa < Size());
         if (auto iter = leaves.find(pa); iter != leaves.end())
             leaves.erase(iter);
         leaves.emplace(nid.size());
@@ -83,7 +83,7 @@ public:
     void Random(size_t n, size_t pa)
     {
         size_t sz = Size();
-        GENERIC_ASSERT(pa < sz)
+        GENERIC_ASSERT(pa < sz);
         AddNode(pa);
         if (n == 1) return;
         if (n == 2) {

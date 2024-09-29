@@ -110,14 +110,14 @@ Moments(const DenseMatrix<Float> & C, const DenseMatrix<Float> & G, const DenseM
     [[maybe_unused]] const auto scount = G.rows();
     [[maybe_unused]] const auto icount = B.cols();
     [[maybe_unused]] const auto ocount = L.cols();
-    GENERIC_ASSERT(scount == G.cols())
-    GENERIC_ASSERT(scount == C.rows())
-    GENERIC_ASSERT(scount == C.cols())
-    GENERIC_ASSERT(scount == B.rows())
-    GENERIC_ASSERT(scount == L.rows())
-    // GENERIC_ASSERT(ocount == E.rows())
-    // GENERIC_ASSERT(icount == E.cols())
-    GENERIC_ASSERT(not IsSingular(G))
+    GENERIC_ASSERT(scount == G.cols());
+    GENERIC_ASSERT(scount == C.rows());
+    GENERIC_ASSERT(scount == C.cols());
+    GENERIC_ASSERT(scount == B.rows());
+    GENERIC_ASSERT(scount == L.rows());
+    // GENERIC_ASSERT(ocount == E.rows());
+    // GENERIC_ASSERT(icount == E.cols());
+    GENERIC_ASSERT(not IsSingular(G));
 
     MatrixVector<Float> result;
     auto G_QR = G.fullPivHouseholderQr();
@@ -191,7 +191,7 @@ RegularizeSu(const DenseMatrix<Float> & G, const DenseMatrix<Float> & C, const D
     auto B2 = BP.bottomRows(zeroCount);
     auto Cred = CP.topLeftCorner(nonzeroCount, nonzeroCount);
 
-    GENERIC_ASSERT(not IsSingular(G22))
+    GENERIC_ASSERT(not IsSingular(G22));
     auto G22QR = G22.fullPivLu();
     auto G22invG21 = G22QR.solve(G21);
     auto G22invB2 = G22QR.solve(B2);
@@ -201,7 +201,7 @@ RegularizeSu(const DenseMatrix<Float> & G, const DenseMatrix<Float> & C, const D
     auto Bred = B1 - G12 * G22invB2;
 
     // This approach presumes no feedthrough (input-to-output) term
-    GENERIC_ASSERT((L2.transpose() * G22invB2).isZero())
+    GENERIC_ASSERT((L2.transpose() * G22invB2).isZero());
 
     return std::make_tuple(Gred, Cred, Bred, Lred);
 }
@@ -314,7 +314,7 @@ RegularizeNatarajan(const DenseMatrix<Float> & G, const DenseMatrix<Float> & C, 
  
     // extract and apply L operation from reversed G2
     auto G2_L = G2_LU.matrixLU().leftCols(C.rows() - k).template triangularView<Eigen::UnitLower>();
-    GENERIC_ASSERT(not IsSingular(G2_L))
+    GENERIC_ASSERT(not IsSingular(G2_L));
     MatrixVector<Float> Bnew;
     std::transform(Bprime.begin(), Bprime.end(), std::back_inserter(Bnew),
                    [k, &G2_L, &G2_LU]
@@ -342,7 +342,7 @@ RegularizeNatarajan(const DenseMatrix<Float> & G, const DenseMatrix<Float> & C, 
 
     // Step 6: compute reduced matrices using equations given in paper
 
-    GENERIC_ASSERT(not IsSingular(G22))
+    GENERIC_ASSERT(not IsSingular(G22));
     // G22 is a "TriangularView" so has a simple solve method based on back-substitution
 
     DenseMatrix<Float> Gfinal = G11 - G12 * G22.solve(G21);

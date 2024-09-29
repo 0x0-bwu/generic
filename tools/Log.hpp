@@ -473,7 +473,7 @@ public:
     size_t Size() { return m_tail > m_head ? (m_tail - m_head) : m_maxItems - (m_head - m_tail); }
     const T & At(size_t i) const
     {
-        GENERIC_ASSERT(i < Size())
+        GENERIC_ASSERT(i < Size());
         return m_values[(m_head + i) % m_maxItems];
     }
 

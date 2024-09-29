@@ -13,7 +13,6 @@
 #include "generic/geometry/Utility.hpp"
 #include "Builder.hpp"
 #include <algorithm>
-#include <cassert>
 #include <atomic>
 #include <memory>
 #include <vector>

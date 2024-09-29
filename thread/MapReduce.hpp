@@ -160,7 +160,7 @@ inline ReduceKeyType makeIntermediateKey(const MapValueType &);
 template <>
 inline std::string makeIntermediateKey(const std::pair<const char *, std::uintmax_t> & value)
 {
-    GENERIC_ASSERT(value.second < std::numeric_limits<std::string::size_type>::max())
+    GENERIC_ASSERT(value.second < std::numeric_limits<std::string::size_type>::max());
     return std::string(value.first, (std::string::size_type)value.second);
 }
 
@@ -212,7 +212,7 @@ public:
         explicit ConstResultIterator(const InMemory * outer)
          : m_outer(outer)
         {
-            GENERIC_ASSERT(outer)
+            GENERIC_ASSERT(outer);
             m_iterators.resize(outer->m_partitions);
         }
 
@@ -399,7 +399,7 @@ public:
         m_filename = outputFileSpec + std::to_string(partition + 1) + "_of_" + std::to_string(partitions);
         m_outputFile.open(m_filename.c_str(), std::ios_base::binary);
         if(!m_outputFile.is_open())
-            GENERIC_THROW(std::runtime_error("Error: fail to open file " + m_filename))
+            GENERIC_THROW(std::runtime_error("Error: fail to open file " + m_filename));
     }
 
     void operator() (typename ReduceTask::Key & key, typename ReduceTask::Value & value)
@@ -428,7 +428,7 @@ inline bool FileKeyCombiner(const std::string & in, const std::string & out, con
     
     std::ifstream inFile(in.c_str(), std::ios_base::in | std::ios_base::binary);
     if(!inFile.is_open()){
-        GENERIC_THROW(std::runtime_error("Error: fail to open file " + in))
+        GENERIC_THROW(std::runtime_error("Error: fail to open file " + in));
     }
     
     using LinesType = std::map<std::shared_ptr<Record>, std::streamsize, SharedPtrLess<Record> >;
@@ -436,7 +436,7 @@ inline bool FileKeyCombiner(const std::string & in, const std::string & out, con
         LinesType lines;
         for(size_t i = 0; !inFile.eof() && i < maxLines; ++i){
             if(inFile.fail()){
-                GENERIC_THROW(std::runtime_error("Error: fail to read file " + in))
+                GENERIC_THROW(std::runtime_error("Error: fail to read file " + in));
             }
 
             std::string line;

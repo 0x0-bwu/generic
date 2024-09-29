@@ -8,9 +8,6 @@
 #pragma once
 #include "Version.hpp"
 
-#define GENERIC_NO_EXCEPTION        0    
-#define GENERIC_NO_ASSERT           0
-
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
     #define GENERIC_OS_WINDOWS
         #ifdef __WIN64

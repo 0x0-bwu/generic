@@ -165,7 +165,7 @@ protected:
         auto [it1, it2] = op.TraversalTriangleAt(p);
         if(noNeighbor == it2){
             auto loc = Utility::GetPointTriangleLocation(tri, it1, p);
-            GENERIC_ASSERT(loc != PointTriangleLocation::Outside)
+            GENERIC_ASSERT(loc != PointTriangleLocation::Outside);
             if(PointTriangleLocation::Inside == loc)
                 iv = op.InsertPointInTriangle(p, it1, tris);
             else {
@@ -662,8 +662,8 @@ private:
 
         auto cluster1 = tri.ConcentricFixedEdges(e.v1());
         auto cluster2 = tri.ConcentricFixedEdges(e.v2());
-        GENERIC_ASSERT(cluster1.size() > 0)
-        GENERIC_ASSERT(cluster2.size() > 0)
+        GENERIC_ASSERT(cluster1.size() > 0);
+        GENERIC_ASSERT(cluster2.size() > 0);
         if(1 == cluster1.size() && 1 == cluster2.size()) return true;
         if(2 <= cluster1.size() && 2 <= cluster2.size()) return true;
 
@@ -974,7 +974,7 @@ private:
         auto [it1, it2] = op.TraversalTriangleAt(c);
         if(noNeighbor == it2){
             auto loc = Base::Utility::GetPointTriangleLocation(tri, it1, c);
-            GENERIC_ASSERT(loc != PointTriangleLocation::Outside)
+            GENERIC_ASSERT(loc != PointTriangleLocation::Outside);
             if(PointTriangleLocation::Inside == loc)
                 iv = op.InsertPointInTriangle(c, it1, tris);
             else {
