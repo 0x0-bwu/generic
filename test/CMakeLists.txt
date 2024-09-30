@@ -114,12 +114,21 @@ else()
 	include_directories(${EIGEN3_INCLUDE_DIR})
 endif()
 
+# Find package
 find_package(PNG)
 if(PNG_FOUND)
 	add_compile_definitions(GENERIC_BOOST_GIL_IO_PNG_SUPPORT)
 endif()
 
 find_package(Threads REQUIRED)
+
+find_package(OpenMP)
+if(OpenMP_CXX_FOUND)
+    message(STATUS "FOUND OMP: ${OpenMP_CXX_LIBRARY}")
+	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} ${OpenMP_C_FLAGS}")
+	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} ${OpenMP_CXX_FLAGS}")
+	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
+endif()
 
 get_filename_component(GENERIC_LIBRARY_DIR ../../ ABSOLUTE)
 include_directories(${GENERIC_LIBRARY_DIR} ${PNG_INCLUDE_DIR} ${BOOST_INCLUDE_PATH})
