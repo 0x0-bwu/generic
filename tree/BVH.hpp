@@ -20,8 +20,7 @@
 #include <array>
 #include <cmath>
 #include <list>
-namespace generic{
-namespace tree{
+namespace generic::tree{
 ///@brief bvh tree related
 namespace bvh
 {
@@ -64,12 +63,12 @@ struct BVH
     };
 
     static size_t Sibling(size_t index) {
-        assert(index != 0);
+        GENERIC_ASSERT(index != 0);
         return index % 2 == 1 ? index + 1 : index - 1;
     }
 
     static bool isLeftSibling(size_t index) {
-        assert(index != 0);
+        GENERIC_ASSERT(index != 0);
         return index % 2 == 1;
     }
 
@@ -124,7 +123,7 @@ static Box3D<num_type> CalculateBlockBBoxAndCenter(prim_iterator begin, prim_ite
     extent ext;
     centroid ctd;
     Box3D<num_type > boundary;
-    for(auto iter = begin; iter != end; ++iter, ++boxBegin,++ctBegin){
+    for (auto iter = begin; iter != end; ++iter, ++boxBegin,++ctBegin) {
         *boxBegin = ext(*(*iter));
         *ctBegin = ctd(*(*iter));
         boundary |= (*boxBegin);
@@ -144,7 +143,7 @@ protected:
     {
         num_type cost = 0;
         size_t nodeCount = bvh.nodeCount;
-        for(size_t i = 0; i < nodeCount; ++i){
+        for (size_t i = 0; i < nodeCount; ++i) {
             if(bvh.nodes[i].isLeaf())
                 cost += bvh.nodes[i].boundary.HalfArea() * bvh.nodes[i].primitiveCount;
             else
@@ -181,8 +180,7 @@ public:
                 const std::vector<Point3D<float_type<num_type> > > & centers)
     {
         size_t size = bboxes.size();
-        assert(size > 0);
-        assert(size == centers.size());
+        GENERIC_ASSERT(size == centers.size());
 
         m_bvh.nodes.resize(2 * size + 1);
         m_bvh.primIndices.resize(size);
@@ -229,7 +227,7 @@ class BinnedSahBuildTask
 
         Box3D<num_type> currentBBox;
         size_t currentCount = 0;
-        for(size_t i = bin_count - 1; i > 0; --i){
+        for (size_t i = bin_count - 1; i > 0; --i) {
             currentBBox |= bins[i].bbox;
             currentCount += bins[i].primitiveCount;
             bins[i].rightCost = currentBBox.HalfArea() * currentCount;
@@ -239,7 +237,7 @@ class BinnedSahBuildTask
         currentCount = 0;
 
         auto bestSplit = std::pair<num_type, size_t>(std::numeric_limits<num_type>::max(), bin_count);
-        for(size_t i = 0; i < bin_count -1; ++i){
+        for (size_t i = 0; i < bin_count - 1; ++i) {
             currentBBox |= bins[i].bbox;
             currentCount += bins[i].primitiveCount;
             num_type cost = currentBBox.HalfArea() * currentCount + bins[i + 1].rightCost;
@@ -268,7 +266,7 @@ public:
             _node.primitiveCount = _end - _begin;
         };
 
-        if(item.WorkSize() <= 1 || item.depth >= m_builder.maxDepth){
+        if (item.WorkSize() <= 1 || item.depth >= m_builder.maxDepth) {
             makeLeaf(node, item.begin, item.end);
             return items;
         }
@@ -286,14 +284,14 @@ public:
             return std::min(bin_count - 1, size_t(std::max(0, binIndex)));
         };
 
-        for(size_t axis = 0; axis < 3; ++axis){
-            for(Bin & bin : m_binsPerAxis[axis]){
+        for (size_t axis = 0; axis < 3; ++axis) {
+            for(Bin & bin : m_binsPerAxis[axis]) {
                 bin.bbox = Box3D<num_type>();
                 bin.primitiveCount = 0; 
             }
         }
 
-        for(size_t i = item.begin; i < item.end; ++i){
+        for (size_t i = item.begin; i < item.end; ++i) {
             size_t primitiveIndex = bvh.primIndices[i];
             for(size_t axis = 0; axis < 3; ++axis){
                 Bin & bin = m_binsPerAxis[axis][computeBinIndex(m_centers[primitiveIndex], axis)];
@@ -302,7 +300,7 @@ public:
             }
         }
 
-        for(size_t axis = 0; axis < 3; ++axis){
+        for(size_t axis = 0; axis < 3; ++axis) {
             bestSplits[axis] = FindSplit(axis);
         }
 
@@ -313,8 +311,8 @@ public:
         size_t splitIndex = bestSplits[bestAxis].second;
         
         num_type maxSplitCost = node.boundary.HalfArea() * (item.WorkSize() - m_builder.m_traversalCost);
-        if(bestSplits[bestAxis].second == bin_count || bestSplits[bestAxis].first >= maxSplitCost){
-            if(item.WorkSize() > max_leaf){
+        if (bestSplits[bestAxis].second == bin_count || bestSplits[bestAxis].first >= maxSplitCost) {
+            if (item.WorkSize() > max_leaf) {
                 bestAxis = node.boundary.LargestAxis();
 
                 for(size_t i = 0, count = 0; i < bin_count - 1; ++i){
@@ -326,7 +324,7 @@ public:
                     }
                 }
             }
-            else{
+            else {
                 makeLeaf(node, item.begin, item.end);
                 return items;
             }
@@ -334,7 +332,7 @@ public:
         auto pred = [&](size_t i){ return computeBinIndex(m_centers[i], bestAxis) < splitIndex; };
         size_t beginRight = std::partition(primIndices.begin() + item.begin, primIndices.begin() + item.end, pred) - primIndices.begin();
 
-        if(beginRight > item.begin && beginRight < item.end){
+        if (beginRight > item.begin && beginRight < item.end) {
             size_t firstChild = bvh.AddSubNodes();
 
             auto & left = bvh.nodes[firstChild + 0];
@@ -348,7 +346,7 @@ public:
             for(size_t i = splitIndex; i < bin_count; ++i) rightBox |= bins[i].bbox;
 
             left.boundary = leftBox;
-            right.boundary = rightBox;
+            right.boundary = rightBox; 
 
             items.emplace_back(WorkItem(firstChild + 0, item.begin, beginRight, item.depth + 1));
             items.emplace_back(WorkItem(firstChild + 1, beginRight, item.end, item.depth + 1));
@@ -381,53 +379,53 @@ public:
     {
         result.clear();
         const Node & root = m_bvh.nodes[0];
-        CollisionDectect_(result, root);
+        CollisionDectectImpl(result, root);
         return result.size();
     }
 
 private:
-    void CollisionDectect_(std::list<std::pair<size_t, size_t> > & result, const Node & node)
+    void CollisionDectectImpl(std::list<std::pair<size_t, size_t> > & result, const Node & node)
     {
-        if(node.isLeaf()) return;
-        CollisionDectect_(result, m_bvh.nodes[node.firstChildOrPrim], m_bvh.nodes[node.firstChildOrPrim + 1]);
-        CollisionDectect_(result, m_bvh.nodes[node.firstChildOrPrim]);//left
-        CollisionDectect_(result, m_bvh.nodes[node.firstChildOrPrim + 1]);//right
+        if (node.isLeaf()) return;
+        CollisionDectectImpl(result, m_bvh.nodes[node.firstChildOrPrim], m_bvh.nodes[node.firstChildOrPrim + 1]);
+        CollisionDectectImpl(result, m_bvh.nodes[node.firstChildOrPrim]);//left
+        CollisionDectectImpl(result, m_bvh.nodes[node.firstChildOrPrim + 1]);//right
     }
 
-    void CollisionDectect_(std::list<std::pair<size_t, size_t> > & result, const Node & a, const Node & b)
+    void CollisionDectectImpl(std::list<std::pair<size_t, size_t> > & result, const Node & a, const Node & b)
     {
-        if(!Box3D<num_type>::Collision(a.boundary, b.boundary, m_bConsiderTouch)) return;
+        if (not Box3D<num_type>::Collision(a.boundary, b.boundary, m_bConsiderTouch)) return;
 
-        if(a.isLeaf()){
-            if(b.isLeaf()){
+        if (a.isLeaf()) {
+            if (b.isLeaf()) {
                 size_t pa = a.firstChildOrPrim, pb = b.firstChildOrPrim;
                 for(size_t i = 0; i < a.primitiveCount; ++i)
                     for(size_t j = 0;j < b.primitiveCount; ++j)
                         result.push_back(std::make_pair(m_bvh.primIndices[pa + i],
                                                         m_bvh.primIndices[pb + j]));//board-phase
             }
-            else{
-                CollisionDectect_(result, a, m_bvh.nodes[b.firstChildOrPrim]);//b.left
-                CollisionDectect_(result, a, m_bvh.nodes[b.firstChildOrPrim + 1]);//b.right
+            else {
+                CollisionDectectImpl(result, a, m_bvh.nodes[b.firstChildOrPrim]);//b.left
+                CollisionDectectImpl(result, a, m_bvh.nodes[b.firstChildOrPrim + 1]);//b.right
             }
         }
         else {
-            if(b.isLeaf()){
-                CollisionDectect_(result, m_bvh.nodes[a.firstChildOrPrim], b);//a.left
-                CollisionDectect_(result, m_bvh.nodes[a.firstChildOrPrim + 1], b);//a.right
+            if (b.isLeaf()) {
+                CollisionDectectImpl(result, m_bvh.nodes[a.firstChildOrPrim], b);//a.left
+                CollisionDectectImpl(result, m_bvh.nodes[a.firstChildOrPrim + 1], b);//a.right
             }
-            else{
-                CollisionDectect_(result, m_bvh.nodes[a.firstChildOrPrim], m_bvh.nodes[b.firstChildOrPrim]);//a.left, b.left
-                CollisionDectect_(result, m_bvh.nodes[a.firstChildOrPrim], m_bvh.nodes[b.firstChildOrPrim + 1]);//a.left, b.right
-                CollisionDectect_(result, m_bvh.nodes[a.firstChildOrPrim + 1], m_bvh.nodes[b.firstChildOrPrim]);//a.right, b.left
-                CollisionDectect_(result, m_bvh.nodes[a.firstChildOrPrim + 1], m_bvh.nodes[b.firstChildOrPrim + 1]);//a.right, b.right
+            else {
+                CollisionDectectImpl(result, m_bvh.nodes[a.firstChildOrPrim], m_bvh.nodes[b.firstChildOrPrim]);//a.left, b.left
+                CollisionDectectImpl(result, m_bvh.nodes[a.firstChildOrPrim], m_bvh.nodes[b.firstChildOrPrim + 1]);//a.left, b.right
+                CollisionDectectImpl(result, m_bvh.nodes[a.firstChildOrPrim + 1], m_bvh.nodes[b.firstChildOrPrim]);//a.right, b.left
+                CollisionDectectImpl(result, m_bvh.nodes[a.firstChildOrPrim + 1], m_bvh.nodes[b.firstChildOrPrim + 1]);//a.right, b.right
             }
         }
     }
 
 private:
     const BVH<num_type> & m_bvh;
-    bool m_bConsiderTouch;
+    bool m_bConsiderTouch{false};
 };
 
 ///@brief a model of ray concept in 3d world
@@ -479,11 +477,11 @@ public:
 
     Result Intersect(size_t index, const Ray<num_type> & ray) const
     {
-        if(index > m_bvh.primIndices.size()) return Result();
-        else if(m_bvh.primIndices[index] > m_primitives.size()) return Result();
+        if (index > m_bvh.primIndices.size()) return Result();
+        else if (m_bvh.primIndices[index] > m_primitives.size()) return Result();
 
         auto intersection = Intersect_(*m_primitives[m_bvh.primIndices[index]], ray);
-        if(intersection.Hit(ray)){
+        if (intersection.Hit(ray)) {
             Result res;
             res.primIndex = m_bvh.primIndices[index];
             res.intersection = std::move(intersection);
@@ -539,7 +537,7 @@ struct NodeIntersector
     std::pair<num_type, num_type> Intersect(const Node & node, const Ray<num_type> & ray) const
     {
         Vector3D<num_type> entry, exit;
-        for(int i = 0; i < 3; ++i){
+        for (int i = 0; i < 3; ++i) {
             num_type coor1 = node.boundary[0][i];
             num_type coor2 = node.boundary[1][i];
             entry[i] = IntersectAxis(i, coor1);
@@ -577,11 +575,11 @@ private:
     IntersectLeaf_(const Node & node, Ray<num_type> & ray, primitive_intersector & intersector,
                     typename primitive_intersector::Result & bestHit, Statistics * stat) const
     {
-        assert(node.isLeaf());
+        GENERIC_ASSERT(node.isLeaf());
         size_t begin = node.firstChildOrPrim;
         size_t end = begin + node.primitiveCount;
-        if(stat) stat->intersections += end - begin;
-        for(size_t i = begin; i < end; ++i){
+        if (stat) stat->intersections += end - begin;
+        for (size_t i = begin; i < end; ++i) {
             auto hit = intersector.Intersect(i, ray);
             if(hit.Hit(ray) && hit.Distance() < bestHit.Distance()){
                 bestHit = hit;
@@ -598,7 +596,7 @@ private:
     Intersect_(Ray<num_type> ray, primitive_intersector & intersector, Statistics * stat) const
     {
         auto bestHit = typename primitive_intersector::Result();
-        if(m_bvh.nodes.size() && m_bvh.nodes.front().isLeaf())
+        if (m_bvh.nodes.size() && m_bvh.nodes.front().isLeaf())
             return IntersectLeaf_(m_bvh.nodes[0], ray, intersector, bestHit, stat);
         
         node_intersector nodeIntersector(ray);
@@ -606,14 +604,14 @@ private:
         std::stack<size_t> nodeStack;
         size_t idxL = m_bvh.nodes[0].firstChildOrPrim;
         const auto * childL = &m_bvh.nodes[idxL];
-        while(true) {
-            if(stat) stat->traversalSteps++;
+        while (true) {
+            if (stat) stat->traversalSteps++;
 
             auto * childR = &m_bvh.nodes[idxL + 1];
             auto timeL = nodeIntersector.Intersect(*childL, ray);
             auto timeR = nodeIntersector.Intersect(*childR, ray);
 
-            if(timeL.first <= timeL.second && timeL.second > 0){
+            if (timeL.first <= timeL.second && timeL.second > 0) {
                 if(childL->isLeaf()){
                     if(IntersectLeaf_(*childL, ray, intersector, bestHit, stat).Hit(ray) && intersector.anyHit)
                        break;
@@ -622,7 +620,7 @@ private:
             }
             else childL = nullptr;
 
-            if(timeR.first <= timeR.second && timeR.second > 0){
+            if (timeR.first <= timeR.second && timeR.second > 0) {
                 if(childR->isLeaf()){
                     if(IntersectLeaf_(*childR, ray, intersector, bestHit, stat).Hit(ray) && intersector.anyHit)
                         break;
@@ -631,8 +629,8 @@ private:
             }
             else childR = nullptr;
 
-            if(childL){
-                if(childR){
+            if (childL) {
+                if (childR) {
                     if(timeL.first > timeR.first)
                         std::swap(childL, childR);
                     nodeStack.push(childR->firstChildOrPrim);
@@ -659,5 +657,4 @@ private:
     const BVH<num_type> & m_bvh;
 };
 }//namespace bvh
-}//namespace tree
-}//namespace generic
+}//namespace generic::tree

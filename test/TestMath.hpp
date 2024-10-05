@@ -35,13 +35,12 @@ void t_math_io()
     using namespace la;
     using namespace io;
 #ifdef GENERIC_BOOST_GIL_IO_PNG_SUPPORT
-    std::string outDir = fs::DirName(__FILE__).string() + "/data/out";
     DenseMatrix<float> dense(5, 5);
     for (Eigen::Index i = 0; i < dense.rows(); ++i) {
         dense(i, i) = i;
     }
     dense(0, 4) = 4;
-    BOOST_CHECK(PatternView(dense, outDir + "/dense.png"));
+    BOOST_CHECK(PatternView(dense, GetTestOutDataPath() + "/dense.png"));
 
     Triplets<double> t;
     SparseMatrix<double> sparse(1e6, 1e6);
@@ -51,7 +50,7 @@ void t_math_io()
         t.emplace_back(row, col, Random<double>(0, 1));
     }
     sparse.setFromTriplets(t.begin(), t.end());
-    BOOST_CHECK(PatternView(sparse, outDir + "/sparse.png"));
+    BOOST_CHECK(PatternView(sparse, GetTestOutDataPath() + "/sparse.png"));
 #endif
 }
 

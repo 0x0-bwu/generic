@@ -92,6 +92,7 @@ template <> inline std::string toString<unsigned char>()    { return "unsigned c
 template <> inline std::string toString<char>()             { return "char"; }
 template <> inline std::string toString<int>()              { return "int"; }
 template <> inline std::string toString<long>()             { return "long"; }
+template <> inline std::string toString<float>()            { return "float"; }
 template <> inline std::string toString<double>()           { return "double"; }
 
 }//namespace generic

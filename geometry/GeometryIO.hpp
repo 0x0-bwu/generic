@@ -211,7 +211,7 @@ public:
             polygons.emplace_back(std::move(polygon));
         }
 
-        char sp(32);
+        constexpr char sp(32);
         out << "# vtk DataFile Version 2.0" << GENERIC_DEFAULT_EOL;
         out << "Unstructured Grid" << GENERIC_DEFAULT_EOL;
         out << "ASCII" << GENERIC_DEFAULT_EOL;

@@ -16,11 +16,10 @@ using namespace generic::img;
 void t_image_qrcode()
 {
 #ifdef GENERIC_BOOST_GIL_IO_PNG_SUPPORT
-    std::string outDir = fs::DirName(__FILE__).string() + "/data/out";
     using namespace qr;
     std::string s{"hello world"};
     UnsignedBytes raw(s.begin(), s.end());
-    std::string filename = outDir + "/qrcode.png";
+    std::string filename = GetTestOutDataPath() + "/qrcode.png";
     BOOST_CHECK(EncodeQR(filename, raw, EncodingMode::BYTE, 0, false));
     BOOST_CHECK(fs::FileExists(filename));
 #endif //GENERIC_BOOST_GIL_IO_PNG_SUPPORT

@@ -14,10 +14,10 @@ namespace generic{
 namespace fs {
 
 ///@brief returns absolute path of the current working directory
-inline std::string CurrentPath();
+inline std::filesystem::path CurrentPath();
 
 ///@brief returns absolute path of the current executable binary
-inline std::string ExecutablePath();
+inline std::filesystem::path ExecutablePath();
 
 ///@brief checks if file exist
 inline bool FileExists(const std::filesystem::path & filename);
@@ -140,28 +140,29 @@ private:
     std::string m_filename;
 };
 
-inline std::string CurrentPath()
+inline std::filesystem::path CurrentPath()
 {
 #if GENERIC_CURRENT_CXX_VERSION >= 20
     return std::filesystem::current_path();
 #else
     char buffer[1024];
     char *cwd = getcwd(buffer, sizeof(buffer));
-    return std::string(cwd);
+    return std::filesystem::path(cwd);
 #endif
 }
 
-inline std::string ExecutablePath()
+inline std::filesystem::path ExecutablePath()
 {
 #ifdef GENERIC_OS_WINDOWS
     wchar_t path[4096] = { 0 };
     GetModuleFileNameW(NULL, path, MAX_PATH);
     std::wstring ws(path);
-    return std::string(ws.begin(), ws.end());
+    return std::filesystem::path(ws.begin(), ws.end());
 #else
     char result[4096];
     auto count = readlink("/proc/self/exe", result, 4096);
-    return std::string(result, (count > 0) ? count : 0);
+    auto path = std::string(result, (count > 0) ? count : 0);
+    return std::filesystem::path(path);
 #endif
 }
 

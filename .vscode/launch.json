@@ -9,7 +9,7 @@
             "name": "test",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/test/build/test.exe",
+            "program": "${workspaceFolder}/test/build/bin/test.exe",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/test/build",

@@ -18,11 +18,11 @@
 #include <map>
 using namespace boost::unit_test;
 using namespace generic;
-using namespace generic::geometry;
 using namespace generic::tree;
 using namespace generic::math;
+using namespace generic::geometry;
 using generic::common::float_type;
-using t_tree_num_types = boost::mpl::list<int, float, double, long int, long double>;
+using t_tree_num_types = boost::mpl::list<int32_t, int64_t, float, double>;
 BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_bvh_collision_t, num_type)
 {
     using P = Point3D<float_type<num_type> >;
@@ -50,12 +50,12 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_bvh_collision_t, num_type)
     std::vector<size_t> primCount, t_primCount {0, 0, 1, 1, 1};
     std::vector<size_t> firstChilorPrim, t_firstChilorPrim {1, 3, 2, 0, 1};
 
-    for(size_t i = 0; i < bvh.nodeCount; ++i){
+    for (size_t i = 0; i < bvh.nodeCount; ++i) {
         Node & node = bvh.nodes[i];
-        for(int j = 0; j < 2; ++j){
-            for(int k = 0; k < 3; ++k)
+        for (size_t j = 0; j < 2; ++j)
+            for (size_t k = 0; k < 3; ++k)
                 coors.push_back(node.boundary[j][k]);
-        }
+        
         primCount.push_back(node.primitiveCount);
         firstChilorPrim.push_back(node.firstChildOrPrim);
     }
@@ -129,10 +129,10 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_bvh_t, num_type)
     std::vector<B > Objs(test_size);
     auto randP = []{ return P(Random<num_type>(-10000, 10000), Random<num_type>(-10000, 10000), Random<num_type>(-10000, 10000)) ; };
     auto randB = [randP]{ B b(randP(), randP()); b.Normalize(); return b; };
-    for(size_t i = 0; i < test_size; ++i) Objs[i] = randB();
+    for (size_t i = 0; i < test_size; ++i) Objs[i] = randB();
 
     std::vector<B * > primitives(test_size);
-    for(size_t i = 0; i < test_size; ++i){
+    for (size_t i = 0; i < test_size; ++i) {
         primitives[i] = &(Objs[i]);
     }
 
@@ -199,7 +199,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_quadtree_t, num_type)
     };
 
     std::list<Point2D<num_type> > points;
-    for(size_t i = 0; i < test_sum; ++i){
+    for (size_t i = 0; i < test_sum; ++i) {
         Point2D<num_type> p(math::Random<num_type>(-10000, 10000), math::Random<num_type>(-10000, 10000));
         points.push_back(p);
     }
@@ -240,7 +240,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_kdtree_t, num_type)
     BOOST_TEST_MESSAGE("start kdtree test");
     num_type max = std::numeric_limits<num_type>::max();
     max = std::sqrt(max) / 10;
-    auto makeVec7 = [max]{
+    auto makeVec7 = [max] {
         VectorN<num_type, 7> vec;
         for(size_t i = 0; i < 7; ++i){
             vec[i] = Random(num_type(-max), num_type(max));
@@ -256,7 +256,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_kdtree_t, num_type)
     size_t total = 1000;
     std::vector<VectorN<num_type, 7> > vectors(total);
     std::vector<VectorN<num_type, 7> * > primitives(total);
-    for(size_t i = 0; i < total; ++i){
+    for (size_t i = 0; i < total; ++i) {
         vectors[i] = makeVec7();
         primitives[i] = &vectors[i];
     }
@@ -266,8 +266,8 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_kdtree_t, num_type)
     std::array<ValueSplitMethod, 2> valueSplieMethod{ ValueSplitMethod::Random, ValueSplitMethod::Median };
 
     BOOST_TEST_MESSAGE("single thread test:");
-    for(auto plane : planeSplitMethod){
-        for(auto value : valueSplieMethod){
+    for (auto plane : planeSplitMethod) {
+        for (auto value : valueSplieMethod) {
             BOOST_TEST_MESSAGE("plane split method: " + toString(plane));
             BOOST_TEST_MESSAGE("value split method: " + toString(value));
             auto start = std::chrono::steady_clock::now();
@@ -290,8 +290,8 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_kdtree_t, num_type)
     }
 
     BOOST_TEST_MESSAGE("multi threads test:");
-    for(auto plane : planeSplitMethod){
-        for(auto value : valueSplieMethod){
+    for (auto plane : planeSplitMethod) {
+        for (auto value : valueSplieMethod) {
             BOOST_TEST_MESSAGE("plane split method: " + toString(plane));
             BOOST_TEST_MESSAGE("value split method: " + toString(value));
             auto start = std::chrono::steady_clock::now();
