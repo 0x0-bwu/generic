@@ -29,7 +29,7 @@
             "name": "unit test",
             "type": "cppdbg",
             "request": "launch",
-            "program": "${workspaceFolder}/test/build/unit_test.exe",
+            "program": "${workspaceFolder}/test/build/bin/unit_test.exe",
             "args": [],
             "stopAtEntry": false,
             "cwd": "${workspaceFolder}/test/build",

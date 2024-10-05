@@ -62,12 +62,14 @@ struct BVH
         bool isLeaf() const { return primitiveCount != 0; }
     };
 
-    static size_t Sibling(size_t index) {
+    static size_t Sibling(size_t index)
+    {
         GENERIC_ASSERT(index != 0);
         return index % 2 == 1 ? index + 1 : index - 1;
     }
 
-    static bool isLeftSibling(size_t index) {
+    static bool isLeftSibling(size_t index)
+    {
         GENERIC_ASSERT(index != 0);
         return index % 2 == 1;
     }
@@ -139,7 +141,7 @@ protected:
     ~SahBasedAlgorithm() {}
 
     template <typename num_type>
-    num_type ComputeCost(const BVH<num_type> & bvh, num_type traversalCost) const
+    float_type<num_type> ComputeCost(const BVH<num_type> & bvh, num_type traversalCost) const
     {
         num_type cost = 0;
         size_t nodeCount = bvh.nodeCount;
@@ -149,7 +151,7 @@ protected:
             else
                 cost += traversalCost * bvh.nodes[i].boundary.HalfArea();
         }
-        return cost / bvh.nodes[0].boundary.HalfArea();
+        return float_type<num_type>(cost) / bvh.nodes[0].boundary.HalfArea();
     }
 };
 
@@ -210,9 +212,10 @@ class BinnedSahBuildTask
     using Builder = BinnedSahBuilder<num_type, bin_count, max_leaf, TaskSpawner>;
     struct Bin
     {
+        inline static constexpr num_type MAX_COST = std::numeric_limits<num_type>::max();
         Box3D<num_type> bbox;
-        size_t primitiveCount;
-        num_type rightCost;
+        size_t primitiveCount{0};
+        num_type rightCost{MAX_COST};
     };
 
     std::array<Bin, bin_count> m_binsPerAxis[3];
@@ -225,23 +228,25 @@ class BinnedSahBuildTask
     {
         auto & bins = m_binsPerAxis[axis];
 
-        Box3D<num_type> currentBBox;
         size_t currentCount = 0;
-        for (size_t i = bin_count - 1; i > 0; --i) {
-            currentBBox |= bins[i].bbox;
-            currentCount += bins[i].primitiveCount;
-            bins[i].rightCost = currentBBox.HalfArea() * currentCount;
+        Box3D<num_type> currentBBox;
+        for (size_t i = 0; i < bin_count - 1; ++i) {
+            auto r = bin_count - i - 1;
+            currentBBox |= bins[r].bbox;
+            currentCount += bins[r].primitiveCount;
+            bins[r].rightCost = currentBBox.HalfArea() * currentCount;
         }
 
-        currentBBox = Box3D<num_type>();
         currentCount = 0;
-
-        auto bestSplit = std::pair<num_type, size_t>(std::numeric_limits<num_type>::max(), bin_count);
+        currentBBox.SetInvalid();
+        auto bestSplit = std::pair<num_type, size_t>(Bin::MAX_COST, bin_count);
         for (size_t i = 0; i < bin_count - 1; ++i) {
             currentBBox |= bins[i].bbox;
             currentCount += bins[i].primitiveCount;
-            num_type cost = currentBBox.HalfArea() * currentCount + bins[i + 1].rightCost;
-            if(cost < bestSplit.first)
+            num_type cost = Bin::MAX_COST;
+            if (bins[i + 1].rightCost != Bin::MAX_COST && currentBBox.isValid())
+                cost = bins[i + 1].rightCost + currentBBox.HalfArea() * currentCount;
+            if (cost < bestSplit.first)
                 bestSplit = std::make_pair(cost, i + 1);
         }
         return bestSplit;
@@ -260,8 +265,7 @@ public:
         BVH<num_type> & bvh = m_builder.m_bvh;
         auto & node = bvh.nodes[item.nodeIndex];
 
-        auto makeLeaf = [](typename BVH<num_type>::BVHNode & _node, size_t _begin, size_t _end)
-        {
+        auto makeLeaf = [](typename BVH<num_type>::BVHNode & _node, size_t _begin, size_t _end) {
             _node.firstChildOrPrim = _begin;
             _node.primitiveCount = _end - _begin;
         };
@@ -271,54 +275,44 @@ public:
             return items;
         }
 
-        std::vector<size_t > & primIndices = bvh.primIndices;
-        std::pair<num_type, size_t > bestSplits[3];
+        std::vector<size_t> & primIndices = bvh.primIndices;
+        std::pair<num_type, size_t> bestSplits[3];
         
-        Box3D<num_type > bbox = node.boundary;
+        Box3D<num_type> bbox = node.boundary;
         auto center2Bin = geometry::SafeInverse(bbox.Diagonal()) * bin_count;
-        auto binOffset = 
-        Point3D<float_t >(-bbox[0][0], -bbox[0][1], -bbox[0][2]) * center2Bin;
-        auto computeBinIndex = [=](const Point3D<float_t > & center, size_t axis)
-        {
+        auto binOffset = Point3D<float_t >(-bbox[0][0], -bbox[0][1], -bbox[0][2]) * center2Bin;
+        auto computeBinIndex = [=](const Point3D<float_t > & center, size_t axis) {
             int binIndex = std::round(std::fma(center[axis], center2Bin[axis], binOffset[axis]));
             return std::min(bin_count - 1, size_t(std::max(0, binIndex)));
         };
 
-        for (size_t axis = 0; axis < 3; ++axis) {
-            for(Bin & bin : m_binsPerAxis[axis]) {
-                bin.bbox = Box3D<num_type>();
-                bin.primitiveCount = 0; 
-            }
-        }
-
         for (size_t i = item.begin; i < item.end; ++i) {
             size_t primitiveIndex = bvh.primIndices[i];
-            for(size_t axis = 0; axis < 3; ++axis){
+            for (size_t axis = 0; axis < 3; ++axis){
                 Bin & bin = m_binsPerAxis[axis][computeBinIndex(m_centers[primitiveIndex], axis)];
                 bin.primitiveCount ++;
                 bin.bbox |= m_boxes[primitiveIndex];
             }
         }
 
-        for(size_t axis = 0; axis < 3; ++axis) {
+        for(size_t axis = 0; axis < 3; ++axis)
             bestSplits[axis] = FindSplit(axis);
-        }
 
         size_t bestAxis = 0;
-        if(bestSplits[bestAxis].first > bestSplits[1].first) bestAxis = 1;
-        if(bestSplits[bestAxis].first > bestSplits[2].first) bestAxis = 2;
+        if (bestSplits[bestAxis].first > bestSplits[1].first) bestAxis = 1;
+        if (bestSplits[bestAxis].first > bestSplits[2].first) bestAxis = 2;
         
         size_t splitIndex = bestSplits[bestAxis].second;
         
         num_type maxSplitCost = node.boundary.HalfArea() * (item.WorkSize() - m_builder.m_traversalCost);
-        if (bestSplits[bestAxis].second == bin_count || bestSplits[bestAxis].first >= maxSplitCost) {
+        if (bestSplits[bestAxis].second == bin_count || math::GE<num_type>(bestSplits[bestAxis].first, maxSplitCost)) {
             if (item.WorkSize() > max_leaf) {
                 bestAxis = node.boundary.LargestAxis();
 
-                for(size_t i = 0, count = 0; i < bin_count - 1; ++i){
+                for (size_t i = 0, count = 0; i < bin_count - 1; ++i) {
                     count += m_binsPerAxis[bestAxis][i].primitiveCount;
                     
-                    if(count >= item.WorkSize() * 2 / 5 + 1){
+                    if (count >= item.WorkSize() * 2 / 5 + 1) {
                         splitIndex = i + 1;
                         break;
                     }
@@ -331,7 +325,6 @@ public:
         }
         auto pred = [&](size_t i){ return computeBinIndex(m_centers[i], bestAxis) < splitIndex; };
         size_t beginRight = std::partition(primIndices.begin() + item.begin, primIndices.begin() + item.end, pred) - primIndices.begin();
-
         if (beginRight > item.begin && beginRight < item.end) {
             size_t firstChild = bvh.AddSubNodes();
 
