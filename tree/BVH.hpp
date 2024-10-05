@@ -234,7 +234,8 @@ class BinnedSahBuildTask
             auto r = bin_count - i - 1;
             currentBBox |= bins[r].bbox;
             currentCount += bins[r].primitiveCount;
-            bins[r].rightCost = currentBBox.HalfArea() * currentCount;
+            if (currentBBox.isValid())
+                bins[r].rightCost = currentBBox.HalfArea() * currentCount;
         }
 
         currentCount = 0;
@@ -286,6 +287,13 @@ public:
             return std::min(bin_count - 1, size_t(std::max(0, binIndex)));
         };
 
+        for (size_t axis = 0; axis < 3; ++axis) {
+            for(Bin & bin : m_binsPerAxis[axis]) {
+                bin.bbox.SetInvalid();
+                bin.primitiveCount = 0; 
+            }
+        }
+        
         for (size_t i = item.begin; i < item.end; ++i) {
             size_t primitiveIndex = bvh.primIndices[i];
             for (size_t axis = 0; axis < 3; ++axis){

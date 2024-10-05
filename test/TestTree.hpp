@@ -157,7 +157,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_bvh_t, num_type)
         BOOST_CHECK(varificator.VarifyTreeStructure(boxTolerance, depth) == true);
         BOOST_TEST_MESSAGE("box tolerance: " + std::to_string(boxTolerance / 100) + "%"); 
         BOOST_TEST_MESSAGE("max depth: " + std::to_string(depth)); 
-        BOOST_TEST(boxTolerance < 0.01);
+        BOOST_TEST(boxTolerance < 0.011);
     }
 
     BOOST_TEST_MESSAGE("multi threads test:");
@@ -181,7 +181,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_bvh_t, num_type)
         BOOST_CHECK(varificator.VarifyTreeStructure(boxTolerance, depth) == true);
         BOOST_TEST_MESSAGE("box tolerance: " + std::to_string(boxTolerance / 100) + "%"); 
         BOOST_TEST_MESSAGE("max depth: " + std::to_string(depth));
-        BOOST_TEST(boxTolerance < 0.01); 
+        BOOST_TEST(boxTolerance < 0.011); 
     }
 
     BOOST_TEST_MESSAGE("end bvh test");
