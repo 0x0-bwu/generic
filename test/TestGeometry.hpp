@@ -170,6 +170,16 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_geometry_box_t, num_type)
     box2d_3.Normalize();
     BOOST_CHECK(box2d_3.isValid());
 
+    //scale   
+    {
+        Box2D<num_type> b(0, 0, 2, 2);
+        b.Scale(2);
+        BOOST_CHECK(b.Center()[0] == 1);
+        BOOST_CHECK(b.Center()[1] == 1);
+        BOOST_CHECK(b.Length() == 4);
+        BOOST_CHECK(b.Width() == 4);
+    }
+
     //box3d
     Box3D<num_type> box3d_1;
     BOOST_CHECK(!box3d_1.isValid());
@@ -209,6 +219,18 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_geometry_box_t, num_type)
     Box3D<num_type> box3d_3;
     box3d_3.Normalize();
     BOOST_CHECK(box3d_3.isValid());
+
+    //scale   
+    {
+        Box3D<num_type> b(0, 0, 0, 2, 2, 2);
+        b.Scale(2);
+        BOOST_CHECK(b.Center()[0] == 1);
+        BOOST_CHECK(b.Center()[1] == 1);
+        BOOST_CHECK(b.Center()[2] == 1);
+        BOOST_CHECK(b.Height() == 4);
+        BOOST_CHECK(b.Length() == 4);
+        BOOST_CHECK(b.Width() == 4);
+    }
 }
 
 BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_geometry_vector_t, num_type)

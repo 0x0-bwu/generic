@@ -96,6 +96,8 @@ public:
     void Normalize();
     ///@brief reverses LL and UR point location of a valid box
     void SetInvalid();
+    /// @brief scale the box from center
+    void Scale(float_t scale);
 
     ///@brief converts this box to box with other number type explicitly
     template<typename other_num_type>
@@ -205,6 +207,8 @@ public:
     void Normalize();
     ///@brief reverses LL and UR point location of a valid box
     void SetInvalid();
+    /// @brief scale the box from center
+    void Scale(float_t scale);
 
     ///@brief converts this box to box with other number type explicitly
     template<typename other_num_type>
@@ -471,6 +475,15 @@ template <typename num_type>
 inline void Box2D<num_type>::SetInvalid()
 {
     *this = Box2D();
+}
+
+template <typename num_type>
+inline void Box2D<num_type>::Scale(float_t scale)
+{
+    auto ct = Center().template Cast<num_type>();
+    *this -= ct;
+    *this *= scale;
+    *this += ct;
 }
 
 template <typename num_type>
@@ -776,6 +789,15 @@ template <typename num_type>
 inline void Box3D<num_type>::SetInvalid()
 {
     *this = Box3D();
+}
+
+template <typename num_type>
+inline void Box3D<num_type>::Scale(float_t scale)
+{
+    auto ct = Center().template Cast<num_type>();
+    *this -= ct;
+    *this *= scale;
+    *this += ct;
 }
 
 template <typename num_type>
