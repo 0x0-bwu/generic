@@ -71,7 +71,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_bvh_collision_t, num_type)
     cd.CollisionDectect(collisions);
     
     std::pair<size_t, size_t> t_collision {0, 1};
-    BOOST_TEST(collisions.size() == 1);
+    BOOST_TEST(collisions.size() == size_t(1));
     BOOST_CHECK(t_collision == collisions.front());
 }
 

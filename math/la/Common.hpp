@@ -14,8 +14,8 @@
 #ifdef GENERIC_BOOST_SERIALIZATION_SUPPORT
 #include "generic/common/Archive.hpp"
 #endif //GENERIC_BOOST_SERIALIZATION_SUPPORT
-namespace generic{
-namespace math{
+namespace generic::math {
+
 ///@brief linear algebra related classes and functions
 namespace la {
 using namespace generic::common;
@@ -37,11 +37,16 @@ using Triplets = std::vector<Eigen::Triplet<Scalar> >;
 template <typename Scalar>
 using SparseMatrix = Eigen::SparseMatrix<Scalar>;
 
+template<typename PlainObjectType, int MapOptions = Eigen::AlignmentType::Aligned, typename StrideType = Eigen::Stride<0,0>>
+using VectorView = Eigen::Map<PlainObjectType, MapOptions, StrideType>;
+
+template<typename PlainObjectType, int MapOptions = Eigen::AlignmentType::Aligned, typename StrideType = Eigen::Stride<0,0>>
+using MatrixView = Eigen::Map<PlainObjectType, MapOptions, StrideType>;
+
 using PermutMatrix = Eigen::PermutationMatrix<Eigen::Dynamic, Eigen::Dynamic, size_t>;
 
 }//namespace la
-}//namespace math
-}//namespace generic
+}//namespace generic::math
 
 #ifdef GENERIC_BOOST_SERIALIZATION_SUPPORT
 

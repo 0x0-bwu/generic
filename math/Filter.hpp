@@ -6,10 +6,6 @@
  * @date 2024-05-13
  */
 #pragma once
-#include <boost/numeric/ublas/matrix.hpp>
-#include <boost/numeric/ublas/banded.hpp>
-#include <boost/numeric/ublas/lu.hpp>
-#include "generic/common/Traits.hpp"
 #include "MathUtility.hpp"
 #include <vector>
 

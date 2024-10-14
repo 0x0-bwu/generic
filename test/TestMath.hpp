@@ -10,6 +10,7 @@
 #include "generic/tools/FileSystem.hpp"
 #include "generic/math/MathUtility.hpp"
 #include "generic/math/la/Common.hpp"
+#include "generic/math/Interpolation.hpp"
 #include "generic/math/PolynomialFit.hpp"
 #include "generic/math/MathIO.hpp"
 #include "generic/math/Filter.hpp"
@@ -95,7 +96,7 @@ void t_math_utility()
         BOOST_CHECK_CLOSE(result.second, 9, 1);
     }
 
-    //
+    //Next/Prev Pwo Tow
     {
         BOOST_CHECK(2 == PrevPowTwo(math::pi));
         BOOST_CHECK(4 == NextPowTwo(math::pi));
@@ -104,14 +105,15 @@ void t_math_utility()
 
 void t_math_polynomial_fit()
 {
+    double t = 1e-6;
     // y = 2 - x;
     auto coeffs = PolyFit(std::vector<double>{0, 1, 2}, std::vector<double>{2, 1, 0}, 1);
-    BOOST_CHECK(coeffs[0] ==  2);
-    BOOST_CHECK(coeffs[1] == -1);
+    BOOST_CHECK_CLOSE(coeffs[0],  2, t);
+    BOOST_CHECK_CLOSE(coeffs[1], -1, t);
 
-    auto yValues = Polyval(coeffs, {3, 4});
-    BOOST_CHECK(yValues[0] == -1);
-    BOOST_CHECK(yValues[1] == -2);
+    auto yValues = PolyVal(coeffs, std::vector<double>{3, 4});
+    BOOST_CHECK_CLOSE(yValues[0], -1, t);
+    BOOST_CHECK_CLOSE(yValues[1], -2, t);
 }
 
 void t_math_filter()
@@ -123,6 +125,19 @@ void t_math_filter()
         BOOST_CHECK_CLOSE(after[ 0], 0.0054690, 1e-3);
         BOOST_CHECK_CLOSE(after[43], 0.0289874, 1e-3);
         BOOST_CHECK_CLOSE(after[10], 0.0178824, 1e-3);
+    }
+}
+
+void t_math_interpolation()
+{   
+    // cubic
+    {
+        std::vector<double> x{0, 1, 3, 5, 9}, y, yy;
+        std::transform(x.begin(), x.end(), std::back_inserter(y), [](auto x){ return  x * x * x + 2 * x * x + 3 * x + 4; });
+        using Interp = math::Interpolation<std::vector<double>>;
+        auto interp = Interp(x, y, Interp::Method::CUBIC, true);
+        std::transform(x.begin(), x.end(), std::back_inserter(yy), [&](auto v){ return interp(v); });
+        BOOST_TEST(y == yy, boost::test_tools::per_element());
     }
 }
 
@@ -140,6 +155,7 @@ test_suite * create_math_test_suite()
     math_suite->add(BOOST_TEST_CASE(&t_math_io));
     math_suite->add(BOOST_TEST_CASE(&t_math_filter));
     math_suite->add(BOOST_TEST_CASE(&t_math_utility));
+    math_suite->add(BOOST_TEST_CASE(&t_math_interpolation));
     math_suite->add(BOOST_TEST_CASE(&t_math_polynomial_fit));
     math_suite->add(BOOST_TEST_CASE_TEMPLATE(t_math_linear_algebra_t, t_math_num_types));
     //
