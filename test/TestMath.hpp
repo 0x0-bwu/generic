@@ -12,6 +12,7 @@
 #include "generic/math/la/Common.hpp"
 #include "generic/math/Interpolation.hpp"
 #include "generic/math/PolynomialFit.hpp"
+#include "generic/math/FastMath.hpp"
 #include "generic/math/MathIO.hpp"
 #include "generic/math/Filter.hpp"
 using namespace boost::unit_test;
@@ -128,6 +129,88 @@ void t_math_filter()
     }
 }
 
+void t_math_fast_math()
+{
+    float maxErr{0};
+    constexpr size_t total = 1e5;
+    for (size_t i = 0; i < total; ++i) {
+        float num = Random<float>(-pi, pi);
+        maxErr = std::max(maxErr, std::abs(std::sin(num) - FastSin(num)));
+    }
+    BOOST_CHECK(maxErr < 4e-5);
+
+    maxErr = 0;
+    for (size_t i = 0; i < total; ++i) {
+        float num = Random<float>(-pi, pi);
+        maxErr = std::max(maxErr, std::abs(std::cos(num) - FastCos(num)));
+    }
+    BOOST_CHECK(maxErr < 4e-5);
+
+    maxErr = 0;
+    for (size_t i = 0; i < total; ++i) {
+        float num = Random<float>(0 + std::numeric_limits<float>::epsilon(), std::numeric_limits<float>::max());
+        maxErr = std::max(maxErr, std::abs(std::log2(num) - FastLog2(num)));
+    }
+    BOOST_CHECK(maxErr < 2e-4);
+
+    maxErr = 0;
+    for (size_t i = 0; i < total; ++i) {
+        float num = Random<float>(0 + std::numeric_limits<float>::epsilon(), std::numeric_limits<float>::max());
+        maxErr = std::max(maxErr, std::abs(std::log2(num) - FasterLog2(num)));
+    }
+    BOOST_CHECK(maxErr < 6e-2);
+
+    maxErr = 0;
+    for (size_t i = 0; i < total; ++i) {
+        float num = Random<float>(0 + std::numeric_limits<float>::epsilon(), std::numeric_limits<float>::max());
+        maxErr = std::max(maxErr, std::abs(std::log(num) - FastLog(num)));
+    }
+    BOOST_CHECK(maxErr < 2e-4);
+
+    maxErr = 0;
+    for (size_t i = 0; i < total; ++i) {
+        float num = Random<float>(0 + std::numeric_limits<float>::epsilon(), std::numeric_limits<float>::max());
+        maxErr = std::max(maxErr, std::abs(std::log(num) - FasterLog(num)));
+    }
+    BOOST_CHECK(maxErr < 4e-2);
+
+    maxErr = 0;
+    for (size_t i = 0; i < total; ++i) {
+        float num = Random<float>(-126, 0);
+        maxErr = std::max(maxErr, std::abs(std::pow(2.0f, num) - FastPow2(num)));
+    }
+    BOOST_CHECK(maxErr < 4e-5);
+
+    maxErr = 0;
+    for (size_t i = 0; i < total; ++i) {
+        float num = Random<float>(-126, 0);
+        maxErr = std::max(maxErr, std::abs(std::pow(2.0f, num) - FasterPow2(num)));
+    }
+    BOOST_CHECK(maxErr < 3e-2);
+
+    maxErr = 0;
+    for (size_t i = 0; i < total; ++i) {
+        float num1 = Random<float>(-42, 42);
+        float num2 = Random<float>(-126, 0);
+        maxErr = std::max(maxErr, std::abs(std::pow(num1, num2) - FastPow(num1, num2)));
+    }
+    BOOST_CHECK(maxErr < 2e-17);
+
+    maxErr = 0;
+    for (size_t i = 0; i < total; ++i) {
+        float num = Random<float>(-87, 0);
+        maxErr = std::max(maxErr, std::abs(std::exp(num) - FastExp(num)));
+    }
+    BOOST_CHECK(maxErr < 4e-5);
+
+    maxErr = 0;
+    for (size_t i = 0; i < total; ++i) {
+        float num = Random<float>(-87, 0);
+        maxErr = std::max(maxErr, std::abs(std::exp(num) - FasterExp(num)));
+    }
+    BOOST_CHECK(maxErr < 3e-2);
+}
+
 void t_math_interpolation()
 {   
     // cubic
@@ -155,6 +238,7 @@ test_suite * create_math_test_suite()
     math_suite->add(BOOST_TEST_CASE(&t_math_io));
     math_suite->add(BOOST_TEST_CASE(&t_math_filter));
     math_suite->add(BOOST_TEST_CASE(&t_math_utility));
+    math_suite->add(BOOST_TEST_CASE(&t_math_fast_math));
     math_suite->add(BOOST_TEST_CASE(&t_math_interpolation));
     math_suite->add(BOOST_TEST_CASE(&t_math_polynomial_fit));
     math_suite->add(BOOST_TEST_CASE_TEMPLATE(t_math_linear_algebra_t, t_math_num_types));
