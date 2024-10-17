@@ -190,14 +190,6 @@ void t_math_fast_math()
 
     maxErr = 0;
     for (size_t i = 0; i < total; ++i) {
-        float num1 = Random<float>(-42, 42);
-        float num2 = Random<float>(-126, 0);
-        maxErr = std::max(maxErr, std::abs(std::pow(num1, num2) - FastPow(num1, num2)));
-    }
-    BOOST_CHECK(maxErr < 2e-17);
-
-    maxErr = 0;
-    for (size_t i = 0; i < total; ++i) {
         float num = Random<float>(-87, 0);
         maxErr = std::max(maxErr, std::abs(std::exp(num) - FastExp(num)));
     }

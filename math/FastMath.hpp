@@ -90,21 +90,6 @@ inline float FasterPow2(float p)
     return v.f;
 }
 
-/**
- * @brief "Fast" x to the power of p approximation
- * @note Warning: Seems to have divergent segments with discontinuities for some base/exponent combinations
- */
-inline float FastPow(float x, float p)
-{
-    return FastPow2(p * FastLog2(x));
-}
-
-///@brief "Faster" x to the power of p approximation
-inline float FasterPow(float x, float p)
-{
-    return FasterPow2(p * FasterLog2(x));
-}
-
 ///@brief "Fast" exponential approximation, valid for x in [ ~ -87, 0 ] as precision allows, max abs error about 4e-5
 inline float FastExp(float p)
 {

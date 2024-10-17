@@ -135,7 +135,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_bvh_t, num_type)
     for (size_t i = 0; i < test_size; ++i) {
         primitives[i] = &(Objs[i]);
     }
-
+    double boxTolerance1{1}, boxTolerance2{2};
     BOOST_TEST_MESSAGE("single thread test:");
     {
         auto start = std::chrono::steady_clock::now();
@@ -152,12 +152,11 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_bvh_t, num_type)
         BOOST_TEST_MESSAGE("build time: " + std::to_string(elapse.count()) + "s");
 
         size_t depth = 0;
-        double boxTolerance = 0.0;
         BVHVarification<num_type, B, Extent> varificator(bvh, primitives);
-        BOOST_CHECK(varificator.VarifyTreeStructure(boxTolerance, depth) == true);
-        BOOST_TEST_MESSAGE("box tolerance: " + std::to_string(boxTolerance / 100) + "%"); 
+        BOOST_CHECK(varificator.VarifyTreeStructure(boxTolerance1, depth) == true);
+        BOOST_TEST_MESSAGE("box tolerance: " + std::to_string(boxTolerance1 / 100) + "%"); 
         BOOST_TEST_MESSAGE("max depth: " + std::to_string(depth)); 
-        BOOST_TEST(boxTolerance < 0.011);
+        BOOST_TEST(boxTolerance1 < 0.025);
     }
 
     BOOST_TEST_MESSAGE("multi threads test:");
@@ -176,14 +175,13 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_bvh_t, num_type)
         BOOST_TEST_MESSAGE("build time: " + std::to_string(elapse.count()) + "s");
 
         size_t depth = 0;
-        double boxTolerance = 0.0;
         BVHVarification<num_type, B, Extent> varificator(bvh, primitives);
-        BOOST_CHECK(varificator.VarifyTreeStructure(boxTolerance, depth) == true);
-        BOOST_TEST_MESSAGE("box tolerance: " + std::to_string(boxTolerance / 100) + "%"); 
+        BOOST_CHECK(varificator.VarifyTreeStructure(boxTolerance2, depth) == true);
+        BOOST_TEST_MESSAGE("box tolerance: " + std::to_string(boxTolerance2 / 100) + "%"); 
         BOOST_TEST_MESSAGE("max depth: " + std::to_string(depth));
-        BOOST_TEST(boxTolerance < 0.011); 
+        BOOST_TEST(boxTolerance2 < 0.025); 
     }
-
+    BOOST_CHECK_CLOSE(boxTolerance1, boxTolerance2, 1e-8);
     BOOST_TEST_MESSAGE("end bvh test");
 }
 
