@@ -52,18 +52,20 @@ void t_timer()
     
 	auto task = []{
         auto t = tools::AccumulatedTimer::InsertTimer();
-        tools::SleepMilliseconds(1e3);
+        tools::SleepMilliseconds(1);
     };
 
+	size_t total{1000};
 	tools::Timer timer;
     thread::ThreadPool pool(4);
-    for(size_t i = 0; i < 4; ++i) {
+    for(size_t i = 0; i < total; ++i) {
         pool.Submit(task);
     }
     pool.Wait();
     tools::AccumulatedTimer::SetUnit(unit::Time::Second);
-   	auto accumulated = tools::AccumulatedTimer::WallTime();
-	BOOST_CHECK(accumulated > timer.Count());
+   	auto accumulated = tools::AccumulatedTimer::Count();
+	BOOST_CHECK(accumulated.first > timer.Count());
+	BOOST_CHECK(accumulated.second == total);
 }
 
 test_suite * create_tools_test_suite()

@@ -6,7 +6,7 @@
  * @date 2022-02-22
  */
 #pragma once
-#include "generic/common/Macros.hpp"
+#include "generic/common/Exception.hpp"
 #include "Units.hpp"
 
 #if defined(GENERIC_OS_LINUX) || defined(GENERIC_OS_MAC)
@@ -14,20 +14,15 @@
 #include <time.h>
 #endif
 
-#ifndef BOOST_CHRONO_HEADER_ONLY
-#define BOOST_CHRONO_HEADER_ONLY
-#endif//BOOST_CHRONO_HEADER_ONLY
-#include <boost/chrono/thread_clock.hpp>
 #include <iostream>
-#include <memory>
+#include <vector>
 #include <thread>
+#include <memory>
 #include <chrono>
 #include <atomic>
 #include <ctime>
-namespace generic {
+namespace generic::tools {
 ///@brief tools and basic utilities
-namespace tools {
-
 struct SystemClock
 {
     using Clock = std::chrono::system_clock;
@@ -132,10 +127,10 @@ public:
     class SubTimer
     {
     public:
-        explicit SubTimer(std::shared_ptr<AccumulatedTimer> master) : m_master(master)
+        explicit SubTimer(std::shared_ptr<AccumulatedTimer> master, size_t group)
+         : m_group(group), m_master(master)
         {
-            m_wtStart = std::chrono::steady_clock::now();
-            m_ctStart = boost::chrono::thread_clock::now(); 
+            m_start = std::chrono::steady_clock::now();
         }
         
         ~SubTimer() { try { Stop(); } catch (...) {} }
@@ -145,22 +140,27 @@ public:
         {
             if (not m_stop) {
                 m_stop = true;
-                auto wtElapse = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - m_wtStart);
-                auto ctElapse = boost::chrono::duration_cast<boost::chrono::nanoseconds>(boost::chrono::thread_clock::now() - m_ctStart);
-                m_master->AccumulateImp(wtElapse.count(), ctElapse.count());
+                auto elapse = std::chrono::duration_cast<std::chrono::nanoseconds>(std::chrono::steady_clock::now() - m_start);
+                m_master->AccumulateImp(m_group, elapse.count());
             }
         }
 
     private:
         bool m_stop = false;
+        std::size_t m_group = 0;
         std::shared_ptr<AccumulatedTimer> m_master = nullptr;
-        std::chrono::time_point<std::chrono::steady_clock> m_wtStart;
-        boost::chrono::thread_clock::time_point m_ctStart;
+        std::chrono::time_point<std::chrono::steady_clock> m_start;
     };
 
     friend SubTimer;
     AccumulatedTimer(const AccumulatedTimer &) = delete;
     AccumulatedTimer & operator= (const AccumulatedTimer &) = delete;
+
+    ///@@brief init with num of timer groups, should init before insert timer!!!
+    static void Init(size_t groups)
+    {
+        Instance()->InitImp(groups);
+    }
     
     ///@brief set time unit of returning timing count
     static void SetUnit(unit::Time unit)
@@ -175,28 +175,17 @@ public:
     }
 
     ///@brief insert a timer object and start timing immediately
+    ///@param group, specify the timer group, result will be added to corresponding timer group
     ///@note should use a lvalue to hold the returning value explicitly, otherwise the timer will not work
-    static std::unique_ptr<SubTimer> InsertTimer()
+    static std::unique_ptr<SubTimer> InsertTimer(size_t group = 0)
     {    
-        return std::make_unique<SubTimer>(Instance());
+        return std::make_unique<SubTimer>(Instance(), group);
     }
 
-    ///@brief returning current wall time count
-    static double WallTime()
+    ///@brief return current timing count [wall times, call times] of specified group
+    static std::pair<double, size_t> Count(size_t group = 0)
     {
-        return Instance()->WallTimeImp();
-    }
-
-    ///@brief returning current cput time count
-    static double CpuTime()
-    {
-        return Instance()->CpuTimeImp();
-    }
-
-    ///@brief returning current timing count [wall time, cpu time]
-    static std::pair<double, double> Count()
-    {
-        return { WallTime(), CpuTime() };
+        return Instance()->CountImp(group);
     }
     
     ///@brief reset timing count to zero
@@ -206,7 +195,7 @@ public:
     }
 
 private:
-    AccumulatedTimer() = default;
+    AccumulatedTimer() { InitImp(1); }
 
     static std::shared_ptr<AccumulatedTimer> Instance()
     {
@@ -226,35 +215,35 @@ private:
 
     void ResetImp()
     {
-        m_wtCount.store(0);
-        m_ctCount.store(0);
+        for (auto & t : m_times) t.store(0);
+        for (auto & c : m_count) c.store(0);
     }
 
-    void AccumulateImp(int64_t wallTime, int64_t cpuTime)
+    void InitImp(size_t groups)
     {
-        m_wtCount.fetch_add(wallTime);
-        m_ctCount.fetch_add(cpuTime);
+        m_times = std::vector<std::atomic<int64_t>>(groups);
+        m_count = std::vector<std::atomic<int64_t>>(groups);
+        ResetImp();
     }
 
-    double WallTimeImp() const
+    void AccumulateImp(size_t group, int64_t time)
     {
-        double count = m_wtCount.load() * unit::Scale2Second(unit::Time::Nanosecond);
+        GENERIC_ASSERT(group < m_times.size());
+        m_times[group] += time;
+        m_count[group] += 1;
+    }
+
+    std::pair<double, size_t> CountImp(size_t group) const
+    {
+        double times = m_times.at(group) * unit::Scale2Second(unit::Time::Nanosecond);
         double scale = 1.0 / unit::Scale2Second(m_unit);
-        return scale * count;
-    }
-
-    double CpuTimeImp() const
-    {
-        double count = m_ctCount.load() * unit::Scale2Second(unit::Time::Nanosecond);
-        double scale = 1.0 / unit::Scale2Second(m_unit);
-        return scale * count;
+        return { scale * times, m_count.at(group)};
     }
 
 private:
     unit::Time m_unit{unit::Time::Second};
-    std::atomic<int64_t> m_wtCount{0};//nanoseconds;
-    std::atomic<int64_t> m_ctCount{0};//nanoseconds;
+    std::vector<std::atomic<int64_t>> m_count;
+    std::vector<std::atomic<int64_t>> m_times;//nanoseconds;
 };
 
-}//namespace tools
-}//namespace generic
+}//namespace generic::tools
