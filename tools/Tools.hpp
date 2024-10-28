@@ -120,14 +120,25 @@ private:
     Timer m_timer;
 };
 
+struct AccumulatedTimerTag
+{
+    inline static constexpr size_t groups = 1;
+};
 ///@brief thread safe timer singleton, usually used to track total function execution time in threads
+template <typename Tag = AccumulatedTimerTag>
 class AccumulatedTimer
 {
 public:
+    struct ExampleTag
+    {
+        inline static constexpr size_t groups = 1;
+    };
+
+    static_assert(Tag::groups > 0, "You should define a constexpr size_t type of \"groups\" which at least equals 1 in your tag type");
     class SubTimer
     {
     public:
-        explicit SubTimer(std::shared_ptr<AccumulatedTimer> master, size_t group)
+        explicit SubTimer(std::shared_ptr<AccumulatedTimer<Tag>> master, size_t group)
          : m_group(group), m_master(master)
         {
             m_start = std::chrono::steady_clock::now();
@@ -148,20 +159,14 @@ public:
     private:
         bool m_stop = false;
         std::size_t m_group = 0;
-        std::shared_ptr<AccumulatedTimer> m_master = nullptr;
         std::chrono::time_point<std::chrono::steady_clock> m_start;
+        std::shared_ptr<AccumulatedTimer<Tag>> m_master = nullptr;
     };
 
     friend SubTimer;
     AccumulatedTimer(const AccumulatedTimer &) = delete;
     AccumulatedTimer & operator= (const AccumulatedTimer &) = delete;
 
-    ///@@brief init with num of timer groups, should init before insert timer!!!
-    static void Init(size_t groups)
-    {
-        Instance()->InitImp(groups);
-    }
-    
     ///@brief set time unit of returning timing count
     static void SetUnit(unit::Time unit)
     {
@@ -188,14 +193,20 @@ public:
         return Instance()->CountImp(group);
     }
     
-    ///@brief reset timing count to zero
+    ///@brief reset specified group timing count to zero
+    static void Reset(size_t group)
+    {
+        Instance()->ResetImp(group);
+    }
+
+    ///@brief reset all groups timing count to zero
     static void Reset()
     {
         Instance()->ResetImp();
     }
 
 private:
-    AccumulatedTimer() { InitImp(1); }
+    AccumulatedTimer() { ResetImp(); }
 
     static std::shared_ptr<AccumulatedTimer> Instance()
     {
@@ -213,22 +224,20 @@ private:
         return m_unit;
     }
 
+    void ResetImp(size_t group)
+    {
+        m_times[group].store(0);
+        m_count[group].store(0);
+    }
+
     void ResetImp()
     {
         for (auto & t : m_times) t.store(0);
         for (auto & c : m_count) c.store(0);
     }
 
-    void InitImp(size_t groups)
-    {
-        m_times = std::vector<std::atomic<int64_t>>(groups);
-        m_count = std::vector<std::atomic<int64_t>>(groups);
-        ResetImp();
-    }
-
     void AccumulateImp(size_t group, int64_t time)
     {
-        GENERIC_ASSERT(group < m_times.size());
         m_times[group] += time;
         m_count[group] += 1;
     }
@@ -242,8 +251,10 @@ private:
 
 private:
     unit::Time m_unit{unit::Time::Second};
-    std::vector<std::atomic<int64_t>> m_count;
-    std::vector<std::atomic<int64_t>> m_times;//nanoseconds;
+    std::array<std::atomic<int64_t>, Tag::groups> m_count;
+    std::array<std::atomic<int64_t>, Tag::groups> m_times;//nanoseconds;
 };
+
+using ThreadTimer = AccumulatedTimer<AccumulatedTimerTag>;
 
 }//namespace generic::tools

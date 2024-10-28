@@ -46,26 +46,34 @@ void t_parser()
 	BOOST_CHECK(true);
 }
 
+struct Tag { inline static constexpr size_t groups = 2; };
+
 void t_timer()
 {
 	using namespace generic::tools;
     
 	auto task = []{
-        auto t = tools::AccumulatedTimer::InsertTimer();
+        auto t1 = tools::ThreadTimer::InsertTimer();
+        tools::SleepMilliseconds(1);
+        auto t2 = tools::AccumulatedTimer<Tag>::InsertTimer(1);
         tools::SleepMilliseconds(1);
     };
 
 	size_t total{1000};
 	tools::Timer timer;
     thread::ThreadPool pool(4);
-    for(size_t i = 0; i < total; ++i) {
+    for(size_t i = 0; i < total; ++i)
         pool.Submit(task);
-    }
+
     pool.Wait();
-    tools::AccumulatedTimer::SetUnit(unit::Time::Second);
-   	auto accumulated = tools::AccumulatedTimer::Count();
-	BOOST_CHECK(accumulated.first > timer.Count());
-	BOOST_CHECK(accumulated.second == total);
+    tools::ThreadTimer::SetUnit(unit::Time::Second);
+    tools::AccumulatedTimer<Tag>::SetUnit(unit::Time::Second);
+   	auto accumulated1 = tools::ThreadTimer::Count(0);
+	auto accumulated2 = tools::AccumulatedTimer<Tag>::Count(1);
+	BOOST_CHECK(accumulated1.first > accumulated2.first);
+	BOOST_CHECK(accumulated2.first > timer.Count());
+	BOOST_CHECK(accumulated1.second == total);
+	BOOST_CHECK(accumulated2.second == total);
 }
 
 test_suite * create_tools_test_suite()

@@ -35,7 +35,6 @@ endif()
 message(STATUS "Enable assertion: ${ENABLE_ASSERTION}")
 message(STATUS "Enable exception: ${ENABLE_EXCEPTION}")
 
-
 option(ENABLE_PROFILING "Enable profiling" OFF)
 if (ENABLE_PROFILING)
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -pg")
@@ -43,6 +42,12 @@ if (ENABLE_PROFILING)
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} -pg")
 	set(CMAKE_SHARED_LINKER_FLAGS "${CMAKE_SHARED_LINKER_FLAGS} -pg")
 	message("-- Enable GNU Profiling")
+endif()
+
+option(ENABLE_SANITIZER "Enable sanitizer" OFF)
+if (ENABLE_SANITIZER)
+	add_compile_options(-fsanitize=address -fno-omit-frame-pointer -fsanitize-recover=address -Wno-maybe-uninitialized)
+	add_link_options(-fsanitize=address -fno-omit-frame-pointer -fsanitize-recover=address)
 endif()
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC -ffast-math -Wno-deprecated-declarations")
