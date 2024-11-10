@@ -26,3 +26,13 @@ jobs:
 
       - name: run unit test
         run: test/build/bin/unit_test.exe
+      
+      - name: create pull request
+        if: success()  # Only runs if previous steps succeeded
+        uses: peter-evans/create-pull-request@v5
+        with:
+          commit-message: 'Automated PR: Tests succeeded'
+          branch: master
+          title: 'Merge feature branch into master'
+          body: 'Automated PR created after tests passed successfully.'
+          labels: 'automated-pr'
