@@ -1,19 +1,20 @@
 name: linux
 run-name: unit test
-on: [push]
+on:
+  push:
+    branches:
+      - dev
 jobs:
   build:
     runs-on: ubuntu-22.04
-    steps:
-      - name: checkout
-        uses: actions/checkout@v4
-      
-      - name: update
+    steps:      
+      - name: Update
         run: sudo apt-get update
-      - name: install dependency
+
+      - name: Install dependency
         run: sudo apt-get install build-essential cmake ninja-build libeigen3-dev
 
-      - name: install boost library
+      - name: Install boost library
         uses: MarkusJx/install-boost@v2.4.4
         id: install-boost
         with:
@@ -21,19 +22,21 @@ jobs:
             platform_version: 22.04
             boost_install_dir: /home/runner/boost_1_83_0
 
-      - name: build unit test
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Build unit test
         run: export BOOST_PATH=/home/runner/boost_1_83_0/boost/boost && cmake -DENABLE_EXCEPTION=ON -DENABLE_ASSERTION=ON -Btest/build -Stest -G Ninja && cmake --build test/build
 
-      - name: run unit test
+      - name: Run unit test
         run: test/build/bin/unit_test.exe
       
-      - name: create pull request
+      - name: Create pull request
         if: success()
         uses: peter-evans/create-pull-request@v7.0.5
         with:
-          commit-message: 'Automated PR: Tests succeeded'
+          base: dev
+          delete-branch: false
           branch: master
-          title: 'Merge feature branch into master'
-          body: 'Automated PR created after tests passed successfully.'
-          labels: 'automated-pr'
+          title: "Automated PR: Tests succeeded"
           token: ${{ secrets.REPO_TOKEN }}
