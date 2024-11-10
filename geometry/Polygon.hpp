@@ -43,7 +43,7 @@ public:
     
     ///@brief empties the points in polygon
     void Clear() { m_points.clear(); }
-    ///@brief point size of this polyon
+    ///@brief point size of this polygon
     size_t Size() const { return m_points.size(); }
     ///@brief contour area covered by this area, the result will be negative if the points in clockwise
     float_t Area() const;

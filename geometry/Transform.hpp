@@ -215,7 +215,7 @@ public:
     ///@brief inverses the transform matrix, return false if the matrix det = 0
     bool Inverse();
     ///@brief gets transform2d(x, y) from transform3d(x, y, z)
-    Transform2D<float_t> GetTransfrom2D() const;
+    Transform2D<float_t> GetTransform2D() const;
 
     ///@brief gets result transform of this * trans
     Transform3D<float_t> operator * (const Transform3D<float_t> & trans) const;
@@ -261,21 +261,21 @@ public:
     const float_t & operator[](size_t dim) const;
     ///@brief multiples this with q
     Quaternion<float_t> & operator *= (const Quaternion<float_t> & q);
-    ///@brief gets multiplie result of this * q
+    ///@brief gets multiple result of this * q
     Quaternion<float_t> operator * (const Quaternion<float_t> & q) const;
 
     ///@brief performs a rotation around the axis at angle radians
     void SetAxisAndAngle(const Vector3D<float_t> & axis, float angle);
-    ///@brief gets axis reprented by this quaternion
+    ///@brief gets axis represented by this quaternion
     Vector3D<float_t> Axis() const;
-    ///@brief gets angle reprented by this quaternion
+    ///@brief gets angle represented by this quaternion
     float_t Angle() const;
 
     ///@brief multiplicative inverse of this quaternion
     void Invert();
-    ///@brief megates all the coefficients of this quaternion
+    ///@brief negates all the coefficients of this quaternion
     void Negate();
-    ///@brief normalizes the quaternion oefficients with unit quaternions
+    ///@brief normalizes the quaternion coefficients with unit quaternions
     void Normalize();
     ///@brief returns the magnitude of this           
     float_t Mag() const;
@@ -483,7 +483,7 @@ inline bool Transform3D<float_t>::Inverse()
 }
 
 template <typename float_t>
-inline Transform2D<float_t> Transform3D<float_t>::GetTransfrom2D() const
+inline Transform2D<float_t> Transform3D<float_t>::GetTransform2D() const
 {
     Transform2D<float_t> trans;
     for(size_t i = 0; i < 2; ++i)
@@ -660,8 +660,8 @@ inline Quaternion<float_t> Quaternion<float_t>::Log() const
     if(len < std::numeric_limits<float_t>::epsilon())
         return Quaternion<float_t>(0, m_q.a[1], m_q.a[2], m_q.a[3]);
     else{
-        float_t coef = std::acos(m_q.a[0]) / len;
-        return Quaternion<float_t>(0, coef * m_q.a[1], coef * m_q.a[2], coef * m_q.a[3]);
+        float_t coeff = std::acos(m_q.a[0]) / len;
+        return Quaternion<float_t>(0, coeff * m_q.a[1], coeff * m_q.a[2], coeff * m_q.a[3]);
     }
 }
 
@@ -672,8 +672,8 @@ inline Quaternion<float_t> Quaternion<float_t>::Exp() const
     if(theta < std::numeric_limits<float_t>::epsilon())
         return Quaternion<float_t>(std::cos(theta), m_q.a[1], m_q.a[2], m_q.a[3]);
     else{
-        float_t coef = std::sin(theta) / theta;
-        return Quaternion<float_t>(std::cos(theta), coef * m_q.a[1], coef * m_q.a[2], coef * m_q.a[3]);
+        float_t coeff = std::sin(theta) / theta;
+        return Quaternion<float_t>(std::cos(theta), coeff * m_q.a[1], coeff * m_q.a[2], coeff * m_q.a[3]);
     }
 }
 
@@ -816,7 +816,7 @@ inline void Transform(Triangle3D<num_type> & triangle, const Transform3D<float_t
     Transform(triangle[2], trans);
 }
 
-///@brief transfroms a collection of geometries by the transform matrix
+///@brief transforms a collection of geometries by the transform matrix
 template <typename geometry_t, typename iterator, typename transform_t, 
           typename std::enable_if<geometry_t::dim == transform_t::dim && std::is_same<geometry_t,
           typename std::iterator_traits<iterator>::value_type>::value, bool>::type = true>
