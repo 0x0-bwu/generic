@@ -36,3 +36,4 @@ jobs:
           title: 'Merge feature branch into master'
           body: 'Automated PR created after tests passed successfully.'
           labels: 'automated-pr'
+          token: ${{ secrets.REPO_TOKEN }}
