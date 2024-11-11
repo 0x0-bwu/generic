@@ -1,5 +1,5 @@
-name: linux
-run-name: unit test
+name: Unit Test
+run-name: Unit Test
 on:
   push:
     branches:
@@ -30,13 +30,3 @@ jobs:
 
       - name: Run unit test
         run: test/build/bin/unit_test.exe
-      
-      - name: Create pull request
-        if: success()
-        uses: peter-evans/create-pull-request@v7.0.5
-        with:
-          base: dev
-          delete-branch: false
-          branch: master
-          title: "Automated PR: Tests succeeded"
-          token: ${{ secrets.REPO_TOKEN }}
