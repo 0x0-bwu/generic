@@ -4,6 +4,7 @@
 *.so
 *.exe
 .vscode/settings.json
+.vscode/c_cpp_properties.json
 build
 build.debug
 build.release
