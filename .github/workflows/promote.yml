@@ -2,7 +2,7 @@ name: Code Promotion
 run-name: Promotion
 on:
   schedule:
-    - cron: '0 5 * * *'
+    - cron: '0 10 * * *'
 jobs:
   promote-code:
     runs-on: ubuntu-22.04
