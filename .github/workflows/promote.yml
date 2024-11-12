@@ -1,10 +1,11 @@
-name: Code Promotion
-run-name: Promotion
+name: Promote
+run-name: Promote
 on:
-  schedule:
-    - cron: '0 10 * * *'
+  push:
+    branches:
+      - dev
 jobs:
-  promote-code:
+  build:
     runs-on: ubuntu-22.04
     steps:      
       - name: Update
@@ -23,20 +24,15 @@ jobs:
 
       - name: Checkout
         uses: actions/checkout@v4
-        ref: dev
 
       - name: Build unit test
         run: export BOOST_PATH=/home/runner/boost_1_83_0/boost/boost && cmake -DENABLE_EXCEPTION=ON -DENABLE_ASSERTION=ON -Btest/build -Stest -G Ninja && cmake --build test/build
 
       - name: Run unit test
         run: test/build/bin/unit_test.exe
-      
+
       - name: Create pull request
         if: success()
-        uses: peter-evans/create-pull-request@v7.0.5
-        with:
-          base: dev
-          delete-branch: false
-          branch: master
-          title: "Automated PR: Tests succeeded"
-          token: ${{ secrets.REPO_TOKEN }}
+        run: gh pr create -B master -H dev --title 'Merge dev into master' --body 'created by github action'
+        env:
+          GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
