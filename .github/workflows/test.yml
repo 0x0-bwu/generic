@@ -30,3 +30,9 @@ jobs:
 
       - name: Run unit test
         run: test/build/bin/unit_test.exe
+
+      - name: Create pull request
+        if: success()
+        run: gh pr create -B master -H dev --title 'Merge dev into master' --body 'Created by Github action'
+        env:
+          GITHUB_TOKEN: ${{ secrets.REPO_TOKEN }}
