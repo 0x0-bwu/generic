@@ -11,6 +11,8 @@
 #include "generic/tools/ProgramOptions.hpp"
 #include "generic/tools/Parser.hpp"
 #include "generic/tools/Tools.hpp"
+#include "generic/tools/Hash.hpp"
+#include "generic/math/Numbers.hpp"
 using namespace boost::unit_test;
 using namespace generic;
 void t_program_options()
@@ -76,6 +78,15 @@ void t_timer()
 	BOOST_CHECK(accumulated2.second == total);
 }
 
+void t_hash()
+{
+	using namespace generic;
+	using namespace generic::hash;
+	BOOST_CHECK(HashCombine("hello world", 42, math::pi) == HashCombine("hello world", 42, math::pi));
+	BOOST_CHECK(HashCombine("hello world", 42, math::pi) !=
+				HashCombine("hello world", 42, math::pi + std::numeric_limits<float>::epsilon()));	 
+}
+
 test_suite * create_tools_test_suite()
 {
     test_suite * tools_suite = BOOST_TEST_SUITE("s_tools");
@@ -83,6 +94,7 @@ test_suite * create_tools_test_suite()
     tools_suite->add(BOOST_TEST_CASE(&t_program_options));
 	tools_suite->add(BOOST_TEST_CASE(&t_parser));
 	tools_suite->add(BOOST_TEST_CASE(&t_timer));
+	tools_suite->add(BOOST_TEST_CASE(&t_hash));
     //
     return tools_suite;
 }
