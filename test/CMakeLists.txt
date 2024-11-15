@@ -44,10 +44,21 @@ if (ENABLE_PROFILING)
 	message("-- Enable GNU Profiling")
 endif()
 
-option(ENABLE_SANITIZER "Enable sanitizer" OFF)
-if (ENABLE_SANITIZER)
-	add_compile_options(-fsanitize=address -fno-omit-frame-pointer -fsanitize-recover=address -Wno-maybe-uninitialized)
-	add_link_options(-fsanitize=address -fno-omit-frame-pointer -fsanitize-recover=address)
+option(ENABLE_ASAN "Enable address sanitizer" OFF)
+option(ENABLE_TSAN "Enable thread sanitizer" OFF)
+
+if (ENABLE_ASAN AND ENABLE_TSAN) 
+	message(FATAL_ERROR "Only one of ENABLE_ASAN, ENABLE_TSAN can be enabled at the same time.")
+endif()
+
+if (ENABLE_ASAN)
+	add_compile_options(-fsanitize=address)
+	add_link_options(-fsanitize=address)
+endif()
+
+if (ENABLE_TSAN)
+	add_compile_options(-fsanitize=thread)
+	add_link_options(-fsanitize=thread)
 endif()
 
 set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -fPIC -ffast-math -Wno-deprecated-declarations")
