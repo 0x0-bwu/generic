@@ -589,7 +589,7 @@ struct Polynomial {
 
         Polynomial gen = GetGeneratorPoly(count);
         Polynomial buffer(length + gen.Length() - 1);
-        for (size_t index = 0; index < gen.Length(); index++)
+        for (size_t index = 0; index < terms.size(); index++)
             buffer.terms[index] = terms[index];
     
         for (size_t index = 0; index < length; index++) {

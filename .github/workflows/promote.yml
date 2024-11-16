@@ -26,7 +26,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build unit test
-        run: export BOOST_PATH=/home/runner/boost_1_83_0/boost/boost && cmake -DENABLE_EXCEPTION=ON -DENABLE_ASSERTION=ON -DENABLE_TSAN=ON -Btest/build -Stest -G Ninja && cmake --build test/build
+        run: export BOOST_PATH=/home/runner/boost_1_83_0/boost/boost && cmake -DENABLE_EXCEPTION=ON -DENABLE_ASSERTION=ON -DENABLE_ASAN=ON -Btest/build -Stest -G Ninja && cmake --build test/build
 
       - name: Run unit test
         run: test/build/bin/unit_test.exe
