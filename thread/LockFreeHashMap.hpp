@@ -1,11 +1,11 @@
 /**
- * @file LockFree.hpp
+ * @file LockFreeHashMap.hpp
  * @author bwu
  * @brief Lock free hash map, modified from folly atomic hash map
  * @version 0.1
  * @date 2024-09-12
  */
-
+#pragma once
 #include "generic/common/Exception.hpp"
 #include "generic/math/MathUtility.hpp"
 #include "Utility.hpp"

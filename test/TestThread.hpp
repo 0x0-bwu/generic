@@ -10,6 +10,7 @@
 #include "generic/thread/MapReduce.hpp"
 #include "generic/thread/TaskFlow.hpp"
 #include "generic/thread/LockFreeHashMap.hpp"
+#include "generic/thread/LockFreeBitSet.hpp"
 #include <sstream>
 using namespace boost::unit_test;
 using namespace generic;
@@ -159,10 +160,51 @@ void t_utility()
 
 void t_lockfree()
 {
-    auto lfha = LockFreeHashArray<int, double>::Create(100);
-    BOOST_CHECK(lfha->emplace(3, 3.14).second);
-    BOOST_CHECK(lfha->erase(2) == 0);
-    BOOST_CHECK(lfha->erase(3) == 1);
+    constexpr size_t maxThreads = 4;
+    //LockFreeBitSet
+    {
+        LockFreeBitSet<4> b;
+        std::vector<std::thread> threads;
+        for (size_t i = 0; i < maxThreads / 2; ++i) {
+            threads.emplace_back([&] {
+                for (size_t j = 0; j < 1000; ++j)
+                    b.reset(j % 3);
+            });
+        }
+        for (size_t i = 0; i < maxThreads / 2; ++i) {
+            threads.emplace_back([&] {
+                for (size_t j = 0; j < 1000; ++j)
+                    b.set(j % 3);
+            });
+        }
+        for (auto & thread : threads) thread.join();
+        BOOST_CHECK(b.test(3) == false);
+    }
+
+    //LockFreeHashMap
+    {
+        auto lfha = LockFreeHashArray<int, double>::Create(100);
+        BOOST_CHECK(lfha->emplace(3, 3.14).second);
+        BOOST_CHECK(lfha->erase(2) == 0);
+        BOOST_CHECK(lfha->erase(3) == 1);
+        std::vector<std::thread> threads;
+        for (size_t i = 0; i < maxThreads / 2; ++i) {
+            threads.emplace_back([&] {
+                for (size_t j = 0; j < 1000; ++j)
+                    lfha->emplace(3, 3.14);
+            });
+        }
+        for (size_t i = 0; i < maxThreads / 2; ++i) {
+            threads.emplace_back([&] {
+                for (size_t j = 0; j < 1000; ++j) {
+                    BOOST_CHECK(lfha->erase(2) == 0);
+                    lfha->erase(3);
+                }
+            });
+        }
+        for (auto & thread : threads) thread.join();
+    }
+
 }
 
 test_suite * create_thread_test_suite()
