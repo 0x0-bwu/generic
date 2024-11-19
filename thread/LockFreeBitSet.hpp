@@ -12,11 +12,13 @@
 #include <array>
 namespace generic::thread {
 
-template <size_t N>
+template <size_t N, typename Block = uint64_t>
 class LockFreeBitSet
 {
+	static_assert(std::atomic<Block>::is_always_lock_free/*shoule be lock free type*/);
+	static_assert(std::is_integral_v<Block> and std::is_unsigned_v<Block>/*shoule be unsigned integral type*/);
 public:
-	LockFreeBitSet() = default;
+	LockFreeBitSet() { std::fill(m_data.begin(), m_data.end(), 0); }
 	LockFreeBitSet(const LockFreeBitSet &) = delete;
 	LockFreeBitSet & operator=(const LockFreeBitSet &) = delete;
 
@@ -67,16 +69,6 @@ public:
 	constexpr size_t size() const { return N; }
 
 private:
-// Pick the largest lock-free type available
-#if (ATOMIC_LLONG_LOCK_FREE == 2)
-	using Block = unsigned long long;
-#elif (ATOMIC_LONG_LOCK_FREE == 2)
-	using Block = unsigned long;
-#else
-// Even if not lock free, what can we do?
-	using Block = unsigned int;
-#endif
-
 	static constexpr size_t BITS_PER_BLOCK = std::numeric_limits<Block>::digits;
 	static constexpr size_t BlockIndex(size_t bit) { return bit / BITS_PER_BLOCK; }
 	static constexpr size_t BitOffset(size_t bit) { return bit % BITS_PER_BLOCK; }
