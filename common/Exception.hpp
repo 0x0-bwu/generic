@@ -23,10 +23,24 @@
 
 #ifdef GENERIC_NO_ASSERTION
 #   define GENERIC_ASSERT(ex) do{} while(0)
+#   define GENERIC_ASSERT_MSG(ex, msg)                   \
+    do {                                                 \
+        static_cast<void>(sizeof(ex));                   \
+        static_cast<void>(sizeof(msg));                  \
+    } while (0)
 #else
 #   undef NDEBUG
 #   include <cassert>
+#   include <cstdio>
 #   define GENERIC_ASSERT(ex) assert(ex)
+#   define GENERIC_ASSERT_MSG(ex, msg)                    \
+    if (not (ex)) {                                       \
+        fprintf(stderr, "%s:%d ", __FILE__, __LINE__);    \
+        fprintf(stderr, "Assertion '%s' failed: ", #ex);  \
+        fprintf(stderr, "%s", msg);                       \
+        fprintf(stderr, "!\n");                           \
+        std::abort();                                     \
+    }   
 #endif
 
 ///@brief generic library namespace
