@@ -180,7 +180,7 @@ EdgeId DirectedGraph::AddEdge(NodeId source, NodeId target)
         m_target[id] = target;
     }
 
-    GENERIC_ASSERT(m_source.size() == m_target.size());
+    GENERIC_ASSERT(m_source.Size() == m_target.Size());
 
     m_inEdges[target].insert(id);
     m_outEdges[source].insert(id);
@@ -193,7 +193,7 @@ EdgeId DirectedGraph::AddEdge(NodeId source, NodeId target)
 
 void DirectedGraph::RemoveNode(const NodeId nodeId)
 {
-    GENERIC_ASSERT(isValid(node));
+    GENERIC_ASSERT(isValid(nodeId));
     for (auto edge : InEdges(nodeId)) {
         if (edge) RemoveEdge(edge);
     }
