@@ -104,6 +104,7 @@ public:
     }
 
     // std-style interface
+    size_t size() const { return Size(); }
     void swap(LinearMap<Key,Value> & other) { return Swap(other); }
     void clear() { return Clear(); }
     template<typename... Args>
