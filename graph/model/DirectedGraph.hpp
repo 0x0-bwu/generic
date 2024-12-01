@@ -8,6 +8,7 @@
 #pragma once
 #include "generic/graph/utils/Index.hpp"
 #include "generic/graph/utils/LinearMap.hpp"
+#include <optional>
 #include <set>
 namespace generic::graph::model {
 
@@ -59,10 +60,14 @@ public:
     size_t Size() const { return m_objs.size(); }
     bool Empty() const { return m_objs.empty(); }
     void Add(T t) { m_objs.emplace_back(t); }
-    T Take();
     void Clear() { m_objs.clear(); }
+
+    T Take();
+    void ResetLast();
+    std::optional<T> LastTake() const;
 private:
     std::vector<T> m_objs;
+    std::optional<T> m_last{std::nullopt};
 };
 
 class DirectedGraph
@@ -129,7 +134,20 @@ T Recycler<T>::Take()
 {
     T t = m_objs.back();
     m_objs.pop_back();
+    m_last = t;
     return t;
+}
+
+template <typename T>
+void Recycler<T>::ResetLast()
+{
+    m_last = std::nullopt;
+}
+
+template <typename T>
+std::optional<T> Recycler<T>::LastTake() const
+{
+    return m_last;
 }
 
 EdgeId DirectedGraph::FindEdge(NodeId source, NodeId target) const
