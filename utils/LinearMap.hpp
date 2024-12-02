@@ -73,7 +73,7 @@ public:
     bool Contain(const Key key) const { return size_t(key) < m_data.size(); }
 
     template<typename... Args>
-    void Append(Args &&... args) { m_data.emplace_back(std::forward<Args>(args)...); }
+    Key Append(Args &&... args) { m_data.emplace_back(std::forward<Args>(args)...); return Key(Size() - 1); }
 
     template<typename... Args>
     void Resize(Args &&... args) { m_data.resize(std::forward<Args>(args)...); }
@@ -108,7 +108,7 @@ public:
     void swap(LinearMap<Key,Value> & other) { return Swap(other); }
     void clear() { return Clear(); }
     template<typename... Args>
-    void emplace_back(Args &&... args) { Append(std::forward<Args>(args)...); }
+    Key emplace_back(Args &&... args) { return Append(std::forward<Args>(args)...); }
     Iterator begin() { return Begin(); }
     Iterator end() { return End(); }
 
