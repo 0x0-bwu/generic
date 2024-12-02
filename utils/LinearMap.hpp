@@ -1,7 +1,7 @@
 /**
  * @file LinearMap.hpp
  * @author bwu
- * @brief linear map implement based on https://github.com/verilog-to-routing/tatum  
+ * @brief linear map utils implement based on https://github.com/verilog-to-routing/tatum  
  * @version 0.1
  * @date 2024-11-29
  */
@@ -9,7 +9,7 @@
 #include "generic/common/Exception.hpp"
 #include <vector>
 
-namespace generic::graph::utils {
+namespace generic::utils {
 
 template<typename Key, typename Value>
 class LinearMap
@@ -116,4 +116,4 @@ protected:
     std::vector<Value> m_data;
 };
 
-} // namespace generic::graph::utils
+} // namespace generic::utils
