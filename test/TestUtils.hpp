@@ -29,14 +29,19 @@ void t_utils()
 
     // Linear Map
     {
-        LinearMap<size_t, std::string> lm(3);
+        struct Tag {};
+        using ID = Index<Tag>;
+        LinearMap<ID, std::string> lm(3);
         BOOST_CHECK(lm.Size() == 3);
 
-        lm.Insert(5, "test");
+        lm.Insert(ID(5), "test");
         BOOST_CHECK(lm.Size() == 6);
 
-        auto s = lm[5];
+        auto s = lm[ID(5)];
         BOOST_CHECK(s == "test");
+
+        auto t = lm.Append("test2");
+        BOOST_CHECK(t ==  ID(6));
     }
 }
 
