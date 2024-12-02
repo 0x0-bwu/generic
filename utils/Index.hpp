@@ -1,7 +1,7 @@
 /**
  * @file Index.hpp
  * @author bwu
- * @brief graph index implement based on https://github.com/verilog-to-routing/tatum
+ * @brief index utils implement based on https://github.com/verilog-to-routing/tatum
  * @version 0.1
  * @date 2024-11-29
  */
@@ -9,7 +9,7 @@
 #include "generic/common/Exception.hpp"
 #include <limits>
 
-namespace generic::graph::utils {
+namespace generic::utils {
 
 template<typename Tag, typename T = size_t>
 class Index
@@ -64,32 +64,32 @@ inline bool Index<Tag,T>::operator > (const Index<Tag,T> other) const
     return m_id > other.m_id;
 }
 
-} //  namespace generic::graph::utils
+} //  namespace generic::utils
 
 namespace std {
 
 template<typename Tag, typename T>
-struct hash<generic::graph::utils::Index<Tag,T>>
+struct hash<generic::utils::Index<Tag,T>>
 {
-    std::size_t operator() (const generic::graph::utils::Index<Tag,T> index) const noexcept
+    std::size_t operator() (const generic::utils::Index<Tag,T> index) const noexcept
     {
         return std::hash<T>()(index.m_id);
     }
 };
 
 template <typename Tag, typename T>
-struct less<generic::graph::utils::Index<Tag, T>>
+struct less<generic::utils::Index<Tag, T>>
 {
-    bool operator() (const generic::graph::utils::Index<Tag,T>  lhs, generic::graph::utils::Index<Tag,T> rhs) const noexcept
+    bool operator() (const generic::utils::Index<Tag,T>  lhs, generic::utils::Index<Tag,T> rhs) const noexcept
     {
         return lhs < rhs;
     }
 };
 
 template <typename Tag, typename T>
-struct equal_to<generic::graph::utils::Index<Tag, T>>
+struct equal_to<generic::utils::Index<Tag, T>>
 {
-    bool operator() (const generic::graph::utils::Index<Tag,T> lhs, generic::graph::utils::Index<Tag,T> rhs) const noexcept
+    bool operator() (const generic::utils::Index<Tag,T> lhs, generic::utils::Index<Tag,T> rhs) const noexcept
     {
         return lhs == rhs;
     }

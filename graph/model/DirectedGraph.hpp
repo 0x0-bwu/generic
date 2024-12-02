@@ -6,8 +6,8 @@
  * @date 2024-11-29
  */
 #pragma once
-#include "generic/graph/utils/Index.hpp"
-#include "generic/graph/utils/LinearMap.hpp"
+#include "generic/utils/Index.hpp"
+#include "generic/utils/LinearMap.hpp"
 #include <optional>
 #include <set>
 namespace generic::graph::model {
@@ -16,7 +16,7 @@ struct NodeIdTag;
 struct EdgeIdTag;
 struct LevelIdTag;
 
-using namespace utils;
+using namespace generic::utils;
 using NodeId = Index<NodeIdTag>;
 using EdgeId = Index<EdgeIdTag>;
 using LevelId = Index<LevelIdTag>;
