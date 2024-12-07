@@ -86,8 +86,8 @@ public:
 
     virtual ~DirectedGraph() = default;
 
-    virtual typename NodeId::SizeType Nodes() const { return DirectedGraph::Nodes() - m_nodeRecycler.Size(); }
-    virtual typename EdgeId::SizeType Edges() const { return DirectedGraph::Edges() - m_edgeRecycler.Size(); }
+    virtual typename NodeId::SizeType Nodes() const { return m_nodes.Size() - m_nodeRecycler.Size(); }
+    virtual typename EdgeId::SizeType Edges() const { return m_edges.Size() - m_edgeRecycler.Size(); }
 
     virtual NodeRange AllNodes() const { return makeRange(m_nodes.Begin(), m_nodes.End()); }
     virtual EdgeRange AllEdges() const { return makeRange(m_edges.Begin(), m_edges.End()); }
