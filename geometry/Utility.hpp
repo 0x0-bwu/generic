@@ -7,7 +7,7 @@
  */
 #pragma once
 #include "generic/math/MathUtility.hpp"
-#include "generic/common/Version.hpp"
+#include "generic/common/Macros.hpp"
 #include "generic/math/Numbers.hpp"
 #include "BoostGeometryRegister.hpp"
 #include "BoostPolygonRegister.hpp"

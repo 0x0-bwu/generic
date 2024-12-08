@@ -9,6 +9,7 @@
 
 #include "generic/test/TestCommon.hpp"
 #include "generic/utils/LinearMap.hpp"
+#include "generic/utils/Version.hpp"
 #include "generic/utils/Index.hpp"
 
 void t_utils()
@@ -43,6 +44,16 @@ void t_utils()
         auto t = lm.Append("test2");
         BOOST_CHECK(t ==  ID(6));
     }
+
+    // Version
+    {
+        BOOST_CHECK(Version(1, 2, 3) == Version(102003));
+        BOOST_CHECK(Version(99, 98, 999) < Version(9999999));
+        BOOST_CHECK(Version(911126).toString() == "9.11.126");
+        BOOST_CHECK(Version(911126).toInt() == 911126);
+        BOOST_CHECK(std::hash<Version>()(Version(42)) != std::hash<Version>()(Version(41)));
+    }
+
 }
 
 test_suite * create_utils_test_suite()
