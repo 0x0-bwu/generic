@@ -22,9 +22,9 @@ struct Version // format: [Major(99).Minor(99).Patch(999)]
     constexpr Version(int major, int minor, int patch)
      : m_major(major), m_minor(minor), m_patch(patch)
     {
-        GENERIC_ASSERT_MSG(m_major < 100 , "max major version: 99");
-        GENERIC_ASSERT_MSG(m_minor < 100 , "max minor version: 99");
-        GENERIC_ASSERT_MSG(m_patch < 1000, "max patch version: 999");
+        GENERIC_ASSERT_MSG(major < 100 , "max major version: 99");
+        GENERIC_ASSERT_MSG(minor < 100 , "max minor version: 99");
+        GENERIC_ASSERT_MSG(patch < 1000, "max patch version: 999");
     }
 
     explicit operator std::uint32_t() const { return toInt(); }
