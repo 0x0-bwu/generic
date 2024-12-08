@@ -5,6 +5,7 @@
  * @version 0.1
  * @date 2024-12-08
  */
+#pragma once
 #include "generic/common/Exception.hpp"
 #include <cstdint>
 namespace generic::utils {
