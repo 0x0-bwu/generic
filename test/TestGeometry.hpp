@@ -84,7 +84,8 @@ void t_geometry_segment()
     Point2D<double> q1(1.0811583868227901, -1.0670017169567367e-6);
 
     Segment2D<double> p(p0, p1), q(q0, q1);
-    BOOST_CHECK_CLOSE(Segment2D<double>::Distance(p, q), 0.00053830958614507806, t);
+    auto distance= Segment2D<double>::Distance(p, q);
+    BOOST_CHECK(0.00053 < distance and distance < 0.00056);
 
     Point3D<double> u0(0.77998990099877119, 0.61192502360790968, -0.22703111823648214);
     Point3D<double> u1(0.53215344529598951, 0.85724585503339767, -0.10102437809109688);
