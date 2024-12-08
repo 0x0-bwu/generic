@@ -7,7 +7,8 @@
  */
 #pragma once
 
-#include "Version.hpp"
+#include "Macros.hpp"
+
 #if GENERIC_CURRENT_CXX_VERSION >= 20
     #include <bit>
 #else

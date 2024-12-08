@@ -6,7 +6,13 @@
  * @date 2022-02-22
  */
 #pragma once
-#include "Version.hpp"
+#ifndef GENERIC_CURRENT_CXX_VERSION
+    #define GENERIC_CURRENT_CXX_VERSION 17
+#endif
+
+#ifndef GENERIC_CURRENT_BOOST_LIBRARY_VER
+    #define GENERIC_CURRENT_BOOST_LIBRARY_VER 183
+#endif
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
     #define GENERIC_OS_WINDOWS
