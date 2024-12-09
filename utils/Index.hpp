@@ -20,7 +20,7 @@ public:
     static constexpr T INVALID_ID = std::numeric_limits<T>::max();
     
     constexpr Index() = default;
-    
+    virtual ~Index() = default;
     explicit Index(T id) noexcept : m_id(id) {}
     
     static constexpr Index Invalid() { return Index(); }
