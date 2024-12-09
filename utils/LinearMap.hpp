@@ -82,6 +82,8 @@ public:
 
     size_t Capacity() const { return m_data.capacity(); }
 
+    void Reserve(size_t size) { return m_data.reserve(size); }
+
     void Shrink() { m_data.shrink_to_fit(); }
 
     void Insert(const Key key, const Value & value)
@@ -107,6 +109,8 @@ public:
     size_t size() const { return Size(); }
     void swap(LinearMap<Key,Value> & other) { return Swap(other); }
     void clear() { return Clear(); }
+    void reserve(size_t size) { return Reserve(size); }
+
     template<typename... Args>
     Key emplace_back(Args &&... args) { return Append(std::forward<Args>(args)...); }
     Iterator begin() { return Begin(); }

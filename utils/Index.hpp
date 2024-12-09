@@ -25,7 +25,7 @@ public:
     
     static constexpr Index Invalid() { return Index(); }
     
-    explicit operator bool() const { return m_id != INVALID_ID; }
+    virtual operator bool() const { return m_id != INVALID_ID; }
 
     explicit operator size_t() const { return static_cast<size_t>(m_id); }
 
