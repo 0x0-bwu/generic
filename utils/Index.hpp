@@ -36,7 +36,7 @@ public:
     bool operator!= (const Index<Tag,T> other) const;
     bool operator < (const Index<Tag,T> other) const;
     bool operator > (const Index<Tag,T> other) const;
-private:
+protected:
     T m_id{INVALID_ID};
 };
 
