@@ -43,13 +43,25 @@ public:
     Reference operator[] (const Key key)
     { 
         GENERIC_ASSERT_MSG(size_t(key) < m_data.size(), "index out of range");
-        return m_data[size_t(key)]; 
+        return this->operator[] (size_t(key));
     }   
 
     ConstReference operator[] (const Key key) const
     { 
         GENERIC_ASSERT_MSG(size_t(key) < m_data.size(), "index out of range");
-        return m_data[size_t(key)]; 
+        return this->operator[] (size_t(key));
+    }
+
+    Reference operator[] (size_t i)
+    { 
+        GENERIC_ASSERT_MSG(i < m_data.size(), "index out of range");
+        return m_data[i]; 
+    }
+
+    ConstReference operator[] (size_t i) const
+    { 
+        GENERIC_ASSERT_MSG(i < m_data.size(), "index out of range");
+        return m_data[i]; 
     }
 
     Iterator Find(const Key key)
@@ -115,6 +127,14 @@ public:
     Key emplace_back(Args &&... args) { return Append(std::forward<Args>(args)...); }
     Iterator begin() { return Begin(); }
     Iterator end() { return End(); }
+
+#ifdef GENERIC_BOOST_SERIALIZATION_SUPPORT
+    template <typename Archive>
+    void serialize(Archive & ar, const unsigned int)
+    {
+        ar & boost::serialization::make_nvp("data", m_data); 
+    }
+#endif//GENERIC_BOOST_SERIALIZATION_SUPPORT
 
 protected:
     std::vector<Value> m_data;
