@@ -19,6 +19,16 @@ enum class Length { Nanometer = -3, Micrometer = -2, Millimeter  = -1, Meter = 0
 
 enum class Temperature { Celsius, Kelvins };
 
+enum class Capacitance { F = 0, MF = -1, UF = -2, NF = -3, PF = -4, FF = -5 };
+
+enum class Resistance { KROHM = 1, ROHN = 0 };
+
+enum class Current { A = 0, MA = -1, UA = -2 };
+
+enum class Voltage { V = 0, MV = -1, UV = -2 };
+
+enum class Power { W = 0, MW = -1, UW = -2, NW = -3, PW = -4 };
+
 ///@brief gets scale from input `unit` to second
 inline double Scale2Second(Time unit)
 {
