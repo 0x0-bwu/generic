@@ -32,9 +32,8 @@ enum class Power { W = 0, MW = -1, UW = -2, NW = -3, PW = -4 };
 ///@brief gets scale from input `unit` to second
 inline double Scale2Second(Time unit)
 {
-    if(int(unit) < 0) return std::pow(10, int(unit) * 3);
-    else if(int(unit) == 0) return 1.0;
-    else return double(unit);
+    if(int(unit) <= 0) return std::pow(10, int(unit) * 3);
+    return double(unit);
 }
 
 ///@brief gets scale from input `unit` to millisecond
@@ -63,6 +62,28 @@ inline double Kelvins2Celsius(double t)
 {
     return t - 273.15;
 }
+
+///@brief gets scale from input `unit` to SI unit
+template <typename Unit, typename Scalar = float>
+inline Scalar Scale2SI(Unit unit)
+{
+    return std::pow(Scalar(10), (int(unit) * 3));
+}
+
+template <typename Scalar = float>
+inline Scalar Scale2SI(Time t)
+{
+    return Scale2Second(t);
+}
+
+template <typename Scalar = float>
+inline Scalar Scale2SI(Length l)
+{
+    return Scale2Meter(l);
+}
+
+template <typename Scalar = float>
+inline Scalar Scalar2SI(Temperature t) = delete;
 
 }//namespace unit
 
