@@ -21,7 +21,7 @@ enum class Temperature { Celsius, Kelvins };
 
 enum class Capacitance { F = 0, MF = -1, UF = -2, NF = -3, PF = -4, FF = -5 };
 
-enum class Resistance { KROHM = 1, ROHM = 0 };
+enum class Resistance { KOHM = 1, OHM = 0 };
 
 enum class Current { A = 0, MA = -1, UA = -2 };
 
