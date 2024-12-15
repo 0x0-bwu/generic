@@ -36,6 +36,11 @@ public:
     bool operator!= (const Index<Tag,T> other) const;
     bool operator < (const Index<Tag,T> other) const;
     bool operator > (const Index<Tag,T> other) const;
+
+#ifdef GENERIC_BOOST_SERIALIZATION_SUPPORT
+    template <typename Archive>
+    void serialize(Archive & ar, const unsigned int);
+#endif//GENERIC_BOOST_SERIALIZATION_SUPPORT
 protected:
     T m_id{INVALID_ID};
 };
@@ -63,6 +68,15 @@ inline bool Index<Tag,T>::operator > (const Index<Tag,T> other) const
 {
     return m_id > other.m_id;
 }
+
+#ifdef GENERIC_BOOST_SERIALIZATION_SUPPORT
+template<typename Tag, typename T>
+template <typename Archive>
+inline void Index<Tag,T>::serialize(Archive & ar, const unsigned int)
+{
+    ar & boost::serialization::make_nvp("id", m_id); 
+}
+#endif//GENERIC_BOOST_SERIALIZATION_SUPPORT
 
 } //  namespace generic::utils
 

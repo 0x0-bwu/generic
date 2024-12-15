@@ -65,6 +65,11 @@ public:
     T Take();
     void ResetLast();
     std::optional<T> LastTake() const;
+
+#ifdef GENERIC_BOOST_SERIALIZATION_SUPPORT
+    template <typename Archive>
+    void serialize(Archive & ar, const unsigned int);
+#endif//GENERIC_BOOST_SERIALIZATION_SUPPORT
 private:
     std::vector<T> m_objs;
     std::optional<T> m_last{std::nullopt};
@@ -113,6 +118,12 @@ public:
     virtual void RemoveEdge(const NodeId source, const NodeId target);
 
     virtual void RemoveEdge(const EdgeId edgeId);
+
+#ifdef GENERIC_BOOST_SERIALIZATION_SUPPORT
+    template <typename Archive>
+    void serialize(Archive & ar, const unsigned int);
+#endif//GENERIC_BOOST_SERIALIZATION_SUPPORT
+
 protected:
     LinearMap<NodeId, NodeId> m_nodes;
     LinearMap<EdgeId, EdgeId> m_edges;
@@ -130,7 +141,7 @@ protected:
 /// Implementation
 
 template <typename T>
-T Recycler<T>::Take()
+inline T Recycler<T>::Take()
 {
     T t = m_objs.back();
     m_objs.pop_back();
@@ -139,18 +150,18 @@ T Recycler<T>::Take()
 }
 
 template <typename T>
-void Recycler<T>::ResetLast()
+inline void Recycler<T>::ResetLast()
 {
     m_last = std::nullopt;
 }
 
 template <typename T>
-std::optional<T> Recycler<T>::LastTake() const
+inline std::optional<T> Recycler<T>::LastTake() const
 {
     return m_last;
 }
 
-EdgeId DirectedGraph::FindEdge(NodeId source, NodeId target) const
+inline EdgeId DirectedGraph::FindEdge(NodeId source, NodeId target) const
 {
     for (auto edge : OutEdges(source)) {
         if (target == Target(edge))
@@ -159,7 +170,7 @@ EdgeId DirectedGraph::FindEdge(NodeId source, NodeId target) const
     return EdgeId::Invalid();
 }
 
-NodeId DirectedGraph::AddNode()
+inline NodeId DirectedGraph::AddNode()
 {
     NodeId id;
     if (m_nodeRecycler.Empty()) {
@@ -179,7 +190,7 @@ NodeId DirectedGraph::AddNode()
     return id;
 }
 
-EdgeId DirectedGraph::AddEdge(NodeId source, NodeId target)
+inline EdgeId DirectedGraph::AddEdge(NodeId source, NodeId target)
 {
     GENERIC_ASSERT(isValid(source));
     GENERIC_ASSERT(isValid(target));
@@ -209,7 +220,7 @@ EdgeId DirectedGraph::AddEdge(NodeId source, NodeId target)
     return id;
 }
 
-void DirectedGraph::RemoveNode(const NodeId nodeId)
+inline void DirectedGraph::RemoveNode(const NodeId nodeId)
 {
     GENERIC_ASSERT(isValid(nodeId));
     for (auto edge : InEdges(nodeId)) {
@@ -224,7 +235,7 @@ void DirectedGraph::RemoveNode(const NodeId nodeId)
     m_nodeRecycler.Add(nodeId);
 }
 
-void DirectedGraph::RemoveEdge(const NodeId source, const NodeId target)
+inline void DirectedGraph::RemoveEdge(const NodeId source, const NodeId target)
 {
     while (auto edgeId = FindEdge(source, target)) {
         if (not isValid(edgeId)) break;
@@ -232,7 +243,7 @@ void DirectedGraph::RemoveEdge(const NodeId source, const NodeId target)
     }
 }
 
-void DirectedGraph::RemoveEdge(const EdgeId edgeId)
+inline void DirectedGraph::RemoveEdge(const EdgeId edgeId)
 {
     GENERIC_ASSERT(isValid(edgeId));
     
@@ -245,5 +256,39 @@ void DirectedGraph::RemoveEdge(const EdgeId edgeId)
     m_edges[edgeId].makeInvalid();
     m_edgeRecycler.Add(edgeId);
 }
+
+#ifdef GENERIC_BOOST_SERIALIZATION_SUPPORT
+template <typename T>
+template <typename Archive>
+inline void Recycler<T>::serialize(Archive & ar, const unsigned int)
+{
+    bool flag; T last;//w/a since boost 1.83 serialization not support std::optional
+    ar & boost::serialization::make_nvp("objs", m_objs);
+    if constexpr (Archive::is_saving::value) {
+        flag = m_last.has_value();
+        last = flag ? m_last.value() : T{};
+        ar & boost::serialization::make_nvp("flag", flag);
+        ar & boost::serialization::make_nvp("last", last);
+    }
+    else {
+        ar & boost::serialization::make_nvp("flag", flag);
+        ar & boost::serialization::make_nvp("last", last);
+        m_last = flag ? std::optional<T>(last) : std::nullopt;
+    }
+}
+
+template <typename Archive>
+inline void DirectedGraph::serialize(Archive & ar, const unsigned int)
+{
+    ar & boost::serialization::make_nvp("nodes", m_nodes); 
+    ar & boost::serialization::make_nvp("edges", m_edges); 
+    ar & boost::serialization::make_nvp("source", m_source);
+    ar & boost::serialization::make_nvp("target", m_target);
+    ar & boost::serialization::make_nvp("in_edges", m_inEdges);
+    ar & boost::serialization::make_nvp("out_edges", m_outEdges);
+    ar & boost::serialization::make_nvp("node_recycler", m_nodeRecycler);
+    ar & boost::serialization::make_nvp("edge_recycler", m_edgeRecycler);
+}
+#endif//GENERIC_BOOST_SERIALIZATION_SUPPORT
 
 } // namespace generic::graph::model
