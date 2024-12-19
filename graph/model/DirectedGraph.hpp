@@ -89,6 +89,8 @@ public:
     using InEdgeIterator = typename std::set<EdgeId>::iterator;
     using InEdgeRange = Range<InEdgeIterator>;
 
+    DirectedGraph() = default;
+    explicit DirectedGraph(size_t nodes);
     virtual ~DirectedGraph() = default;
 
     virtual typename NodeId::SizeType Nodes() const { return m_nodes.Size() - m_nodeRecycler.Size(); }
@@ -159,6 +161,13 @@ template <typename T>
 inline std::optional<T> Recycler<T>::LastTake() const
 {
     return m_last;
+}
+
+inline DirectedGraph::DirectedGraph(size_t nodes)
+{
+    m_nodes.Resize(nodes);
+    m_inEdges.Resize(nodes);
+    m_outEdges.Resize(nodes);
 }
 
 inline EdgeId DirectedGraph::FindEdge(NodeId source, NodeId target) const
