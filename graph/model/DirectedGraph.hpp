@@ -176,7 +176,7 @@ inline EdgeId DirectedGraph::FindEdge(NodeId source, NodeId target) const
         if (target == Target(edge))
             return edge;
     }
-    return EdgeId::Invalid();
+    return EdgeId();
 }
 
 inline NodeId DirectedGraph::AddNode()
