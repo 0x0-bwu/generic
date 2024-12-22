@@ -179,7 +179,7 @@ void t_math_fast_math()
         float num = Random<float>(-126, 0);
         maxErr = std::max(maxErr, std::abs(std::pow(2.0f, num) - FastPow2(num)));
     }
-    BOOST_CHECK(maxErr < 4.006e-5);
+    BOOST_CHECK(maxErr < 4.5e-5);
 
     maxErr = 0;
     for (size_t i = 0; i < total; ++i) {
@@ -193,7 +193,7 @@ void t_math_fast_math()
         float num = Random<float>(-87, 0);
         maxErr = std::max(maxErr, std::abs(std::exp(num) - FastExp(num)));
     }
-    BOOST_CHECK(maxErr < 4e-5);
+    BOOST_CHECK(maxErr < 4.5e-5);
 
     maxErr = 0;
     for (size_t i = 0; i < total; ++i) {

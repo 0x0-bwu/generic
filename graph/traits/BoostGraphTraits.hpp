@@ -40,8 +40,8 @@ struct graph_traits<DirectedGraph>
     using in_edge_iterator = typename DirectedGraph::InEdgeIterator;
     using out_edge_iterator = typename DirectedGraph::OutEdgeIterator;
 
-    static vertex_descriptor null_vertex() { return NodeId::Invalid(); }
-    static edge_descriptor null_edge() { return EdgeId::Invalid(); }
+    static vertex_descriptor null_vertex() { return NodeId(); }
+    static edge_descriptor null_edge() { return EdgeId(); }
 };
 
 
