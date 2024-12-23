@@ -48,7 +48,7 @@ struct ErrorHandler
 			os << '^' << std::endl;
 		}
 		else {
-			os << "Unexpected end of file. ";
+			os << "Unexpected end of content. ";
 			os << message << what << " line " << line << std::endl;
 		}
 	}

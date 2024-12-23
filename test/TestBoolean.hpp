@@ -14,26 +14,23 @@ using namespace boost::unit_test;
 
 void t_expression()
 {
-    // using namespace generic::boolean::expr;
-    // Expression e;
-    // std::stringstream ss;
-    // {
-    //     std::string s = "(a & bbb[0]) ^ ((c & d) | (a & b)";
-    //     auto res = ParseExpression(s.c_str(), e);
-    //     BOOST_CHECK(res);
-    //     ss << e;
-    //     std::cout << ss.str() << std::endl;
-    //     BOOST_CHECK(ss.str() == "((a & b[0]) ^ ((c & d) | (a & b)))");
-    // }
-    
-    // {
-    //     std::string s = "a_[999] & b ^ (c & d | a & b)";
-    //     auto res =ParseExpression(s.c_str(), e);
-    //     BOOST_CHECK(res);
-    //     ss.str(""); ss << e;
-    //     std::cout << ss.str() << std::endl;
-    //     BOOST_CHECK(ss.str() == "((a_[999] & b) ^ ((c & d) | (a & b)))");
-    // }
+    using namespace generic::boolean::expr;
+    Expression e;
+    std::stringstream ss;
+    {
+        std::string err;
+        std::string s = "(a & bbb[0]) ^ ((c & d) | (a & b)";
+        auto res = ParseExpression(s.c_str(), e, &err);
+        BOOST_CHECK(not res);
+        BOOST_CHECK(err == "Unexpected end of content. expecting \")\" line 1\n");
+    }
+    {
+        std::string s = "a_\\[999] & b ^ (c & d | a & b)";
+        auto res = ParseExpression(s.c_str(), e);
+        BOOST_CHECK(res);
+        ss.str(""); ss << e;
+        BOOST_CHECK(ss.str() == "((a_[999] & b) ^ ((c & d) | (a & b)))");
+    }
 }
 
 void t_operation()
