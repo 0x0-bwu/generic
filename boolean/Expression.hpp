@@ -6,10 +6,8 @@
  * @date 2024-12-21
  */
 #pragma once
-#include <boost/spirit/include/phoenix_operator.hpp>
+#include "generic/tools/Parser.hpp"
 #include <boost/variant/recursive_wrapper.hpp>
-#include <boost/spirit/include/phoenix.hpp>
-#include <boost/spirit/include/qi.hpp>
 #include <string_view>
 namespace generic::boolean::expr {
 
@@ -80,15 +78,24 @@ private:
     std::ostream & m_os;
 };
 
+template <typename Iterator>
+using ErrorHandler = generic::parser::ErrorHandler<Iterator>;
+
 template <typename Iterator, typename Skipper = qi::space_type>
 struct ExpressionGrammar : qi::grammar<Iterator, Expression(), Skipper> 
 {
     qi::symbols<char, char> escaped;
     qi::rule<Iterator, Variable(), Skipper> variable;
     qi::rule<Iterator, Expression(), Skipper> opAnd, opNot, opXor, opOr, simple, expression;
-    ExpressionGrammar() : ExpressionGrammar::base_type(expression)
+    ErrorHandler<Iterator> & errHandler;
+    ExpressionGrammar(ErrorHandler<Iterator> & errHandler)
+     : ExpressionGrammar::base_type(expression)
+     , errHandler(errHandler)
     {
         using qi::_1;
+        using qi::_2;
+        using qi::_3;
+        using qi::_4;
         using qi::lit;
         using qi::_val;
         using qi::char_;
@@ -108,20 +115,24 @@ struct ExpressionGrammar : qi::grammar<Iterator, Expression(), Skipper>
         BOOST_SPIRIT_DEBUG_NODE(simple);
         BOOST_SPIRIT_DEBUG_NODE(variable);
         BOOST_SPIRIT_DEBUG_NODE(expression);
+        qi::on_error<qi::fail>(expression, phx::function<ErrorHandler<Iterator> >(errHandler)("expecting ", _4, _3));
     }
 };
 
 template <typename Iterator>
-inline bool ParseExpression(Iterator begin, Iterator end, Expression & expr)
+inline bool ParseExpression(Iterator begin, Iterator end, Expression & expr, std::string * err)
 {
-    ExpressionGrammar<Iterator> grammar;
-    auto res = qi::phrase_parse(begin, end, grammar, qi::space, expr);
-    return res and (begin == end);
+    std::stringstream ss;
+    ErrorHandler<Iterator> errHandler(begin, end, ss);
+    const ExpressionGrammar<Iterator> grammar(errHandler);
+    auto res = qi::phrase_parse(begin, end, grammar, qi::space, expr) && (begin == end);
+    if (not res and err) *err = ss.str();
+    return res;
 }
 
-inline bool ParseExpression(std::string_view sv, Expression & expr)
+inline bool ParseExpression(std::string_view sv, Expression & expr, std::string * err = nullptr)
 {
-    return ParseExpression(sv.begin(), sv.end(), expr);
+    return ParseExpression(sv.begin(), sv.end(), expr, err);
 }
 
 } // namespace generic::boolean::expr
