@@ -38,7 +38,7 @@ inline std::string Fmt2Str(const std::string & fmt, Args &&... args)
 }
 
 ///@brief returns formated container contents
-template <typename T, std::enable_if_t<common::iterable<T>, bool> = true>
+template <typename T, std::enable_if_t<not std::is_same_v<T, std::string> and common::iterable<T>, bool> = true>
 inline std::string Fmt2Str(const T & container, std::string_view splitter)
 {
     std::stringstream ss;
