@@ -846,7 +846,8 @@ inline Polygon2D<num_type> RoundCorners(const Polygon2D<num_type> & polygon, num
     if (not result.isCCW()) result.Reverse();
     auto & points = result.GetPoints();
     auto iter = points.begin();
-    Point2D<float_type<num_type>> fp1, fp2;
+    using float_t = float_type<num_type>;
+    Point2D<float_t> fp1, fp2;
     bool stop = false;
     while (not stop) {
         auto it1 = iter;
@@ -867,7 +868,9 @@ inline Polygon2D<num_type> RoundCorners(const Polygon2D<num_type> & polygon, num
             auto theta = InnerAngle(fp1, o, fp2); 
             size_t divide = theta / deltaAngle;
             std::vector<Point2D<num_type>> corners(divide);
-            auto orient = CrossProduct(*it2 - fp1, fp2 - *it2) > 0 ? 1.0 : -1.0;
+            auto orient = CrossProduct(
+                it2->template Cast<float_t>() - fp1,
+                fp2 - it2->template Cast<float_t>()) > 0 ? 1.0 : -1.0;
             for (size_t i = 0; i < divide; ++i) {
                 corners[i][0] = std::cos(startAngle + i * orient * deltaAngle) * radius + o[0];
                 corners[i][1] = std::sin(startAngle + i * orient * deltaAngle) * radius + o[1];
