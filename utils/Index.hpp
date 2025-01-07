@@ -30,10 +30,10 @@ public:
     void makeInvalid() { m_id = INVALID_ID; }
 
     friend std::hash<Index<Tag,T>>;
-    bool operator== (const Index<Tag,T> other) const;
-    bool operator!= (const Index<Tag,T> other) const;
-    bool operator < (const Index<Tag,T> other) const;
-    bool operator > (const Index<Tag,T> other) const;
+    bool operator== (const Index<Tag,T> & other) const;
+    bool operator!= (const Index<Tag,T> & other) const;
+    bool operator < (const Index<Tag,T> & other) const;
+    bool operator > (const Index<Tag,T> & other) const;
 
 #ifdef GENERIC_BOOST_SERIALIZATION_SUPPORT
     template <typename Archive>
@@ -44,25 +44,25 @@ protected:
 };
 
 template<typename Tag, typename T>
-inline bool Index<Tag,T>::operator== (const Index<Tag,T> other) const
+inline bool Index<Tag,T>::operator== (const Index<Tag,T> & other) const
 {
     return m_id == other.m_id;
 }
 
 template<typename Tag, typename T>
-inline bool Index<Tag,T>::operator!= (const Index<Tag,T> other) const
+inline bool Index<Tag,T>::operator!= (const Index<Tag,T> & other) const
 {
     return m_id != other.m_id;
 }
 
 template<typename Tag, typename T>
-inline bool Index<Tag,T>::operator < (const Index<Tag,T> other) const
+inline bool Index<Tag,T>::operator < (const Index<Tag,T> & other) const
 {
     return m_id < other.m_id;
 }
 
 template<typename Tag, typename T>
-inline bool Index<Tag,T>::operator > (const Index<Tag,T> other) const
+inline bool Index<Tag,T>::operator > (const Index<Tag,T> & other) const
 {
     return m_id > other.m_id;
 }
@@ -83,7 +83,7 @@ namespace std {
 template<typename Tag, typename T>
 struct hash<generic::utils::Index<Tag,T>>
 {
-    std::size_t operator() (const generic::utils::Index<Tag,T> index) const noexcept
+    std::size_t operator() (const generic::utils::Index<Tag,T> & index) const noexcept
     {
         return std::hash<T>()(index.m_id);
     }
@@ -92,7 +92,7 @@ struct hash<generic::utils::Index<Tag,T>>
 template <typename Tag, typename T>
 struct less<generic::utils::Index<Tag, T>>
 {
-    bool operator() (const generic::utils::Index<Tag,T>  lhs, generic::utils::Index<Tag,T> rhs) const noexcept
+    bool operator() (const generic::utils::Index<Tag,T> & lhs, generic::utils::Index<Tag,T> & rhs) const noexcept
     {
         return lhs < rhs;
     }
@@ -101,7 +101,7 @@ struct less<generic::utils::Index<Tag, T>>
 template <typename Tag, typename T>
 struct equal_to<generic::utils::Index<Tag, T>>
 {
-    bool operator() (const generic::utils::Index<Tag,T> lhs, generic::utils::Index<Tag,T> rhs) const noexcept
+    bool operator() (const generic::utils::Index<Tag,T> & lhs, generic::utils::Index<Tag,T> & rhs) const noexcept
     {
         return lhs == rhs;
     }
