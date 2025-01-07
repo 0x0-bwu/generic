@@ -92,7 +92,7 @@ struct hash<generic::utils::Index<Tag,T>>
 template <typename Tag, typename T>
 struct less<generic::utils::Index<Tag, T>>
 {
-    bool operator() (const generic::utils::Index<Tag,T> & lhs, generic::utils::Index<Tag,T> & rhs) const noexcept
+    bool operator() (const generic::utils::Index<Tag,T> & lhs, const generic::utils::Index<Tag,T> & rhs) const noexcept
     {
         return lhs < rhs;
     }
@@ -101,7 +101,7 @@ struct less<generic::utils::Index<Tag, T>>
 template <typename Tag, typename T>
 struct equal_to<generic::utils::Index<Tag, T>>
 {
-    bool operator() (const generic::utils::Index<Tag,T> & lhs, generic::utils::Index<Tag,T> & rhs) const noexcept
+    bool operator() (const generic::utils::Index<Tag,T> & lhs, const generic::utils::Index<Tag,T> & rhs) const noexcept
     {
         return lhs == rhs;
     }
