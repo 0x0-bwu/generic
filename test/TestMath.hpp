@@ -12,6 +12,7 @@
 #include "generic/math/la/Common.hpp"
 #include "generic/math/Interpolation.hpp"
 #include "generic/math/PolynomialFit.hpp"
+#include "generic/math/LookupTable.hpp"
 #include "generic/math/FastMath.hpp"
 #include "generic/math/MathIO.hpp"
 #include "generic/math/Filter.hpp"
@@ -216,6 +217,63 @@ void t_math_interpolation()
     }
 }
 
+void t_math_lookup_table()
+{
+    using namespace math;
+    // 1D
+    {
+        using Lut = LookupTable<int, 1>;
+        Lut::Values values{2, 4};
+        Lut::Indices indices{Lut::Values{1, 3}};
+        Lut lut(indices, values);
+        for (size_t i = 0; i < indices.size(); ++i) {
+            BOOST_CHECK(lut[0][i] == indices[0][i]);
+            BOOST_CHECK(lut(i) == values[i]);
+        }
+    }   
+    // 2D
+    {  
+        using Lut = LookupTable<int, 2>;
+        Lut::Values values{2, 4, 6, 6, 12, 18};
+        Lut::Indices indices{Lut::Values{1, 3}, Lut::Values{2, 4, 6}};
+        Lut lut(indices, values);
+        for (size_t i = 0; i < indices.size(); ++i) {
+            for (size_t j = 0; j < indices.at(i).size(); ++j) {
+                BOOST_CHECK(lut[i][j] == indices[i][j]);
+            }
+        }
+
+        size_t count = 0;
+        for (size_t i = 0; i < indices.at(0).size(); ++i) {
+            for (size_t j = 0; j < indices.at(1).size(); ++j) {
+                BOOST_CHECK(lut(i, j) == values[count]);
+                ++count;
+            }
+        }
+    }
+    //3D
+    {
+        using Lut = LookupTable<int, 3>;
+        Lut::Values values{6, 12, 18, 24, 12, 24, 36, 48, 18, 36, 54, 72, 18, 36, 54, 72, 36, 72, 108, 144, 54, 108, 162, 216};
+        Lut::Indices indices{Lut::Values{1, 3}, Lut::Values{2, 4, 6}, Lut::Values{3, 6, 9, 12}};
+        Lut lut(indices, values);
+        for (size_t i = 0; i < indices.size(); ++i) {
+            for (size_t j = 0; j < indices.at(i).size(); ++j) {
+                BOOST_CHECK(lut[i][j] == indices[i][j]);
+            }
+        }
+        size_t count = 0;
+        for (size_t i = 0; i < indices.at(0).size(); ++i) {
+            for (size_t j = 0; j < indices.at(1).size(); ++j) {
+                for (size_t k = 0; k < indices.at(2).size(); ++k) {
+                    BOOST_CHECK(lut(i, j, k) == values[count]);
+                    ++count;
+                }
+            }
+        }
+    }
+}
+
 BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_math_linear_algebra_t, math_num_types)
 {
     // using namespace la;
@@ -231,6 +289,7 @@ test_suite * create_math_test_suite()
     math_suite->add(BOOST_TEST_CASE(&t_math_filter));
     math_suite->add(BOOST_TEST_CASE(&t_math_utility));
     math_suite->add(BOOST_TEST_CASE(&t_math_fast_math));
+    math_suite->add(BOOST_TEST_CASE(&t_math_lookup_table));
     math_suite->add(BOOST_TEST_CASE(&t_math_interpolation));
     math_suite->add(BOOST_TEST_CASE(&t_math_polynomial_fit));
     math_suite->add(BOOST_TEST_CASE_TEMPLATE(t_math_linear_algebra_t, t_math_num_types));
