@@ -11,13 +11,23 @@ namespace generic::math {
 template <typename Scalar, std::size_t DIM>
 class LookupTable
 {
+#ifdef GENERIC_BOOST_SERIALIZATION_SUPPORT
+    friend class boost::serialization::access;
+    template <typename Archive>
+    void serialize(Archive & ar, const unsigned int)
+    {
+        ar & boost::serialization::make_nvp("indices", m_indices);
+        ar & boost::serialization::make_nvp("values" , m_values );
+    }
+#endif
 public:
     using Values = std::vector<Scalar>;
     using Indices = std::array<Values, DIM>;
+    LookupTable() = default;
     LookupTable(Indices indices, Values values)
      : m_indices(std::move(indices)), m_values(std::move(values))
     {
-        GENERIC_ASSERT_MSG(CalcSize(indices) == values.size(), "value size mismatch with indices");
+        GENERIC_ASSERT_MSG(isValid(), "value size mismatch with indices");
     }
     
     constexpr size_t Dim() const { return DIM; }
@@ -44,6 +54,11 @@ public:
     {
         static_assert(sizeof...(indices) == DIM, "number of indices must match the number of dimensions");
         return m_values.at(CalcIndex({static_cast<std::size_t>(indices)...}));
+    }
+
+    bool isValid() const
+    {
+        return CalcSize(m_indices) == m_values.size();
     }
 
 private:
