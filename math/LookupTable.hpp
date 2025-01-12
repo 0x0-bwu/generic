@@ -32,6 +32,10 @@ public:
     
     constexpr size_t Dim() const { return DIM; }
 
+    constexpr Values & operator* () { return m_values; }
+
+    constexpr const Values & operator* () const { return m_values; }
+    
     constexpr Values & operator[] (size_t index)
     {
         return m_indices[index];
