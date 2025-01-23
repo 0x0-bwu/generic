@@ -1044,7 +1044,7 @@ public:
     }
 
     ///@note cannot be used concurrently with SetDefaultLogger(...)
-    Logger * GetDefaultRaw() { return m_defaultLogger.get(); }
+    Logger * GetDefaultRaw() { return m_defaultLogger ? m_defaultLogger.get() : nullptr; }
 
     void SetDefaultLogger(std::shared_ptr<Logger> newDefaultLogger)
     {
@@ -1218,55 +1218,63 @@ inline void SetDefaultLogger(std::shared_ptr<Logger> defaultLogger)
 ///@brief dump backtrace messages from default logger
 inline void DumpBacktrace()
 {
-    DefaultLoggerRaw()->DumpBacktrace();
+    if (auto log = DefaultLoggerRaw(); log)
+        log->DumpBacktrace();
 }
 
 ///@brief adds trace log message to default log with formatted args
 template <typename... Args>
 inline void Trace(std::string format, Args && ...args)
 {
-    DefaultLoggerRaw()->Trace(format, std::forward<Args>(args)...);
+    if (auto log = DefaultLoggerRaw(); log)
+        log->Trace(format, std::forward<Args>(args)...);
 }
 
 ///@brief adds debug log message to default log with formatted args 
 template <typename... Args>
 inline void Debug(std::string format, Args && ...args)
 {
-    DefaultLoggerRaw()->Debug(format, std::forward<Args>(args)...);
+    if (auto log = DefaultLoggerRaw(); log)
+        log->Debug(format, std::forward<Args>(args)...);
 }
 
 ///@brief adds info log message to default log with formatted args 
 template <typename... Args>
 inline void Info(std::string format, Args && ...args)
 {
-    DefaultLoggerRaw()->Info(format, std::forward<Args>(args)...);
+    if (auto log = DefaultLoggerRaw(); log)
+        log->Info(format, std::forward<Args>(args)...);
 }
 
 ///@brief adds warn log message to default log with formatted args 
 template <typename... Args>
 inline void Warn(std::string format, Args && ...args)
 {
-    DefaultLoggerRaw()->Warn(format, std::forward<Args>(args)...);
+    if (auto log = DefaultLoggerRaw(); log)
+        log->Warn(format, std::forward<Args>(args)...);
 }
 
 ///@brief adds error log message to default log with formatted args 
 template <typename... Args>
 inline void Error(std::string format, Args && ...args)
 {
-    DefaultLoggerRaw()->Error(format, std::forward<Args>(args)...);
+    if (auto log = DefaultLoggerRaw(); log)
+        log->Error(format, std::forward<Args>(args)...);
 }
 
 ///@brief adds fator log message to default log with formatted args 
 template <typename... Args>
 inline void Fatal(std::string format, Args && ...args)
 {
-    DefaultLoggerRaw()->Fatal(format, std::forward<Args>(args)...);
+    if (auto log = DefaultLoggerRaw(); log)
+        log->Fatal(format, std::forward<Args>(args)...);
 }
 
 ///@brief logs message with specified source and level
 inline void Log(details::SourceLoc source, Level level, const std::string & msg)
 {
-    DefaultLoggerRaw()->Log(source, level, msg);
+    if (auto log = DefaultLoggerRaw(); log)
+        log->Log(source, level, msg);
 }
 
 ///@brief clears and shuts down all the loggers
