@@ -82,9 +82,20 @@ void t_hash()
 {
 	using namespace generic;
 	using namespace generic::hash;
-	BOOST_CHECK(HashCombine("hello world", 42, math::pi) == HashCombine("hello world", 42, math::pi));
-	BOOST_CHECK(HashCombine("hello world", 42, math::pi) !=
-				HashCombine("hello world", 42, math::pi + std::numeric_limits<float>::epsilon()));	 
+	BOOST_CHECK(HashCombine(0, "hello world", 42, math::pi) == HashCombine(0, "hello world", 42, math::pi));
+	BOOST_CHECK(HashCombine(0, "hello world", 42, math::pi) !=
+				HashCombine(0, "hello world", 42, math::pi + std::numeric_limits<float>::epsilon()));	 
+
+	std::vector<double> v1(100);
+	std::for_each(v1.begin(), v1.end(), [](auto & d) { d = math::Random<double>(-1e3, 1e3); });
+	std::vector<double> v2 = v1;
+	std::shuffle(v2.begin(), v2.end(), std::mt19937{std::random_device{}()});
+	std::vector<double> v3 = v1; v3[1] += 1e-3;
+    BOOST_CHECK(OrderedHash(v1) != OrderedHash(v2));
+	BOOST_CHECK(OrderedHash(v1) != OrderedHash(v3));
+	BOOST_CHECK(OrderedHash(v2) != OrderedHash(v3));
+	BOOST_CHECK(UnorderedHash(v1) == UnorderedHash(v2));
+	BOOST_CHECK(UnorderedHash(v1) != UnorderedHash(v3));
 }
 
 test_suite * create_tools_test_suite()
