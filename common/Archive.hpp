@@ -29,3 +29,64 @@
 #include <boost/serialization/map.hpp>
 #include <boost/serialization/set.hpp>
 #include <fstream>
+
+#include "generic/tools/FileSystem.hpp"
+namespace generic::archive {
+
+enum class ArchiveFormat { UNKNOWN = 0, TXT = 1, XML = 2, BIN = 3 };
+
+template <typename T>
+inline bool Save(const T & t, unsigned int version, std::string_view filename, ArchiveFormat fmt)
+{
+    auto dir = generic::fs::DirName(filename);
+    if (not generic::fs::CreateDir(dir)) return false;
+
+    std::ofstream ofs(filename.data());
+    if (not ofs.is_open()) return false;
+    
+    if (fmt == ArchiveFormat::UNKNOWN)
+        return false;
+    else if (fmt == ArchiveFormat::TXT) {
+        boost::archive::text_oarchive oa(ofs);
+        oa & boost::serialization::make_nvp("version", version);
+        boost::serialization::serialize(oa, const_cast<T&>(t), version);
+    }
+    else if (fmt == ArchiveFormat::XML) {
+        boost::archive::xml_oarchive oa(ofs);
+        oa & boost::serialization::make_nvp("version", version);
+        boost::serialization::serialize(oa, const_cast<T&>(t), version);
+    }
+    else if (fmt == ArchiveFormat::BIN) {
+        boost::archive::binary_oarchive oa(ofs);
+        oa & boost::serialization::make_nvp("version", version);
+        boost::serialization::serialize(oa, const_cast<T&>(t), version);
+    }
+    return true;
+}
+
+template <typename T>
+inline bool Load(T & t, unsigned int & version, std::string_view filename, ArchiveFormat fmt)
+{
+    std::ifstream ifs(filename.data());
+    if (not ifs.is_open()) return false;
+    if (fmt == ArchiveFormat::UNKNOWN)
+        return false;
+    else if (fmt == ArchiveFormat::TXT) {
+        boost::archive::text_iarchive ia(ifs);
+        ia & boost::serialization::make_nvp("version", version);
+        boost::serialization::serialize(ia, t, version);
+    }
+    else if (fmt == ArchiveFormat::XML) {
+        boost::archive::xml_iarchive ia(ifs);
+        ia & boost::serialization::make_nvp("version", version);
+        boost::serialization::serialize(ia, t, version);
+    }
+    else if (fmt == ArchiveFormat::BIN) {
+        boost::archive::binary_iarchive ia(ifs);
+        ia & boost::serialization::make_nvp("version", version);
+        boost::serialization::serialize(ia, t, version);
+    }
+    return true;
+}
+
+} // namespace generic::archive
