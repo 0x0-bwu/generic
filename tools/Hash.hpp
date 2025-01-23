@@ -8,18 +8,34 @@
 
 #include <boost/functional/hash.hpp>
 #include <iostream>
+#include <numeric>
+
 namespace generic::hash {
 
-template <typename Key>
-inline size_t Hash(const Key & key)
+template <typename T>
+inline size_t Hash(const T & v)
 {
-    return std::hash<Key>{}();
+    return std::hash<T>()(v);
 }
 
 template <typename ... Args>
-inline size_t HashCombine(Args &&... args)
+inline size_t HashCombine(size_t seed, Args &&... args)
 {
-    size_t seed{0}; (boost::hash_combine(seed, args), ...); return seed;
+    (boost::hash_combine(seed, args), ...); return seed;
 }
+
+template <typename Container, typename Hasher = std::hash<typename Container::value_type>>
+inline size_t OrderedHash(const Container & c, const Hasher & hasher = Hasher())
+{
+    return std::accumulate(c.begin(), c.end(), size_t{0}, [&](size_t seed, const auto & v) { return HashCombine(seed, hasher(v)); });
+}
+
+template <typename Container, typename Hasher = std::hash<typename Container::value_type>>
+inline size_t UnorderedHash(const Container & c, const Hasher & hasher = Hasher())
+{
+    return std::accumulate(c.begin(), c.end(), size_t{0}, [&](size_t seed, const auto & v) { return seed ^ hasher(v); });
+}
+
+
 
 } // namespace generic::hash
