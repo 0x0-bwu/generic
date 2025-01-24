@@ -17,6 +17,7 @@
 #include <boost/qvm/vec.hpp>
 #include "generic/math/Numbers.hpp"
 #include "generic/math/MathIO.hpp"
+#include "generic/tools/Hash.hpp"
 #include "Geometries.hpp"
 #include "Vector.hpp"
 
@@ -860,3 +861,28 @@ inline std::ostream & operator<< (std::ostream & os, const generic::geometry::Tr
 }
 
 } // namespace
+
+namespace std {
+
+template <typename float_t>
+struct hash<generic::geometry::Transform2D<float_t>>
+{
+    size_t operator() (const generic::geometry::Transform2D<float_t> & t) const
+    {
+        return generic::hash::HashCombine(0, t(0, 0), t(0, 1), t(0, 2), 
+                                             t(1, 0), t(1, 1), t(1, 2));
+    }
+};
+
+template <typename float_t>
+struct hash<generic::geometry::Transform3D<float_t>>
+{
+    size_t operator() (const generic::geometry::Transform3D<float_t> & t) const
+    {
+        return generic::hash::HashCombine(0, t(0, 0), t(0, 1), t(0, 2), t(0, 3), 
+                                             t(1, 0), t(1, 1), t(1, 2), t(1, 3),
+                                             t(2, 0), t(2, 1), t(2, 2), t(2, 3));
+    }
+};
+
+} // namespace std
