@@ -127,6 +127,10 @@ public:
     Key emplace_back(Args &&... args) { return Append(std::forward<Args>(args)...); }
     Iterator begin() { return Begin(); }
     Iterator end() { return End(); }
+    ConstIterator begin() const { return Begin(); }
+    ConstIterator end() const { return End(); }
+    ConstIterator cbegin() const { return Begin(); }
+    ConstIterator cend() const { return End(); }
 
 #ifdef GENERIC_BOOST_SERIALIZATION_SUPPORT
     template <typename Archive>
