@@ -5,6 +5,7 @@
  * @version 0.1
  * @date 2022-02-22
  */
+#pragma once
 #include "Point.hpp"
 #include "Segment.hpp"
 #include "Triangle.hpp"

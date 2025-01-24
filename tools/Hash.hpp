@@ -5,7 +5,7 @@
  * @version 0.1
  * @date 2024-11-15
  */
-
+#pragma once
 #include <boost/functional/hash.hpp>
 #include <iostream>
 #include <numeric>
