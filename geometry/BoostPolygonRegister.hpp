@@ -7,7 +7,11 @@
  */
 #pragma once
 #include "Geometries.hpp"
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-but-set-variable"
+#pragma clang diagnostic ignored "-Wbitwise-instead-of-logical"
 #include <boost/polygon/polygon.hpp>
+#pragma clang diagnostic pop
 #include <type_traits>
 namespace boost {
 namespace polygon {
