@@ -159,5 +159,5 @@ if(EXISTS ${CMAKE_SOURCE_DIR}/test.cpp)
 	endif()
 endif()
 
-#add_executable(unit_test.exe UnitTest.cpp)
-#target_link_libraries(unit_test.exe PRIVATE Threads::Threads ${PNG_LIBRARY})
+add_executable(unit_test.exe UnitTest.cpp)
+target_link_libraries(unit_test.exe PRIVATE Threads::Threads ${PNG_LIBRARY})
