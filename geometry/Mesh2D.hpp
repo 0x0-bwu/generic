@@ -38,7 +38,7 @@ inline void ExtractTopology(const Segment2DContainer & segments, Point2DContaine
     edges.clear();
     points.clear();
     using EdgeSet = topology::UndirectedIndexEdgeSet;
-    using PointIdxMap = std::unordered_map<Point2D<coor_t>, size_t, PointHash<coor_t> >;
+    using PointIdxMap = std::unordered_map<Point2D<coor_t>, size_t>;
     
     EdgeSet edgeSet;
     PointIdxMap pointIdxMap;
