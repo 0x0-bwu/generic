@@ -9,25 +9,6 @@
 #include "generic/tools/Hash.hpp"
 #include "Geometries.hpp"
 
-namespace generic  {
-namespace geometry {
-
-template <typename num_type>
-struct PointHash
-{
-    size_t operator()(const Point2D<num_type> & point) const noexcept
-    {
-        size_t seed(0);
-        boost::hash_combine(seed, point[0]);
-        boost::hash_combine(seed, point[1]);
-        return seed;
-    }
-};
-
-}//namespace geometry
-}//namespace generic
-
-
 namespace std {
 
 template <typename num_type>

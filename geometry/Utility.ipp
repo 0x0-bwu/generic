@@ -38,7 +38,7 @@ public:
         return false;
     }
 private:
-    std::unordered_map<Point, size_t, PointHash<num_type> > m_ptMap;
+    std::unordered_map<Point, size_t> m_ptMap;
 };
 
 template <typename num_type>
