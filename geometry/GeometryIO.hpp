@@ -250,7 +250,7 @@ public:
               typename std::iterator_traits<iterator>::value_type>::value, bool>::type = true>
     static bool WriteWKT(std::string_view filename, iterator begin, iterator end)
     {
-        std::ofstream out(filename);
+        std::ofstream out(filename.data());
         if (not out.is_open()) return false;
         for (auto iter = begin; iter != end; ++iter){
             typename std::iterator_traits<iterator>::reference r = *iter;
