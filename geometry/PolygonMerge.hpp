@@ -30,7 +30,7 @@ public:
     using float_t = common::float_type<num_type>;
     property_type property;
     Polygon2D<num_type> solid;
-    std::list<Polygon2D<num_type> > holes;
+    std::vector<Polygon2D<num_type> > holes;
 
     bool hasHole() const
     {
