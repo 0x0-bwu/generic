@@ -380,7 +380,7 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_geometry_utility_t, num_type)
         Polygon2D<num_type> complex;
         complex.Set(points);
 
-        std::list<Polygon2D<num_type> > holes;
+        std::vector<Polygon2D<num_type> > holes;
         Simplify(complex, holes);
         BOOST_CHECK(complex.Size() == 13);
         BOOST_CHECK(holes.size() == 2);
