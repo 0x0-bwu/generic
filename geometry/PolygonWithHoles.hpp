@@ -22,7 +22,7 @@ public:
     using point_iterator = typename outline_type::point_iterator;
     using const_point_iterator = typename outline_type::const_point_iterator;
     using hole_type = Polygon2D<coor_t>;
-    using hole_container = std::list<hole_type>;
+    using hole_container = std::vector<hole_type>;
     using hole_iterator = typename hole_container::iterator;
     using const_hole_iterator = typename hole_container::const_iterator;
 

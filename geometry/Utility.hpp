@@ -125,8 +125,9 @@ template <typename num_type>
 inline Polygon2D<num_type> toPolygon(const Box2D<num_type> & box);
 
 ///@brief converts polyline2d with width's contour to polygon2d
+///@ param roundDiv number of sides of the rounded corner, no round corner if roundDiv=0
 template <typename num_type>
-inline Polygon2D<num_type> toPolygon(const Polyline2D<num_type> & polyline, num_type width);
+inline Polygon2D<num_type> toPolygon(const Polyline2D<num_type> & polyline, num_type width, size_t roundDiv = 0);
 
 /// @brief get inscribed circle origin of angle constructed by line `sp` and `pe` with given radius
 /// @tparam num_type 
@@ -541,7 +542,7 @@ inline void Scale(box_type & box, coor_f<box_type> factor);
  * @param holes[out] inner holes in polygon after simplify
  */
 template <typename num_type>
-inline void Simplify(Polygon2D<num_type> & polygon, std::list<Polygon2D<num_type> > & holes);
+inline void Simplify(Polygon2D<num_type> & polygon, std::vector<Polygon2D<num_type> > & holes);
 
 /**
  * @brief rounding polygon corners with given `radius`

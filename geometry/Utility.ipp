@@ -142,7 +142,7 @@ inline Polygon2D<num_type> toPolygon(const Box2D<num_type> & box)
 }
 
 template <typename num_type>
-inline Polygon2D<num_type> toPolygon(const Polyline2D<num_type> & polyline, num_type width)
+inline Polygon2D<num_type> toPolygon(const Polyline2D<num_type> & polyline, num_type width, size_t roundDiv)
 {
     using float_t = float_type<num_type>;
     GENERIC_ASSERT(polyline.size() > 0);
@@ -225,6 +225,8 @@ inline Polygon2D<num_type> toPolygon(const Polyline2D<num_type> & polyline, num_
         Box2D<num_type> box(polyline.front() - half, polyline.front() + half);
         polygon = toPolygon(box);
     }
+
+    if (roundDiv > 0) polygon = RoundCorners(polygon, num_type(0.5 * width), roundDiv);
     return polygon;
 }
 
@@ -784,7 +786,7 @@ inline void Scale(box_type & box, coor_f<box_type> factor)
 }
 
 template <typename num_type>
-inline void Simplify(Polygon2D<num_type> & polygon, std::list<Polygon2D<num_type> > & holes)
+inline void Simplify(Polygon2D<num_type> & polygon, std::vector<Polygon2D<num_type> > & holes)
 {
     holes.clear();
     if(polygon.Front() == polygon.Back()) polygon.PopBack();
@@ -799,7 +801,7 @@ inline void Simplify(Polygon2D<num_type> & polygon, std::list<Polygon2D<num_type
     }
 
     size_t res;
-    std::list<Polygon2D<num_type> > tmp;
+    std::vector<Polygon2D<num_type>> tmp;
     detail::Point2DIndexMap<num_type> ptMap;
     for(size_t i = 0; i < polygon.Size(); ++i) {
         auto found = ptMap.Find(polygon[i], res);
