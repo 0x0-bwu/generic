@@ -379,7 +379,7 @@ private:
             for(const auto & grid : grids){
                 if(grid[0] < 0 || grid[0] >= width) continue;
                 if(grid[1] < 0 || grid[1] >= height) continue;
-                view(grid[0], height - grid[1] - 1) = color;
+                view(grid[0], grid[1]) = color;
             }
         }
     }
