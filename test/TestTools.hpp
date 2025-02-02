@@ -9,6 +9,7 @@
 #include "generic/test/TestCommon.hpp"
 #include "generic/thread/ThreadPool.hpp"
 #include "generic/tools/ProgramOptions.hpp"
+#include "generic/tools/StringHelper.hpp"
 #include "generic/tools/Parser.hpp"
 #include "generic/tools/Tools.hpp"
 #include "generic/tools/Hash.hpp"
@@ -40,6 +41,17 @@ void t_program_options()
     //todo
 	BOOST_CHECK(true);
 }
+
+void t_string_helper()
+{
+	// unit test of WildcardMatch
+	BOOST_CHECK(generic::str::WildcardMatch("hello world", "hello*"));
+	BOOST_CHECK(generic::str::WildcardMatch("hello world", "*world*"));
+	// unit tet of WildcardMatch with ? and *
+	BOOST_CHECK(generic::str::WildcardMatch("hello world", "hello?world"));
+	BOOST_CHECK(generic::str::WildcardMatch("hello world", "hello?world*"));
+}
+
 
 void t_parser()
 {
@@ -103,6 +115,7 @@ test_suite * create_tools_test_suite()
     test_suite * tools_suite = BOOST_TEST_SUITE("s_tools");
     //
     tools_suite->add(BOOST_TEST_CASE(&t_program_options));
+	tools_suite->add(BOOST_TEST_CASE(&t_string_helper));
 	tools_suite->add(BOOST_TEST_CASE(&t_parser));
 	tools_suite->add(BOOST_TEST_CASE(&t_timer));
 	tools_suite->add(BOOST_TEST_CASE(&t_hash));
