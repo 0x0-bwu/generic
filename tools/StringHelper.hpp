@@ -8,10 +8,12 @@
 #pragma once
 #include <boost/algorithm/string.hpp>
 #include <boost/tokenizer.hpp>
+#include <string_view>
 #include <string>
-namespace generic {
+#include <regex>
+
 ///@brief string handle functions
-namespace str {
+namespace generic::str {
 
 using CaseSensitive = std::true_type;
 using CaseInsensitive = std::false_type;
@@ -85,5 +87,15 @@ inline std::vector<std::string> Split(const std::string & str, char c)
     return items;
 }
 
-}//str
-}//generic
+///@brief checks if a string `str` matches a wildcard pattern `pattern`
+inline bool WildcardMatch(std::string_view str, std::string_view pattern)
+{
+    std::regex starReplace("\\*");
+    std::regex questionmakrReplace("\\?");
+    auto wildcardPattern = std::regex_replace(
+        std::regex_replace(pattern.data(), starReplace, ".*"), questionmakrReplace, ".");
+    std::regex re(wildcardPattern);
+    return std::regex_match(str.begin(), str.end(), re);
+}
+
+} // namespace generic::str
