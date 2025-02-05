@@ -124,6 +124,10 @@ inline Polygon2D<num_type> toPolygon(const Triangle2D<num_type> & tri);
 template <typename num_type>
 inline Polygon2D<num_type> toPolygon(const Box2D<num_type> & box);
 
+///@brief converts ellipse to polygon2d
+template <typename num_type>
+inline Polygon2D<num_type> toPolygon(const Ellipse<num_type> & ellipse, size_t div);
+
 ///@brief converts polyline2d with width's contour to polygon2d
 ///@ param roundDiv number of sides of the rounded corner, no round corner if roundDiv=0
 template <typename num_type>

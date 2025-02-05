@@ -33,6 +33,22 @@ public:
 };
 
 template <typename num_type>
+class Ellipse
+{
+    using float_t = float_type<num_type>;
+public:
+    num_type a, b;
+    Point2D<num_type> o;
+    using coor_t = num_type;
+    static const size_t dim = 2;
+public:
+    ///@brief constructs an ellipse at point (0, 0) with semi-major axis `a` and semi-minor axis `b`
+    Ellipse(){ a = b = 0; }
+    ///@brief constructs an ellipse at point `origin` with semi-major axis `a` and semi-minor axis `b`
+    Ellipse(const Point2D<num_type> & origin, num_type a, num_type b);
+};
+
+template <typename num_type>
 class Sphere
 {
 public:
@@ -50,6 +66,9 @@ public:
 
 template <typename num_type>
 Circle<num_type>::Circle(const Point2D<num_type> & origin, num_type radius){ o = origin, r = radius; }
+
+template <typename num_type>
+Ellipse<num_type>::Ellipse(const Point2D<num_type> & origin, num_type a, num_type b){ o = origin, this->a = a, this->b = b; }
 
 template <typename num_type>
 template <typename point_t>

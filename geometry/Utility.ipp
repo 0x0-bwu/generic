@@ -142,6 +142,20 @@ inline Polygon2D<num_type> toPolygon(const Box2D<num_type> & box)
 }
 
 template <typename num_type>
+inline Polygon2D<num_type> toPolygon(const Ellipse<num_type> & ellipse, size_t div)
+{
+    GENERIC_ASSERT(div != 0);
+    Polygon2D<num_type> p;
+    auto step = math::pi * 2 / div;
+    for(size_t i = 0; i < div; ++i){
+        auto theta = step * i;
+        auto point = Point2D<num_type>(ellipse.a * std::cos(theta), ellipse.b * std::sin(theta)) + ellipse.o;
+        p << point;
+    }
+    return p;
+}
+
+template <typename num_type>
 inline Polygon2D<num_type> toPolygon(const Polyline2D<num_type> & polyline, num_type width, size_t roundDiv)
 {
     using float_t = float_type<num_type>;
