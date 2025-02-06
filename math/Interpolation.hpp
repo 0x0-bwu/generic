@@ -11,6 +11,22 @@
 #include <vector>
 namespace generic::math {
 
+template <typename Scalar>
+inline auto LinearInterpolation(Scalar q1, Scalar q2, Scalar x1, Scalar x2, Scalar x)
+{
+    using float_t = float_type<Scalar>;
+    return float_t(q1 * (x2 - x) + q2 * (x - x1)) / (x2 - x1);
+}
+
+template <typename Scalar>
+inline auto BilinearInterpolation(Scalar q11, Scalar q12, Scalar q21, Scalar q22, Scalar x1, Scalar x2, Scalar y1, Scalar y2, Scalar x, Scalar y)
+{
+    using float_t = float_type<Scalar>;
+    float_t res = q11 * (x2 - x) * (y2 - y) + q21 * (x - x1) * (y2 - y) + q12 * (x2 - x) * (y - y1) + q22 * (x - x1) * (y - y1);
+    res /= (x2 - x1) * (y2 - y1);
+    return res;
+}
+
 template <typename RandomAccessContainer>
 class Interpolation
 {
