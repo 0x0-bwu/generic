@@ -117,7 +117,7 @@ public:
      * @return index_t global index of obj in the extraction result graph
      */
     template <typename T, typename GeomGetter,
-              typename std::enable_if<traits::is_2d_surf_geom_t<std::invoke_result_t<GeomGetter, const T&>>::value, bool>::type = true>
+              typename std::enable_if<traits::is_2d_surf_geom_t<std::invoke_result_t<GeomGetter, const T &>>::value, bool>::type = true>
     index_t AddObject(index_t layer, const T & obj, GeomGetter && getter)
     {
         using coor_t = typename std::invoke_result_t<GeomGetter, const T&>::coor_t;
@@ -142,10 +142,10 @@ public:
      */
     template <typename Iterator, typename GeomGetter,
               typename std::enable_if<traits::is_2d_surf_geom_t<
-              typename std::result_of<GeomGetter(const typename Iterator::value_type&)>::type>::value, bool>::type = true>
+              typename std::invoke_result_t<GeomGetter,const typename Iterator::value_type &>>::value, bool>::type = true>
     std::pair<index_t, index_t> AddObjects(index_t layer, Iterator begin, Iterator end, GeomGetter && getter)
     {
-        using coor_t = typename std::result_of<GeomGetter(const typename Iterator::value_type&)>::type::coor_t;
+        using coor_t = typename std::invoke_result_t<GeomGetter, const typename Iterator::value_type &>::coor_t;
         static_assert(std::is_same<coor_t, num_type>::value, "different coordinate type of GeomGetter return type and ConnectivityExtractor!");
 
         auto iter = m_layerGeoms.find(layer);

@@ -123,7 +123,6 @@ public:
     {
         enum class Kernal { Clipper, Boost };
         Kernal kernal = Kernal::Clipper;
-        bool mergeNodeOverlapCheck = false;
         bool cleanPolyonPoints = false;
         bool checkPropertyDiff = false;
         bool ignoreTinySolid = false;
@@ -311,12 +310,7 @@ inline void PolygonMerger<property_type, num_type>::MergeRegion(MergeTaskNode * 
     std::list<PolygonData * > mergedObjs;
 #ifdef GENERIC_GEOMETRY_POLYGONMERGE_USE_RTREE
     std::vector<std::list<MergeTaskNode * > > subNodeGroups;
-    if (m_settings.mergeNodeOverlapCheck)
-        GetOverlappedSubTaskNodes(node, subNodeGroups);
-    else {
-        subNodeGroups.emplace_back(std::list<MergeTaskNode * >{});
-        for ()
-    }
+    GetOverlappedSubTaskNodes(node, subNodeGroups);
     if(!subNodeGroups.empty()) {
         for(const auto & subNodeGroup : subNodeGroups) {
             std::list<PolygonData * > objs;
