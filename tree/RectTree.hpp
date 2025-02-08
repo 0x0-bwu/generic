@@ -65,8 +65,11 @@ public:
     ///@brief gets const reference of children container
     const RectChildren & GetChildren() const { return m_children; }
     ///@brief gets all objects contains in this node and it's sub nodes
-    void GetAllObjects(std::list<object * > & allObjs) const;
-    void GetAllObjects(std::list<const object * > & allObjs) const;
+    template <typename Container, std::enable_if_t<std::is_same_v<typename Container::value_type, object * >, bool> = true>
+    void GetAllObjects(Container & allObjs) const;
+    template <typename Container, std::enable_if_t<std::is_same_v<typename Container::value_type, const object * >, bool> = true>
+    void GetAllObjects(Container & allObjs) const;
+
     ///@brief gets all leaf nodes from input node
     static void GetAllNodes(RectNode<num_type, object>  * node, std::list<RectNode<num_type, object> * > & allNodes);
     ///@brief gets all leaf nodes from input node by level
@@ -86,28 +89,24 @@ void RectNode<num_type, object>::Build(std::list<object * > && objs)
 }
 
 template <typename num_type, typename object>
+template <typename Container, std::enable_if_t<std::is_same_v<typename Container::value_type, object * >, bool>>
 void RectNode<num_type, object>::GetAllObjects(std::list<object * > & allObjs) const
 {
-    typename std::list<object* >::const_iterator iter1 = m_objs.begin();
-    for(; iter1 != m_objs.end(); ++iter1) allObjs.push_back(*iter1);
-
-    if(hasChild()){
-        auto iter = m_children.begin();
-        for(; iter != m_children.end(); ++iter)
-            (*iter)->GetAllObjects(allObjs);
+    allObjs.insert(allObjs.end(), m_objs.begin(), m_objs.end());
+    if (hasChild()) {
+        for (const auto & child : m_children)
+            child->GetAllObjects(allObjs);
     }
 }
 
 template <typename num_type, typename object>
+template <typename Container, std::enable_if_t<std::is_same_v<typename Container::value_type, const object * >, bool>>
 void RectNode<num_type, object>::GetAllObjects(std::list<const object * > & allObjs) const
 {
-    typename std::list<object * >::const_iterator iter1 = m_objs.begin();
-    for(; iter1 != m_objs.end(); ++iter1) allObjs.push_back(*iter1);
-
-    if(hasChild()){
-        auto iter = m_children.begin();
-        for(; iter != m_children.end(); ++iter)
-            (*iter)->GetAllObjects(allObjs);
+    allObjs.insert(allObjs.end(), m_objs.begin(), m_objs.end());
+    if (hasChild()) {
+        for (const auto & child : m_children)
+            child->GetAllObjects(allObjs);
     }
 }
 

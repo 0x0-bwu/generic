@@ -95,8 +95,11 @@ public:
     ///@brief gets const reference of children container
     const QuadChildren & GetChildren() const { return m_children; }
     ///@brief gets all objects contains in this node and it's sub nodes
-    void GetAllObjects(std::list<object * > & allObjs) const;
-    void GetAllObjects(std::list<const object * > & allObjs) const;
+    template <typename Container, std::enable_if_t<std::is_same_v<typename Container::value_type, object *>, bool> = true>
+    void GetAllObjects(Container & allObjs) const;
+
+    template <typename Container, std::enable_if_t<std::is_same_v<typename Container::value_type, const object *>, bool> = true>
+    void GetAllObjects(Container & allObjs) const;
 
     ///@brief creates sub nodes of this node
     void Split();
@@ -233,24 +236,22 @@ inline bool QuadTree<num_type, object, extent>::FillObjects(std::list<object * >
 }
 
 template <typename num_type, typename object, typename extent>
-inline void QuadTree<num_type, object, extent>::GetAllObjects(std::list<object * > & allObjs) const
+template <typename Container, typename std::enable_if_t<std::is_same_v<typename Container::value_type, object * >, bool>>
+inline void QuadTree<num_type, object, extent>::GetAllObjects(Container & allObjs) const
 {
-    for(auto * obj : m_objs)
-        allObjs.push_back(obj);
-
-    if(hasChild()){
-        for(auto * child : m_children)
+    allObjs.insert(allObjs.end(), m_objs.begin(), m_objs.end());
+    if (hasChild()) {
+        for (auto * child : m_children)
             child->GetAllObjects(allObjs);
     }
 }
 
 template <typename num_type, typename object, typename extent>
-inline void QuadTree<num_type, object, extent>::GetAllObjects(std::list<const object * > & allObjs) const
+template <typename Container, typename std::enable_if_t<std::is_same_v<typename Container::value_type, const object * >, bool>>
+inline void QuadTree<num_type, object, extent>::GetAllObjects(Container & allObjs) const
 {
-    for(auto * obj : m_objs)
-        allObjs.push_back(obj);
-
-    if(hasChild()){
+    allObjs.insert(allObjs.end(), m_objs.begin(), m_objs.end());
+    if (hasChild()) {
         for(auto * child : m_children)
             child->GetAllObjects(allObjs);
     }
