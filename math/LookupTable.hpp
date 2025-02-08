@@ -63,31 +63,32 @@ public:
 
     bool isValid() const
     {
-        return CalcSize(m_indices) == m_values.size();
+        return not m_values.empty() and CalcSize(m_indices) == m_values.size();
     }
     
-    Scalar Lookup(Scalar x) const
+    Scalar Lookup(Scalar x, bool extrapolation) const
     {
+        GENERIC_ASSERT(isValid());
         static_assert(DIM == 1, "only 1D lookup is supported");
-        if (not isValid() or m_values.empty()) {
-            GENERIC_ASSERT_MSG(false, "invalid lookup table");
-            return 0;
-        }
         if (1 == m_values.size()) return m_values.front();
+        if (not extrapolation) {
+            x = std::min(std::max(x, m_indices[0].front()), m_indices[0].back());
+        }
         Scalar x1, x2;
         auto i = InterpIndex(0, x, x1, x2);
         auto q1 = this->operator()(i), q2 = this->operator()(i + 1);
         return LinearInterpolation(q1, q2, x1, x2, x);
     }
 
-    Scalar Lookup(Scalar x, Scalar y) const
+    Scalar Lookup(Scalar x, Scalar y, bool extrapolation) const
     {
+        GENERIC_ASSERT(isValid());
         static_assert(DIM == 2, "only 2D lookup is supported");
-        if (not isValid() or m_values.empty()) {
-            GENERIC_ASSERT_MSG(false, "invalid lookup table");
-            return 0;
-        }
         if (1 == m_values.size()) return m_values.front();
+        if (not extrapolation) {
+            x = std::min(std::max(x, m_indices[0].front()), m_indices[0].back());
+            y = std::min(std::max(y, m_indices[1].front()), m_indices[1].back());
+        }
         Scalar x1, x2, y1, y2;
         auto i1 = InterpIndex(0, x, x1, x2);
         auto i2 = InterpIndex(1, y, y1, y2);
