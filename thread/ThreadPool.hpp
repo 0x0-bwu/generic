@@ -127,7 +127,6 @@ inline void ThreadPool::Init_(size_t threads)
 
 inline void ThreadPool::Resize(size_t tryThreads)
 {
-    if(tryThreads == 0) tryThreads = std::numeric_limits<size_t>::max();
     size_t nThreads = AvailableThreads(tryThreads);
     size_t currThreads = m_threads.size();
     if(!m_bStop && !m_bDone){
@@ -249,10 +248,8 @@ inline void ThreadPool::Stop()
 
 inline size_t ThreadPool::AvailableThreads(size_t tryThreads)
 {
-    size_t currThreads = std::thread::hardware_concurrency();
-    if(tryThreads > currThreads) tryThreads = currThreads;
-    if(tryThreads == 0) tryThreads = 2;
-    return tryThreads;
+    size_t maxThreads = std::thread::hardware_concurrency();
+    return std::max<size_t>(1, std::min(tryThreads, maxThreads));
 }
 }//namespace thread
 }//namespace generic
