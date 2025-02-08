@@ -142,9 +142,23 @@ public:
 
     void Merge();//single thread
 
-    void GetAllPolygons(std::list<PolygonData * > & polygons);
+    template <typename Container, typename std::enable_if_t<std::is_same_v<typename Container::value_type, PolygonData * >, bool> = true>
+    void GetAllPolygons(Container & polygons) const
+    {
+        polygons.clear();
+        m_mergeTaskTree.GetAllObjects(polygons);
+        if (polygons.empty())
+            polygons.insert(polygons.end(), m_datas.begin(), m_datas.end());
+    }
 
-    void GetAllPolygons(std::list<const PolygonData * > & polygons);
+    template <typename Container, typename std::enable_if_t<std::is_same_v<typename Container::value_type, const PolygonData * >, bool> = true>
+    void GetAllPolygons(Container & polygons) const
+    {
+        polygons.clear();
+        m_mergeTaskTree.GetAllObjects(polygons);
+        if (polygons.empty())
+            polygons.insert(polygons.end(), m_datas.begin(), m_datas.end());
+    }
 
     const Box2D<num_type> & GetBBox() const { return m_bbox; }
 
@@ -266,24 +280,6 @@ inline void PolygonMerger<property_type, num_type>::Merge()//single thread
     PreProcess();
     MergeRegion(&m_mergeTaskTree);
     PostProcess();
-}
-
-template <typename property_type, typename num_type>
-inline void PolygonMerger<property_type, num_type>::GetAllPolygons(std::list<PolygonData * > & polygons)
-{
-    polygons.clear();
-    m_mergeTaskTree.GetAllObjects(polygons);
-    if(polygons.empty())
-        polygons.insert(polygons.end(), m_datas.begin(), m_datas.end());
-}
-
-template <typename property_type, typename num_type>
-inline void PolygonMerger<property_type, num_type>::GetAllPolygons(std::list<const PolygonData * > & polygons)
-{
-    polygons.clear();
-    m_mergeTaskTree.GetAllObjects(polygons);
-    if(polygons.empty())
-        polygons.insert(polygons.end(), m_datas.begin(), m_datas.end());
 }
 
 template <typename property_type, typename num_type>
