@@ -7,6 +7,7 @@
  */
 #pragma once
 #include "TriangulationRefinement.hpp"
+#include "generic/tree/QuadTreeUtilityMT.hpp"
 
 namespace generic::geometry{
 namespace mesh2d  {
@@ -64,6 +65,70 @@ inline void ExtractTopology(const Segment2DContainer & segments, Point2DContaine
 inline void MergeClosePointsAndRemapEdge(Point2DContainer & points, IndexEdgeList & edges, coor_t tolerance)
 {
     if(tolerance != 0) tri::RemoveDuplicatesAndRemapEdges(points, edges, tolerance);
+}
+
+inline void SplitOverlengthEdges(Point2DContainer & points, IndexEdgeList & edges, coor_t maxLength)
+{
+    if (0 >= maxLength) return;
+    auto maxLenSq = maxLength * maxLength;
+
+    auto lenSq = [&points](const IndexEdge & e) { return DistanceSq(points[e.v1()], points[e.v2()]); };
+    auto split = [&points](const IndexEdge & e) mutable
+    {
+        size_t index = points.size();
+        points.push_back((points[e.v1()] + points[e.v2()]) * 0.5);
+        return std::make_pair(IndexEdge(e.v1(), index), IndexEdge(index, e.v2()));
+    };
+
+    IndexEdgeList tmp;
+    while (edges.size()) {
+        IndexEdge e = edges.front();
+        edges.pop_front();
+        if (maxLenSq < lenSq(e)) {
+            auto added = split(e);
+            edges.emplace_front(std::move(added.first));
+            edges.emplace_front(std::move(added.second));
+        }
+        else tmp.emplace_back(std::move(e));
+    }
+    std::swap(edges, tmp);
+}
+
+inline void AddPointsFromBalancedQuadTree(const Polygon2D<coor_t> & outline, Point2DContainer & points, size_t threshold, size_t threads)
+{
+    struct PointExtent
+    {
+        Box2D<coor_t> operator()(const Point2D<coor_t> & point) const
+        {
+            return Box2D<coor_t>(point, point);
+        }
+    };
+    
+    std::list<Point2D<coor_t> * > objs;
+    for(size_t i = 0; i < points.size(); ++i)
+        objs.push_back(&points[i]);
+    
+    threshold = std::max(size_t(1), threshold);
+    Box2D<coor_t> bbox = Extent(outline);
+    using Tree = tree::QuadTree<coor_t, Point2D<coor_t>, PointExtent>;
+    using Node = typename Tree::QuadNode;
+    using TreeBuilder = tree::QuadTreeBuilderMT<Point2D<coor_t>, Tree>;
+    Tree tree(bbox);
+    TreeBuilder builder(tree, threads);
+    builder.Build(objs, threshold);
+
+    tree.Balance();
+
+    std::list<Node * > leafNodes;
+    Tree::GetAllLeafNodes(&tree, leafNodes);
+
+    for(auto node : leafNodes){
+        if(node->GetObjs().size() > 0) continue;
+        const auto & box = node->GetBBox();
+        Point2D<coor_t> ct = box.Center().Cast<coor_t>();
+        if(Contains(outline, ct))
+            points.emplace_back(std::move(ct));
+    }
 }
 
 inline void TriangulatePointsAndEdges(const Point2DContainer & points, const IndexEdgeList & edges, tri::Triangulation<Point2D<coor_t> > & tri)
