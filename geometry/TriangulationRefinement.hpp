@@ -271,19 +271,13 @@ protected:
         return IndexVertex::isShareEdge(v1, v2);
     }
 
-    Point SplitEdgeAtCircularShell(const IndexEdge & e)//for float_t,//test, bwu
+    Point SplitEdgeAtCircularShell(const IndexEdge & e)
     {
         const auto & p1 = tri.VerIdxPoint(e.v1());
         const auto & p2 = tri.VerIdxPoint(e.v2());
-
-        size_t i = 0;
-        float_t low, high, mid = geometry::Distance(p1, p2) * 0.5;
-        for(; i < sizeof(num_type) * 8; ++i){
-            low  = std::pow(2, i);
-            high = std::pow(2, i + 1);
-            if(math::GT(mid, low) && math::LE(mid, high)) break;
-        }
-        float_t t = std::pow(2, i + 1) / (2.0 * mid);
+        float_t mid = geometry::Distance(p1, p2) * 0.5;
+        float_t t = math::PrevPowTwo(mid) / mid;
+        t = std::min(std::max(0.2, t), 0.8);
         return p1 + (p2 - p1) * t;
     }
 
