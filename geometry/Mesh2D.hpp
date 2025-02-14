@@ -9,8 +9,7 @@
 #include "TriangulationRefinement.hpp"
 #include "generic/tree/QuadTreeUtilityMT.hpp"
 
-namespace generic::geometry{
-namespace mesh2d  {
+namespace generic::geometry::mesh2d {
 
 using coor_t = int64_t;
 using float_t = float_type<coor_t>;
@@ -20,18 +19,24 @@ using Point2DContainer = std::vector<Point2D<coor_t> >;
 using PolygonContainer = std::vector<Polygon2D<coor_t> >;
 using Segment2DContainer = std::vector<Segment2D<coor_t> >;
 
-inline void ExtractIntersections(const PolygonContainer & polygons, Segment2DContainer & segments)
+inline void ExtractSegment(const Polygon2D<coor_t> & polygon, Segment2DContainer & segments)
 {
-    segments.clear();
-    std::list<Segment2D<coor_t> > temp;
-    for(const auto & polygon : polygons){
-        size_t size = polygon.Size();
-        for(size_t i = 0; i < size; ++i){
-            size_t j = (i + 1) % size;
-            temp.emplace_back(Segment2D<coor_t>(polygon[i], polygon[j]));
-        }
+    size_t size = polygon.Size();
+    for(size_t i = 0; i < size; ++i){
+        size_t j = (i + 1) % size;
+        segments.emplace_back(Segment2D<coor_t>(polygon[i], polygon[j]));
     }
-    boost::polygon::intersect_segments(segments, temp.begin(), temp.end());
+}
+
+inline void ExtractSegments(const PolygonContainer & polygons, Segment2DContainer & segments)
+{
+    std::for_each(polygons.begin(), polygons.end(), [&](const auto & p){ ExtractSegment(p, segments); });
+}
+
+inline void ExtractIntersections(const Segment2DContainer & segments, Segment2DContainer & intersections)
+{
+    intersections.clear();
+    boost::polygon::intersect_segments(intersections, segments.begin(), segments.end());
 }
 
 inline void ExtractTopology(const Segment2DContainer & segments, Point2DContainer & points, IndexEdgeList & edges)
@@ -155,7 +160,4 @@ inline void TriangulationRefinement(tri::Triangulation<Point2D<coor_t> > & trian
     refinement.ReallocateTriangulation();
 }
 
-} // namespace mesh2d
-} // namespace generic::geometry
-
-
+} // namespace generic::geometry::mesh2d
