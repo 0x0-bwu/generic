@@ -341,8 +341,6 @@ protected:
 
     bool isSkinnyTriangle(const TriIdx & it, float_t & ratioSq) const
     {
-        // float_t aveEdgeLen = Utility::GetAverageEdgeLength(tri, it);//test, bwu
-        // if(aveEdgeLen * aveEdgeLen < paras.minEdgeLenSq) return false;//test, bwu
         ratioSq = Utility::CircumRadius2ShortestEdgeRatioSq(tri, it);
         return ratioSq > paras.maxBoundSq;
     }
@@ -361,7 +359,7 @@ protected:
 
     bool isTinySizedTriangle(const TriIdx & it) const
     {
-        auto lenSq = Utility::GetMaxEdgeLenSq(tri, it);
+        auto lenSq = Utility::GetMinEdgeLenSq(tri, it);
         return lenSq < paras.minEdgeLenSq;
     }
 };
