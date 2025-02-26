@@ -363,6 +363,18 @@ template <typename point_t, typename segment_t,
 inline coor_f<point_t> PointSegmentDistanceSq(const point_t & p, const segment_t & s);
 
 /**
+ * @brief gets distance of given point and segment
+ * 
+ * @tparam point_t point type, could be Point2D or Point3D
+ * @param p the given point
+ * @param a the start point of the segment
+ * @param b the end point of the segment
+ * @return squared distance of the given point and segment
+ */
+template <typename point_t>
+inline coor_f<point_t> PointSegmentDistanceSq(const point_t & p, const point_t & a, const point_t & b);
+
+/**
  * @brief gets the point in box that has minimum distance with the given point
  * @tparam point_t point type, could be Point2D or Point3D, should have same dimension with the given box
  * @tparam box_t box type, could be Box2D or Box3D, should have same dimension with the given point

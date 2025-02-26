@@ -431,7 +431,7 @@ inline coor_f<point_t> PointLineDistanceSq(const point_t & p, const point_t & a,
     auto ab = b - a, ap = p - a;
     num_t e = DotProduct(ap, ab);
     num_t f = DotProduct(ab, ab);
-    return DotProduct(ap, ap) - float_t(e * e) / f;
+    return std::max<float_t>(0, DotProduct(ap, ap) - float_t(e * e) / f);
 }
 
 template <typename point_t, typename segment_t,
@@ -475,6 +475,13 @@ inline coor_f<point_t> PointSegmentDistanceSq(const point_t & p, const segment_t
     num_t f = DotProduct(ab, ab);
     if(math::GE(e, f)) return DotProduct(bp, bp);
     return DotProduct(ap, ap) - float_t(e) * float_t(e) / f;
+}
+
+template <typename point_t>
+inline coor_f<point_t> PointSegmentDistanceSq(const point_t & p, const point_t & a, const point_t & b)
+{
+    using segment_type = segment_type<point_t>;
+    return PointSegmentDistanceSq(p, segment_type(a, b));
 }
 
 template <typename point_t, typename box_t,

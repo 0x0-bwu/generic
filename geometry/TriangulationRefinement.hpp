@@ -590,19 +590,21 @@ private:
 
     bool DequeueInvalidEdges() const
     {
-        while(!m_queueE.empty() &&
-              !Base::stillExist(m_queueE.top().edge)){
+        auto invalid = [this](const auto & e) {
+            return not Base::stillExist(e.edge) or isTinyEdge(e.edge);
+        };
+        while (not m_queueE.empty() and invalid(m_queueE.top())) {
             m_queueE.pop();
         }
-        return !m_queueE.empty();
+        return not m_queueE.empty();
     }
 
     void EnqueueSkinnyTriangles()
     {
-        for(TriIdx it = 0; it < tri.triangles.size(); ++it){
-            if(op.isTriangleRemoved(it)) continue;
-            if(Base::isSkinnyTriangle(it)) m_queueT.push({it, WT(it)});
-            else if(Base::isOverSizedTriangle(it)) m_queueT.push({it, WT(it)});
+        for (TriIdx it = 0; it < tri.triangles.size(); ++it){
+            if (op.isTriangleRemoved(it)) continue;
+            if (Base::isOverSizedTriangle(it)) m_queueT.push({it, WT(it)});
+            else if(Base::isSkinnyTriangle(it)) m_queueT.push({it, WT(it)});
         }
     }
 
@@ -620,7 +622,7 @@ private:
 
     bool isTinyEdge(const IndexEdge & e) const
     {
-        return Base::Utility::GetEdgeLenSq(e) < paras.minEdgeLenSq;
+        return Base::Utility::GetEdgeLenSq(tri, e) < paras.minEdgeLenSq;
     }
 
     bool isEncroached(const IndexEdge & e) const
