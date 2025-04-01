@@ -123,7 +123,7 @@ public:
     {
         enum class Kernal { Clipper, Boost };
         Kernal kernal = Kernal::Clipper;
-        bool cleanPolyonPoints = false;
+        bool cleanPolygonPoints = false;
         bool checkPropertyDiff = false;
         bool ignoreTinySolid = false;
         bool ignoreTinyHoles = false;
@@ -285,7 +285,7 @@ inline void PolygonMerger<property_type, num_type>::Merge()//single thread
 template <typename property_type, typename num_type>
 inline void PolygonMerger<property_type, num_type>::PreProcess()
 {
-    if(m_mergeSettings.cleanPolyonPoints &&
+    if(m_mergeSettings.cleanPolygonPoints &&
         math::isPositive(m_mergeSettings.cleanPointDist))
         CleanPolygons();
     
