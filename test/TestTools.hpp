@@ -80,8 +80,8 @@ void t_timer()
         pool.Submit(task);
 
     pool.Wait();
-    tools::ThreadTimer::SetUnit(unit::Time::Second);
-    tools::AccumulatedTimer<Tag>::SetUnit(unit::Time::Second);
+    tools::ThreadTimer::SetUnit(unit::Time::SECOND);
+    tools::AccumulatedTimer<Tag>::SetUnit(unit::Time::SECOND);
    	auto accumulated1 = tools::ThreadTimer::Count(0);
 	auto accumulated2 = tools::AccumulatedTimer<Tag>::Count(1);
 	BOOST_CHECK(accumulated1.first > accumulated2.first);
