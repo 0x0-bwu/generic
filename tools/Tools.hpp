@@ -74,7 +74,7 @@ inline void SleepMilliseconds(size_t time)
 class Timer
 {
 public:
-    explicit Timer(unit::Time unit = unit::Time::Second) : m_unit(unit) 
+    explicit Timer(unit::Time unit = unit::Time::SECOND) : m_unit(unit) 
     {
         m_start = std::chrono::steady_clock::now();
     }
@@ -99,7 +99,7 @@ class ProgressTimer
 {
 public:
     ///@brief constructs a prog\ess timer with specified out stream and display time unit
-    ProgressTimer(std::string label = {}, unit::Time displayUnit = unit::Time::Second, std::ostream & os = std::cout)
+    ProgressTimer(std::string label = {}, unit::Time displayUnit = unit::Time::SECOND, std::ostream & os = std::cout)
      : m_label(label.empty() ? "progress" : label), m_os(os), m_timer(displayUnit)
     {
     }
@@ -244,13 +244,13 @@ private:
 
     std::pair<double, size_t> CountImp(size_t group) const
     {
-        double times = m_times.at(group) * unit::Scale2Second(unit::Time::Nanosecond);
+        double times = m_times.at(group) * unit::Scale2Second(unit::Time::NANOSECOND);
         double scale = 1.0 / unit::Scale2Second(m_unit);
         return { scale * times, m_count.at(group)};
     }
 
 private:
-    unit::Time m_unit{unit::Time::Second};
+    unit::Time m_unit{unit::Time::SECOND};
     std::array<std::atomic<int64_t>, Tag::groups> m_count;
     std::array<std::atomic<int64_t>, Tag::groups> m_times;//nanoseconds;
 };
