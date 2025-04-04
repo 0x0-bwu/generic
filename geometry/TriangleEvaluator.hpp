@@ -45,10 +45,8 @@ public:
     // static const size_t bins = 10;
     using Evaluation = TriangleEvaluation<bins>;
 
-    explicit TriangleEvaluator(const Triangulation<point_t> & tri,
-                               const TriIdxSet & skipT = {},
-                               const VerIdxSet & skipV = {})
-        : m_tri(tri), m_skipT(skipT), m_skipV(skipV) {}
+    explicit TriangleEvaluator(const Triangulation<point_t> & tri, const TriIdxSet & skipT, const VerIdxSet & skipV)
+     : m_tri(tri), m_skipT(skipT), m_skipV(skipV) {}
 
     ///@brief generates the evaluation result
     Evaluation Report() const;
@@ -67,9 +65,9 @@ public:
         return size / 2;
     }
     ///@brief gets total vertex size of the triangulation
-    index_t VertexSize()    const { return m_tri.vertices.size()  - m_skipV.size(); }
+    index_t VertexSize()    const { return m_tri.vertices.size(); }
     ///@brief gets total triangle size of the triangulation
-    index_t TriangleSize()  const { return m_tri.triangles.size() - m_skipT.size(); }
+    index_t TriangleSize()  const { return m_tri.triangles.size(); }
     ///@brief gets minimum interior angle in triangulation
     float_t MinimumAngle()  const { return MinimumAngle(m_tri,  0, TriangleSize(), m_skipT); }
     ///@brief gets maximum interior angle in triangulation
@@ -88,18 +86,18 @@ public:
     ///@brief gets edge length distribution counts histogram with length range [min, max] in bins size
     std::array<size_t, bins> EdgeLengthHistogram(float_t min, float_t max) const;
 
-    static float_t MinimumAngle(const Triangulation<point_t> & tri, TriIdx begin, TriIdx end, const TriIdxSet & skipT = {});
-    static float_t MaximumAngle(const Triangulation<point_t> & tri, TriIdx begin, TriIdx end, const TriIdxSet & skipT = {});
-    static float_t MaxEdgeLength(const Triangulation<point_t> & tri, TriIdx begin, TriIdx end, const TriIdxSet & skipT = {});
-    static float_t MinEdgeLength(const Triangulation<point_t> & tri, TriIdx begin, TriIdx end, const TriIdxSet & skipT = {});
-    static float_t AveEdgeLength(const Triangulation<point_t> & tri, TriIdx begin, TriIdx end, const TriIdxSet & skipT = {});
-    static float_t AveMinimumAngle(const Triangulation<point_t> & tri, TriIdx begin, TriIdx end, const TriIdxSet & skipT = {});
+    static float_t MinimumAngle(const Triangulation<point_t> & tri, TriIdx begin, TriIdx end, const TriIdxSet & skipT);
+    static float_t MaximumAngle(const Triangulation<point_t> & tri, TriIdx begin, TriIdx end, const TriIdxSet & skipT);
+    static float_t MaxEdgeLength(const Triangulation<point_t> & tri, TriIdx begin, TriIdx end, const TriIdxSet & skipT);
+    static float_t MinEdgeLength(const Triangulation<point_t> & tri, TriIdx begin, TriIdx end, const TriIdxSet & skipT);
+    static float_t AveEdgeLength(const Triangulation<point_t> & tri, TriIdx begin, TriIdx end, const TriIdxSet & skipT);
+    static float_t AveMinimumAngle(const Triangulation<point_t> & tri, TriIdx begin, TriIdx end, const TriIdxSet & skipT);
 
     template <size_t colums>
-    static std::array<size_t, colums> MinimumAngleHistogram(const Triangulation<point_t> & tri, TriIdx begin, TriIdx end, const TriIdxSet & skipT = {});
+    static std::array<size_t, colums> MinimumAngleHistogram(const Triangulation<point_t> & tri, TriIdx begin, TriIdx end, const TriIdxSet & skipT);
 
     template <size_t colums>
-    static std::array<size_t, colums> EdgeLengthHistogramDoubleCount(const Triangulation<point_t> & tri, TriIdx begin, TriIdx end, float_t min, float_t max, const TriIdxSet & skipT = {});
+    static std::array<size_t, colums> EdgeLengthHistogramDoubleCount(const Triangulation<point_t> & tri, TriIdx begin, TriIdx end, float_t min, float_t max, const TriIdxSet & skipT);
 
     static float_t MinimumAngle(const Triangulation<point_t> & tri, TriIdx it);
     static float_t MaximumAngle(const Triangulation<point_t> & tri, TriIdx it);

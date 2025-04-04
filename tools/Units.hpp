@@ -13,13 +13,13 @@ namespace generic{
 ///@brief units definition and functions
 namespace unit{
 
-enum class Time { Picosecond = -4, Nanosecond = -3, Microsecond = -2, Millisecond = -1, Second = 0, Minute = 60, Hour = 3600 };
+enum class Time { PICOSECOND = -12, NANOSECOND = -9, MICROSECOND = -6, MILLISECOND = -3, SECOND = 0, MINUTE = 60, HOUR = 3600 };
 
-enum class Length { Nanometer = -3, Micrometer = -2, Millimeter  = -1, Meter = 0 , Inch = 100 };
+enum class Length { ANGSTROM = -10, NANOMETER = -9, MICROMETER = -6, MILLIMETER = -3, METER = 0, INCH = 100 };
 
-enum class Temperature { Celsius, Kelvins };
+enum class Temperature { CELSIUS, KELVINS};
 
-enum class Capacitance { F = 0, MF = -1, UF = -2, NF = -3, PF = -4, FF = -5 };
+enum class Capacitance { F = 0, MF = -3, UF = -6, NF = -9, PF = -12, FF = -15 };
 
 enum class Resistance { KOHM = 1, OHM = 0 };
 
@@ -30,44 +30,45 @@ enum class Voltage { V = 0, MV = -1, UV = -2 };
 enum class Power { W = 0, MW = -1, UW = -2, NW = -3, PW = -4 };
 
 ///@brief gets scale from input `unit` to second
-inline double Scale2Second(Time unit)
+inline float Scale2Second(Time unit)
 {
-    if(int(unit) <= 0) return std::pow(10, int(unit) * 3);
-    return double(unit);
+    if (auto i = int(unit); i <= 0)
+        return std::pow(10, i);
+    return float(unit);
 }
 
 ///@brief gets scale from input `unit` to millisecond
-inline double Scale2Millisecond(Time unit)
+inline float Scale2Millisecond(Time unit)
 {
-    return Scale2Second(unit) * 1e3;
+    return Scale2Second(unit) * 1e3f;
 }
 
 ///@brief gets scale from input `unit` to meter
-inline double Scale2Meter(Length unit)
+inline float Scale2Meter(Length unit)
 {
     switch (unit) {
-        case Length::Inch : return 0.0254;
-        default : return std::pow(10, int(unit) * 3);
+        case Length::INCH : return 0.0254;
+        default : return std::pow(10, int(unit));
     }
 }
 
 ///@brief transfer celsius degree to kelvins
-inline double Celsius2Kelvins(double t)
+inline float Celsius2Kelvins(float t)
 {
-    return t + 273.15;
+    return t + 273.15f;
 }
 
 ///@brief transfer kelvins degree to celsius
-inline double Kelvins2Celsius(double t)
+inline float Kelvins2Celsius(float t)
 {
-    return t - 273.15;
+    return t - 273.15f;
 }
 
 ///@brief gets scale from input `unit` to SI unit
 template <typename Unit, typename Scalar = float>
 inline Scalar Scale2SI(Unit unit)
 {
-    return std::pow(Scalar(10), (int(unit) * 3));
+    return std::pow(Scalar(10), int(unit));
 }
 
 template <typename Scalar = float>
@@ -91,13 +92,13 @@ inline std::string toString(unit::Time unit)
 {
     using namespace unit;
     switch(unit){
-        case Time::Picosecond  : return "ps";
-        case Time::Nanosecond  : return "ns";
-        case Time::Microsecond : return "us";
-        case Time::Millisecond : return "ms";
-        case Time::Second : return "s";
-        case Time::Minute : return "min";
-        case Time::Hour   : return "h";
+        case Time::PICOSECOND  : return "ps";
+        case Time::NANOSECOND  : return "ns";
+        case Time::MICROSECOND : return "us";
+        case Time::MILLISECOND : return "ms";
+        case Time::SECOND : return "sec";
+        case Time::MINUTE : return "min";
+        case Time::HOUR   : return "hour";
         default : return "";
     }       
 }
