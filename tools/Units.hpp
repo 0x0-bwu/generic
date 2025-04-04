@@ -21,13 +21,13 @@ enum class Temperature { CELSIUS, KELVINS};
 
 enum class Capacitance { F = 0, MF = -3, UF = -6, NF = -9, PF = -12, FF = -15 };
 
-enum class Resistance { KOHM = 1, OHM = 0 };
+enum class Resistance { KOHM = 3, OHM = 0 };
 
-enum class Current { A = 0, MA = -1, UA = -2 };
+enum class Current { A = 0, MA = -3, UA = -6 };
 
-enum class Voltage { V = 0, MV = -1, UV = -2 };
+enum class Voltage { V = 0, MV = -3, UV = -6 };
 
-enum class Power { W = 0, MW = -1, UW = -2, NW = -3, PW = -4 };
+enum class Power { W = 0, MW = -3, UW = -6, NW = -9, PW = -12 };
 
 ///@brief gets scale from input `unit` to second
 inline float Scale2Second(Time unit)
