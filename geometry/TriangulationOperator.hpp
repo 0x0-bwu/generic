@@ -197,11 +197,7 @@ public:
     TriIdx TraversalTriangles(const VerIdx & start, const Point & pos) const
     {
         TriIdx curr = *(m_triangulation.vertices[start].triangles.begin());
-        #ifdef GENERIC_UNIT_TEST
         TriIdxFlatSet visited;
-        #else//which is faster?
-        TriIdxSet visited;
-        #endif
         bool found = false;
         while(!found){
             const auto & t = m_triangulation.triangles[curr];
