@@ -16,6 +16,7 @@
 
 namespace generic::math {
 
+///@brief multi-dimensional lookup table with interpolation support
 template <typename Scalar, std::size_t DIM>
 class LookupTable
 {
@@ -32,28 +33,35 @@ public:
     using Values = std::vector<Scalar>;
     using Indices = std::array<Values, DIM>;
     LookupTable() = default;
+    ///@brief constructs a lookup table with given indices and values
     LookupTable(Indices indices, Values values)
      : m_indices(std::move(indices)), m_values(std::move(values))
     {
         GENERIC_ASSERT_MSG(isValid(), "value size mismatch with indices");
     }
     
+    ///@brief returns the dimension of the lookup table
     constexpr size_t Dim() const { return DIM; }
 
+    ///@brief accesses the values vector
     constexpr Values & operator* () { return m_values; }
 
+    ///@brief accesses the values vector (const version)
     constexpr const Values & operator* () const { return m_values; }
     
+    ///@brief accesses the indices for a specific dimension
     constexpr Values & operator[] (size_t index)
     {
         return m_indices[index];
     }
 
+    ///@brief accesses the indices for a specific dimension (const version)
     constexpr const Values & operator[] (size_t index) const
     {
         return m_indices.at(index);
     }
     
+    ///@brief accesses a value by multi-dimensional indices
     template <typename... Args>
     Scalar & operator() (Args... indices)
     {
@@ -61,6 +69,7 @@ public:
         return m_values[CalcIndex({static_cast<std::size_t>(indices)...})];
     }
 
+    ///@brief accesses a value by multi-dimensional indices (const version)
     template <typename... Args>
     const Scalar & operator() (Args... indices) const
     {
@@ -68,11 +77,15 @@ public:
         return m_values.at(CalcIndex({static_cast<std::size_t>(indices)...}));
     }
 
+    ///@brief checks if the lookup table is valid
     bool isValid() const
     {
         return not m_values.empty() and CalcSize(m_indices) == m_values.size();
     }
     
+    ///@brief performs 1D lookup with interpolation
+    ///@param x the input value
+    ///@param extrapolation whether to allow extrapolation beyond table bounds
     Scalar Lookup(Scalar x, bool extrapolation) const
     {
         GENERIC_ASSERT(isValid());
@@ -87,6 +100,10 @@ public:
         return LinearInterpolation(q1, q2, x1, x2, x);
     }
 
+    ///@brief performs 2D lookup with bilinear interpolation
+    ///@param x the first input value
+    ///@param y the second input value
+    ///@param extrapolation whether to allow extrapolation beyond table bounds
     Scalar Lookup(Scalar x, Scalar y, bool extrapolation) const
     {
         GENERIC_ASSERT(isValid());

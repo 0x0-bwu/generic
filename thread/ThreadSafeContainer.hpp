@@ -28,11 +28,17 @@ public:
     ThreadSafeQueue(const ThreadSafeQueue & queue) = delete;
     ThreadSafeQueue & operator=(const ThreadSafeQueue & queue) = delete;
 
+    ///@brief pushes a task into the queue
     void Push(Task task);
+    ///@brief tries to pop a task from the queue, returns false if queue is empty
     bool TryPop(Task & task);
+    ///@brief waits for and pops a task from the queue
     void WaitAndPop(Task & task);
+    ///@brief tries to pop a task from the queue, returns nullptr if queue is empty
     std::shared_ptr<Task> TryPop();
+    ///@brief waits for and pops a task from the queue
     std::shared_ptr<Task> WaitAndPop();
+    ///@brief checks if the queue is empty
     bool Empty();
 
 private:
