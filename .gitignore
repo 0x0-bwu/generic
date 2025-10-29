@@ -10,3 +10,5 @@ build.debug
 build.release
 docs
 test/data/out
+_codeql_*
+test/_codeql_*
