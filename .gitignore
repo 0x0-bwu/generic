@@ -12,3 +12,4 @@ docs
 test/data/out
 __pycache__
 *.pyc
+_codeql_detected_source_root
