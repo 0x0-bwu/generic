@@ -49,6 +49,135 @@ if defined GENERIC_BOOST_GIL_IO_PNG_SUPPORT, need link with libpng.<br>
 ## Documents
 You can generate documents of this library by run `doxygen Doxyfile` in current folder, the documents will be generated in folder `docs/`.<br>  
 
+## API Reference
+<!-- AUTO_DOCS_START -->
+### Header Files Overview
+
+#### boolean/
+- **Expression.hpp**: boolean expresion
+- **Operation.hpp**: boolean related operations
+
+#### circuit/
+- **MNA.hpp**: fork MNA implementation from jefftrull
+- **MOR.hpp**: model order reduction
+- **Simulator.hpp**: static/transient circuit simulator
+
+#### common/
+- **Archive.hpp**: Serialization header files
+- **Exception.hpp**: Exception handle
+- **Macros.hpp**: Macro defines
+- **System.hpp**: System related functions
+- **Traits.hpp**: Common traits
+
+#### geometry/
+- **BooleanOperation.hpp**: Boolean operation for geometries
+- **BoostGeometryRegister.hpp**: Adaption of the generic geometry models to boost geometry concept
+- **BoostPolygonRegister.hpp**: Adaption of the generic geometry models to boost polygon concept
+- **Box.hpp**: Model of axis-aligned bounding box2d and box3d concept
+- **Clipper.hpp**: Modified version of clipper library, origin: http://www.angusj.com/delphi/clipper.php
+- **Common.hpp**: Common geometry definition
+- **Connectivity.hpp**: Connectivity extraction algorithm to build connectivity graph on layer based geometries
+- **Curves.hpp**: Model of some curve concepts
+- **Geometries.hpp**: Header file that include some of the geometris model
+- **GeometryIO.hpp**: I/O functions of geometries
+- **GeometryTraits.hpp**: Geometry traits
+- **HashFunction.hpp**: Hush functions of geometries
+- **Line.hpp**: Model of line concept
+- **Mesh2D.hpp**: 2d mesh flow
+- **OccupancyGridMap.hpp**: Grid map define and generation algorithm
+- **Plane.hpp**: Model of plane concept
+- **Point.hpp**: Model of point2d and point3d concept
+- **Polygon.hpp**: Model of polygon concept
+- **PolygonMerge.hpp**: Utility for polygon merge
+- **PolygonWithHoles.hpp**: Model of polygon with holes concept
+- **Predicates.hpp**: Robust geometric predicates for floating points, modified from predicates by William C. Lenthe.
+- **Rasterization.hpp**: Rasterize geometry outline to pixel indices
+- **Segment.hpp**: Model of segment concept
+- **Serialization.hpp**: Boost serialization functions for geometry classes
+- **Sphere.hpp**: Model of circle and sphere concept
+- **Tetrahedralization.hpp**: Model of tetrahedralization concept
+- **TetrahedralizationIO.hpp**: I/O functions of geometries
+- **Topology.hpp**: Geometry topology relationship
+- **Transform.hpp**: Model of transform vector, matrix and quaternion concept
+- **Trapezoid.hpp**: Model of trapezoid concept
+- **Triangle.hpp**: Model of triangle2d and triangle3d concept
+- **TriangleEvaluator.hpp**: Utility class for triangulation quality evaluation
+- **Triangulation.hpp**: Model of triangulation concept
+- **TriangulationOperator.hpp**: Triangulation operator that manipulating the triangulation data
+- **TriangulationRefinement.hpp**: Triangulation refinement algorithms
+- **Triangulator.hpp**: Triangulator algrithom for triangulation
+- **Utility.hpp**: Geometry related utilities
+- **Vector.hpp**: Model of vector2d, vector3d and hyper vector concept
+
+#### image/
+- **Exception.hpp**: QRcode, modified from https://github.com/soleilpqd/QRMatrix.CPP
+
+#### la/
+- **Common.hpp**: common define
+
+#### math/
+- **FastMath.hpp**: fast math operations from Paul Mineiro's FastFloat
+- **Filter.hpp**: filter related algorithms
+- **Interpolation.hpp**: Interpolation method implementation
+- **LookupTable.hpp**: Multi-dimensional lookup table with interpolation support
+- **MathIO.hpp**: I/O functions of math
+- **MathUtility.hpp**: Utility functions for math
+- **Numbers.hpp**: Define of const numbers in math
+- **PolynomialFit.hpp**: polynomial fit
+
+#### model/
+- **Graph.hpp**: basic graph models
+
+#### thread/
+- **LockFreeBitSet.hpp**: Lock free bit set, modified from folly concurrent bit set
+- **LockFreeHashMap.hpp**: Lock free hash map, modified from folly atomic hash map
+- **MapReduce.hpp**: A header only map reduce library on single-machine platform
+- **TaskFlow.hpp**: A header only task flow library that run tasks based on dependency parallelly
+- **ThreadPool.hpp**: A header only thread pool implementation
+- **ThreadSafeContainer.hpp**: Thread-safe container implementations
+- **Utility.hpp**: Thread related utilities
+
+#### tools/
+- **Color.hpp**: Color related functions
+- **FileSystem.hpp**: File system related functions
+- **Format.hpp**: String formatting
+- **Hash.hpp**: hash related functions
+- **ImgIO.hpp**: image i/o
+- **Log.hpp**: A header only log library
+- **Parser.hpp**: Parser functions
+- **ProgramOptions.hpp**: A header only program option library
+- **StringHelper.hpp**: String related functions
+- **Tools.hpp**: Some tools
+- **Units.hpp**: Unit definition and functions
+
+#### topology/
+- **Common.hpp**: Common define of topology
+- **IndexGraph.hpp**: Model of index graph concept and graph related algorithms
+
+#### traits/
+- **BoostGraphTraits.hpp**: boost graph adapter
+
+#### tree/
+- **BVH.hpp**: Model of bounding volume hierarchy tree concept and related algorithms
+- **BVHUtilityMT.hpp**: BVH tree utility with multi-threads support
+- **Builder.hpp**: General tree building helper classes
+- **BuilderMT.hpp**: General tree building helper classes in multi-threads
+- **IO.hpp**: I/O function for trees
+- **KdTree.hpp**: Model of k-dimensional tree and related algorithms
+- **KdTreeUtilityMT.hpp**: kd tree utility with multi-threads support
+- **QuadTree.hpp**: Model of quad tree concept and related algorithms
+- **QuadTreeUtilityMT.hpp**: Quad tree utility with multi-threads support
+- **RandomTree.hpp**: Model of random tree
+- **RectTree.hpp**: Model of R tree and related algorithms
+- **Varification.hpp**: Varification for tree build corectness and quality check
+
+#### utils/
+- **Index.hpp**: index utils implement based on https://github.com/verilog-to-routing/tatum
+- **LinearMap.hpp**: linear map utils implement based on https://github.com/verilog-to-routing/tatum
+- **Version.hpp**: version utility
+- **ZipView.hpp**: simple implementation of c++23's std::ranges::zip
+<!-- AUTO_DOCS_END -->
+
 ## Test
 Generic library unit test is written with Boost Unit Test Framework, source code is in folder `test/`.<br>  
 build:<br> 

@@ -1,3 +1,10 @@
+/**
+ * @file ThreadSafeContainer.hpp
+ * @author bwu
+ * @brief Thread-safe container implementations
+ * @version 0.1
+ * @date 2022-02-22
+ */
 #pragma once
 #include <mutex>
 #include <queue>

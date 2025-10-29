@@ -1,3 +1,10 @@
+/**
+ * @file LookupTable.hpp
+ * @author bwu
+ * @brief Multi-dimensional lookup table with interpolation support
+ * @version 0.1
+ * @date 2022-02-22
+ */
 #pragma once
 
 #include "generic/common/Exception.hpp"
