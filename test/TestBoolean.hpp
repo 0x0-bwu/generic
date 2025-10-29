@@ -31,6 +31,34 @@ void t_expression()
         ss.str(""); ss << e;
         BOOST_CHECK(ss.str() == "((a_[999] & b) ^ ((c & d) | (a & b)))");
     }
+    {
+        // Test simple expression
+        std::string s = "a & b";
+        auto res = ParseExpression(s.c_str(), e);
+        BOOST_CHECK(res);
+        ss.str(""); ss << e;
+        BOOST_CHECK(ss.str() == "(a & b)");
+    }
+    {
+        // Test OR expression
+        std::string s = "x | y | z";
+        auto res = ParseExpression(s.c_str(), e);
+        BOOST_CHECK(res);
+        ss.str(""); ss << e;
+        BOOST_CHECK(ss.str() == "((x | y) | z)");
+    }
+    {
+        // Test XOR expression
+        std::string s = "p ^ q";
+        auto res = ParseExpression(s.c_str(), e);
+        BOOST_CHECK(res);
+    }
+    {
+        // Test nested parentheses
+        std::string s = "((a & b) | (c & d))";
+        auto res = ParseExpression(s.c_str(), e);
+        BOOST_CHECK(res);
+    }
 }
 
 void t_operation()
@@ -38,6 +66,41 @@ void t_operation()
     using namespace generic::boolean;
     BOOST_CHECK(All(true, false, true, false) == false);
     BOOST_CHECK(Any(true, false, true, false) == true);
+    
+    // Test All with all true
+    BOOST_CHECK(All(true, true, true) == true);
+    
+    // Test All with all false
+    BOOST_CHECK(All(false, false, false) == false);
+    
+    // Test Any with all false
+    BOOST_CHECK(Any(false, false, false) == false);
+    
+    // Test Any with all true
+    BOOST_CHECK(Any(true, true, true) == true);
+    
+    // Test single argument
+    BOOST_CHECK(All(true) == true);
+    BOOST_CHECK(All(false) == false);
+    BOOST_CHECK(Any(true) == true);
+    BOOST_CHECK(Any(false) == false);
+    
+    // Test two arguments
+    BOOST_CHECK(All(true, true) == true);
+    BOOST_CHECK(All(true, false) == false);
+    BOOST_CHECK(All(false, true) == false);
+    BOOST_CHECK(All(false, false) == false);
+    
+    BOOST_CHECK(Any(true, true) == true);
+    BOOST_CHECK(Any(true, false) == true);
+    BOOST_CHECK(Any(false, true) == true);
+    BOOST_CHECK(Any(false, false) == false);
+    
+    // Test many arguments
+    BOOST_CHECK(All(true, true, true, true, true, true) == true);
+    BOOST_CHECK(All(true, true, true, false, true, true) == false);
+    BOOST_CHECK(Any(false, false, false, true, false, false) == true);
+    BOOST_CHECK(Any(false, false, false, false, false, false) == false);
 }
 
 test_suite * create_boolean_test_suite()
@@ -49,4 +112,3 @@ test_suite * create_boolean_test_suite()
     //
     return boolean_suite;
 }
-
