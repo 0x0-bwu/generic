@@ -1,0 +1,4 @@
+/home/runner/work/generic/generic/test/_codeql_build_dir/CMakeFiles/test.exe.dir
+/home/runner/work/generic/generic/test/_codeql_build_dir/CMakeFiles/unit_test.exe.dir
+/home/runner/work/generic/generic/test/_codeql_build_dir/CMakeFiles/edit_cache.dir
+/home/runner/work/generic/generic/test/_codeql_build_dir/CMakeFiles/rebuild_cache.dir
