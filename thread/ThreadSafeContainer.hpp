@@ -13,7 +13,7 @@
 namespace generic{
 namespace thread {
 
-///@brief a thread-safe task queue that can execute pop, push and other function simultaneously
+/// @brief A thread-safe task queue that can execute pop, push and other function simultaneously
 template <typename Task>
 class ThreadSafeQueue
 {
@@ -28,17 +28,26 @@ public:
     ThreadSafeQueue(const ThreadSafeQueue & queue) = delete;
     ThreadSafeQueue & operator=(const ThreadSafeQueue & queue) = delete;
 
-    ///@brief pushes a task into the queue
+    /// @brief Pushes a task into the queue
     void Push(Task task);
-    ///@brief tries to pop a task from the queue, returns false if queue is empty
+    
+    /// @brief Tries to pop a task from the queue
+    /// @return false if queue is empty, true if task was popped successfully
     bool TryPop(Task & task);
-    ///@brief waits for and pops a task from the queue
+    
+    /// @brief Waits for and pops a task from the queue
     void WaitAndPop(Task & task);
-    ///@brief tries to pop a task from the queue, returns nullptr if queue is empty
+    
+    /// @brief Tries to pop a task from the queue
+    /// @return nullptr if queue is empty, otherwise a shared pointer to the task
     std::shared_ptr<Task> TryPop();
-    ///@brief waits for and pops a task from the queue
+    
+    /// @brief Waits for and pops a task from the queue
+    /// @return A shared pointer to the popped task
     std::shared_ptr<Task> WaitAndPop();
-    ///@brief checks if the queue is empty
+    
+    /// @brief Checks if the queue is empty
+    /// @return true if queue is empty, false otherwise
     bool Empty();
 
 private:
