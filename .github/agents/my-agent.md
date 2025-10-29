@@ -1,6 +1,6 @@
 ---
 name: doc
-description:
+description: add or update doc
 ---
 
 # My Agent
