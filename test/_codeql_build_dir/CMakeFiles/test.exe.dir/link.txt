@@ -1,0 +1,1 @@
+/home/runner/work/generic/.codeql-scratch/dbs/cpp/working/autobuild/bin/c++  -O3 -DNDEBUG -fPIC -ffast-math -Wno-deprecated-declarations -fcompare-debug-second -Wall -Wno-unknown-pragmas -fopenmp -O3 -DNDEBUG -Wl,--dependency-file=CMakeFiles/test.exe.dir/link.d CMakeFiles/test.exe.dir/test.cpp.o -o bin/test.exe  /usr/lib/x86_64-linux-gnu/libpng.so

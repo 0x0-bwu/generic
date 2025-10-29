@@ -276,8 +276,46 @@ void t_math_lookup_table()
 
 BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_math_linear_algebra_t, math_num_types)
 {
-    // using namespace la;
-    // using num = math_num_types;
+    using namespace la;
+    using num = math_num_types;
+    
+    // Test DenseVector
+    DenseVector<num> vec1(3);
+    vec1 << 1, 2, 3;
+    BOOST_CHECK_EQUAL(vec1.size(), 3);
+    BOOST_CHECK_EQUAL(vec1(0), num(1));
+    BOOST_CHECK_EQUAL(vec1(1), num(2));
+    BOOST_CHECK_EQUAL(vec1(2), num(3));
+    
+    // Test DenseMatrix
+    DenseMatrix<num> mat1(2, 2);
+    mat1 << 1, 2,
+            3, 4;
+    BOOST_CHECK_EQUAL(mat1.rows(), 2);
+    BOOST_CHECK_EQUAL(mat1.cols(), 2);
+    BOOST_CHECK_EQUAL(mat1(0, 0), num(1));
+    BOOST_CHECK_EQUAL(mat1(1, 1), num(4));
+    
+    // Test matrix-vector multiplication
+    DenseVector<num> vec2(2);
+    vec2 << 1, 1;
+    auto result = mat1 * vec2;
+    BOOST_CHECK_EQUAL(result.size(), 2);
+    BOOST_CHECK_EQUAL(result(0), num(3));  // 1*1 + 2*1
+    BOOST_CHECK_EQUAL(result(1), num(7));  // 3*1 + 4*1
+    
+    // Test SparseMatrix with Triplets
+    Triplets<num> triplets;
+    triplets.push_back(Eigen::Triplet<num>(0, 0, num(1)));
+    triplets.push_back(Eigen::Triplet<num>(1, 1, num(2)));
+    triplets.push_back(Eigen::Triplet<num>(2, 2, num(3)));
+    
+    SparseMatrix<num> sparseMat(3, 3);
+    sparseMat.setFromTriplets(triplets.begin(), triplets.end());
+    
+    BOOST_CHECK_EQUAL(sparseMat.rows(), 3);
+    BOOST_CHECK_EQUAL(sparseMat.cols(), 3);
+    BOOST_CHECK_EQUAL(sparseMat.nonZeros(), 3);
 }
 
 test_suite * create_math_test_suite()

@@ -13,6 +13,8 @@
 #include "generic/tools/Parser.hpp"
 #include "generic/tools/Tools.hpp"
 #include "generic/tools/Hash.hpp"
+#include "generic/tools/Color.hpp"
+#include "generic/tools/Units.hpp"
 #include "generic/math/Numbers.hpp"
 using namespace boost::unit_test;
 using namespace generic;
@@ -110,6 +112,115 @@ void t_hash()
 	BOOST_CHECK(UnorderedHash(v1) != UnorderedHash(v3));
 }
 
+void t_color()
+{
+	using namespace generic::color;
+	
+	// Test predefined colors
+	BOOST_CHECK_EQUAL(black, 0x00000000);
+	BOOST_CHECK_EQUAL(white, 0xFFFFFFFF);
+	BOOST_CHECK_EQUAL(red, 0xFFFF0000);
+	BOOST_CHECK_EQUAL(green, 0xFF00FF00);
+	BOOST_CHECK_EQUAL(blue, 0xFF0000FF);
+	
+	// Test RGBToInt
+	int color1 = RGBToInt(255, 128, 64);
+	BOOST_CHECK((color1 & 0x00FF0000) >> 16 == 255);
+	BOOST_CHECK((color1 & 0x0000FF00) >> 8 == 128);
+	BOOST_CHECK((color1 & 0x000000FF) == 64);
+	
+	// Test RGBaToInt
+	int color2 = RGBaToInt(255, 128, 64, 200);
+	BOOST_CHECK(((color2 >> 24) & 0xFF) == 200);
+	
+	// Test RGBFromInt
+	int r, g, b;
+	RGBFromInt(color1, r, g, b);
+	BOOST_CHECK_EQUAL(r, 255);
+	BOOST_CHECK_EQUAL(g, 128);
+	BOOST_CHECK_EQUAL(b, 64);
+	
+	// Test RGBaFromInt
+	int a;
+	RGBaFromInt(color2, r, g, b, a);
+	BOOST_CHECK_EQUAL(r, 255);
+	BOOST_CHECK_EQUAL(g, 128);
+	BOOST_CHECK_EQUAL(b, 64);
+	BOOST_CHECK_EQUAL(a, 200);
+	
+	// Test RandomRGB (just ensure it doesn't crash and produces valid values)
+	RandomRGB(r, g, b);
+	BOOST_CHECK(r >= 0 && r <= 255);
+	BOOST_CHECK(g >= 0 && g <= 255);
+	BOOST_CHECK(b >= 0 && b <= 255);
+	
+	// Test toJet
+	toJet(0.0, r, g, b);
+	BOOST_CHECK_EQUAL(r, 0);
+	BOOST_CHECK_EQUAL(g, 0);
+	BOOST_CHECK(b >= 127 && b <= 128);
+	
+	toJet(0.5, r, g, b);
+	BOOST_CHECK(r >= 0 && r <= 255);
+	BOOST_CHECK(g >= 0 && g <= 255);
+	BOOST_CHECK(b >= 0 && b <= 255);
+	
+	toJet(1.0, r, g, b);
+	BOOST_CHECK(r >= 0 && r <= 255);
+	BOOST_CHECK(g >= 0 && g <= 255);
+	BOOST_CHECK(b >= 0 && b <= 255);
+}
+
+void t_units()
+{
+	using namespace generic::unit;
+	
+	// Test Time scale conversions
+	BOOST_CHECK_CLOSE(Scale2Second(Time::SECOND), 1.0f, 0.0001f);
+	BOOST_CHECK_CLOSE(Scale2Second(Time::MILLISECOND), 0.001f, 0.0001f);
+	BOOST_CHECK_CLOSE(Scale2Second(Time::MICROSECOND), 0.000001f, 0.0001f);
+	BOOST_CHECK_CLOSE(Scale2Second(Time::NANOSECOND), 0.000000001f, 0.0001f);
+	BOOST_CHECK_CLOSE(Scale2Second(Time::MINUTE), 60.0f, 0.0001f);
+	BOOST_CHECK_CLOSE(Scale2Second(Time::HOUR), 3600.0f, 0.0001f);
+	
+	BOOST_CHECK_CLOSE(Scale2Millisecond(Time::SECOND), 1000.0f, 0.0001f);
+	BOOST_CHECK_CLOSE(Scale2Millisecond(Time::MILLISECOND), 1.0f, 0.0001f);
+	
+	// Test Length scale conversions
+	BOOST_CHECK_CLOSE(Scale2Meter(Length::METER), 1.0f, 0.0001f);
+	BOOST_CHECK_CLOSE(Scale2Meter(Length::MILLIMETER), 0.001f, 0.0001f);
+	BOOST_CHECK_CLOSE(Scale2Meter(Length::MICROMETER), 0.000001f, 0.0001f);
+	BOOST_CHECK_CLOSE(Scale2Meter(Length::NANOMETER), 0.000000001f, 0.0001f);
+	BOOST_CHECK_CLOSE(Scale2Meter(Length::INCH), 0.0254f, 0.0001f);
+	
+	// Test Temperature conversions
+	BOOST_CHECK_CLOSE(Celsius2Kelvins(0.0f), 273.15f, 0.0001f);
+	BOOST_CHECK_CLOSE(Celsius2Kelvins(100.0f), 373.15f, 0.0001f);
+	BOOST_CHECK_CLOSE(Kelvins2Celsius(273.15f), 0.0f, 0.0001f);
+	BOOST_CHECK_CLOSE(Kelvins2Celsius(373.15f), 100.0f, 0.0001f);
+	
+	// Test Scale2SI for various units
+	BOOST_CHECK_CLOSE(Scale2SI(Capacitance::F), 1.0f, 0.0001f);
+	BOOST_CHECK_CLOSE(Scale2SI(Capacitance::PF), 1e-12f, 0.0001f);
+	BOOST_CHECK_CLOSE(Scale2SI(Resistance::OHM), 1.0f, 0.0001f);
+	BOOST_CHECK_CLOSE(Scale2SI(Resistance::KOHM), 1000.0f, 0.0001f);
+	BOOST_CHECK_CLOSE(Scale2SI(Current::A), 1.0f, 0.0001f);
+	BOOST_CHECK_CLOSE(Scale2SI(Current::MA), 0.001f, 0.0001f);
+	BOOST_CHECK_CLOSE(Scale2SI(Voltage::V), 1.0f, 0.0001f);
+	BOOST_CHECK_CLOSE(Scale2SI(Voltage::MV), 0.001f, 0.0001f);
+	BOOST_CHECK_CLOSE(Scale2SI(Power::W), 1.0f, 0.0001f);
+	BOOST_CHECK_CLOSE(Scale2SI(Power::MW), 0.001f, 0.0001f);
+	
+	// Test toString for Time
+	BOOST_CHECK_EQUAL(generic::toString(Time::PICOSECOND), "ps");
+	BOOST_CHECK_EQUAL(generic::toString(Time::NANOSECOND), "ns");
+	BOOST_CHECK_EQUAL(generic::toString(Time::MICROSECOND), "us");
+	BOOST_CHECK_EQUAL(generic::toString(Time::MILLISECOND), "ms");
+	BOOST_CHECK_EQUAL(generic::toString(Time::SECOND), "sec");
+	BOOST_CHECK_EQUAL(generic::toString(Time::MINUTE), "min");
+	BOOST_CHECK_EQUAL(generic::toString(Time::HOUR), "hour");
+}
+
 test_suite * create_tools_test_suite()
 {
     test_suite * tools_suite = BOOST_TEST_SUITE("s_tools");
@@ -119,6 +230,8 @@ test_suite * create_tools_test_suite()
 	tools_suite->add(BOOST_TEST_CASE(&t_parser));
 	tools_suite->add(BOOST_TEST_CASE(&t_timer));
 	tools_suite->add(BOOST_TEST_CASE(&t_hash));
+	tools_suite->add(BOOST_TEST_CASE(&t_color));
+	tools_suite->add(BOOST_TEST_CASE(&t_units));
     //
     return tools_suite;
 }

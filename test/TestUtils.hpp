@@ -32,17 +32,87 @@ void t_utils_index()
 void t_utils_linear_map()
 {
     using namespace generic::utils;
-    // Index
-    {
-        struct Tag {};
-        auto a = Index<Tag>(2);
-        BOOST_CHECK(a == Index<Tag>(2));
-        BOOST_CHECK(a < Index<Tag>(3));
-        BOOST_CHECK(size_t(a) == 2);
-        BOOST_CHECK(bool(a));
-        a.makeInvalid();
-        BOOST_CHECK(not bool(a));
+    struct Tag {};
+    using Index = generic::utils::Index<Tag>;
+    
+    // Test constructors
+    LinearMap<Index, int> map1;
+    BOOST_CHECK(map1.Empty());
+    BOOST_CHECK_EQUAL(map1.Size(), 0);
+    
+    LinearMap<Index, int> map2(5);
+    BOOST_CHECK_EQUAL(map2.Size(), 5);
+    
+    LinearMap<Index, int> map3(3, 42);
+    BOOST_CHECK_EQUAL(map3.Size(), 3);
+    BOOST_CHECK_EQUAL(map3[0], 42);
+    BOOST_CHECK_EQUAL(map3[1], 42);
+    BOOST_CHECK_EQUAL(map3[2], 42);
+    
+    // Test Append
+    LinearMap<Index, int> map4;
+    auto idx1 = map4.Append(10);
+    auto idx2 = map4.Append(20);
+    auto idx3 = map4.Append(30);
+    BOOST_CHECK_EQUAL(map4.Size(), 3);
+    BOOST_CHECK_EQUAL(map4[idx1], 10);
+    BOOST_CHECK_EQUAL(map4[idx2], 20);
+    BOOST_CHECK_EQUAL(map4[idx3], 30);
+    
+    // Test operator[]
+    map4[idx1] = 100;
+    BOOST_CHECK_EQUAL(map4[idx1], 100);
+    
+    // Test Insert
+    LinearMap<Index, int> map5;
+    map5.Insert(Index(0), 5);
+    map5.Insert(Index(2), 15);
+    BOOST_CHECK_EQUAL(map5.Size(), 3);
+    BOOST_CHECK_EQUAL(map5[Index(0)], 5);
+    BOOST_CHECK_EQUAL(map5[Index(2)], 15);
+    
+    // Test Resize
+    map5.Resize(5, 99);
+    BOOST_CHECK_EQUAL(map5.Size(), 5);
+    BOOST_CHECK_EQUAL(map5[Index(3)], 99);
+    BOOST_CHECK_EQUAL(map5[Index(4)], 99);
+    
+    // Test Contain
+    BOOST_CHECK(map5.Contain(Index(0)));
+    BOOST_CHECK(map5.Contain(Index(4)));
+    BOOST_CHECK(!map5.Contain(Index(5)));
+    
+    // Test Clear
+    map5.Clear();
+    BOOST_CHECK(map5.Empty());
+    BOOST_CHECK_EQUAL(map5.Size(), 0);
+    
+    // Test iterators
+    LinearMap<Index, int> map6;
+    map6.Append(1);
+    map6.Append(2);
+    map6.Append(3);
+    
+    int sum = 0;
+    for (auto it = map6.Begin(); it != map6.End(); ++it) {
+        sum += *it;
     }
+    BOOST_CHECK_EQUAL(sum, 6);
+    
+    // Test range-based for loop
+    sum = 0;
+    for (int val : map6) {
+        sum += val;
+    }
+    BOOST_CHECK_EQUAL(sum, 6);
+    
+    // Test Swap
+    LinearMap<Index, int> map7;
+    map7.Append(100);
+    map6.Swap(map7);
+    BOOST_CHECK_EQUAL(map6.Size(), 1);
+    BOOST_CHECK_EQUAL(map6[Index(0)], 100);
+    BOOST_CHECK_EQUAL(map7.Size(), 3);
 }
 
 void t_utils_version()
