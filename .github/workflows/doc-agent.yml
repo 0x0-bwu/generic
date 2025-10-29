@@ -1,0 +1,43 @@
+name: Doc Agent
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - '**/*.c'
+      - '**/*.cpp'
+      - '**/*.h'
+      - '**/*.hpp'
+      - '**/*.py'
+      - '**/*.js'
+      - '.github/agents/**'
+      - 'README.md'
+
+jobs:
+  update-docs:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+
+      - name: Install deps (if any)
+        run: |
+          python -m pip install --upgrade pip
+
+      - name: Run doc updater
+        env:
+          GITHUB_ACTOR: ${{ github.actor }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+        run: |
+          python3 scripts/update_docs.py
+
+      - name: Show git status (for logs)
+        run: git --no-pager status --porcelain --untracked-files=no || true
