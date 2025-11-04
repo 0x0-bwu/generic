@@ -140,15 +140,22 @@ public:
         }
         ComputeNodeSlopes(); // fills m
         PrecomputeCoeffs(); // fills a,b,c,d per interval
+
+        // cache data pointers for faster hot-path access in Evaluate / LocateInterval
+        m_xptr = m_x.data();
+        m_aptr = m_a.data();
+        m_bptr = m_b.data();
+        m_cptr = m_c.data();
+        m_dptr = m_d.data();
     }
 
-    inline Float operator () (Float xq) const
+    inline Float operator () (Float xq) const noexcept
     {
         return Evaluate(xq);
     }
 
     // Single evaluation: O(log n) search
-    inline Float Evaluate(Float xq) const
+    inline Float Evaluate(Float xq) const noexcept
     {
         auto idx = LocateInterval(xq);
         return EvalInterval(idx, xq);
@@ -160,74 +167,76 @@ public:
     {
         y.resize(x.size());
         for (size_t k = 0; k < x.size(); ++k)
-            y[k] = Evaluate(x[k]);
+            y[k] = Evaluate(x[k]); // hot path uses cached pointers
     }
 
     // Batch for monotonic-increasing queries: single linear scan -> O(n + m)
     // x must be non-decreasing (monotonic increasing). y must be sized to x.
     void EvaluateBatchMonotonic(const std::vector<Float> & x, std::vector<Float> & y) const
     {
-        size_t seg = 0; // current interval index
+        size_t seg = 0; // current interval index (in [0, m_size-2])
         y.resize(x.size());
         for (size_t k = 0; k < x.size(); ++k) {
-            auto xq = x[k];
-            // advance seg while xq > x[seg+1] and not last interval
-            while (seg + 1 < x.size() - 1 && xq > x[seg+1]) ++seg;
+            Float xq = x[k];
+            // advance seg while xq > m_x[seg+1] and not last interval
+            while (seg + 1 < m_size - 1 && xq > m_xptr[seg + 1]) ++seg;
             y[k] = EvalInterval(seg, xq);
         }
     }
 
 private:
     // locate interval index i such that x in [x[i], x[i+1]]
-    inline size_t LocateInterval(Float xq) const
+    inline size_t LocateInterval(Float xq) const noexcept
     {
         // clamp outside domain to endpoints
         if (xq <= m_x.front()) return 0;
         if (xq >= m_x.back()) return m_size - 2;
-        // use std::upper_bound to find first x > xq, then -1 gives index
-        auto it = std::upper_bound(m_x.begin(), m_x.end(), xq);
-        size_t pos = std::distance(m_x.begin(), it);
-        size_t idx = (pos == 0) ? 0 : pos - 1;
-        // ensure idx in [0, n-2]
-        if (idx >= m_size - 1) idx = m_size - 2;
-        return idx;
-    }
+        // use pointer-based upper_bound to find first x > xq, then -1 gives index
+        const Float * begin = m_xptr;
+        const Float * end = m_xptr + m_size;
+        auto it = std::upper_bound(begin, end, xq);
+        size_t pos = static_cast<size_t>(it - begin);
+         size_t idx = (pos == 0) ? 0 : pos - 1;
+         // ensure idx in [0, n-2]
+         if (idx >= m_size - 1) idx = m_size - 2;
+         return idx;
+     }
 
-    inline Float EvalInterval(size_t idx, Float xq) const
-    {
-        // s = xq - x[idx]
-        Float s = xq - m_x[idx];
-        // Horner for cubic a*s^3 + b*s^2 + c*s + d
-        return ((m_a[idx]*s + m_b[idx])*s + m_c[idx])*s + m_d[idx];
-    }
+     inline Float EvalInterval(size_t idx, Float xq) const noexcept
+     {
+         // s = xq - x[idx]
+        Float s = xq - m_xptr[idx];
+        // Horner for cubic a*s^3 + b*s^2 + c*s + d, using cached pointers
+        return ((m_aptr[idx] * s + m_bptr[idx]) * s + m_cptr[idx]) * s + m_dptr[idx];
+     }
 
-    void ComputeNodeSlopes()
-    {
-        m_m.assign(m_size, 0.0);
-        if (m_size == 2) {
-            m_m[0] = m_m[1] = m_delta[0];
-            return;
-        }
-        // endpoint slopes: one-sided
-        m_m[0] = m_delta[0];
-        m_m[m_size-1] = m_delta[m_size-2];
-
-        // interior slopes using Fritsch-Carlson (weighted harmonic mean) to preserve monotonicity
-        for (size_t i = 1; i + 1 < m_size; ++i) {
-            Float dl = m_delta[i-1];
-            Float dr = m_delta[i];
-            if (dl == 0.0 || dr == 0.0 || (dl > 0.0) != (dr > 0.0))
-                m_m[i] = 0.0;
-            else {
-                Float hl = m_h[i-1];
-                Float hr = m_h[i];
-                Float w1 = 2*hr + hl;
-                Float w2 = hr + 2*hl;
-                // harmonic mean weighted:
-                m_m[i] = (w1 + w2) / (w1/dl + w2/dr);
-            }
-        }
-    }
+     void ComputeNodeSlopes()
+     {
+         m_m.assign(m_size, 0.0);
+         if (m_size == 2) {
+             m_m[0] = m_m[1] = m_delta[0];
+             return;
+         }
+         // endpoint slopes: one-sided
+         m_m[0] = m_delta[0];
+         m_m[m_size-1] = m_delta[m_size-2];
+ 
+         // interior slopes using Fritsch-Carlson (weighted harmonic mean) to preserve monotonicity
+         for (size_t i = 1; i + 1 < m_size; ++i) {
+             Float dl = m_delta[i-1];
+             Float dr = m_delta[i];
+             if (dl == 0.0 || dr == 0.0 || (dl > 0.0) != (dr > 0.0))
+                 m_m[i] = 0.0;
+             else {
+                 Float hl = m_h[i-1];
+                 Float hr = m_h[i];
+                 Float w1 = 2*hr + hl;
+                 Float w2 = hr + 2*hl;
+                 // harmonic mean weighted:
+                 m_m[i] = (w1 + w2) / (w1/dl + w2/dr);
+             }
+         }
+     }
 
     void PrecomputeCoeffs()
     {
@@ -254,7 +263,13 @@ private:
         }
     }
 
-    size_t m_size = 0;
+    size_t m_size{0};
+    // cached raw pointers to contiguous storage for hot path
+    const Float *m_xptr{nullptr};
+    const Float *m_aptr{nullptr};
+    const Float *m_bptr{nullptr};
+    const Float *m_cptr{nullptr};
+    const Float *m_dptr{nullptr};
     std::vector<Float> m_x, m_y;
     std::vector<Float> m_h, m_delta, m_m; // node slopes
     // per-interval cubic: p(s) = a*s^3 + b*s^2 + c*s + d, s = x - x_i
