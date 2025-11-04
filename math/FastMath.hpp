@@ -6,8 +6,16 @@
  * @date 2024-10-12
  */
 #pragma once
+#include "generic/common/Exception.hpp"
+#include <type_traits>
+#include <algorithm>
+#include <iterator>
+#include <cassert>
+#include <cstddef>
 #include <cstdint>
+#include <vector>
 #include <cmath>
+
 namespace generic::math {
 
 ///@brief "Fast" sine approximation, valid for x in [-PI, PI], max abs error about 4e-05
@@ -101,5 +109,156 @@ inline float FasterExp(float p)
 {
     return FasterPow2(1.442695040f * p);
 }
+
+template <typename Float>
+class FastPchip
+{
+public:
+    FastPchip() = default;
+    // x and y must be same size >= 2, and x strictly increasing
+    FastPchip(std::vector<Float> && x, std::vector<Float> && y)
+    {
+        Reset(std::move(x), std::move(y));
+    }
+
+    void Reset(std::vector<Float> && x, std::vector<Float> && y)
+    {
+        GENERIC_ASSERT(x.size() == y.size());
+        std::swap(m_x, x);
+        std::swap(m_y, y);
+        m_size = m_x.size();
+        GENERIC_ASSERT(m_size >= 2);
+
+        m_h.resize(m_size - 1);
+        m_delta.resize(m_size - 1);
+        // compute h and secant slopes
+        for (size_t i = 0; i + 1 < m_size; ++i) {
+            auto hi = m_x[i+1] - m_x[i];
+            GENERIC_ASSERT(hi > 0);
+            m_h[i] = hi;
+            m_delta[i] = (m_y[i+1] - m_y[i]) / hi;
+        }
+        ComputeNodeSlopes(); // fills m
+        PrecomputeCoeffs(); // fills a,b,c,d per interval
+    }
+
+    inline Float operator () (Float xq) const
+    {
+        return Evaluate(xq);
+    }
+
+    // Single evaluation: O(log n) search
+    inline Float Evaluate(Float xq) const
+    {
+        auto idx = LocateInterval(xq);
+        return EvalInterval(idx, xq);
+    }
+
+    // Batch for random queries: each query does binary search -> O(m log n)
+    // x and y must have same length
+    void EvaluateBatchRandom(const std::vector<Float>& x, std::vector<Float>& y) const
+    {
+        y.resize(x.size());
+        for (size_t k = 0; k < x.size(); ++k)
+            y[k] = Evaluate(x[k]);
+    }
+
+    // Batch for monotonic-increasing queries: single linear scan -> O(n + m)
+    // x must be non-decreasing (monotonic increasing). y must be sized to x.
+    void EvaluateBatchMonotonic(const std::vector<Float> & x, std::vector<Float> & y) const
+    {
+        size_t seg = 0; // current interval index
+        y.resize(x.size());
+        for (size_t k = 0; k < x.size(); ++k) {
+            auto xq = x[k];
+            // advance seg while xq > x[seg+1] and not last interval
+            while (seg + 1 < x.size() - 1 && xq > x[seg+1]) ++seg;
+            y[k] = EvalInterval(seg, xq);
+        }
+    }
+
+private:
+    // locate interval index i such that x in [x[i], x[i+1]]
+    inline size_t LocateInterval(Float xq) const
+    {
+        // clamp outside domain to endpoints
+        if (xq <= m_x.front()) return 0;
+        if (xq >= m_x.back()) return m_size - 2;
+        // use std::upper_bound to find first x > xq, then -1 gives index
+        auto it = std::upper_bound(m_x.begin(), m_x.end(), xq);
+        size_t pos = std::distance(m_x.begin(), it);
+        size_t idx = (pos == 0) ? 0 : pos - 1;
+        // ensure idx in [0, n-2]
+        if (idx >= m_size - 1) idx = m_size - 2;
+        return idx;
+    }
+
+    inline Float EvalInterval(size_t idx, Float xq) const
+    {
+        // s = xq - x[idx]
+        Float s = xq - m_x[idx];
+        // Horner for cubic a*s^3 + b*s^2 + c*s + d
+        return ((m_a[idx]*s + m_b[idx])*s + m_c[idx])*s + m_d[idx];
+    }
+
+    void ComputeNodeSlopes()
+    {
+        m_m.assign(m_size, 0.0);
+        if (m_size == 2) {
+            m_m[0] = m_m[1] = m_delta[0];
+            return;
+        }
+        // endpoint slopes: one-sided
+        m_m[0] = m_delta[0];
+        m_m[m_size-1] = m_delta[m_size-2];
+
+        // interior slopes using Fritsch-Carlson (weighted harmonic mean) to preserve monotonicity
+        for (size_t i = 1; i + 1 < m_size; ++i) {
+            Float dl = m_delta[i-1];
+            Float dr = m_delta[i];
+            if (dl == 0.0 || dr == 0.0 || (dl > 0.0) != (dr > 0.0))
+                m_m[i] = 0.0;
+            else {
+                Float hl = m_h[i-1];
+                Float hr = m_h[i];
+                Float w1 = 2*hr + hl;
+                Float w2 = hr + 2*hl;
+                // harmonic mean weighted:
+                m_m[i] = (w1 + w2) / (w1/dl + w2/dr);
+            }
+        }
+    }
+
+    void PrecomputeCoeffs()
+    {
+        auto intervals = m_size - 1;
+        m_a.resize(intervals);
+        m_b.resize(intervals);
+        m_c.resize(intervals);
+        m_d.resize(intervals);
+        for (size_t i = 0; i < intervals; ++i) {
+            auto hi = m_h[i];
+            auto yi = m_y[i];
+            auto yi1 = m_y[i+1];
+            auto mi = m_m[i];
+            auto mi1 = m_m[i+1];
+            m_d[i] = yi;
+            m_c[i] = mi;
+            // coefficients derived from Hermite basis:
+            // P(s) = yi*(1 - 3(t^2) + 2(t^3)) + yi1*(3(t^2)-2(t^3)) + mi*h*(t^3-2t^2+t) + mi1*h*(t^3 - t^2)
+            // with t = s/h.
+            // After algebra:
+            m_a[i] = (2 * yi - 2 * yi1 + mi * hi + mi1 * hi) / (hi * hi * hi);
+            m_b[i] = (-3 * yi + 3 * yi1 - 2 * mi * hi - mi1 * hi) / (hi * hi);
+            // c[i] and d[i] already set
+        }
+    }
+
+    size_t m_size = 0;
+    std::vector<Float> m_x, m_y;
+    std::vector<Float> m_h, m_delta, m_m; // node slopes
+    // per-interval cubic: p(s) = a*s^3 + b*s^2 + c*s + d, s = x - x_i
+    std::vector<Float> m_a, m_b, m_c, m_d;
+};
 
 } // namespace generic::math
