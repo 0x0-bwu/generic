@@ -16,6 +16,9 @@
 #include "generic/math/FastMath.hpp"
 #include "generic/math/MathIO.hpp"
 #include "generic/math/Filter.hpp"
+
+#include <boost/math/interpolators/pchip.hpp>
+
 using namespace boost::unit_test;
 using namespace generic;
 using namespace generic::math;
@@ -202,6 +205,40 @@ void t_math_fast_math()
         maxErr = std::max(maxErr, std::abs(std::exp(num) - FasterExp(num)));
     }
     BOOST_CHECK(maxErr < 3e-2);
+
+    // FastPchip correctness & batch tests
+    {
+        std::vector<float> xs{0.0f, 0.1f, 0.2f, 0.3f, 0.4f, 0.5f, 0.6f, 0.7f, 0.8f, 0.9f, 1.0f};
+        std::vector<float> ys(xs.size());
+        for (size_t i = 0; i < xs.size(); ++i)
+            ys[i] = std::sin(2.0f * 3.1415926f * xs[i]) + 1.0f;
+
+        auto xs2 = xs;
+        auto ys2 = ys;
+        FastPchip<float> fastp(std::move(xs), std::move(ys));
+        boost::math::interpolators::pchip<std::vector<float>> boostp(std::move(xs2), std::move(ys2));
+
+        // random-query comparison
+        float maxErr = 0.0f;
+        const size_t Q = 2000;
+        for (size_t k = 0; k < Q; ++k) {
+            float q = Random<float>(0.0f, 1.0f);
+            float a = fastp.Evaluate(q);
+            float b = boostp(q);
+            maxErr = std::max(maxErr, std::abs(a - b));
+        }
+        BOOST_CHECK_LT(maxErr, 1e-4f);
+
+        // monotonic batch evaluation consistency
+        std::vector<float> qxs{0.05f, 0.15f, 0.25f, 0.35f, 0.45f, 0.55f, 0.65f, 0.75f, 0.85f, 0.95f};
+        std::vector<float> out;
+        fastp.EvaluateBatchMonotonic(qxs, out);
+        BOOST_CHECK_EQUAL(out.size(), qxs.size());
+        for (size_t i = 0; i < qxs.size(); ++i) {
+            float b = boostp(qxs[i]);
+            BOOST_CHECK_SMALL(std::abs(out[i] - b), 1e-4f);
+        }
+    }
 }
 
 void t_math_interpolation()

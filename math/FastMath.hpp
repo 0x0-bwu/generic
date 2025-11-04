@@ -149,7 +149,7 @@ public:
         m_dptr = m_d.data();
     }
 
-    inline Float operator () (Float xq) const noexcept
+    inline Float operator() (Float xq) const noexcept
     {
         return Evaluate(xq);
     }
@@ -179,7 +179,7 @@ public:
         for (size_t k = 0; k < x.size(); ++k) {
             Float xq = x[k];
             // advance seg while xq > m_x[seg+1] and not last interval
-            while (seg + 1 < m_size - 1 && xq > m_xptr[seg + 1]) ++seg;
+            while ((seg + 1) < (m_size - 1) && xq > m_xptr[seg + 1]) ++seg;
             y[k] = EvalInterval(seg, xq);
         }
     }
@@ -225,7 +225,7 @@ private:
          for (size_t i = 1; i + 1 < m_size; ++i) {
              Float dl = m_delta[i-1];
              Float dr = m_delta[i];
-             if (dl == 0.0 || dr == 0.0 || (dl > 0.0) != (dr > 0.0))
+             if (dl == 0.0 or dr == 0.0 or (dl > 0.0) != (dr > 0.0))
                  m_m[i] = 0.0;
              else {
                  Float hl = m_h[i-1];
