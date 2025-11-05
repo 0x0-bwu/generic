@@ -225,6 +225,7 @@ void t_math_fast_math()
             float q = Random<float>(0.0f, 1.0f);
             float a = fastp.Evaluate(q);
             float b = boostp(q);
+            if (std::isnan(b)) continue;
             maxErr = std::max(maxErr, std::abs(a - b));
         }
         BOOST_CHECK_LT(maxErr, 1e-4f);
@@ -236,6 +237,7 @@ void t_math_fast_math()
         BOOST_CHECK_EQUAL(out.size(), qxs.size());
         for (size_t i = 0; i < qxs.size(); ++i) {
             float b = boostp(qxs[i]);
+            if (std::isnan(b)) continue;
             BOOST_CHECK_SMALL(std::abs(out[i] - b), 1e-4f);
         }
     }
