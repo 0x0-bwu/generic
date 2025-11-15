@@ -409,8 +409,8 @@ void t_geometry_utility()
 
     circle = CircumCircle(Point2D<int64_t>(-1, 0), Point2D<int64_t>(0, 0), Point2D<int64_t>(1, 0));
     BOOST_CHECK_CLOSE(circle.o[0], 0, t);
-    BOOST_TEST(circle.o[1] < std::numeric_limits<double>::infinity());
-    BOOST_TEST(circle.r < std::numeric_limits<double>::infinity());
+    BOOST_TEST(circle.o[1] < std::numeric_limits<double>::max());
+    BOOST_TEST(circle.r < std::numeric_limits<double>::max());
 
     //Inverse
     auto inv_vec2d = Inverse(Vector2D<int64_t>(2, -2));
@@ -419,8 +419,8 @@ void t_geometry_utility()
 
     //SafeInverse
     auto safeinv_vec2d = SafeInverse(Vector2D<int64_t>(0, -0));
-    BOOST_TEST(safeinv_vec2d[0] <=  std::numeric_limits<double>::infinity());
-    BOOST_TEST(safeinv_vec2d[1] >= -std::numeric_limits<double>::infinity());
+    BOOST_TEST(safeinv_vec2d[0] <  std::numeric_limits<double>::max());
+    BOOST_TEST(safeinv_vec2d[1] > -std::numeric_limits<double>::max());
 
     //CrossProduct
     auto cp2d = CrossProduct(Vector2D<int64_t>(1, 0), Vector2D<int64_t>(0, 1));
@@ -438,12 +438,13 @@ void t_geometry_utility()
     auto inv_vec3d = Inverse(Vector3D<int64_t>(2, -2, 0));
     BOOST_CHECK_CLOSE(inv_vec3d[0],  0.5, t);
     BOOST_CHECK_CLOSE(inv_vec3d[1], -0.5, t);
-    BOOST_TEST(std::isinf(inv_vec3d[2]));
+    bool is_infinite = std::numeric_limits<double>::infinity() == inv_vec3d[2];
+    BOOST_TEST(is_infinite);
 
     //SafeInverse
     auto safeinv_vec3d = SafeInverse(Vector3D<int64_t>(0, -0, 2));
-    BOOST_TEST(safeinv_vec3d[0] <=  std::numeric_limits<double>::infinity());
-    BOOST_TEST(safeinv_vec3d[1] >= -std::numeric_limits<double>::infinity());
+    BOOST_TEST(safeinv_vec3d[0] <  std::numeric_limits<double>::max());
+    BOOST_TEST(safeinv_vec3d[1] > -std::numeric_limits<double>::max());
     BOOST_CHECK_CLOSE(safeinv_vec3d[2], 0.5, t);
 
     //CrossProduct, DotProduct, Normalize

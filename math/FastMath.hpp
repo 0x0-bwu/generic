@@ -212,31 +212,51 @@ private:
 
      void ComputeNodeSlopes()
      {
-         m_m.assign(m_size, 0.0);
-         if (m_size == 2) {
-             m_m[0] = m_m[1] = m_delta[0];
-             return;
-         }
-         // endpoint slopes: one-sided
-         m_m[0] = m_delta[0];
-         m_m[m_size-1] = m_delta[m_size-2];
+        m_m.assign(m_size, 0.0);
+        if (m_size == 2) {
+            m_m[0] = m_m[1] = m_delta[0];
+            return;
+        }
+        // left endpoint: weighted 3-point estimate with monotonicity clamps
+        {
+            Float h0 = m_h[0];
+            Float h1 = m_h[1];
+            Float d0 = m_delta[0];
+            Float d1 = m_delta[1];
+            Float m0 = ((2 * h0 + h1) * d0 - h0 * d1) / (h0 + h1);
+            if ((m0 > 0) != (d0 > 0)) m0 = 0;
+            if (std::fabs(m0) > 3 * std::fabs(d0)) m0 = 3 * d0;
+            m_m[0] = m0;
+        }
+        // right endpoint: symmetric
+        {
+            size_t i = m_size - 1;
+            Float hnm2 = m_h[m_size - 2];     // last h
+            Float hnm3 = m_h[m_size - 3];     // prev h
+            Float dnm2 = m_delta[m_size - 2];
+            Float dnm3 = m_delta[m_size - 3];
+            Float mn = ((2 * hnm2 + hnm3) * dnm2 - hnm2 * dnm3) / (hnm2 + hnm3);
+            if ((mn > 0) != (dnm2 > 0)) mn = 0;
+            if (std::fabs(mn) > 3 * std::fabs(dnm2)) mn = 3 * dnm2;
+            m_m[i] = mn;
+        }
  
-         // interior slopes using Fritsch-Carlson (weighted harmonic mean) to preserve monotonicity
-         for (size_t i = 1; i + 1 < m_size; ++i) {
-             Float dl = m_delta[i-1];
-             Float dr = m_delta[i];
-             if (dl == 0.0 or dr == 0.0 or (dl > 0.0) != (dr > 0.0))
-                 m_m[i] = 0.0;
-             else {
-                 Float hl = m_h[i-1];
-                 Float hr = m_h[i];
-                 Float w1 = 2*hr + hl;
-                 Float w2 = hr + 2*hl;
-                 // harmonic mean weighted:
-                 m_m[i] = (w1 + w2) / (w1/dl + w2/dr);
-             }
-         }
-     }
+        // interior slopes using Fritsch-Carlson (weighted harmonic mean) to preserve monotonicity
+        for (size_t i = 1; i + 1 < m_size; ++i) {
+            Float dl = m_delta[i-1];
+            Float dr = m_delta[i];
+            if (dl == 0.0 or dr == 0.0 or (dl > 0.0) != (dr > 0.0))
+                m_m[i] = 0.0;
+            else {
+                Float hl = m_h[i-1];
+                Float hr = m_h[i];
+                Float w1 = 2 * hr + hl;
+                Float w2 = hr + 2 * hl;
+                // harmonic mean weighted:
+                m_m[i] = (w1 + w2) / (w1 / dl + w2 / dr);
+            }
+        }
+    }
 
     void PrecomputeCoeffs()
     {
