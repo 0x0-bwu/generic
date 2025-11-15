@@ -2359,9 +2359,8 @@ public:
         }
         UnsignedBytes result(ecInfo.codewords);
         size_t blockCount = ecInfo.EcBlockTotalCount();
-        const UnsignedByte* blockPtr[blockCount];
-        const UnsignedByte* blockEndPtr[blockCount];
-
+        std::vector<const UnsignedByte*> blockPtr(blockCount, nullptr);
+        std::vector<const UnsignedByte*> blockEndPtr(blockCount, nullptr);
         UnsignedByte groupCount = ecInfo.GroupCount();
         size_t blockIndex = 0;
 

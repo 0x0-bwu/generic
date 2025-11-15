@@ -67,7 +67,7 @@ if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
   	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fcompare-debug-second -Wall -Wno-unknown-pragmas") #hide note message and clang pragma warning
 elseif (CMAKE_CXX_COMPILER_ID STREQUAL "AppleClang")
 	add_definitions(-DGENERIC_USE_BOOST_CCMATH)
-  	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-return-std-move")
+  	set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -Wall -Wno-return-std-move -Wno-nan-infinity-disabled -Wno-missing-template-arg-list-after-template-kw")
 endif()
 
 message("-- Build Type: " ${CMAKE_BUILD_TYPE})
