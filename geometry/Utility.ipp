@@ -70,8 +70,16 @@ template<typename vector_t, typename std::enable_if<traits::is_vector_t<vector_t
 inline auto Inverse(const vector_t & vec) -> vector_f<vector_t>
 {
     vector_f<vector_t> inv;
-    for(size_t i = 0; i < vector_f<vector_t>::dim; ++i)
-        inv[i] = coor_f<vector_t>(1) / vec[i];
+    for(size_t i = 0; i < vector_f<vector_t>::dim; ++i) {
+        auto val = coor_f<vector_t>(vec[i]);
+        // Check for zero to explicitly return infinity (needed for -ffast-math compatibility)
+        if (val == coor_f<vector_t>(0)) {
+            // Use copysign to preserve the sign of zero (-0 or +0)
+            inv[i] = std::copysign(std::numeric_limits<coor_f<vector_t>>::infinity(), val);
+        } else {
+            inv[i] = coor_f<vector_t>(1) / val;
+        }
+    }
     return inv;
 }
 
