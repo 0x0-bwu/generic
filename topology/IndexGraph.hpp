@@ -161,6 +161,11 @@ inline void ConnectedComponent(const SparseIndexGraph & g, const index_t v, cont
     public:
         Component & visited;
         BFSVisitor(Component & _visited) : visited(_visited) {}
+/**
+ * @brief Brief description of discover_vertex.
+ * @param s
+ * @return void
+ */
         void discover_vertex(index_t s, const SparseIndexGraph &) { append_to_std_container(visited, s, 0); }
     };
 

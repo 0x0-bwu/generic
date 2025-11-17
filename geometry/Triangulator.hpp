@@ -285,6 +285,11 @@ inline void Triangulator2D<num_type>::InsertOneEdge(const Edge & edge)
             iv = ivLeft;
             ivLeft = ivOp;
         }
+/**
+ * @brief Brief description of if.
+ * @param PointLineLocation::Right
+ * @return else
+ */
         else if(loc == PointLineLocation::Right){
             ptsRight.push_back(ivOp);
             iv = ivRight;

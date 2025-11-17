@@ -62,15 +62,40 @@ public:
     void Insert(point_iterator position, const point_t & point);
 
     point_iterator Begin() { return m_points.begin(); }
+/**
+ * @brief Brief description of End.
+ * @return point_iterator
+ */
     point_iterator End() { return m_points.end(); }
     const_point_iterator ConstBegin() const { return m_points.begin(); }
     const_point_iterator ConstEnd() const { return m_points.end(); }
+/**
+ * @brief Brief description of Front.
+ * @return point_t &
+ */
     point_t & Front() { return m_points.front(); }
+/**
+ * @brief Brief description of Back.
+ * @return point_t &
+ */
     point_t & Back() { return m_points.back(); }
     const point_t & ConstFront() const { return m_points.front(); }
     const point_t & ConstBack() const { return m_points.back(); }
+/**
+ * @brief Brief description of Resize.
+ * @param size
+ * @return void
+ */
     void Resize(size_t size) { m_points.resize(size); }
+/**
+ * @brief Brief description of PopBack.
+ * @return void
+ */
     void PopBack() { if(m_points.size()) m_points.pop_back(); }
+/**
+ * @brief Brief description of GetPoints.
+ * @return point_container &
+ */
     point_container & GetPoints() { return m_points; }
     const point_container & GetPoints() const { return m_points; }
     ///@brief reverses the points order of this polygon

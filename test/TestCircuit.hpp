@@ -97,6 +97,12 @@ void t_dense_ckt_cross_talk()
         const Intermidiate<float_t> & im;
         Observer(const Intermidiate<float_t> & im, float_t & max3, float_t & max9) : max3(max3), max9(max9), im(im) {}
 
+/**
+ * @brief Brief description of operator.
+ * @param x
+ * @param t
+ * @return void
+ */
         void operator() (const StateType & x, float_t t) {
             auto out = im.State2Output(x);
             max3 = std::max(max3, out.front());
@@ -167,6 +173,12 @@ void t_mor_ckt_cross_talk()
         const Intermidiate<float_t> & im;
         Observer(const Intermidiate<float_t> & im, float_t & max3, float_t & max9) : max3(max3), max9(max9), im(im) {}
 
+/**
+ * @brief Brief description of operator.
+ * @param x
+ * @param t
+ * @return void
+ */
         void operator() (const StateType & x, float_t t) {
             auto out = im.State2Output(x);
             max3 = std::max(max3, out.front());

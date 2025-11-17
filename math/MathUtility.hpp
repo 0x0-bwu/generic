@@ -268,6 +268,11 @@ inline num_type Bisection(Func && func, num_type min, num_type max, num_type tol
         m = 0.5 * (max + min);
         fm = func(m);
         if (EQ<num_type>(fm, 0, tolerance)) return m;
+/**
+ * @brief Brief description of if.
+ * @param 0
+ * @return else
+ */
         else if (fmin * fm < 0) {
             fmax = fm; max = m;
         }
@@ -318,6 +323,11 @@ inline auto MeanAndVariance(Iterator begin, Iterator end)
 template <typename T>
 inline constexpr size_t NextPowTwo(const T v)
 {
+/**
+ * @brief Brief description of constexpr.
+ * @param std::is_unsigned<T>::value
+ * @return if
+ */
     if constexpr (std::is_unsigned<T>::value) { GENERIC_ASSERT(not (v < 0)); }
     return v ? (1 << size_t(1 + std::floor(std::log2(v - 1)))) : 1;
 }
@@ -326,6 +336,11 @@ inline constexpr size_t NextPowTwo(const T v)
 template <class T>
 inline constexpr size_t PrevPowTwo(const T v)
 {
+/**
+ * @brief Brief description of constexpr.
+ * @param std::is_unsigned<T>::value
+ * @return if
+ */
     if constexpr (std::is_unsigned<T>::value) { GENERIC_ASSERT(not (v < 0)); }
     return v ? (1 << size_t(std::floor(std::log2(v)))) : 0;
 }

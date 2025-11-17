@@ -24,12 +24,37 @@ public:
 public:
     LinearMap() = default;
     virtual ~LinearMap() = default;
+/**
+ * @brief Brief description of LinearMap.
+ * @param m_data(n
+ * @return explicit
+ */
     explicit LinearMap(size_t n) : m_data(n) {}
+/**
+ * @brief Brief description of LinearMap.
+ * @param n
+ * @param m_data(n
+ * @param value
+ * @return explicit
+ */
     explicit LinearMap(size_t n, Value value) : m_data(n, value) {}
+/**
+ * @brief Brief description of LinearMap.
+ * @param m_data(values
+ * @return explicit
+ */
     explicit LinearMap(std::vector<Value> && values) : m_data(values) {}
 
+/**
+ * @brief Brief description of Begin.
+ * @return Iterator
+ */
     Iterator Begin() { return m_data.begin(); }
 
+/**
+ * @brief Brief description of End.
+ * @return Iterator
+ */
     Iterator End() { return m_data.end(); }
 
     ConstIterator Begin() const { return m_data.begin(); }
@@ -85,17 +110,40 @@ public:
     bool Contain(const Key key) const { return size_t(key) < m_data.size(); }
 
     template<typename... Args>
+/**
+ * @brief Brief description of Append.
+ * @param args
+ * @return Key
+ */
     Key Append(Args &&... args) { m_data.emplace_back(std::forward<Args>(args)...); return Key(Size() - 1); }
 
     template<typename... Args>
+/**
+ * @brief Brief description of Resize.
+ * @param args
+ * @return void
+ */
     void Resize(Args &&... args) { m_data.resize(std::forward<Args>(args)...); }
 
+/**
+ * @brief Brief description of Clear.
+ * @return void
+ */
     void Clear() { m_data.clear(); }
 
     size_t Capacity() const { return m_data.capacity(); }
 
+/**
+ * @brief Brief description of Reserve.
+ * @param size
+ * @return void
+ */
     void Reserve(size_t size) { return m_data.reserve(size); }
 
+/**
+ * @brief Brief description of Shrink.
+ * @return void
+ */
     void Shrink() { m_data.shrink_to_fit(); }
 
     void Insert(const Key key, const Value & value)
@@ -119,13 +167,41 @@ public:
 
     // std-style interface
     size_t size() const { return Size(); }
+/**
+ * @brief Brief description of swap.
+ * @param LinearMap<Key
+ * @param other
+ * @return void
+ */
     void swap(LinearMap<Key,Value> & other) { return Swap(other); }
+/**
+ * @brief Brief description of clear.
+ * @return void
+ */
     void clear() { return Clear(); }
+/**
+ * @brief Brief description of reserve.
+ * @param size
+ * @return void
+ */
     void reserve(size_t size) { return Reserve(size); }
 
     template<typename... Args>
+/**
+ * @brief Brief description of emplace_back.
+ * @param args
+ * @return Key
+ */
     Key emplace_back(Args &&... args) { return Append(std::forward<Args>(args)...); }
+/**
+ * @brief Brief description of begin.
+ * @return Iterator
+ */
     Iterator begin() { return Begin(); }
+/**
+ * @brief Brief description of end.
+ * @return Iterator
+ */
     Iterator end() { return End(); }
     ConstIterator begin() const { return Begin(); }
     ConstIterator end() const { return End(); }
