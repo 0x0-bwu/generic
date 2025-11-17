@@ -10,5 +10,6 @@ build.debug
 build.release
 docs
 test/data/out
+test/_codeql_build_dir
 __pycache__
 *.pyc
