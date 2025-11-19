@@ -70,7 +70,17 @@ public:
 
 private:
 	static constexpr size_t BITS_PER_BLOCK = std::numeric_limits<Block>::digits;
+/**
+ * @brief Brief description of BlockIndex.
+ * @param bit
+ * @return static constexpr size_t
+ */
 	static constexpr size_t BlockIndex(size_t bit) { return bit / BITS_PER_BLOCK; }
+/**
+ * @brief Brief description of BitOffset.
+ * @param bit
+ * @return static constexpr size_t
+ */
 	static constexpr size_t BitOffset(size_t bit) { return bit % BITS_PER_BLOCK; }
 
 	// avoid casts

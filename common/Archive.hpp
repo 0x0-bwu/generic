@@ -46,16 +46,31 @@ inline bool Save(const T & t, unsigned int version, std::string_view filename, A
     
     if (fmt == ArchiveFormat::UNKNOWN)
         return false;
+/**
+ * @brief Brief description of if.
+ * @param ArchiveFormat::TXT
+ * @return else
+ */
     else if (fmt == ArchiveFormat::TXT) {
         boost::archive::text_oarchive oa(ofs);
         oa & boost::serialization::make_nvp("version", version);
         boost::serialization::serialize(oa, const_cast<T&>(t), version);
     }
+/**
+ * @brief Brief description of if.
+ * @param ArchiveFormat::XML
+ * @return else
+ */
     else if (fmt == ArchiveFormat::XML) {
         boost::archive::xml_oarchive oa(ofs);
         oa & boost::serialization::make_nvp("version", version);
         boost::serialization::serialize(oa, const_cast<T&>(t), version);
     }
+/**
+ * @brief Brief description of if.
+ * @param ArchiveFormat::BIN
+ * @return else
+ */
     else if (fmt == ArchiveFormat::BIN) {
         boost::archive::binary_oarchive oa(ofs);
         oa & boost::serialization::make_nvp("version", version);
@@ -71,16 +86,31 @@ inline bool Load(T & t, unsigned int & version, std::string_view filename, Archi
     if (not ifs.is_open()) return false;
     if (fmt == ArchiveFormat::UNKNOWN)
         return false;
+/**
+ * @brief Brief description of if.
+ * @param ArchiveFormat::TXT
+ * @return else
+ */
     else if (fmt == ArchiveFormat::TXT) {
         boost::archive::text_iarchive ia(ifs);
         ia & boost::serialization::make_nvp("version", version);
         boost::serialization::serialize(ia, t, version);
     }
+/**
+ * @brief Brief description of if.
+ * @param ArchiveFormat::XML
+ * @return else
+ */
     else if (fmt == ArchiveFormat::XML) {
         boost::archive::xml_iarchive ia(ifs);
         ia & boost::serialization::make_nvp("version", version);
         boost::serialization::serialize(ia, t, version);
     }
+/**
+ * @brief Brief description of if.
+ * @param ArchiveFormat::BIN
+ * @return else
+ */
     else if (fmt == ArchiveFormat::BIN) {
         boost::archive::binary_iarchive ia(ifs);
         ia & boost::serialization::make_nvp("version", version);

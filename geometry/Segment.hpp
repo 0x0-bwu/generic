@@ -166,6 +166,11 @@ float_type<num_type> Segment3D<num_type>::Distance(const Segment3D<num_type> & p
         bte = b * e; ctd = c * d;
         if(bte <= ctd){
             if( e <= 0) { s = (-d >= a ? 1 : (-d > 0 ? -d / a : 0)); t = 0; }
+/**
+ * @brief Brief description of if.
+ * @param c
+ * @return else
+ */
             else if( e < c) { s = 0; t = e / c; }
             else { s = (b - d >= a ? 1 : (b - d > 0 ? (b - d) / a : 0)); t = 1; }
         }
@@ -173,6 +178,11 @@ float_type<num_type> Segment3D<num_type>::Distance(const Segment3D<num_type> & p
             s = bte - ctd;
             if(s >= det){
                 if(b + e <= 0) { s = (-d <= 0 ? 0 : (-d < a ? -d / a : 1)); t = 0; }
+/**
+ * @brief Brief description of if.
+ * @param c
+ * @return else
+ */
                 else if(b + e < c) { s = 1; t = (b + e) / c; }
                 else { s = (b - d <= 0 ? 0 : (b - d < a ? (b - d) / a : 1)); t = 1; }
             }
@@ -189,6 +199,11 @@ float_type<num_type> Segment3D<num_type>::Distance(const Segment3D<num_type> & p
     }
     else{
         if(e <= 0) { s = (-d <= 0 ? 0 : (-d >= a ? 1 : -d / a)); t = 0; }
+/**
+ * @brief Brief description of if.
+ * @param c
+ * @return else
+ */
         else if(e >= c) { s = (b - d <= 0 ? 0 : (b - d >= a ? 1 : (b - d) / a)); t = 1; }
         else{ s = 0; t = e / c; }
     }

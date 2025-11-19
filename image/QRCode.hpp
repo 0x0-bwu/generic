@@ -88,6 +88,11 @@ enum BoardCell {
         FUNCMASK         = 0x70,
 };
 
+/**
+ * @brief Brief description of ConvertErrorCorrectionLevelToIndex.
+ * @param level
+ * @return inline int
+ */
 inline int ConvertErrorCorrectionLevelToIndex(ErrorCorrectionLevel level) {
     switch (level) {
     case ErrorCorrectionLevel::LOW:
@@ -131,6 +136,11 @@ inline size_t GetCharactersCountIndicatorLength(UnsignedByte version, EncodingMo
             return 0;
         }
     } 
+/**
+ * @brief Brief description of if.
+ * @param 26
+ * @return else
+ */
     else if (10 <= version && version <= 26) {
          switch (mode) {
         case EncodingMode::NUMERIC:
@@ -145,6 +155,11 @@ inline size_t GetCharactersCountIndicatorLength(UnsignedByte version, EncodingMo
             return 0;
         }
     } 
+/**
+ * @brief Brief description of if.
+ * @param 40
+ * @return else
+ */
     else if (27 <= version && version <= 40) {
         switch (mode) {
         case EncodingMode::NUMERIC:
@@ -291,6 +306,11 @@ inline void CopyBits(UnsignedByte sourceByte, size_t sourceStartIndex, UnsignedB
         cleanSource = cleanSource << offset;
         pattern = pattern << offset;
     } 
+/**
+ * @brief Brief description of if.
+ * @param destStartIndex
+ * @return else
+ */
     else if (sourceStartIndex < destStartIndex) {
         size_t offset = destStartIndex - sourceStartIndex;
         cleanSource = cleanSource >> offset;
@@ -455,6 +475,11 @@ inline void ValidateAlphaNumeric(const UnsignedBytes & data)
     }
 }
 
+/**
+ * @brief Brief description of ValidateKanji.
+ * @param data
+ * @return inline void
+ */
 inline void ValidateKanji(const UnsignedBytes & data) {
     // Only accept 2 bytes ShiftJIS characters
     if ((data.size() % 2) > 0) {
@@ -463,6 +488,11 @@ inline void ValidateKanji(const UnsignedBytes & data) {
     for (size_t index = 0; index < data.size(); index += 2) {
         Unsigned2Bytes curChar = 0;
         UnsignedByte * curCharPtr = (UnsignedByte*)&curChar;
+/**
+ * @brief Brief description of constexpr.
+ * @param common::isLittleEndian
+ * @return if
+ */
         if constexpr (common::isLittleEndian) {
             *curCharPtr = data[index + 1];
             *(curCharPtr + 1) = data[index];
@@ -487,6 +517,12 @@ inline void ValidateKanji(const UnsignedBytes & data) {
 }
 
 //todo, replace with regex
+/**
+ * @brief Brief description of ValidateInputBytes.
+ * @param mode
+ * @param data
+ * @return inline void
+ */
 inline void ValidateInputBytes(EncodingMode mode, const UnsignedBytes & data) {
     switch (mode) {
     case EncodingMode::NUMERIC:
@@ -765,6 +801,10 @@ public:
     size_t ECI() const { return m_eci; }
     EncodingMode Mode() const { return m_mode; }
     size_t Length() const { return m_data.size(); }
+/**
+ * @brief Brief description of Data.
+ * @return UnsignedBytes &
+ */
     UnsignedBytes & Data() { return m_data; }
     const UnsignedBytes & Data() const { return m_data; }
     /// 0 to ignore ECI Indicator.
@@ -1501,6 +1541,11 @@ private:
 
         Unsigned2Bytes value = typeFormats[index];
         UnsignedByte* valuePtr = (UnsignedByte*)&value;
+/**
+ * @brief Brief description of constexpr.
+ * @param common::isLittleEndian
+ * @return if
+ */
         if constexpr (common::isLittleEndian) {
             buffer[0] = valuePtr[1];
             buffer[1] = valuePtr[0];
@@ -1523,6 +1568,11 @@ private:
         index |= maskId;
         Unsigned2Bytes value = typeFormats[index];
         UnsignedByte* valuePtr = (UnsignedByte*)&value;
+/**
+ * @brief Brief description of constexpr.
+ * @param common::isLittleEndian
+ * @return if
+ */
         if constexpr (common::isLittleEndian) {
             buffer[0] = valuePtr[1];
             buffer[1] = valuePtr[0];
@@ -1573,6 +1623,11 @@ private:
 
         Unsigned4Bytes value = versions[version - 7];
         UnsignedByte* valuePtr = (UnsignedByte*)&value;
+/**
+ * @brief Brief description of constexpr.
+ * @param common::isLittleEndian
+ * @return if
+ */
         if constexpr (common::isLittleEndian) {
             buffer[0] = valuePtr[3];
             buffer[1] = valuePtr[2];
@@ -1856,6 +1911,11 @@ public:
             const UnsignedByte* ptr = (const UnsignedByte*)text.data() + index;
             Unsigned2Bytes charWord = 0;
             UnsignedByte* charWordPtr = (UnsignedByte*)&charWord;
+/**
+ * @brief Brief description of constexpr.
+ * @param common::isLittleEndian
+ * @return if
+ */
             if constexpr (common::isLittleEndian) {
                 *charWordPtr = *(ptr + 1);
                 *(charWordPtr + 1) = *ptr;
@@ -1874,6 +1934,11 @@ public:
             charWord = charWord - offset;
             Unsigned2Bytes lsByte = 0;
             Unsigned2Bytes msByte = 0;
+/**
+ * @brief Brief description of constexpr.
+ * @param common::isLittleEndian
+ * @return if
+ */
             if constexpr (common::isLittleEndian) {
                 lsByte = (Unsigned2Bytes)*charWordPtr;
                 msByte = (Unsigned2Bytes)*(charWordPtr + 1);
@@ -2115,6 +2180,11 @@ public:
         UnsignedBytes result;
         if (indicator <= 127) {
             result.resize(1);
+/**
+ * @brief Brief description of constexpr.
+ * @param common::isLittleEndian
+ * @return if
+ */
             if constexpr (common::isLittleEndian) {
                 result[0] = indicatorPtr[0] & 0x7F;
             } else {
@@ -2122,6 +2192,11 @@ public:
             }
         } else if (indicator <= 16383) {
             result.resize(2);
+/**
+ * @brief Brief description of constexpr.
+ * @param common::isLittleEndian
+ * @return if
+ */
             if constexpr (common::isLittleEndian) {
                 result[0] = (indicatorPtr[1] & 0x3F) | 0x80;
                 result[1] = indicatorPtr[0];
@@ -2131,6 +2206,11 @@ public:
             }
         } else if (indicator <= 999999) {
             result.resize(3);
+/**
+ * @brief Brief description of constexpr.
+ * @param common::isLittleEndian
+ * @return if
+ */
             if constexpr (common::isLittleEndian) {
                 result[0] = (indicatorPtr[2] & 0x1F) | 0xC0;
                 result[1] = indicatorPtr[1];

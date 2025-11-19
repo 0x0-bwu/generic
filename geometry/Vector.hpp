@@ -95,6 +95,11 @@ struct VectorNSetter
 template <typename num_type, size_t N>
 struct VectorNSetter<num_type, N, N>
 {
+/**
+ * @brief Brief description of Set.
+ * @param VectorN<num_type
+ * @return static void
+ */
     static void Set(VectorN<num_type, N> &) {}
 };
 

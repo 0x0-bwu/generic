@@ -47,6 +47,10 @@ struct KdTree
         size_t primCount;
         static constexpr size_t noLeaf = std::numeric_limits<size_t>::max();
 
+/**
+ * @brief Brief description of makeLeaf.
+ * @return void
+ */
         void makeLeaf() { left = right = noLeaf; }
         bool isLeaf() const { return left == noLeaf && right == noLeaf; }
         bool hasChildL() const { return left != noLeaf; }
@@ -137,6 +141,11 @@ public:
 
                 if(nearest.size() < k)
                     nearest.push(pr);
+/**
+ * @brief Brief description of if.
+ * @param nearest.top().second
+ * @return else
+ */
                 else if(normSquare < nearest.top().second){
                     nearest.pop();
                     nearest.push(pr);

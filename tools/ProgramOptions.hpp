@@ -353,6 +353,11 @@ class OptionParser;
 class OptionPrinter
 {
 public:
+/**
+ * @brief Brief description of OptionPrinter.
+ * @param m_parser(parser
+ * @return explicit
+ */
     explicit OptionPrinter(const OptionParser * parser) : m_parser(parser) {}
     virtual ~OptionPrinter() = default;
 
@@ -366,6 +371,11 @@ protected:
 class ConsoleOptionPrinter : public OptionPrinter
 {
 public:
+/**
+ * @brief Brief description of ConsoleOptionPrinter.
+ * @param OptionPrinter(parser
+ * @return explicit
+ */
     explicit ConsoleOptionPrinter(const OptionParser * parser) : OptionPrinter(parser) {}
     virtual ~ConsoleOptionPrinter() = default;
 
@@ -477,6 +487,11 @@ public:
                 for(int m = n + 1; m < argc; ++m)
                     m_noOptionArgs.emplace_back(argv[m]);
             }
+/**
+ * @brief Brief description of if.
+ * @param 0
+ * @return else
+ */
             else if(arg.find("--") == 0){
                 std::string opt = arg.substr(2);
                 std::string optArg;
@@ -492,6 +507,11 @@ public:
                     if(option->ArgumentType() == Argument::No){
                         if(!optArg.empty()) option = nullptr;
                     }
+/**
+ * @brief Brief description of if.
+ * @param Argument::Required
+ * @return else
+ */
                     else if(option->ArgumentType() == Argument::Required){
                         if(optArg.empty() && n < argc - 1) optArg = argv[++n];
                     }
@@ -500,6 +520,11 @@ public:
                 if(option) option->Parse(OptionName::LongName, optArg.c_str());
                 else m_unknowOptions.push_back(arg);
             }
+/**
+ * @brief Brief description of if.
+ * @param 0
+ * @return else
+ */
             else if(arg.find('-') == 0){
                 std::string opt = arg.substr(1);
                 bool unknow = false;
@@ -514,6 +539,11 @@ public:
                             if(optArg.empty() && n < argc - 1) optArg = argv[++n];
                             m = opt.size();
                         }
+/**
+ * @brief Brief description of if.
+ * @param Argument::Optional
+ * @return else
+ */
                         else if(option->ArgumentType() == Argument::Optional){
                             optArg = opt.substr(m + 1);
                             m = opt.size();
@@ -698,6 +728,11 @@ inline std::string ConsoleOptionPrinter::toString(OptionPtr option) const
             }
         }
     }
+/**
+ * @brief Brief description of if.
+ * @param Argument::Optional
+ * @return else
+ */
     else if(option->ArgumentType() == Argument::Optional){
         std::stringstream defaultStr;
         if(option->GetDefault(defaultStr)){

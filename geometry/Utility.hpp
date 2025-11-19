@@ -54,6 +54,12 @@ inline auto SafeInverse(const vector_t & vec) -> vector_f<vector_t>;
  * @return dot product result
  */
 template <typename vector_t, typename std::enable_if<traits::is_vector_t<vector_t>::value, bool>::type = true>
+/**
+ * @brief Brief description of DotProduct.
+ * @param a
+ * @param b
+ * @return inline typename vector_t::coor_t
+ */
 inline typename vector_t::coor_t DotProduct(const vector_t & a, const vector_t & b) { return a.Dot(b); }
 
 /**
@@ -63,6 +69,12 @@ inline typename vector_t::coor_t DotProduct(const vector_t & a, const vector_t &
  * @return scalar result of a x b
  */
 template <typename num_type>
+/**
+ * @brief Brief description of CrossProduct.
+ * @param a
+ * @param b
+ * @return inline num_type
+ */
 inline num_type CrossProduct(const Vector2D<num_type> & a, const Vector2D<num_type> & b) { return a.CrossProduct(b); }
 
 /**
@@ -72,6 +84,12 @@ inline num_type CrossProduct(const Vector2D<num_type> & a, const Vector2D<num_ty
  * @return vector3d result of a x b
  */
 template <typename num_type>
+/**
+ * @brief Brief description of CrossProduct.
+ * @param a
+ * @param b
+ * @return inline Vector3D<num_type>
+ */
 inline Vector3D<num_type> CrossProduct(const Vector3D<num_type> & a, const Vector3D<num_type> & b) { return a.CrossProduct(b); }
 
 /**
@@ -82,6 +100,12 @@ inline Vector3D<num_type> CrossProduct(const Vector3D<num_type> & a, const Vecto
  * @return square of a-b 's euclidean distance
  */
 template <typename point_t>
+/**
+ * @brief Brief description of DistanceSq.
+ * @param a
+ * @param b
+ * @return inline typename point_t::coor_t
+ */
 inline typename point_t::coor_t DistanceSq(const point_t & a, const point_t & b) { return (a - b).NormSquare(); }
 
 /**
@@ -92,6 +116,12 @@ inline typename point_t::coor_t DistanceSq(const point_t & a, const point_t & b)
  * @return floating points type of a-b 's euclidean distance
  */
 template <typename point_t>
+/**
+ * @brief Brief description of Distance.
+ * @param a
+ * @param b
+ * @return inline coor_f<point_t>
+ */
 inline coor_f<point_t> Distance(const point_t & a, const point_t & b) { return std::sqrt(DistanceSq(a, b)); }
 
 ///@brief convert an arc3 to arc
@@ -253,6 +283,13 @@ inline coor_f<vector_t> Angle(const vector_t & a, const vector_t & b);
  * @return angle of vector(p->s) and vector(p->e), unit: rad, range[0, 2pi)
  */
 template <typename point_t, typename std::enable_if<traits::is_point_t<point_t>::value, bool>::type = true>//angle of vec(p, s) and vec(p, e)
+/**
+ * @brief Brief description of Angle.
+ * @param s
+ * @param p
+ * @param e
+ * @return inline coor_f<point_t>
+ */
 inline coor_f<point_t> Angle(const point_t & s, const point_t & p, const point_t & e) { return Angle(s - p, e - p); }
 
 /**
@@ -274,6 +311,13 @@ inline coor_f<vector_t> InnerAngle(const vector_t & a, const vector_t & b);
  * @return angle of vector(p->s) and vector(p->e), unit: rad, range[0, pi]
  */
 template <typename point_t, typename std::enable_if<traits::is_point_t<point_t>::value, bool>::type = true>//angle of vec(p, s) and vec(p, e)
+/**
+ * @brief Brief description of InnerAngle.
+ * @param s
+ * @param p
+ * @param e
+ * @return inline coor_f<point_t>
+ */
 inline coor_f<point_t> InnerAngle(const point_t & s, const point_t & p, const point_t & e) { return InnerAngle(s - p, e - p); }
 
 /**

@@ -108,6 +108,11 @@ private:
             x2 = m_indices[dim][1];
             return 0;
         }
+/**
+ * @brief Brief description of if.
+ * @param m_indices[dim].back()
+ * @return else
+ */
         else if (x > m_indices[dim].back()) {
             x1 = m_indices[dim][m_indices[dim].size() - 2];
             x2 = m_indices[dim][m_indices[dim].size() - 1];
