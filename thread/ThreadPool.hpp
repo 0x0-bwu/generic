@@ -208,6 +208,13 @@ ThreadPool::Submit(FunctionType && f)
     using result_type = std::invoke_result_t<FunctionType>;
     auto pkg = std::make_shared<std::packaged_task<result_type()> >(std::forward<FunctionType>(f));
     auto task = new std::function<void()>([pkg]{(*pkg)();});
+    
+    // Check if pool is stopped or done before pushing task
+    if(m_bDone || m_bStop) {
+        delete task;
+        throw std::runtime_error("Cannot submit task to a stopped or done ThreadPool");
+    }
+    
     while(not m_queue.push(task));
 
     std::unique_lock<std::mutex> lock(m_mutex);
