@@ -69,7 +69,8 @@ public:
      * 
      * @tparam FunctionType could be one of std::bind, std::function or lambda expression  
      * @param f Task function object
-     * @return std::future of the FunctionType result 
+     * @return std::future of the FunctionType result
+     * @throw std::runtime_error if the pool is stopped or done
      */
     template <typename FunctionType>
     std::future<std::invoke_result_t<FunctionType> >
