@@ -14,9 +14,9 @@ namespace generic::geometry::mesh2d {
 using Coord = int64_t;
 using Float = float_type<Coord>;
 using Edge = tri::IndexEdge;
-using Edges = std::list<IndexEdge>;
+using Edges = std::list<Edge>;
 using Point = Point2D<Coord>;
-using Segment = Segment2D<Coord>
+using Segment = Segment2D<Coord>;
 using Polygon = Polygon2D<Coord>;
 using Points = std::vector<Point>;
 using Segments = std::vector<Segment>;
@@ -63,14 +63,15 @@ inline void ExtractTopology(const Segments & segments, Points & points, Edges & 
 
     points.reserve(2 * segments.size());
     for(const auto & segment : segments){
-        IndexEdge e(getIndex(segment[0]), getIndex(segment[1]));
+        Edge e(getIndex(segment[0]), getIndex(segment[1]));
         if(edgeSet.count(e)) continue;
         edgeSet.insert(e);
         edges.emplace_back(std::move(e));
     }
+    points.shrink_to_fit();
 }
 
-inline void MergeClosePointsAndRemapEdge(Points & points, Edges & edges, coor_t tolerance)
+inline void MergeClosePointsAndRemapEdge(Points & points, Edges & edges, Coord tolerance)
 {
     if (tolerance != 0) tri::RemoveDuplicatesAndRemapEdges(points, edges, tolerance);
 }
@@ -80,17 +81,17 @@ inline void SplitOverlengthEdges(Points & points, Edges & edges, Coord maxLength
     if (0 >= maxLength) return;
     auto maxLenSq = maxLength * maxLength;
 
-    auto lenSq = [&points](const IndexEdge & e) { return DistanceSq(points[e.v1()], points[e.v2()]); };
-    auto split = [&points](const IndexEdge & e) mutable
+    auto lenSq = [&points](const Edge & e) { return DistanceSq(points[e.v1()], points[e.v2()]); };
+    auto split = [&points](const Edge & e) mutable
     {
         size_t index = points.size();
         points.push_back((points[e.v1()] + points[e.v2()]) * 0.5);
-        return std::make_pair(IndexEdge(e.v1(), index), IndexEdge(index, e.v2()));
+        return std::make_pair(Edge(e.v1(), index), Edge(index, e.v2()));
     };
 
-    IndexEdgeList tmp;
+    Edges tmp;
     while (edges.size()) {
-        IndexEdge e = edges.front();
+        auto e = edges.front();
         edges.pop_front();
         if (maxLenSq < lenSq(e)) {
             auto added = split(e);
@@ -133,19 +134,19 @@ inline void AddPointsFromBalancedQuadTree(const Polygon & outline, Points & poin
     for(auto node : leafNodes){
         if(node->GetObjs().size() > 0) continue;
         const auto & box = node->GetBBox();
-        Point2D<coor_t> ct = box.Center().Cast<coor_t>();
+        auto ct = box.Center().Cast<Coord>();
         if(Contains(outline, ct))
             points.emplace_back(std::move(ct));
     }
 }
 
-inline void TriangulatePointsAndEdges(const PointContainer & points, const IndexEdgeList & edges, tri::Triangulation<Point> & tri)
+inline void TriangulatePointsAndEdges(const Points & points, const Edges & edges, tri::Triangulation<Point> & tri)
 {
     tri.Clear();
     try {
         tri::Triangulator2D<Coord> triangulator(tri);
         triangulator.InsertVertices(points.begin(), points.end(), [](const Point & p){ return p[0]; }, [](const Point & p){ return p[1]; });
-        triangulator.InsertEdges(edges.begin(), edges.end(), [](const IndexEdge & e){ return e.v1(); }, [](const IndexEdge & e){ return e.v2(); });
+        triangulator.InsertEdges(edges.begin(), edges.end(), [](const Edge & e){ return e.v1(); }, [](const Edge & e){ return e.v2(); });
         triangulator.EraseOuterTriangles();
     }
     catch (...) {
@@ -154,8 +155,8 @@ inline void TriangulatePointsAndEdges(const PointContainer & points, const Index
     }
 }
 
-template <class Refinement = tri::JonathanRefinement2D<coor_t>>
-inline void TriangulationRefinement(tri::Triangulation<Point2D<coor_t> > & triangulation, float_t minAlpha, coor_t minLen, coor_t maxLen, size_t iteration)
+template <class Refinement = tri::JonathanRefinement2D<Coord>>
+inline void TriangulationRefinement(tri::Triangulation<Point> & triangulation, float_t minAlpha, Coord minLen, Coord maxLen, size_t iteration)
 {
     Refinement refinement(triangulation);
     refinement.SetParas(minAlpha, minLen, maxLen);
