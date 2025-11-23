@@ -703,6 +703,11 @@ BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_connectivity_t, num_type)
 
     struct InstShapeGeomGetter
     {
+/**
+ * @brief Brief description of InstShapeGeomGetter.
+ * @param m_points(points
+ * @return explicit
+ */
        explicit InstShapeGeomGetter(PointSet & points) : m_points(points) {}
        Polygon operator() (const IndexInstShape * instShape) const
        {

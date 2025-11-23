@@ -37,6 +37,14 @@ struct LockFreeHashArrayQuadraticProbeFcn
 namespace detail {
 
 template <typename NotKeyT, typename KeyT>
+/**
+ * @brief Brief description of CheckLegalKeyIfKeyTImpl.
+ * @param /
+ * @param /
+ * @param /
+ * @param /
+ * @return inline void
+ */
 inline void CheckLegalKeyIfKeyTImpl(NotKeyT /* ignored */, KeyT /* emptyKey */, KeyT /* lockedKey */, KeyT /* erasedKey */) {}
 
 template <typename KeyT>
@@ -111,10 +119,20 @@ public:
 	}
 
 private:
+/**
+ * @brief Brief description of AsDerived.
+ * @return D &
+ */
 	D & AsDerived() { return static_cast<D &>(*this); }
 
 	const D & AsDerivedConst() const { return static_cast<const D &>(*this); }
 
+/**
+ * @brief Brief description of Equal.
+ * @param lhs
+ * @param rhs
+ * @return static bool
+ */
 	static bool Equal(const D & lhs, const D & rhs) { return lhs.equal(rhs); }
 };
 
@@ -277,6 +295,11 @@ private:
 
 	struct Deleter
 	{
+/**
+ * @brief Brief description of operator.
+ * @param ptr
+ * @return void
+ */
 		void operator()(LockFreeHashArray * ptr) { LockFreeHashArray::Destroy(ptr); }
 	};
 
@@ -525,6 +548,10 @@ public:
 		return it;
 	}
 
+/**
+ * @brief Brief description of end.
+ * @return iterator
+ */
 	iterator end() { return iterator(this, capacity); }
 
 	const_iterator end() const { return const_iterator(this, capacity); }
@@ -543,6 +570,11 @@ public:
 		return const_cast<LockFreeHashArray*>(this)->FindAt(idx);
 	}
 
+/**
+ * @brief Brief description of makeIter.
+ * @param idx
+ * @return iterator
+ */
 	iterator makeIter(size_t idx) { return iterator(this, idx); }
 
 	const_iterator makeIter(size_t idx) const { return const_iterator(this, idx); }
@@ -696,6 +728,11 @@ private:
 				// Found an existing entry for our key, but we don't overwrite the previous value.
 				return SimpleRetT(idx, false);
 			} 
+/**
+ * @brief Brief description of if.
+ * @param kLockedKey
+ * @return else
+ */
 			else if (thisKey == kEmptyKey || thisKey == kLockedKey) {
 				// We need to try again (i.e., don't increment numProbes or
 				// advance idx): this case can happen if the constructor for
@@ -1028,6 +1065,10 @@ public:
 		return it;
 	}
 
+/**
+ * @brief Brief description of end.
+ * @return iterator
+ */
 	iterator end() { return iterator(); }
 
 	const_iterator end() const { return const_iterator(); }

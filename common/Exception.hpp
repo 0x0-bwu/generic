@@ -49,6 +49,11 @@ namespace generic{
 class Exception : public std::exception
 {
 public:
+/**
+ * @brief Brief description of Exception.
+ * @param m_msg(std::move(msg)
+ * @return explicit
+ */
     explicit Exception(std::string msg) : m_msg(std::move(msg)) {}
     Exception(std::string_view msg, int errCode)
     {

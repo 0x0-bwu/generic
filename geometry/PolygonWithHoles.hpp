@@ -39,6 +39,10 @@ public:
     size_t HolesSize() const { return holes.size(); }
 
     hole_iterator BeginHoles() { return holes.begin(); }
+/**
+ * @brief Brief description of EndHoles.
+ * @return hole_iterator
+ */
     hole_iterator EndHoles() { return holes.end(); }
     const_hole_iterator ConstBeginHoles() const { return holes.begin(); }
     const_hole_iterator ConstEndHoles() const { return holes.end(); }  

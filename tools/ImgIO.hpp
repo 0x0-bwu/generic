@@ -20,20 +20,50 @@ namespace detail {
 class DataChunk
 {
 public:
+/**
+ * @brief Brief description of DataChunk.
+ * @param startSize
+ * @return explicit
+ */
     explicit DataChunk(size_t startSize) { m_bytes.reserve(startSize); }
 
+/**
+ * @brief Brief description of Add.
+ * @param str
+ * @return void
+ */
     void Add(std::string_view str) { for (auto c : str) m_bytes.emplace_back(c); }
 
     template <typename... Chars>
+/**
+ * @brief Brief description of AddChars.
+ * @param chars
+ * @return void
+ */
     void AddChars(Chars&&... chars) { (m_bytes.emplace_back(chars), ...); }
 
     template <typename T, typename = std::enable_if_t<std::is_integral_v<T> > >
     void Add(T val) = delete;
 
+/**
+ * @brief Brief description of Add.
+ * @param val
+ * @return void
+ */
     void Add(std::byte val) { m_bytes.emplace_back(static_cast<unsigned char>(val)); }
 
+/**
+ * @brief Brief description of Add.
+ * @param val
+ * @return void
+ */
     void Add(uint16_t val) { AddChars(val, val >> 8); }
 
+/**
+ * @brief Brief description of Add.
+ * @param val
+ * @return void
+ */
     void Add(uint32_t val) { AddChars(val >> 24, val >> 16, val >> 8, val); }
 
     void AddCRC()
@@ -54,6 +84,10 @@ public:
         Add(addler);
     }
 
+/**
+ * @brief Brief description of Data.
+ * @return std::vector<unsigned char> &
+ */
     std::vector<unsigned char> & Data() { return m_bytes; }
     const std::vector<unsigned char> & Data() const { return m_bytes; }
 

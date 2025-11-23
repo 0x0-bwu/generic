@@ -45,10 +45,36 @@ struct DenseCircuit
         for (auto p : prob) m.L(p, j++) = 1;
     }
 
+/**
+ * @brief Brief description of SetR.
+ * @param i
+ * @param j
+ * @param r
+ * @return void
+ */
     void SetR(size_t i, size_t j, Float r) { mna::Stamp(m.G, i, j, 1 / r); }
+/**
+ * @brief Brief description of SetR.
+ * @param i
+ * @param r
+ * @return void
+ */
     void SetR(size_t i, Float r) { mna::Stamp(m.G, i, 1 / r); }
 
+/**
+ * @brief Brief description of SetC.
+ * @param i
+ * @param j
+ * @param c
+ * @return void
+ */
     void SetC(size_t i, size_t j, Float c) { mna::Stamp(m.C, i, j, c); }
+/**
+ * @brief Brief description of SetC.
+ * @param i
+ * @param c
+ * @return void
+ */
     void SetC(size_t i, Float c) { mna::Stamp(m.C, i, c); }
     const MNA<MatrixType> & Build() const { return m; }
 };
@@ -69,8 +95,28 @@ struct SparseCircuit
     {
     }
 
+/**
+ * @brief Brief description of SetR.
+ * @param i
+ * @param j
+ * @param r
+ * @return void
+ */
     void SetR(size_t i, size_t j, Float r) { mna::Stamp(tG, i, j, 1 / r); }
+/**
+ * @brief Brief description of SetC.
+ * @param i
+ * @param j
+ * @param c
+ * @return void
+ */
     void SetC(size_t i, size_t j, Float c) { mna::Stamp(tC, i, j, c); }
+/**
+ * @brief Brief description of SetC.
+ * @param i
+ * @param c
+ * @return void
+ */
     void SetC(size_t i, Float c) { mna::Stamp(tC, i, c); }
 
     const MNA<MatrixType> & Build() const

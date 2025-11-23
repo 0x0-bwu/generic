@@ -487,6 +487,10 @@ public:
         UpdateShortestEdge();
     }
 
+/**
+ * @brief Brief description of UpdateState.
+ * @return void
+ */
     void UpdateState() {
         m_queueE = EncroachedEdgeQueue{};
         m_queueT = SkinnyTriangleQueue{};
@@ -1222,6 +1226,11 @@ private:
                     }
                 }
             }
+/**
+ * @brief Brief description of if.
+ * @param loc
+ * @return else
+ */
             else if(PointTriangleLocation::Inside != loc){
                 e = triangle.Edge(static_cast<int>(loc) - 1);
                 onEdge = true;
@@ -1265,6 +1274,11 @@ private:
                     }
                 }
             }
+/**
+ * @brief Brief description of if.
+ * @param loc
+ * @return else
+ */
             else if(PointTriangleLocation::Inside != loc){
                 e = triangle.Edge(static_cast<int>(loc) - 1);
                 if(tri.fixedEdges.count(e)){
