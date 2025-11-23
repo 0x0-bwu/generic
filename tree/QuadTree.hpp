@@ -295,7 +295,17 @@ inline void QuadTree<num_type, object, extent>::Balance()
             if(neighbor && neighbor->hasChild()){
                 Orientation o1, o2;
                 if(Direction::Sourth == d){ o1 = Orientation::NW; o2 = Orientation::NE; }
+/**
+ * @brief Brief description of if.
+ * @param d
+ * @return else
+ */
                 else if(Direction::East == d){ o1 = Orientation::NW; o2 = Orientation::SW; }
+/**
+ * @brief Brief description of if.
+ * @param d
+ * @return else
+ */
                 else if(Direction::North == d){ o1 = Orientation::SW; o2 = Orientation::SE; }
                 else { o1 = Orientation::NE; o2 = Orientation::SE; }
                 if(neighbor->GetChild(o1)->hasChild() || neighbor->GetChild(o2)->hasChild()){
@@ -356,6 +366,11 @@ inline QuadTree<num_type, object, extent > * QuadTree<num_type, object, extent>:
             else return pare_neighbor->GetChild(Orientation::NE);
         }
     }
+/**
+ * @brief Brief description of if.
+ * @param direction
+ * @return else
+ */
     else if(Direction::East == direction){
         if(node == parent->GetChild(Orientation::NW)) return parent->GetChild(Orientation::NE);
         if(node == parent->GetChild(Orientation::SW)) return parent->GetChild(Orientation::SE);
@@ -367,6 +382,11 @@ inline QuadTree<num_type, object, extent > * QuadTree<num_type, object, extent>:
             else return pare_neighbor->GetChild(Orientation::SW);
         }
     }
+/**
+ * @brief Brief description of if.
+ * @param direction
+ * @return else
+ */
     else if(Direction::North == direction){
         if(node == parent->GetChild(Orientation::SW)) return parent->GetChild(Orientation::NW);
         if(node == parent->GetChild(Orientation::SE)) return parent->GetChild(Orientation::NE);

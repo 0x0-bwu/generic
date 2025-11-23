@@ -149,6 +149,11 @@ public:
             PadIt(m_remainingPad);
             m_remainingPad = 0;
         }
+/**
+ * @brief Brief description of if.
+ * @param PaddingInfo::PadSide::Center
+ * @return else
+ */
         else if(m_padInfo.side == PaddingInfo::PadSide::Center){
             auto halfPad = m_remainingPad / 2;
             auto reminder = m_remainingPad & 1;
@@ -174,6 +179,11 @@ struct NullScopedPadder
    NullScopedPadder(size_t, const PaddingInfo & , std::string & ) {}
 
    template <typename T>
+/**
+ * @brief Brief description of CountDigits.
+ * @param T
+ * @return static unsigned int
+ */
    static unsigned int CountDigits(T) { return 0; }
 };
 
@@ -181,6 +191,11 @@ class FlagFormatter
 {
 public:
     FlagFormatter() = default;
+/**
+ * @brief Brief description of FlagFormatter.
+ * @param m_paddingInfo(info
+ * @return explicit
+ */
     explicit FlagFormatter(PaddingInfo info) : m_paddingInfo(info) {}
     virtual ~FlagFormatter() = default;
     virtual void Format(const LogMsg & msg, const std::tm & time, std::string & dest) = 0;
@@ -193,6 +208,11 @@ class AggregateFormatter final : public FlagFormatter
 public:
     AggregateFormatter() = default;
 
+/**
+ * @brief Brief description of AddChar.
+ * @param c
+ * @return void
+ */
     void AddChar(char c) { m_str.push_back(c); }
 
     void Format(const LogMsg & msg, const std::tm & , std::string & dest) override
@@ -207,6 +227,11 @@ class FullFormatter final : public FlagFormatter
 {
     using FormatHelper = fmt::FormatHelper;
 public:
+/**
+ * @brief Brief description of FullFormatter.
+ * @param FlagFormatter(info
+ * @return explicit
+ */
     explicit FullFormatter(PaddingInfo info) : FlagFormatter(info) {}
 
     void Format(const LogMsg & msg, const std::tm & time, std::string & dest) override
@@ -281,6 +306,11 @@ class CustomFlagFormatter : public FlagFormatter
 {
 public:
     virtual std::unique_ptr<CustomFlagFormatter> Clone() const = 0;
+/**
+ * @brief Brief description of SetPaddingInfo.
+ * @param info
+ * @return void
+ */
     void SetPaddingInfo(PaddingInfo info) { FlagFormatter::m_paddingInfo = info; }
 };
 
@@ -449,6 +479,12 @@ public:
     using value_type = T;
 
     CircularQueue() = default;
+/**
+ * @brief Brief description of CircularQueue.
+ * @param 1)
+ * @param m_values(maxItems
+ * @return explicit
+ */
     explicit CircularQueue(size_t maxItems) : m_maxItems(maxItems + 1), m_values(maxItems) {}
     CircularQueue(const CircularQueue & other) = default;
     CircularQueue & operator= (const CircularQueue & other) = default;
@@ -468,8 +504,16 @@ public:
         }
     }
 
+/**
+ * @brief Brief description of Front.
+ * @return T &
+ */
     T & Front() { return m_values[m_head]; }
     const T & Front() const { return m_values[m_head]; }
+/**
+ * @brief Brief description of Size.
+ * @return size_t
+ */
     size_t Size() { return m_tail > m_head ? (m_tail - m_head) : m_maxItems - (m_head - m_tail); }
     const T & At(size_t i) const
     {
@@ -477,6 +521,10 @@ public:
         return m_values[(m_head + i) % m_maxItems];
     }
 
+/**
+ * @brief Brief description of PopFront.
+ * @return void
+ */
     void PopFront() { m_head = (m_head + 1) % m_maxItems; }
     bool Empty() const { return m_tail == m_head; }
     bool Full() const
@@ -615,6 +663,11 @@ class BaseSink : public Sink
     using LogMsg = details::LogMsg;
 public:
     BaseSink() : m_formatter(new details::PatternFormatter) {}
+/**
+ * @brief Brief description of BaseSink.
+ * @param m_formatter(std::move(formatter)
+ * @return explicit
+ */
     explicit BaseSink(std::unique_ptr<details::Formatter> formatter) : m_formatter(std::move(formatter)) {}
     ~BaseSink() override = default;
 

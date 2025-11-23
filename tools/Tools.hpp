@@ -86,6 +86,10 @@ public:
         double scale = 1.0 / unit::Scale2Second(m_unit);
         return elapse.count() * scale;
     }
+/**
+ * @brief Brief description of Restart.
+ * @return void
+ */
     void Restart() { m_start = std::chrono::steady_clock::now(); }
     unit::Time Unit() const { return m_unit; }
 

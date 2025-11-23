@@ -86,7 +86,15 @@ struct ReduceTask
 
 struct NullLocker
 {
+/**
+ * @brief Brief description of lock.
+ * @return void
+ */
     void lock(){}
+/**
+ * @brief Brief description of unlock.
+ * @return void
+ */
     void unlock(){}
     bool try_lock() const { return true; }
 };
@@ -94,15 +102,31 @@ struct NullLocker
 struct NullCombiner
 {
     template <typename IntermediateStore>
+/**
+ * @brief Brief description of Run.
+ * @return static void
+ */
     static void Run(IntermediateStore &){}
 
     template <typename ReduceTaskKey>
+/**
+ * @brief Brief description of Start.
+ * @return void
+ */
     void Start(const ReduceTaskKey &){}
 
     template <typename ReduceTaskKey, typename IntermediateStore>
+/**
+ * @brief Brief description of Finish.
+ * @return void
+ */
     void Finish(const ReduceTaskKey &, IntermediateStore &){}
 
     template <typename ReduceTaskKey>
+/**
+ * @brief Brief description of operator.
+ * @return void
+ */
     void operator() (const ReduceTaskKey &){}
 };
 

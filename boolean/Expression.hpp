@@ -53,6 +53,11 @@ struct BinaryOperation
 
 struct ExpressionPrinter : boost::static_visitor<void>
 {
+/**
+ * @brief Brief description of ExpressionPrinter.
+ * @param m_os(os
+ * @return explicit
+ */
     explicit ExpressionPrinter(std::ostream & os) : m_os(os) {}
     void operator()(const Variable & v) const { m_os << v; }
     void operator()(const OperationOr  & op) const { Print(" | ", op.left, op.right); }

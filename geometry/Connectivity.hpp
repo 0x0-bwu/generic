@@ -84,6 +84,11 @@ class ConnectivityExtractor
     {
         Point2D<num_type> m_point;
     public:
+/**
+ * @brief Brief description of PointInside.
+ * @param m_point(p
+ * @return explicit
+ */
         explicit PointInside(const Point2D<num_type> & p) : m_point(p) { } 
         bool operator() (const Jumpwire & ) const { return false; }
         bool operator() (const Triangle2D<num_type> & tri) const { return Contains(tri, m_point, true); }

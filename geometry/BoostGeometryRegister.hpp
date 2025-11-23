@@ -51,14 +51,36 @@ struct coordinate_system<Point2D<num_type> >
 template <typename num_type>
 struct access<Point2D<num_type>, 0>
 {
+/**
+ * @brief Brief description of get.
+ * @param p
+ * @return static inline num_type
+ */
     static inline num_type get(const Point2D<num_type> & p) { return p[0]; }
+/**
+ * @brief Brief description of set.
+ * @param p
+ * @param n
+ * @return static inline void
+ */
     static inline void set(Point2D<num_type> & p, const num_type & n) { p[0] = n; }
 };
 
 template <typename num_type>
 struct access<Point2D<num_type>, 1>
 {
+/**
+ * @brief Brief description of get.
+ * @param p
+ * @return static inline num_type
+ */
     static inline num_type get(const Point2D<num_type> & p) { return p[1]; }
+/**
+ * @brief Brief description of set.
+ * @param p
+ * @param n
+ * @return static inline void
+ */
     static inline void set(Point2D<num_type> & p, const num_type & n) { p[1] = n; }
 };
 
@@ -74,14 +96,36 @@ struct point_type<Segment2D<num_type> >
 template <typename num_type, size_t dimension>
 struct indexed_access<Segment2D<num_type>, 0, dimension>
 {
+/**
+ * @brief Brief description of get.
+ * @param s
+ * @return static inline num_type
+ */
     static inline num_type get(const Segment2D<num_type> & s) { return geometry::get<dimension>(s[0]); }
+/**
+ * @brief Brief description of set.
+ * @param s
+ * @param n
+ * @return static inline void
+ */
     static inline void set(Segment2D<num_type> & s, const num_type & n) { geometry::set<dimension>(s[0], n); }
 };
 
 template <typename num_type, size_t dimension>
 struct indexed_access<Segment2D<num_type>, 1, dimension>
 {
+/**
+ * @brief Brief description of get.
+ * @param s
+ * @return static inline num_type
+ */
     static inline num_type get(const Segment2D<num_type> & s) { return geometry::get<dimension>(s[1]); }
+/**
+ * @brief Brief description of set.
+ * @param s
+ * @param n
+ * @return static inline void
+ */
     static inline void set(Segment2D<num_type> & s, const num_type & n) { geometry::set<dimension>(s[1], n); }
 };
 
@@ -97,14 +141,36 @@ struct point_type<Box2D<num_type> >
 template <typename num_type, size_t dimension>
 struct indexed_access<Box2D<num_type>, 0, dimension>
 {
+/**
+ * @brief Brief description of get.
+ * @param b
+ * @return static inline num_type
+ */
     static inline num_type get(const Box2D<num_type> & b) { return geometry::get<dimension>(b[0]); }
+/**
+ * @brief Brief description of set.
+ * @param b
+ * @param n
+ * @return static inline void
+ */
     static inline void set(Box2D<num_type> & b, const num_type & n) { geometry::set<dimension>(b[0], n); }
 };
 
 template <typename num_type, size_t dimension>
 struct indexed_access<Box2D<num_type>, 1, dimension>
 {
+/**
+ * @brief Brief description of get.
+ * @param b
+ * @return static inline num_type
+ */
     static inline num_type get(const Box2D<num_type> & b) { return geometry::get<dimension>(b[1]); }
+/**
+ * @brief Brief description of set.
+ * @param b
+ * @param n
+ * @return static inline void
+ */
     static inline void set(Box2D<num_type> & b, const num_type & n) { geometry::set<dimension>(b[1], n); }
 };
 
@@ -362,7 +428,15 @@ public:
     PolygonWithHoles2DRange(const_hole_iterator begin, const_hole_iterator end)
         : m_constBegin(begin), m_constEnd(end), m_bConst(true) {}
 
+/**
+ * @brief Brief description of Begin.
+ * @return hole_iterator
+ */
     hole_iterator Begin() { assert(!m_bConst); return m_begin; }
+/**
+ * @brief Brief description of End.
+ * @return hole_iterator
+ */
     hole_iterator End() { assert(!m_bConst); return m_end; }
     const_hole_iterator ConstBegin() const { assert(m_bConst); return m_constBegin; }
     const_hole_iterator ConstEnd() const { assert(m_bConst); return m_constEnd; }

@@ -23,6 +23,10 @@ DOCS_START = '<!-- AUTO_DOCS_START -->'
 DOCS_END = '<!-- AUTO_DOCS_END -->'
 
 def find_source_files():
+    """
+    Brief description of find_source_files.
+    :returns:
+    """
     files = []
     for root, dirs, filenames in os.walk(REPO_ROOT):
         if '.git' in root.split(os.sep):
@@ -34,6 +38,11 @@ def find_source_files():
     return files
 
 def ensure_py_docstring(text):
+    """
+    Brief description of ensure_py_docstring.
+    :param text:
+    :returns:
+    """
     lines = text.splitlines()
     out = []
     i = 0
@@ -74,6 +83,11 @@ def ensure_py_docstring(text):
     return '\n'.join(out) + '\n', sigs
 
 def insert_doxygen_for_c_like(text):
+    """
+    Brief description of insert_doxygen_for_c_like.
+    :param text:
+    :returns:
+    """
     lines = text.splitlines()
     out = []
     sigs = []
@@ -111,6 +125,11 @@ def insert_doxygen_for_c_like(text):
     return '\n'.join(out) + '\n', sigs
 
 def update_readme(api_entries):
+    """
+    Brief description of update_readme.
+    :param api_entries:
+    :returns:
+    """
     if not README.exists():
         print("README.md not found; skipping README update.")
         return False
@@ -135,6 +154,10 @@ def update_readme(api_entries):
 
 
 def git_commit_and_push():
+    """
+    Brief description of git_commit_and_push.
+    :returns:
+    """
     try:
         res = subprocess.run(['git', 'status', '--porcelain'], capture_output=True, text=True, check=True)
         if not res.stdout.strip():
@@ -153,6 +176,10 @@ def git_commit_and_push():
 
 
 def main():
+    """
+    Brief description of main.
+    :returns:
+    """
     files = find_source_files()
     print(f"Found {len(files)} source files to scan.")
     all_sigs = []
