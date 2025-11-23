@@ -80,11 +80,6 @@ inline void StampI(typename std::vector<Eigen::Triplet<Float> >& tlist, size_t v
 
 
 template<typename Matrix>
-/**
- * @brief Brief description of IsSingular.
- * @param m
- * @return inline bool
- */
 inline bool IsSingular(const Matrix & m) {
    // A singular matrix has at least one zero eigenvalue -
    // in theory, at least... but due to machine precision we can have "nearly singular"
@@ -96,12 +91,6 @@ inline bool IsSingular(const Matrix & m) {
 }
 
 template<class Derived, unsigned Mode>
-/**
- * @brief Brief description of IsSingular.
- * @param Eigen::TriangularView<Derived
- * @param m
- * @return inline bool
- */
 inline bool IsSingular(const Eigen::TriangularView<Derived, Mode> & m) {
    // a "triangular view" is singular if any diagonal element is 0
    // we could use "diagonal" to do this reduction if it were a proper Matrix

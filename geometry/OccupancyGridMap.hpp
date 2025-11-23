@@ -419,11 +419,6 @@ private:
             edges.push_back(Edge{i, (i + 1) % size});
 
         auto points = polygon->GetPoints();
-/**
- * @brief Brief description of constexpr.
- * @param std::is_integral<num_type>::value
- * @return if
- */
         if constexpr (std::is_integral<num_type>::value){
             tri::RemoveDuplicatesAndRemapEdges(points, edges, num_type(2));
         }
@@ -483,20 +478,10 @@ private:
         auto size = trapezoid.Size();
         if(2 >= size)
             return;
-/**
- * @brief Brief description of if.
- * @param size
- * @return else
- */
         else if(3 == size){
             triangles.push_back({trapezoid[0], trapezoid[1], trapezoid[2]});
             return;
         }
-/**
- * @brief Brief description of if.
- * @param size
- * @return else
- */
         else if(4 == size){
             bool res;
             auto points = std::array<Point2D<num_type>, 4>{trapezoid[0], trapezoid[1], trapezoid[2], trapezoid[3]};

@@ -67,35 +67,10 @@ inline void toJet(double scalar, int & r, int & g, int & b)
 {
     scalar *= 8;
     if(scalar < 0) { r = 0; g = 0; b = 127; }
-/**
- * @brief Brief description of if.
- * @param 1
- * @return else
- */
     else if(scalar < 1){ r = 0; g = 0; b = int(scalar * 128) + 128; }
-/**
- * @brief Brief description of if.
- * @param 3
- * @return else
- */
     else if(scalar < 3){ r = 0; g = int(scalar * 128) - 128; b = 255; }
-/**
- * @brief Brief description of if.
- * @param 5
- * @return else
- */
     else if(scalar < 5){ r = int(scalar * 128) - 384; g = 255; b = 639 - int(scalar * 128); }
-/**
- * @brief Brief description of if.
- * @param 7
- * @return else
- */
     else if(scalar < 7){ r = 255; g = 895 - int(scalar * 128); b = 0; }
-/**
- * @brief Brief description of if.
- * @param 8
- * @return else
- */
     else if(scalar < 8) { r= 1151 - int(scalar * 128); g = 0; b = 0; }
     else { r = 127; g = 0; b = 0; }
 }

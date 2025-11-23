@@ -41,15 +41,7 @@ public:
     template <typename... Args>
     void Success(TaskNode * task, Args &&... args);
 
-/**
- * @brief Brief description of Precede.
- * @return void
- */
     void Precede(){}
-/**
- * @brief Brief description of Success.
- * @return void
- */
     void Success(){}
 
 private:
@@ -190,11 +182,6 @@ inline void TaskFlow::PrintTaskGraph(std::ostream & out)
 class Dispatcher
 {
 public:
-/**
- * @brief Brief description of Dispatcher.
- * @param m_flow(flow
- * @return explicit
- */
     explicit Dispatcher(TaskFlow & flow) : m_flow(flow){}
     ~Dispatcher(){}
     

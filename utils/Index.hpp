@@ -21,21 +21,12 @@ public:
     
     constexpr Index() = default;
     virtual ~Index() = default;
-/**
- * @brief Brief description of Index.
- * @param m_id(id
- * @return explicit
- */
     explicit Index(T id) noexcept : m_id(id) {}
         
     virtual operator bool() const { return m_id != INVALID_ID; }
 
     explicit operator size_t() const { return static_cast<size_t>(m_id); }
 
-/**
- * @brief Brief description of makeInvalid.
- * @return void
- */
     void makeInvalid() { m_id = INVALID_ID; }
 
     friend std::hash<Index<Tag,T>>;

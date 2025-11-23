@@ -639,11 +639,6 @@ private:
                 idxL = childL->firstChildOrPrim;
                 childL = &m_bvh.nodes[idxL];
             }
-/**
- * @brief Brief description of if.
- * @param childR
- * @return else
- */
             else if (childR) {
                 idxL = childR->firstChildOrPrim;
                 childL = &m_bvh.nodes[idxL];

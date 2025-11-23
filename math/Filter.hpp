@@ -20,11 +20,6 @@ std::vector<T> SimpleMovingAverage(const T * data, size_t size, size_t length)
         for (int j = 0; j < int(length); ++j) {
             auto iL = std::max<int>(0, i - j - 1);
             auto iR = std::min<int>(size - 1, i + j + 1);
-/**
- * @brief Brief description of constexpr.
- * @param UseUpdatedValue
- * @return if
- */
             if constexpr (UseUpdatedValue) {
                 ave += (iL < i ? results[iL] : data[iL]) + data[iR];
             }

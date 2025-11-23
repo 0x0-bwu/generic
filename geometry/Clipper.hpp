@@ -351,12 +351,6 @@ inline void IntersectPoint(TEdge<num_type> & edge1, TEdge<num_type> & edge2, Poi
         ip[0] = TopX(edge1, ip[1]);
         return;
     }
-/**
- * @brief Brief description of if.
- * @param math::EQ<float_t>(edge1.dx
- * @param 0)
- * @return else
- */
     else if(math::EQ<float_t>(edge1.dx, 0)) {
         ip[0] = edge1.bot[0];
         if(isHorizontal(edge2))
@@ -366,12 +360,6 @@ inline void IntersectPoint(TEdge<num_type> & edge1, TEdge<num_type> & edge2, Poi
             ip[1] = std::round(ip[0] / edge2.dx + b2);
         }
     }
-/**
- * @brief Brief description of if.
- * @param math::EQ<float_t>(edge2.dx
- * @param 0)
- * @return else
- */
     else if(math::EQ<float_t>(edge2.dx, 0)) {
         ip[0] = edge2.bot[0];
         if(isHorizontal(edge1))
@@ -438,12 +426,6 @@ inline void RangeTest(const Point<num_type> & p, bool & useFullRange)
 template <typename num_type>
 inline bool SlopesEqual(const TEdge<num_type> & e1, const TEdge<num_type> & e2, bool useFullInt64Range)
 {
-/**
- * @brief Brief description of constexpr.
- * @param std::is_same<num_type
- * @param int64_t>::value
- * @return if
- */
     if constexpr (std::is_same<num_type, int64_t>::value){
         if(useFullInt64Range)
             return Int128Mul(e1.top[1] - e1.bot[1], e2.top[0] - e2.bot[0]) == Int128Mul(e1.top[0] - e1.bot[0], e2.top[1] - e2.bot[1]);
@@ -456,12 +438,6 @@ inline bool SlopesEqual(const TEdge<num_type> & e1, const TEdge<num_type> & e2, 
 template <typename num_type>
 inline bool SlopesEqual(const Point<num_type> p1, const Point<num_type> p2, const Point<num_type> p3, bool useFullInt64Range)
 {
-/**
- * @brief Brief description of constexpr.
- * @param std::is_same<num_type
- * @param int64_t>::value
- * @return if
- */
     if constexpr (std::is_same<num_type, int64_t>::value) {
         if(useFullInt64Range)
             return Int128Mul(p1[1] - p2[1], p2[0] - p3[0]) == Int128Mul(p1[0] - p2[0], p2[1] - p3[1]);
@@ -473,12 +449,6 @@ inline bool SlopesEqual(const Point<num_type> p1, const Point<num_type> p2, cons
 template <typename num_type>
 inline bool SlopesEqual(const Point<num_type> p1, const Point<num_type> p2, const Point<num_type> p3, const Point<num_type> p4, bool useFullInt64Range)
 {
-/**
- * @brief Brief description of constexpr.
- * @param std::is_same<num_type
- * @param int64_t>::value
- * @return if
- */
     if constexpr (std::is_same<num_type, int64_t>::value) {
         if(useFullInt64Range)
             return Int128Mul(p1[1] - p2[1], p3[0] - p4[0]) == Int128Mul(p1[0] - p2[0], p3[1] - p4[1]);
@@ -581,13 +551,6 @@ inline OutPt<num_type> * GetBottomPt(OutPt<num_type> * pp)
             pp = p;
             dups = nullptr;
         }
-/**
- * @brief Brief description of if.
- * @param math::EQ(p->pt[1]
- * @param math::LE(p->pt[0]
- * @param pp->pt[0])
- * @return else
- */
         else if(math::EQ(p->pt[1], pp->pt[1]) && math::LE(p->pt[0], pp->pt[0])) {
             if(math::LT(p->pt[0], pp->pt[0])) {
                 dups = nullptr;
@@ -1371,11 +1334,6 @@ inline void ClipperBase<num_type>::SwapPositionsInAEL(TEdge<num_type> * edge1, T
         edge1->prevInAEL = edge2;
         edge1->nextInAEL = next;
     }
-/**
- * @brief Brief description of if.
- * @param edge1
- * @return else
- */
     else if(edge2->nextInAEL == edge1) {
         auto * next = edge1->nextInAEL;
         if(next) next->prevInAEL = edge2;
@@ -1850,11 +1808,6 @@ inline void Clipper<num_type>::SetWindingCount(TEdge<num_type> & edge)
         edge.windCnt2 = 0;
         e = m_activeEdges; //ie get ready to calc WindCnt2
     }
-/**
- * @brief Brief description of if.
- * @param ClipType::Union
- * @return else
- */
     else if (edge.windDelta == 0 && m_clipType != ClipType::Union) {
         edge.windCnt = 1;
         edge.windCnt2 = e->windCnt2;
@@ -1959,11 +1912,6 @@ inline void Clipper<num_type>::InsertLocalMinimaIntoAEL(num_type botY)
             if(isContributing(*rb))
                 op1 = AddOutPt(rb, rb->bot);
         }
-/**
- * @brief Brief description of if.
- * @param !rb
- * @return else
- */
         else if(!rb) {
             InsertEdgeIntoAEL(lb, nullptr);
             SetWindingCount(*lb);
@@ -2048,11 +1996,6 @@ inline void Clipper<num_type>::SwapPositionsInSEL(TEdge<num_type> * edge1, TEdge
         edge1->prevInSEL = edge2;
         edge1->nextInSEL = next;
     }
-/**
- * @brief Brief description of if.
- * @param edge1
- * @return else
- */
     else if(edge2->nextInSEL == edge1) {
         auto * next = edge1->nextInSEL;
         if(next) next->prevInSEL = edge2;
@@ -2196,22 +2139,12 @@ inline void Clipper<num_type>::DoMaxima(TEdge<num_type> * e)
         ClipperBase<num_type>::DeleteFromAEL(e);
         ClipperBase<num_type>::DeleteFromAEL(eMaxPair);
     }
-/**
- * @brief Brief description of if.
- * @param 0
- * @return else
- */
     else if(e->outIdx >= 0 && eMaxPair->outIdx >= 0) {
         if (e->outIdx >= 0)
             AddLocalMaxPoly(e, eMaxPair, e->top);
         ClipperBase<num_type>::DeleteFromAEL(e);
         ClipperBase<num_type>::DeleteFromAEL(eMaxPair);
     }
-/**
- * @brief Brief description of if.
- * @param 0
- * @return else
- */
     else if(e->windDelta == 0) {
         if(e->outIdx >= 0) {
             AddOutPt(e, e->top);
@@ -2560,11 +2493,6 @@ inline void Clipper<num_type>::IntersectEdges(TEdge<num_type> * e1, TEdge<num_ty
         if(e1->windDelta == 0 && e2->windDelta == 0) return;
 
         //if intersecting a subj line with a subj poly ...
-/**
- * @brief Brief description of if.
- * @param ClipType::Union
- * @return else
- */
         else if(e1->polyTyp == e2->polyTyp && e1->windDelta != e2->windDelta && m_clipType == ClipType::Union) {
             if (e1->windDelta == 0) {
                 if (e2Contributing) {
@@ -2581,11 +2509,6 @@ inline void Clipper<num_type>::IntersectEdges(TEdge<num_type> * e1, TEdge<num_ty
                 }
             }
         }
-/**
- * @brief Brief description of if.
- * @param e2->polyTyp
- * @return else
- */
         else if(e1->polyTyp != e2->polyTyp) {
             //toggle subj open path OutIdx on/off when Abs(clip.WndCnt) == 1 ...
             if ((e1->windDelta == 0) && std::abs(e2->windCnt) == 1 &&
@@ -2679,11 +2602,6 @@ inline void Clipper<num_type>::IntersectEdges(TEdge<num_type> * e1, TEdge<num_ty
             SwapPolyIndexes(*e1 ,*e2);
         }
     }
-/**
- * @brief Brief description of if.
- * @param e1Contributing
- * @return else
- */
     else if(e1Contributing) {
         if(e2Wc == 0 || e2Wc == 1) {
             AddOutPt(e1, pt);
@@ -2691,11 +2609,6 @@ inline void Clipper<num_type>::IntersectEdges(TEdge<num_type> * e1, TEdge<num_ty
             SwapPolyIndexes(*e1, *e2);
         }
     }
-/**
- * @brief Brief description of if.
- * @param e2Contributing
- * @return else
- */
     else if(e2Contributing) {
         if(e1Wc == 0 || e1Wc == 1) {
             AddOutPt(e2, pt);
@@ -2703,11 +2616,6 @@ inline void Clipper<num_type>::IntersectEdges(TEdge<num_type> * e1, TEdge<num_ty
             SwapPolyIndexes(*e1, *e2);
         }
     }
-/**
- * @brief Brief description of if.
- * @param 1)
- * @return else
- */
     else if((e1Wc == 0 || e1Wc == 1) && (e2Wc == 0 || e2Wc == 1)) {
         //neither edge is currently contributing ...
         int e1Wc2, e2Wc2;
@@ -2730,11 +2638,6 @@ inline void Clipper<num_type>::IntersectEdges(TEdge<num_type> * e1, TEdge<num_ty
         if(e1->polyTyp != e2->polyTyp) {
             AddLocalMinPoly(e1, e2, pt);
         }
-/**
- * @brief Brief description of if.
- * @param 1
- * @return else
- */
         else if(e1Wc == 1 && e2Wc == 1) {
             switch(m_clipType) {
                 case ClipType::Intersection :
@@ -3037,11 +2940,6 @@ inline bool Clipper<num_type>::JoinPoints(Join<num_type> * j, OutRec<num_type> *
             return true;
         }
     }
-/**
- * @brief Brief description of if.
- * @param isHorizontal
- * @return else
- */
     else if(isHorizontal) {
         //treat horizontal joins differently to non-horizontal joins since with
         //them we're not yet sure where the overlapping is. OutPt1.Pt & OutPt2.Pt
@@ -3068,23 +2966,9 @@ inline bool Clipper<num_type>::JoinPoints(Join<num_type> * j, OutRec<num_type> *
         if(math::GE(op1->pt[0], left) && math::LE(op1->pt[0], right)) {
             pt = op1->pt; discardLeftSide = (op1->pt[0] > op1b->pt[0]);
         }
-/**
- * @brief Brief description of if.
- * @param math::GE(op2->pt[0]
- * @param math::LE(op2->pt[0]
- * @param right)
- * @return else
- */
         else if(math::GE(op2->pt[0], left) && math::LE(op2->pt[0], right)) {
             pt = op2->pt; discardLeftSide = (op2->pt[0] > op2b->pt[0]);
         }
-/**
- * @brief Brief description of if.
- * @param math::GE(op1b->pt[0]
- * @param math::LE(op1b->pt[0]
- * @param right)
- * @return else
- */
         else if(math::GE(op1b->pt[0], left) && math::LE(op1b->pt[0], right)) {
             pt = op1b->pt; discardLeftSide = op1b->pt[0] > op1->pt[0];
         }
@@ -3186,12 +3070,6 @@ inline void Clipper<num_type>::JoinCommonEdges()
                     ReversePolyPtLinks(outRec2->pts);
 
             }
-/**
- * @brief Brief description of if.
- * @param Poly2ContainsPoly1(outRec1->pts
- * @param outRec2->pts)
- * @return else
- */
             else if(Poly2ContainsPoly1(outRec1->pts, outRec2->pts)) {
                 //outRec2 contains outRec1 ...
                 outRec2->isHole = outRec1->isHole;
@@ -3260,12 +3138,6 @@ inline void Clipper<num_type>::DoSimplePolygons()
                         outrec2->firstLeft = outrec;
                         if(m_usingPolyTree) FixupFirstLefts2(outrec2, outrec);
                     }
-/**
- * @brief Brief description of if.
- * @param Poly2ContainsPoly1(outrec->pts
- * @param outrec2->pts)
- * @return else
- */
                     else if(Poly2ContainsPoly1(outrec->pts, outrec2->pts)) {
                         //OutRec1 is contained by OutRec2 ...
                         outrec2->isHole = outrec->isHole;
@@ -3342,12 +3214,6 @@ inline void Clipper<num_type>::InsertEdgeIntoAEL(TEdge<num_type> * edge, TEdge<n
         edge->nextInAEL = nullptr;
         m_activeEdges = edge;
     }
-/**
- * @brief Brief description of if.
- * @param E2InsertsBeforeE1(m_activeEdges
- * @param edge)
- * @return else
- */
     else if(!startEdge && E2InsertsBeforeE1(*m_activeEdges, *edge)) {
         edge->prevInAEL = nullptr;
         edge->nextInAEL = m_activeEdges;

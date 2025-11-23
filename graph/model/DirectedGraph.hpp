@@ -41,12 +41,6 @@ private:
 };
 
 template<typename T>
-/**
- * @brief Brief description of makeRange.
- * @param b
- * @param e
- * @return inline Range<T>
- */
 inline Range<T> makeRange(T b, T e) { return Range<T>(b, e); }
 
 struct GraphIdMaps
@@ -65,16 +59,7 @@ class Recycler
 public:
     size_t Size() const { return m_objs.size(); }
     bool Empty() const { return m_objs.empty(); }
-/**
- * @brief Brief description of Add.
- * @param t
- * @return void
- */
     void Add(T t) { m_objs.emplace_back(t); }
-/**
- * @brief Brief description of Clear.
- * @return void
- */
     void Clear() { m_objs.clear(); }
 
     T Take();
@@ -288,11 +273,6 @@ inline void Recycler<T>::serialize(Archive & ar, const unsigned int)
 {
     bool flag; T last;//w/a since boost 1.83 serialization not support std::optional
     ar & boost::serialization::make_nvp("objs", m_objs);
-/**
- * @brief Brief description of constexpr.
- * @param Archive::is_saving::value
- * @return if
- */
     if constexpr (Archive::is_saving::value) {
         flag = m_last.has_value();
         last = flag ? m_last.value() : T{};
