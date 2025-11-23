@@ -158,11 +158,6 @@ public:
     //vector like convenience functions
     size_t size() const {return m_size;}
     bool empty() const {return 0 == m_size;}
-/**
- * @brief Brief description of push_back.
- * @param v
- * @return void
- */
     void push_back(const T v) { std::array<T, N>::operator[](m_size++) = v; }
 
     //estimates of expansion value
@@ -175,10 +170,6 @@ public:
         return h;
     }
 
-/**
- * @brief Brief description of negate.
- * @return void
- */
     void negate() {std::transform(std::array<T, N>::cbegin(), std::array<T, N>::cbegin() + size(), std::array<T, N>::begin(), std::negate<T>());}
     Expansion operator-() const {Expansion e = *this; e.negate(); return e;}
     template <size_t M> Expansion<T, N+M> operator-(const Expansion<T, M>& f) const {return operator+(-f);}
@@ -234,12 +225,6 @@ private:
     static_assert(2 == std::numeric_limits<T>::radix, "requires base 2 floating point type");
 
     //combine result + roundoff error into expansion
-/**
- * @brief Brief description of MakeExpansion.
- * @param value
- * @param tail
- * @return static inline Expansion<T, 2>
- */
     static inline Expansion<T, 2> MakeExpansion(const T value, const T tail) {
         Expansion<T, 2> e;
         if(T(0) != tail) e.push_back(tail);
@@ -249,15 +234,6 @@ private:
 
 protected:
     //add 2 expansions
-/**
- * @brief Brief description of ExpansionSum.
- * @param e
- * @param n
- * @param f
- * @param m
- * @param h
- * @return static size_t
- */
     static size_t ExpansionSum(T const * const e, const size_t n, T const * const f, const size_t m, T * const h) {
         std::merge(e, e + n, f, f + m, h, absLess<T>);
         if(m == 0) return n;
@@ -279,14 +255,6 @@ protected:
     }
 
     //scale an expansion by a constant
-/**
- * @brief Brief description of ScaleExpansion.
- * @param e
- * @param n
- * @param b
- * @param h
- * @return static size_t
- */
     static size_t ScaleExpansion(T const * const e, const size_t n, const T b, T * const h) {
         if(n == 0 || T(0) == b) return 0;
         size_t hIndex = 0;
@@ -310,13 +278,6 @@ protected:
 
 public:
     //roundoff error of x = a + b
-/**
- * @brief Brief description of PlusTail.
- * @param a
- * @param b
- * @param x
- * @return static inline T
- */
     static inline T PlusTail(const T a, const T b, const T x) {
         const T bVirtual = x - a;
         const T aVirtual = x - bVirtual;
@@ -326,26 +287,12 @@ public:
     }
 
     //roundoff error of x = a + b if |a| > |b|
-/**
- * @brief Brief description of FastPlusTail.
- * @param a
- * @param b
- * @param x
- * @return static inline T
- */
     static inline T FastPlusTail(const T a, const T b, const T x) {
         const T bVirtual = x - a;
         return b - bVirtual;
     }
 
     //roundoff error of x = a - b
-/**
- * @brief Brief description of MinusTail.
- * @param a
- * @param b
- * @param x
- * @return static inline T
- */
     static inline T MinusTail(const T a, const T b, const T x) {
         const T bVirtual = a - x;
         const T aVirtual = x + bVirtual;
@@ -355,11 +302,6 @@ public:
     }
 
     //split a into 2 nonoverlapping values
-/**
- * @brief Brief description of Split.
- * @param a
- * @return static inline std::pair<T, T>
- */
     static inline std::pair<T, T> Split(const T a) {
         const T c = a * splitter;
         const T aBig = c - a;
@@ -368,17 +310,6 @@ public:
     }
 
     //roundoff error of x = a * b via dekkers product
-/**
- * @brief Brief description of DekkersProduct.
- * @param /a/
- * @param std::pair<T
- * @param aSplit
- * @param /b/
- * @param std::pair<T
- * @param bSplit
- * @param p
- * @return static inline T
- */
     static inline T DekkersProduct(const T /*a*/, const std::pair<T, T> aSplit, const T /*b*/, const std::pair<T, T> bSplit, const T p) {
         T y = p - T(aSplit.first * bSplit.first);
         y -= T(aSplit.second * bSplit.first);
@@ -394,47 +325,21 @@ public:
     template <typename S = T> static typename std::enable_if<!use_fma<S>::value, S>::type MultTailPreSplit(const T a, const T b, const std::pair<T, T> bSplit, const T p) {return DekkersProduct(a, Split(a), b, bSplit, p);}
 
     //expand a + b
-/**
- * @brief Brief description of Plus.
- * @param a
- * @param b
- * @return static inline Expansion<T, 2>
- */
     static inline Expansion<T, 2> Plus(const T a, const T b) {
         const T x = a + b;
         return MakeExpansion(x, PlusTail(a, b, x));
     }
 
     //expand a - b
-/**
- * @brief Brief description of Minus.
- * @param a
- * @param b
- * @return static inline Expansion<T, 2>
- */
     static inline Expansion<T, 2> Minus(const T a, const T b) {return Plus(a, -b);}
 
     //expand a * b
-/**
- * @brief Brief description of Mult.
- * @param a
- * @param b
- * @return static inline Expansion<T, 2>
- */
     static inline Expansion<T, 2> Mult(const T a, const T b) {
         const T x = a * b;
         return MakeExpansion(x, MultTail(a, b, x));
     }
 
     //expand the determinant of {{ax, ay}, {bx, by}} (unrolled Mult(ax, by) - Mult(ay, bx))
-/**
- * @brief Brief description of TwoTwoDiff.
- * @param ax
- * @param by
- * @param ay
- * @param bx
- * @return static inline Expansion<T, 4>
- */
     static inline Expansion<T, 4> TwoTwoDiff(const T ax, const T by, const T ay, const T bx) {
         const T axby1 = ax * by;
         const T axby0 = MultTail(ax, by, axby1);
@@ -457,14 +362,6 @@ public:
     }
 
     //TwoTwoDiff checking for zeros to avoid extra splitting
-/**
- * @brief Brief description of TwoTwoDiffZeroCheck.
- * @param ax
- * @param by
- * @param ay
- * @param bx
- * @return static inline Expansion<T, 4>
- */
     static inline Expansion<T, 4> TwoTwoDiffZeroCheck(const T ax, const T by, const T ay, const T bx) {
         Expansion<T, 4> e;
         if(T(0) == ax && T(0) == ay) return e;
@@ -475,13 +372,6 @@ public:
     }
 
     //(a * b) * c checking for zeros
-/**
- * @brief Brief description of ThreeProd.
- * @param a
- * @param b
- * @param c
- * @return static inline Expansion<T, 4>
- */
     static inline Expansion<T, 4> ThreeProd(const T a, const T b, const T c) { return (T(0) == a || T(0) == b || T(0) == c) ? Expansion<T, 4>() : Mult(a, b) * c; }
 };
 
@@ -796,15 +686,6 @@ inline T Orient3D(const Point3D<T> & pa, const Point3D<T> & pb, const Point3D<T>
 }
 
 template <typename T>
-/**
- * @brief Brief description of inSphere.
- * @param pa
- * @param pb
- * @param pc
- * @param pd
- * @param pe
- * @return inline T
- */
 inline T inSphere(const Point3D<T> & pa, const Point3D<T> & pb, const Point3D<T> & pc, const Point3D<T> & pd, const Point3D<T> & pe) {
     T permanent;
     const T aex = pa[0] - pe[0];

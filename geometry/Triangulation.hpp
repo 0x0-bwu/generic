@@ -53,11 +53,6 @@ struct IndexVertex
     PosIdx index;
     TriIdxSet triangles;
 
-/**
- * @brief Brief description of RemoveTriangle.
- * @param it
- * @return void
- */
     void RemoveTriangle(TriIdx it) { triangles.erase(it); }
 
     bool operator != (const IndexVertex & v) const { return index != v.index || triangles != v.triangles; }
@@ -70,10 +65,6 @@ struct IndexVertex
         return os;
     }
 
-/**
- * @brief Brief description of Clear.
- * @return void
- */
     void Clear() { triangles.clear(); }
 
     static bool isShareEdge(const IndexVertex & a, const IndexVertex & b)
@@ -104,17 +95,7 @@ struct IndexTriangle
     std::array<VerIdx, 3> vertices = {noVertex, noVertex, noVertex};
     std::array<TriIdx, 3> neighbors = {noNeighbor, noNeighbor, noNeighbor};
 
-/**
- * @brief Brief description of cw.
- * @param i
- * @return static index_t
- */
     static index_t cw(const index_t i)  { return (i + 2) % 3; }
-/**
- * @brief Brief description of ccw.
- * @param i
- * @return static index_t
- */
     static index_t ccw(const index_t i) { return (i + 1) % 3; }
     ///@brief opposed triangle neighbor index from vertex index iv
     static index_t iVeOpiTn(const index_t iv) { return (iv + 1) % 3; }
@@ -168,27 +149,8 @@ struct IndexTriangle
     std::pair<VerIdx, VerIdx> VeOpVes(const VerIdx v) const { auto i = iVe(v); return std::make_pair(vertices[cw(i)], vertices[ccw(i)]); }//clock wise
     std::pair<TriIdx, TriIdx> EgOpTns(const IdxEdge & e) const { auto i = EgOpiVe(e); return std::make_pair(neighbors[iVeOpiTn(cw(i))], neighbors[iVeOpiTn(ccw(i))]); }
 
-/**
- * @brief Brief description of ChangeVertex.
- * @param from
- * @param to
- * @return void
- */
     void ChangeVertex(const VerIdx from, const VerIdx to) { vertices[iVe(from)] = to; }
-/**
- * @brief Brief description of ChangeNeighbor.
- * @param from
- * @param to
- * @return void
- */
     void ChangeNeighbor(const TriIdx from, const TriIdx to) { neighbors[iTn(from)] = to; }
-/**
- * @brief Brief description of ChangeNeighbor.
- * @param v1
- * @param v2
- * @param to
- * @return void
- */
     void ChangeNeighbor(const VerIdx v1, const VerIdx v2, const TriIdx to) { neighbors[iTn(v1, v2)] = to; }
 
     bool hasNeighbor(const TriIdx neighbor) const
@@ -264,22 +226,7 @@ struct Triangulation
         vertices[iv].triangles.erase(it);
     }
 
-/**
- * @brief Brief description of ChangeNeighbor.
- * @param it
- * @param from
- * @param to
- * @return void
- */
     void ChangeNeighbor(const TriIdx it, const TriIdx from, const TriIdx to){ if(it != noNeighbor) triangles[it].ChangeNeighbor(from, to); }
-/**
- * @brief Brief description of ChangeNeighbor.
- * @param it
- * @param iv1
- * @param iv2
- * @param neighbor
- * @return void
- */
     void ChangeNeighbor(const TriIdx it, const VerIdx iv1, const VerIdx iv2, const TriIdx neighbor) { if(it != noNeighbor) triangles[it].ChangeNeighbor(iv1, iv2, neighbor); }
     bool hasNeighbor(const TriIdx it, const TriIdx neighbor) const { return triangles[it].hasNeighbor(neighbor); }
     bool hasFixedEdge(const Edge & e) const { return fixedEdges.count(e); }

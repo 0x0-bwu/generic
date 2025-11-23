@@ -87,10 +87,6 @@ constexpr bool iterable<T, std::void_t<decltype(std::declval<T>().begin()), decl
 
 }//namespace common
 
-/**
- * @brief Brief description of toString.
- * @return template <typename type> inline std::string
- */
 template <typename type> inline std::string toString()      { return "unknown"; }
 template <> inline std::string toString<unsigned char>()    { return "unsigned char"; }
 template <> inline std::string toString<char>()             { return "char"; }

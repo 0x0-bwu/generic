@@ -97,11 +97,6 @@ inline bool GeoTopology2D<num_type>::Read(std::string_view filename, std::string
                 in >> m_points[i][0] >> m_points[i][1];
             }
         }
-/**
- * @brief Brief description of if.
- * @param 'E'
- * @return else
- */
         else if(in.peek() == 'E'){
             in >> temp >> size;
             size_t u, v;

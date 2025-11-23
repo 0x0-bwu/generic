@@ -76,11 +76,6 @@ struct IndexVertex
     PosIdx index;
     TetIdxSet tetrahedrons;
 
-/**
- * @brief Brief description of RemoveTetrahedron.
- * @param it
- * @return void
- */
     void RemoveTetrahedron(TetIdx it) { tetrahedrons.erase(it); }
 
     bool operator != (const IndexVertex & v) const { return index != v.index || tetrahedrons != v.tetrahedrons; }
@@ -93,10 +88,6 @@ struct IndexVertex
         return os;
     }
 
-/**
- * @brief Brief description of Clear.
- * @return void
- */
     void Clear() { tetrahedrons.clear(); }
 
     static bool isShareEdge(const IndexVertex & a, const IndexVertex & b)

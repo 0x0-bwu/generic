@@ -169,11 +169,6 @@ bool LoadPointsFromFile(std::ifstream & in, size_t & line, std::vector<point_t> 
     auto toCoord = [](const std::string & num)
     {
         using coor_t = typename point_t::coor_t;
-/**
- * @brief Brief description of constexpr.
- * @param std::is_integral<coor_t>::value
- * @return if
- */
         if constexpr (std::is_integral<coor_t>::value){
             return static_cast<coor_t>(std::stoi(num));
         }
@@ -255,11 +250,6 @@ inline bool LoadSurfacesFromFile(std::ifstream & in, size_t & line,  std::vector
     auto toCoord = [](const std::string & num)
     {
         using coor_t = typename point_t::coor_t;
-/**
- * @brief Brief description of constexpr.
- * @param std::is_integral<coor_t>::value
- * @return if
- */
         if constexpr (std::is_integral<coor_t>::value){
             return static_cast<coor_t>(std::stoi(num));
         }

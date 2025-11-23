@@ -20,11 +20,6 @@ namespace thread {
 class ThreadJoiner
 {
 public:
-/**
- * @brief Brief description of ThreadJoiner.
- * @param m_threads(threads
- * @return explicit
- */
     explicit ThreadJoiner(std::vector<std::unique_ptr<std::thread> > & threads) : m_threads(threads){}
     ~ThreadJoiner()
     {

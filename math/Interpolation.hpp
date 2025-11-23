@@ -118,11 +118,6 @@ inline void Interpolation<RandomAccessContainer>::SetSamples(RandomAccessContain
             m_coef1[i] = Scalar(m_y[j] - m_y[i]) / Scalar(m_x[j] - m_x[i]);
         m_coef1[size - 1] = m_coef1[size - 2];
     }
-/**
- * @brief Brief description of if.
- * @param m_method
- * @return else
- */
     else if (Method::CUBIC == m_method){
         la::DenseMatrix<Scalar> m(size, size);
         la::DenseVector<Scalar> rhs(size);
@@ -138,21 +133,11 @@ inline void Interpolation<RandomAccessContainer>::SetSamples(RandomAccessContain
             m(0, 1) = 1.0 * (m_x[1] - m_x[0]);
             rhs[0] = 3.0 * ((m_y[1] - m_y[0]) / (m_x[1] - m_x[0]) - m_lVal);
         }
-/**
- * @brief Brief description of if.
- * @param BCType::SECOND_DERIV
- * @return else
- */
         else if (m_left == BCType::SECOND_DERIV) {
             m(0, 0) = 2.0;
             m(0, 1) = 0.0;
             rhs[0] = m_lVal;
         }
-/**
- * @brief Brief description of if.
- * @param BCType::NOT_A_KNOT
- * @return else
- */
         else if (m_left == BCType::NOT_A_KNOT) {
             m(0, 0) = - m_x[2] + m_x[1];
             m(0, 1) =   m_x[2] - m_x[0];
@@ -166,21 +151,11 @@ inline void Interpolation<RandomAccessContainer>::SetSamples(RandomAccessContain
             m(size - 1, size - 2) = 1.0 * (m_x[size - 1] - m_x[size - 2]);
             rhs[size - 1] = 3.0 * (m_rVal - (m_y[size - 1] - m_y[size - 2]) / (m_x[size - 1] - m_x[size - 2]));
         }
-/**
- * @brief Brief description of if.
- * @param BCType::SECOND_DERIV
- * @return else
- */
         else if (m_right == BCType::SECOND_DERIV) {
             m(size - 1, size - 1) = 2.0;
             m(size - 1, size - 2) = 0.0;
             rhs[size - 1] = m_rVal;
         }
-/**
- * @brief Brief description of if.
- * @param BCType::NOT_A_KNOT
- * @return else
- */
         else if (m_right == BCType::NOT_A_KNOT) {
             m(size - 1, size - 3) = - m_x[size - 1] + m_x[size - 2];
             m(size - 1, size - 2) =   m_x[size - 1] - m_x[size - 3];

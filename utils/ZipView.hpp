@@ -17,11 +17,6 @@ class ZipIterator
 {
 public:
     using ValueType = std::tuple<typename std::iterator_traits<Iterators>::reference...>;
-/**
- * @brief Brief description of ZipIterator.
- * @param m_iterators(iterators...
- * @return explicit
- */
     explicit ZipIterator(Iterators... iterators) : m_iterators(iterators...) {}
 
     ZipIterator & operator ++ ()

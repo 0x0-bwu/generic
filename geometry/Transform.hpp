@@ -31,35 +31,13 @@ struct vec_traits<Vector3D<num_type> >
     using scalar_type = num_type;
 
     template <int I>
-/**
- * @brief Brief description of write_element.
- * @param vec
- * @return static inline scalar_type &
- */
     static inline scalar_type & write_element(Vector3D<num_type> & vec) { return vec[I]; }
 
     template <int I>
-/**
- * @brief Brief description of read_element.
- * @param vec
- * @return static inline scalar_type
- */
     static inline scalar_type read_element(const Vector3D<num_type> & vec) { return vec[I]; }
 
-/**
- * @brief Brief description of write_element_idx.
- * @param i
- * @param vec
- * @return static inline scalar_type &
- */
     static inline scalar_type & write_element_idx(int i, Vector3D<num_type> & vec) { return vec[i]; }
 
-/**
- * @brief Brief description of read_element_idx.
- * @param i
- * @param vec
- * @return static inline scalar_type
- */
     static inline scalar_type read_element_idx(int i, const Vector3D<num_type> & vec) { return vec[i]; }
 };
 
@@ -70,39 +48,13 @@ struct vec_traits<VectorN<num_type, N> >
     using scalar_type = num_type;
 
     template <int I>
-/**
- * @brief Brief description of write_element.
- * @param VectorN<num_type
- * @param vec
- * @return static inline scalar_type &
- */
     static inline scalar_type & write_element(VectorN<num_type, N> & vec) { return vec[I]; }
 
     template <int I>
-/**
- * @brief Brief description of read_element.
- * @param VectorN<num_type
- * @param vec
- * @return static inline scalar_type
- */
     static inline scalar_type read_element(const VectorN<num_type, N> & vec) { return vec[I]; }
 
-/**
- * @brief Brief description of write_element_idx.
- * @param i
- * @param VectorN<num_type
- * @param vec
- * @return static inline scalar_type &
- */
     static inline scalar_type & write_element_idx(int i, VectorN<num_type, N> & vec) { return vec[i]; }
 
-/**
- * @brief Brief description of read_element_idx.
- * @param i
- * @param VectorN<num_type
- * @param vec
- * @return static inline scalar_type
- */
     static inline scalar_type read_element_idx(int i, const VectorN<num_type, N> & vec) { return vec[i]; }
 };
 }//namespace boost::qvm
@@ -160,11 +112,6 @@ inline Transform2D<float_t> makeMirroredTransform2D(Axis axis)
     Transform2D<float_t> trans;
     if(axis == Axis::X) trans(1, 1) *= -1;
     else if(axis == Axis::Y) trans(0, 0) *= -1;
-/**
- * @brief Brief description of if.
- * @param Axis::Z
- * @return else
- */
     else if(axis == Axis::Z) { trans(0, 0) *= -1; trans(1, 1) *= -1; }
     return trans;
 }

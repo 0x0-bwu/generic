@@ -3,11 +3,6 @@ import sys
 import os
 
 def view(filename):
-    """
-    Brief description of view.
-    :param filename:
-    :returns:
-    """
     colors = vtk.vtkNamedColors()
     reader = vtk.vtkUnstructuredGridReader()
     reader.SetFileName(filename)
@@ -69,10 +64,6 @@ def view(filename):
     renderWindowInteractor.Start()
 
 def main() :
-    """
-    Brief description of main.
-    :returns:
-    """
     if len(sys.argv) < 2 :
         print('Error: please specify vtk file')
         return

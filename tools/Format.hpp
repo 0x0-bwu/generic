@@ -18,11 +18,6 @@ namespace fmt {
 
 using Format = boost::format;
 
-/**
- * @brief Brief description of FormatArgs.
- * @param format
- * @return inline Format &
- */
 inline Format & FormatArgs(Format & format) { return format; }
 
 ///@brief makes a format object by args

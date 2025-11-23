@@ -32,10 +32,6 @@ class FunctionWrapper
     {
         Func fun;
         ImplType(Func && _fun) : fun(std::move(_fun)) {}
-/**
- * @brief Brief description of Call.
- * @return void
- */
         void Call() { fun(); }
     };
 
@@ -51,11 +47,6 @@ public:
     template <typename F>
     FunctionWrapper(F && f) : m_impl(new ImplType<F>(std::move(f))) {}
 
-/**
- * @brief Brief description of operator.
- * @param )(
- * @return void
- */
     void operator()() { m_impl->Call(); }
 
 private:

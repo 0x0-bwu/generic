@@ -30,10 +30,6 @@ class VertexIndexTree<Point2D<num_type> >
     using IndexPoint = std::pair<Point, VerIdx>;
     bgi::rtree<IndexPoint, bgi::linear<16, 4> > m_rtree;
 public:
-/**
- * @brief Brief description of Clear.
- * @return void
- */
     void Clear() { m_rtree.clear(); }
     void AddOneVertex(const Point & pos, const VerIdx index)
     {

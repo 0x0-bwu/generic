@@ -167,10 +167,6 @@ public:
     void Clear();
 private:    
     void PreProcess();
-/**
- * @brief Brief description of GetMergeTaskTree.
- * @return MergeTaskTree &
- */
     MergeTaskTree & GetMergeTaskTree() { return m_mergeTaskTree; }
     void MergeRegion(MergeTaskNode * node);
     void PostProcess();
