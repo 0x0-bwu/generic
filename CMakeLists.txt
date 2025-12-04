@@ -163,7 +163,7 @@ endif()
 
 # Copy project headers to include under build dir and rename to project name
 file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/include")
-file(COPY "${CMAKE_SOURCE_DIR}/src" DESTINATION "${CMAKE_BINARY_DIR}/include")
+file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/src" DESTINATION "${CMAKE_BINARY_DIR}/include")
 file(RENAME "${CMAKE_BINARY_DIR}/include/src" "${CMAKE_BINARY_DIR}/include/${PROJECT_NAME}")
 
 include_directories(${CMAKE_BINARY_DIR}/include ${PNG_INCLUDE_DIR} ${BOOST_INCLUDE_PATH})
@@ -177,10 +177,10 @@ endif()
 
 
 # Option to control building tests
-option(GENERIC_BUILD_UNIT_TEST "Build unit test" OFF)
-if(GENERIC_BUILD_UNIT_TEST)
-  message(STATUS "GENERIC_BUILD_UNIT_TEST=ON: adding test subdirectory")
+option(BUILD_GENERIC_TEST "Build unit test" OFF)
+if(BUILD_GENERIC_TEST)
+  message(STATUS "BUILD_GENERIC_TEST=ON: adding test subdirectory")
   add_subdirectory(test)
 else()
-  message(STATUS "GENERIC_BUILD_UNIT_TEST=OFF: skipping test subdirectory (set -DGENERIC_BUILD_UNIT_TEST=ON to enable)")
+  message(STATUS "BUILD_GENERIC_TEST=OFF: skipping test subdirectory (set -DBUILD_GENERIC_TEST=ON to enable)")
 endif()
