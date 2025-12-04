@@ -39,7 +39,7 @@ struct SystemClock
 inline std::tm LocalTime(const std::time_t & time)
 {
     std::tm t;
-#ifdef GENERIC_WINDOWS
+#ifdef GENERIC_OS_WINDOWS
     ::localtime_s(&t, &time);
 #else
     ::localtime_r(&time, &t);
@@ -51,7 +51,7 @@ inline std::tm LocalTime(const std::time_t & time)
 inline std::tm GMT(const std::time_t & time)
 {
     std::tm t;
-#ifdef GENERIC_WINDOWS
+#ifdef GENERIC_OS_WINDOWS
     ::gmtime_s(&t, &time);
 #else
     ::gmtime_r(&time, &t);

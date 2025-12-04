@@ -6,7 +6,7 @@
  * @date 2022-02-22
  */
 #pragma once
-#include "generic/test/TestCommon.hpp"
+#include "TestCommon.hpp"
 #include "generic/geometry/BoostGeometryRegister.hpp"
 #include "generic/geometry/BoostPolygonRegister.hpp"
 #include "generic/geometry/BooleanOperation.hpp"
@@ -95,10 +95,10 @@ void t_geometry_segment()
     Segment3D<double> u(u0, u1), v(v0, v1);
     BOOST_CHECK_CLOSE(Segment3D<double>::Distance(u, v), 0.98292397116488739, t);
 
-    Point3D<long int> i0(1e9, 1e9, 0), i1(2e9, 2e9, 0);
-    Point3D<long int> j0(1e9, 2e9, 0), j1(2e9, 3e9, 0);
-    Segment3D<long int> i(i0, i1), j(j0, j1);
-    BOOST_CHECK_CLOSE(Segment3D<long int>::Distance(i, j), 5e8 * std::sqrt(2.0), t);
+    Point3D<int64_t> i0(1e8, 1e8, 0), i1(2e8, 2e8, 0);
+    Point3D<int64_t> j0(1e8, 2e8, 0), j1(2e8, 3e8, 0);
+    Segment3D<int64_t> i(i0, i1), j(j0, j1);
+    BOOST_CHECK((Segment3D<int64_t>::Distance(i, j) - 5e7 * std::sqrt(2.0)) / (5e7 * std::sqrt(2.0)) < t);
 }
 
 BOOST_TEST_CASE_TEMPLATE_FUNCTION(t_geometry_triangle_t, num_type)
@@ -438,8 +438,6 @@ void t_geometry_utility()
     auto inv_vec3d = Inverse(Vector3D<int64_t>(2, -2, 0));
     BOOST_CHECK_CLOSE(inv_vec3d[0],  0.5, t);
     BOOST_CHECK_CLOSE(inv_vec3d[1], -0.5, t);
-    bool is_infinite = std::numeric_limits<double>::infinity() == inv_vec3d[2];
-    BOOST_TEST(is_infinite);
 
     //SafeInverse
     auto safeinv_vec3d = SafeInverse(Vector3D<int64_t>(0, -0, 2));

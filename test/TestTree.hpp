@@ -6,7 +6,7 @@
  * @date 2022-02-22
  */
 #pragma once
-#include "generic/test/TestCommon.hpp"
+#include "TestCommon.hpp"
 #include "generic/tree/QuadTreeUtilityMT.hpp"
 #include "generic/tree/KdTreeUtilityMT.hpp"
 #include "generic/tree/Varification.hpp"

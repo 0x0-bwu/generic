@@ -6,7 +6,7 @@
  * @date 2023-07-23
  */
 #pragma once
-#include "generic/test/TestCommon.hpp"
+#include "TestCommon.hpp"
 #include "generic/circuit/Simulator.hpp"
 #include "generic/circuit/MOR.hpp"
 

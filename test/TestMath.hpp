@@ -6,7 +6,7 @@
  * @date 2022-02-22
  */
 #pragma once
-#include "generic/test/TestCommon.hpp"
+#include "TestCommon.hpp"
 #include "generic/tools/FileSystem.hpp"
 #include "generic/math/MathUtility.hpp"
 #include "generic/math/la/Common.hpp"
