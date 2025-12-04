@@ -16,6 +16,7 @@
 
 #if defined(WIN32) || defined(_WIN32) || defined(__WIN32__) || defined(__NT__)
     #define GENERIC_OS_WINDOWS
+    #include <windows.h>
         #ifdef __WIN64
             #define GENERIC_OS_WINDOWS_64
         #else

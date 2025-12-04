@@ -6,7 +6,7 @@
  * @date 2022-02-22
  */
 #pragma once
-#include "generic/test/TestCommon.hpp"
+#include "TestCommon.hpp"
 #include "generic/thread/MapReduce.hpp"
 #include "generic/thread/TaskFlow.hpp"
 #include "generic/thread/LockFreeHashMap.hpp"

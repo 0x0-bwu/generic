@@ -6,7 +6,7 @@
  * @date 2024-09-26
  */
 #pragma once
-#include "generic/test/TestCommon.hpp"
+#include "TestCommon.hpp"
 #include "generic/boolean/Operation.hpp"
 #include "generic/boolean/Expression.hpp"
 

@@ -6,7 +6,7 @@
  * @date 2024-09-12
  */
 #pragma once
-#include "generic/test/TestCommon.hpp"
+#include "TestCommon.hpp"
 #include "generic/tools/FileSystem.hpp"
 #include "generic/image/QRCode.hpp"
 using namespace boost::unit_test;
