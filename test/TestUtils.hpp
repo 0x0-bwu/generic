@@ -7,7 +7,7 @@
  */
 #pragma once
 
-#include "generic/test/TestCommon.hpp"
+#include "TestCommon.hpp"
 #include "generic/utils/LinearMap.hpp"
 #include "generic/utils/Version.hpp"
 #include "generic/utils/ZipView.hpp"

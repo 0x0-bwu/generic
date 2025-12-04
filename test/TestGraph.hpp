@@ -7,7 +7,7 @@
  */
 #pragma once
 
-#include "generic/test/TestCommon.hpp"
+#include "TestCommon.hpp"
 #include "generic/graph/model/DirectedGraph.hpp"
 #include "generic/graph/traits/BoostGraphTraits.hpp"
 

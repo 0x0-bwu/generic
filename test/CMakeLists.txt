@@ -102,9 +102,34 @@ if (CMAKE_SYSTEM_NAME MATCHES "Darwin")
   	endif()
 endif()
 
+# Windows / MSYS2 support: prefer .dll and use common MSYS2 MinGW prefixes
+if (CMAKE_SYSTEM_NAME MATCHES "Windows" OR WIN32)
+	set(DYLIB_SUFFIX "dll")
+	if(DEFINED ENV{MSYSTEM})
+		message(STATUS "Detected MSYS2 environment: $ENV{MSYSTEM}")
+		if("$ENV{MSYSTEM}" STREQUAL "MINGW64")
+			set(MSYS2_MINGW_PREFIX "/mingw64")
+		elseif("$ENV{MSYSTEM}" STREQUAL "MINGW32")
+			set(MSYS2_MINGW_PREFIX "/mingw32")
+		else()
+			set(MSYS2_MINGW_PREFIX "/mingw64")
+		endif()
+		if(BOOST_INCLUDE_PATH STREQUAL "" AND BOOST_LIBRARY_PATH STREQUAL "")
+			set(BOOST_INCLUDE_PATH ${MSYS2_MINGW_PREFIX}/include)
+			set(BOOST_LIBRARY_PATH ${MSYS2_MINGW_PREFIX}/lib)
+			message(STATUS "Using MSYS2 Boost paths: ${BOOST_INCLUDE_PATH}, ${BOOST_LIBRARY_PATH}")
+		endif()
+  	endif()
+endif()
+
 # Boost library
+if(DEFINED ENV{BOOST_PATH})
 set(BOOST_INCLUDE_PATH $ENV{BOOST_PATH}/include)
 set(BOOST_LIBRARY_PATH $ENV{BOOST_PATH}/lib)
+else()
+	set(BOOST_INCLUDE_PATH "")
+	set(BOOST_LIBRARY_PATH "")
+endif()
 message(STATUS "Boost include path: ${BOOST_INCLUDE_PATH}")
 message(STATUS "Boost library path: ${BOOST_LIBRARY_PATH}")
 
@@ -113,11 +138,20 @@ add_definitions("-DBOOST_ALLOW_DEPRECATED_HEADERS")
 add_definitions("-DBOOST_BIND_GLOBAL_PLACEHOLDERS")
 
 ## Link boost_serialization
-set(BOOST_SERIALIZATION_LIB_PATH ${BOOST_LIBRARY_PATH}/libboost_serialization.${DYLIB_SUFFIX})
-if(NOT EXISTS ${BOOST_SERIALIZATION_LIB_PATH})
-	set(BOOST_SERIALIZATION_LIB_PATH ${BOOST_LIBRARY_PATH}/libboost_serialization-mt-x64.${DYLIB_SUFFIX})
+set(BOOST_SERIALIZATION_LIB_PATH "")
+set(BOOST_SERIALIZATION_CANDS
+	${BOOST_LIBRARY_PATH}/libboost_serialization.${DYLIB_SUFFIX}
+	${BOOST_LIBRARY_PATH}/libboost_serialization-mt.${DYLIB_SUFFIX}
+	${BOOST_LIBRARY_PATH}/libboost_serialization-mt-x64.${DYLIB_SUFFIX}
+	${BOOST_LIBRARY_PATH}/boost_serialization.${DYLIB_SUFFIX}
+)
+foreach(CANDIDATE ${BOOST_SERIALIZATION_CANDS})
+	if(EXISTS ${CANDIDATE})
+		set(BOOST_SERIALIZATION_LIB_PATH ${CANDIDATE})
+		break()
 endif()
-if(EXISTS ${BOOST_SERIALIZATION_LIB_PATH})
+endforeach()
+if(BOOST_SERIALIZATION_LIB_PATH)
 	add_library(boost_serialization SHARED IMPORTED)
 	add_compile_definitions(GENERIC_BOOST_SERIALIZATION_SUPPORT)
 	set_target_properties(boost_serialization PROPERTIES IMPORTED_LOCATION ${BOOST_SERIALIZATION_LIB_PATH})
@@ -126,6 +160,7 @@ endif()
 # Link Eigen
 if(DEFINED ENV{EIGEN_PATH})
 	include_directories($ENV{EIGEN_PATH})
+	message(STATUS "Eigen library path: $ENV{EIGEN_PATH}")
 else()
 	find_package(Eigen3 REQUIRED)
 	include_directories(${EIGEN3_INCLUDE_DIR})
@@ -147,17 +182,29 @@ if(OpenMP_CXX_FOUND)
 	set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
 endif()
 
-get_filename_component(GENERIC_LIBRARY_DIR ../../ ABSOLUTE)
-include_directories(${GENERIC_LIBRARY_DIR} ${PNG_INCLUDE_DIR} ${BOOST_INCLUDE_PATH})
+# Copy project headers to include under build dir 
+file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/include")
+file(COPY "${CMAKE_SOURCE_DIR}/../src" DESTINATION "${CMAKE_BINARY_DIR}/include")
+file(RENAME "${CMAKE_BINARY_DIR}/include/src" "${CMAKE_BINARY_DIR}/include/${PROJECT_NAME}")
+
+include_directories(${CMAKE_BINARY_DIR}/include ${PNG_INCLUDE_DIR} ${BOOST_INCLUDE_PATH})
+
+# Print configured include directories so it's easy to debug include search paths
+get_directory_property(INC_DIRS INCLUDE_DIRECTORIES)
+if(INC_DIRS)
+	message(STATUS "Include directories: ${INC_DIRS}")
+else()
+	message(STATUS "Include directories: <none set>")
+endif()
 
 # Add Executable
 if(EXISTS ${CMAKE_SOURCE_DIR}/test.cpp)
-    add_executable(test.exe test.cpp)
-    target_link_libraries(test.exe PRIVATE ${PNG_LIBRARY} Threads::Threads)
+    add_executable(test test.cpp)
+    target_link_libraries(test PRIVATE ${PNG_LIBRARY} Threads::Threads)
 	if(EXISTS ${BOOST_SERIALIZATION_LIB_PATH})
-    	target_link_libraries(test.exe PRIVATE boost_serialization)
+    	target_link_libraries(test PRIVATE boost_serialization)
 	endif()
 endif()
 
-add_executable(unit_test.exe UnitTest.cpp)
-target_link_libraries(unit_test.exe PRIVATE Threads::Threads ${PNG_LIBRARY})
+add_executable(unit_test UnitTest.cpp)
+target_link_libraries(unit_test PRIVATE Threads::Threads ${PNG_LIBRARY})
