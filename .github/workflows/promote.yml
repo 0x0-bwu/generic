@@ -26,10 +26,10 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Build unit test
-        run: export BOOST_PATH=/home/runner/boost_1_83_0/boost/boost && cmake -DGENERIC_BUILD_UNIT_TEST=ON -DENABLE_EXCEPTION=ON -DENABLE_ASSERTION=ON -DENABLE_ASAN=ON -Bbuild -G Ninja && cmake --build build
+        run: export BOOST_PATH=/home/runner/boost_1_83_0/boost/boost && cmake -DBUILD_GENERIC_TEST=ON -DENABLE_EXCEPTION=ON -DENABLE_ASSERTION=ON -DENABLE_ASAN=ON -Bbuild -G Ninja && cmake --build build
 
       - name: Run unit test
-        run: test/build/bin/unit_test
+        run: build/bin/unit_test
 
       - name: Create pull request
         if: success()
