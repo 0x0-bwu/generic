@@ -161,7 +161,12 @@ if(OpenMP_CXX_FOUND)
   set(CMAKE_EXE_LINKER_FLAGS "${CMAKE_EXE_LINKER_FLAGS} ${OpenMP_EXE_LINKER_FLAGS}")
 endif()
 
-# Copy project headers to include under build dir and rename to project name
+# Remove previously-copied project include (if any), then copy headers
+if(EXISTS "${CMAKE_BINARY_DIR}/include/${PROJECT_NAME}")
+  file(REMOVE_RECURSE "${CMAKE_BINARY_DIR}/include/${PROJECT_NAME}")
+  message(STATUS "Removed existing ${CMAKE_BINARY_DIR}/include/${PROJECT_NAME}")
+endif()
+
 file(MAKE_DIRECTORY "${CMAKE_BINARY_DIR}/include")
 file(COPY "${CMAKE_CURRENT_SOURCE_DIR}/src" DESTINATION "${CMAKE_BINARY_DIR}/include")
 file(RENAME "${CMAKE_BINARY_DIR}/include/src" "${CMAKE_BINARY_DIR}/include/${PROJECT_NAME}")
