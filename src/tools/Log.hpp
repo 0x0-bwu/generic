@@ -264,7 +264,7 @@ public:
 
         if(!msg.source.Empty()){
             dest.push_back('[');
-            dest.append(fs::FileName(msg.source.file));
+            dest.append(fs::FileName(msg.source.file).string());
             dest.push_back(']');
             dest.push_back(' ');
         }

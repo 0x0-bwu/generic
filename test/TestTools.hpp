@@ -10,10 +10,11 @@
 #include "generic/thread/ThreadPool.hpp"
 #include "generic/tools/ProgramOptions.hpp"
 #include "generic/tools/StringHelper.hpp"
+#include "generic/math/Numbers.hpp"
 #include "generic/tools/Parser.hpp"
 #include "generic/tools/Tools.hpp"
 #include "generic/tools/Hash.hpp"
-#include "generic/math/Numbers.hpp"
+#include "generic/tools/Log.hpp"
 using namespace boost::unit_test;
 using namespace generic;
 void t_program_options()
@@ -110,6 +111,37 @@ void t_hash()
 	BOOST_CHECK(UnorderedHash(v1) != UnorderedHash(v3));
 }
 
+void t_log()
+{
+	using namespace generic::log;
+	auto dirname = GetTestOutDataPath();
+    auto logger = MultiSinksLogger("test", {
+        std::make_shared<FileSinkMT>(std::string(dirname) + "/test.log"),
+        std::make_shared<StreamSinkMT>(std::cout)});
+    logger->SetLevel(Level::Trace);
+	SetDefaultLogger(logger);
+	Trace("This is a %1% log message." , "trace");
+	Debug("This is a %1% log message." , "debug");
+	Info ("This is an %1% log message.", "info");
+	Warn ("This is a %1% log message." , "warn");
+	Error("This is an %1% log message.", "error");
+	Fatal("This is a %1% log message." , "fatal");
+	ShutDown();
+	// BOOST_CHECK(fs::FileExists(dirname + "/test.log"));
+	// std::ifstream infile(dirname + "/test.log");
+	// BOOST_CHECK(infile.is_open());
+	// auto content = std::string((std::istreambuf_iterator<char>(infile)),
+	//                           std::istreambuf_iterator<char>());
+	// std::cout << content << std::endl;
+	// infile.close();
+	// BOOST_CHECK(content.find("This is a trace log message.")  != std::string::npos);
+	// BOOST_CHECK(content.find("This is a debug log message.")  != std::string::npos);
+	// BOOST_CHECK(content.find("This is an info log message.")  != std::string::npos);
+	// BOOST_CHECK(content.find("This is a warn log message.")   != std::string::npos);
+	// BOOST_CHECK(content.find("This is an error log message.") != std::string::npos);
+	// BOOST_CHECK(content.find("This is a fatal log message.")  != std::string::npos);
+}
+
 test_suite * create_tools_test_suite()
 {
     test_suite * tools_suite = BOOST_TEST_SUITE("s_tools");
@@ -119,6 +151,7 @@ test_suite * create_tools_test_suite()
 	tools_suite->add(BOOST_TEST_CASE(&t_parser));
 	tools_suite->add(BOOST_TEST_CASE(&t_timer));
 	tools_suite->add(BOOST_TEST_CASE(&t_hash));
+	tools_suite->add(BOOST_TEST_CASE(&t_log));
     //
     return tools_suite;
 }
