@@ -114,10 +114,15 @@ void t_hash()
 void t_log()
 {
 	using namespace generic::log;
+	std::stringstream ss;
 	auto dirname = GetTestOutDataPath();
+	auto logfile = std::string(dirname) + "/test.log";
+	if (fs::FileExists(logfile))
+		fs::RemoveFile(logfile);
+	
     auto logger = MultiSinksLogger("test", {
-        std::make_shared<FileSinkMT>(std::string(dirname) + "/test.log"),
-        std::make_shared<StreamSinkMT>(std::cout)});
+        std::make_shared<FileSinkMT>(logfile),
+        std::make_shared<StreamSinkMT>(ss)});
     logger->SetLevel(Level::Trace);
 	SetDefaultLogger(logger);
 	Trace("This is a %1% log message." , "trace");
@@ -126,20 +131,16 @@ void t_log()
 	Warn ("This is a %1% log message." , "warn");
 	Error("This is an %1% log message.", "error");
 	Fatal("This is a %1% log message." , "fatal");
-	ShutDown();
-	// BOOST_CHECK(fs::FileExists(dirname + "/test.log"));
-	// std::ifstream infile(dirname + "/test.log");
-	// BOOST_CHECK(infile.is_open());
-	// auto content = std::string((std::istreambuf_iterator<char>(infile)),
-	//                           std::istreambuf_iterator<char>());
-	// std::cout << content << std::endl;
-	// infile.close();
-	// BOOST_CHECK(content.find("This is a trace log message.")  != std::string::npos);
-	// BOOST_CHECK(content.find("This is a debug log message.")  != std::string::npos);
-	// BOOST_CHECK(content.find("This is an info log message.")  != std::string::npos);
-	// BOOST_CHECK(content.find("This is a warn log message.")   != std::string::npos);
-	// BOOST_CHECK(content.find("This is an error log message.") != std::string::npos);
-	// BOOST_CHECK(content.find("This is a fatal log message.")  != std::string::npos);
+	generic::log::ShutDown();
+	BOOST_CHECK(fs::FileExists(logfile));
+	
+	auto content = ss.str();
+	BOOST_CHECK(content.find("This is a trace log message.")  != std::string::npos);
+	BOOST_CHECK(content.find("This is a debug log message.")  != std::string::npos);
+	BOOST_CHECK(content.find("This is an info log message.")  != std::string::npos);
+	BOOST_CHECK(content.find("This is a warn log message.")   != std::string::npos);
+	BOOST_CHECK(content.find("This is an error log message.") != std::string::npos);
+	BOOST_CHECK(content.find("This is a fatal log message.")  != std::string::npos);
 }
 
 test_suite * create_tools_test_suite()
